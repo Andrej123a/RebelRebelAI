@@ -388,18 +388,18 @@
 .rr-beer-photo-pair {
     position: relative;
     z-index: 1;
-    width: min(148%, 890px);
-    height: 610px;
+    width: min(152%, 930px);
+    height: 640px;
     align-self: flex-end;
-    transform: translateX(-27%);
+    transform: translateX(-29%);
 }
 
     .rr-beer-photo-pair::before {
         content: "";
         position: absolute;
-        left: 15%;
-        top: 45%;
-        width: 76%;
+        left: 8%;
+        top: 47%;
+        width: 84%;
         height: 9px;
         background: var(--rr-red);
         box-shadow: 0 17px 0 rgba(244, 196, 0, 0.78);
@@ -431,22 +431,27 @@
 }
 
 .rr-beer-photo-six {
-    left: 2%;
-    top: 10px;
+    left: 0;
+    top: 112px;
     z-index: 2;
-    width: 57%;
+    width: 46%;
     aspect-ratio: 4 / 5;
-    transform: rotate(-3.1deg);
+    clip-path: polygon(2% 0, 97% 2%, 100% 91%, 96% 100%, 5% 98%, 0 93%);
+    filter: drop-shadow(13px 13px 0 rgba(244, 196, 0, 0.84));
+    box-shadow: none;
+    transform: rotate(-2.2deg);
 }
 
 .rr-beer-photo-bowie {
-    right: 1%;
-    top: 118px;
+    right: 0;
+    top: 5px;
     z-index: 3;
-    width: 49%;
+    width: 42%;
     aspect-ratio: 4 / 5.25;
-    box-shadow: 11px 11px 0 rgba(200, 32, 45, 0.82);
-    transform: rotate(2.4deg);
+    clip-path: polygon(5% 1%, 100% 4%, 98% 94%, 93% 100%, 0 97%, 2% 8%);
+    filter: drop-shadow(11px 11px 0 rgba(200, 32, 45, 0.82));
+    box-shadow: none;
+    transform: rotate(1.5deg);
 }
 
     .rr-beer-story-photo::before {
@@ -503,11 +508,11 @@
     }
 
     .rr-beer-photo-six:hover {
-        transform: translateY(-6px) rotate(-2.2deg);
+        transform: translateY(-6px) rotate(-1.5deg);
     }
 
     .rr-beer-photo-bowie:hover {
-        transform: translateY(-6px) rotate(1.5deg);
+        transform: translateY(-6px) rotate(0.8deg);
     }
 
 /* HERO */
@@ -2660,19 +2665,20 @@
     }
 
     .rr-beer-photo-pair {
-        width: min(112%, 760px);
-        height: 620px;
+        width: min(112%, 780px);
+        height: 640px;
         align-self: flex-start;
         transform: translateX(-2%);
     }
 
     .rr-beer-photo-six {
-        width: 58%;
+        top: 108px;
+        width: 46%;
     }
 
     .rr-beer-photo-bowie {
-        top: 105px;
-        width: 50%;
+        top: 2px;
+        width: 42%;
     }
 
     .rr-intro-copy-column .rr-beer-story-copy {
@@ -2738,7 +2744,7 @@
 
     .rr-beer-photo-pair {
         width: 106%;
-        height: min(132vw, 710px);
+        height: min(122vw, 650px);
         margin-top: 28px;
         transform: translateX(-2%);
     }
@@ -2762,10 +2768,20 @@
         box-shadow: 8px 8px 0 rgba(244, 196, 0, 0.84);
     }
 
+    .rr-beer-photo-six {
+        top: 15%;
+        width: 47%;
+        filter: drop-shadow(8px 8px 0 rgba(244, 196, 0, 0.84));
+        box-shadow: none;
+        transform: rotate(-1.8deg);
+    }
+
     .rr-beer-photo-bowie {
-        box-shadow: 8px 8px 0 rgba(200, 32, 45, 0.82);
-        top: 17%;
-        transform: rotate(2.1deg);
+        top: 1%;
+        width: 43%;
+        filter: drop-shadow(8px 8px 0 rgba(200, 32, 45, 0.82));
+        box-shadow: none;
+        transform: rotate(1.4deg);
     }
 
     .rr-bowie-feature figcaption {
@@ -2803,6 +2819,7 @@
         inset: auto;
         width: 92%;
         aspect-ratio: 4 / 5;
+        filter: none;
     }
 
     .rr-beer-photo-six {
