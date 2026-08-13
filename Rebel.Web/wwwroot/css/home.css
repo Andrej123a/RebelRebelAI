@@ -2666,8 +2666,8 @@
     display: grid;
     width: min(156%, 960px);
     height: auto;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(28px, 4vw, 54px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(20px, 2.5vw, 34px);
     align-items: center;
     align-self: flex-start;
     margin-top: -24px;
@@ -2682,7 +2682,8 @@
 
 .rr-intro-copy-column .rr-beer-story-photo,
 .rr-intro-copy-column .rr-beer-photo-six,
-.rr-intro-copy-column .rr-beer-photo-bowie {
+.rr-intro-copy-column .rr-beer-photo-bowie,
+.rr-intro-copy-column .rr-beer-photo-liquid {
     position: relative;
     inset: auto;
     width: 100%;
@@ -2703,12 +2704,21 @@
     transform: rotate(0.65deg);
 }
 
+.rr-intro-copy-column .rr-beer-photo-liquid {
+    box-shadow: 13px 13px 0 rgba(239, 68, 40, 0.82);
+    transform: rotate(-0.35deg);
+}
+
 .rr-intro-copy-column .rr-beer-photo-six:hover {
     transform: translateY(-5px) rotate(-0.35deg);
 }
 
 .rr-intro-copy-column .rr-beer-photo-bowie:hover {
     transform: translateY(-5px) rotate(0.35deg);
+}
+
+.rr-intro-copy-column .rr-beer-photo-liquid:hover {
+    transform: translateY(-5px) rotate(0.1deg);
 }
 
 @media (max-width: 991.98px) {
@@ -2729,6 +2739,18 @@
     }
 }
 
+@media (max-width: 760px) {
+    .rr-intro-copy-column .rr-beer-photo-pair {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rr-intro-copy-column .rr-beer-photo-liquid {
+        grid-column: 1 / -1;
+        width: min(50%, 430px);
+        justify-self: center;
+    }
+}
+
 @media (max-width: 600px) {
     .rr-intro-copy-column .rr-beer-photo-pair {
         display: grid;
@@ -2739,7 +2761,8 @@
 
     .rr-intro-copy-column .rr-beer-story-photo,
     .rr-intro-copy-column .rr-beer-photo-six,
-    .rr-intro-copy-column .rr-beer-photo-bowie {
+    .rr-intro-copy-column .rr-beer-photo-bowie,
+    .rr-intro-copy-column .rr-beer-photo-liquid {
         width: min(94%, 430px);
         border-width: 6px;
     }
@@ -2750,6 +2773,11 @@
 
     .rr-intro-copy-column .rr-beer-photo-bowie {
         justify-self: end;
+    }
+
+    .rr-intro-copy-column .rr-beer-photo-liquid {
+        grid-column: auto;
+        justify-self: start;
     }
 }
 
