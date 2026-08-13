@@ -249,7 +249,7 @@
 
 .rr-bowie-frame {
     position: relative;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 4 / 5.15;
     padding: 7px;
     background: #e8e2d7;
     box-shadow: 13px 13px 0 rgba(200, 32, 45, 0.82);
@@ -385,15 +385,36 @@
     transform: rotate(-0.7deg);
 }
 
+.rr-beer-photo-pair {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: min(118%, 720px);
+    grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+    gap: 14px;
+    align-items: end;
+    align-self: flex-end;
+    transform: translateX(-8%);
+}
+
 .rr-intro-visual-column .rr-bowie-feature {
     align-self: flex-end;
 }
 
 .rr-intro-visual-column .rr-beer-story-photo {
-    z-index: 1;
-    width: min(108%, 610px);
-    align-self: flex-end;
-    transform: translateX(-4%) rotate(-0.7deg);
+    width: 100%;
+    align-self: auto;
+}
+
+.rr-beer-photo-six {
+    aspect-ratio: 4 / 5;
+    transform: rotate(-1.2deg);
+}
+
+.rr-beer-photo-bowie {
+    aspect-ratio: 4 / 5.25;
+    box-shadow: 11px 11px 0 rgba(200, 32, 45, 0.82);
+    transform: translateY(26px) rotate(1.1deg);
 }
 
     .rr-beer-story-photo img {
@@ -2561,7 +2582,7 @@
         margin-top: 66px;
     }
 
-    .rr-beer-story-photo {
+    .rr-beer-photo-pair {
         order: 4;
         margin-top: 38px;
     }
@@ -2577,18 +2598,14 @@
         align-self: flex-start;
     }
 
-    .rr-beer-story-photo {
+    .rr-beer-photo-pair {
         width: min(100%, 720px);
+        align-self: flex-start;
+        transform: none;
     }
 
     .rr-intro-copy-column .rr-beer-story-copy {
         margin-left: 0;
-    }
-
-    .rr-intro-visual-column .rr-beer-story-photo {
-        width: min(100%, 720px);
-        align-self: flex-start;
-        transform: rotate(-0.7deg);
     }
 
     .rr-intro-visual-column::before {
@@ -2648,6 +2665,12 @@
         margin-top: 28px;
     }
 
+    .rr-beer-photo-pair {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 28px;
+    }
+
     .rr-about-copy h1,
     .rr-beer-story-copy h2 {
         font-size: 3.7rem;
@@ -2665,6 +2688,11 @@
 
     .rr-beer-story-photo {
         box-shadow: 8px 8px 0 rgba(244, 196, 0, 0.84);
+    }
+
+    .rr-beer-photo-bowie {
+        box-shadow: 8px 8px 0 rgba(200, 32, 45, 0.82);
+        transform: translateY(18px);
     }
 
     .rr-bowie-feature figcaption {
@@ -2685,5 +2713,16 @@
     .rr-bowie-frame,
     .rr-beer-story-photo {
         border-width: 5px;
+    }
+
+    .rr-beer-photo-pair {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .rr-beer-photo-six,
+    .rr-beer-photo-bowie {
+        aspect-ratio: 4 / 5;
+        transform: none;
     }
 }

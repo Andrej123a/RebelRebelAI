@@ -114,7 +114,7 @@
                 <figure class="rr-bowie-feature">
 
                 <div class="rr-bowie-frame">
-                    <img src="~/images/hero.jpg"
+                    <img src="~/images/rebel-bowie-mural.webp"
                          alt="David Bowie portrait, the signature image of Rebel Rebel" />
                 </div>
 
@@ -129,15 +129,27 @@
 
                 </figure>
 
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="beer"
-                   class="rr-beer-story-photo"
-                   aria-label="Open the beer menu">
-                    <img src="~/images/pub-about.jpg"
-                         alt="Imported beer cans at Rebel Rebel" />
-                    <span>Open beer menu &rarr;</span>
-                </a>
+                <div class="rr-beer-photo-pair">
+                    <a asp-controller="Home"
+                       asp-action="Menu"
+                       asp-route-section="beer"
+                       class="rr-beer-story-photo rr-beer-photo-six"
+                       aria-label="Open the beer menu">
+                        <img src="~/images/rebel-six-beers.webp"
+                             alt="Six imported craft beer cans lined up at Rebel Rebel" />
+                        <span>Six cans. Six directions.</span>
+                    </a>
+
+                    <a asp-controller="Home"
+                       asp-action="Menu"
+                       asp-route-section="beer"
+                       class="rr-beer-story-photo rr-beer-photo-bowie"
+                       aria-label="Open the beer menu">
+                        <img src="~/images/rebel-beers-bowie-sculpture.webp"
+                             alt="Four craft beer cans beside the handmade Bowie sculpture at Rebel Rebel" />
+                        <span>Open beer menu &rarr;</span>
+                    </a>
+                </div>
 
             </div>
 
