@@ -388,13 +388,37 @@
 .rr-beer-photo-pair {
     position: relative;
     z-index: 1;
-    display: grid;
-    width: min(118%, 720px);
-    grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
-    gap: 14px;
-    align-items: end;
+    width: min(148%, 890px);
+    height: 610px;
     align-self: flex-end;
-    transform: translateX(-8%);
+    transform: translateX(-27%);
+}
+
+    .rr-beer-photo-pair::before {
+        content: "";
+        position: absolute;
+        left: 15%;
+        top: 45%;
+        width: 76%;
+        height: 9px;
+        background: var(--rr-red);
+        box-shadow: 0 17px 0 rgba(244, 196, 0, 0.78);
+        transform: rotate(-7deg);
+        opacity: 0.78;
+    }
+
+    .rr-beer-photo-pair::after {
+        content: "";
+        position: absolute;
+        right: 4%;
+        bottom: 5%;
+        z-index: -1;
+        width: 44%;
+        height: 30%;
+        background-image: radial-gradient(circle, rgba(240, 74, 36, 0.42) 0 1.4px, transparent 1.8px);
+        background-size: 12px 12px;
+        clip-path: polygon(8% 8%, 100% 0, 91% 100%, 0 88%);
+        transform: rotate(5deg);
 }
 
 .rr-intro-visual-column .rr-bowie-feature {
@@ -402,19 +426,49 @@
 }
 
 .rr-intro-visual-column .rr-beer-story-photo {
-    width: 100%;
+    position: absolute;
     align-self: auto;
 }
 
 .rr-beer-photo-six {
+    left: 2%;
+    top: 10px;
+    z-index: 2;
+    width: 57%;
     aspect-ratio: 4 / 5;
-    transform: rotate(-1.2deg);
+    transform: rotate(-3.1deg);
 }
 
 .rr-beer-photo-bowie {
+    right: 1%;
+    top: 118px;
+    z-index: 3;
+    width: 49%;
     aspect-ratio: 4 / 5.25;
     box-shadow: 11px 11px 0 rgba(200, 32, 45, 0.82);
-    transform: translateY(26px) rotate(1.1deg);
+    transform: rotate(2.4deg);
+}
+
+    .rr-beer-story-photo::before {
+        content: "";
+        position: absolute;
+        top: -15px;
+        left: 38%;
+        z-index: 4;
+        width: 78px;
+        height: 25px;
+        background: rgba(244, 196, 0, 0.82);
+        mix-blend-mode: screen;
+        transform: rotate(4deg);
+        pointer-events: none;
+    }
+
+    .rr-beer-photo-bowie::before {
+        left: auto;
+        right: 12%;
+        width: 65px;
+        background: rgba(240, 74, 36, 0.8);
+        transform: rotate(-6deg);
 }
 
     .rr-beer-story-photo img {
@@ -446,7 +500,14 @@
 
     .rr-beer-story-photo:hover {
         color: var(--rr-white);
-        transform: translateY(-4px) rotate(-0.2deg);
+    }
+
+    .rr-beer-photo-six:hover {
+        transform: translateY(-6px) rotate(-2.2deg);
+    }
+
+    .rr-beer-photo-bowie:hover {
+        transform: translateY(-6px) rotate(1.5deg);
     }
 
 /* HERO */
@@ -2599,9 +2660,19 @@
     }
 
     .rr-beer-photo-pair {
-        width: min(100%, 720px);
+        width: min(112%, 760px);
+        height: 620px;
         align-self: flex-start;
-        transform: none;
+        transform: translateX(-2%);
+    }
+
+    .rr-beer-photo-six {
+        width: 58%;
+    }
+
+    .rr-beer-photo-bowie {
+        top: 105px;
+        width: 50%;
     }
 
     .rr-intro-copy-column .rr-beer-story-copy {
@@ -2666,9 +2737,10 @@
     }
 
     .rr-beer-photo-pair {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        width: 106%;
+        height: min(132vw, 710px);
         margin-top: 28px;
+        transform: translateX(-2%);
     }
 
     .rr-about-copy h1,
@@ -2692,7 +2764,8 @@
 
     .rr-beer-photo-bowie {
         box-shadow: 8px 8px 0 rgba(200, 32, 45, 0.82);
-        transform: translateY(18px);
+        top: 17%;
+        transform: rotate(2.1deg);
     }
 
     .rr-bowie-feature figcaption {
@@ -2716,13 +2789,42 @@
     }
 
     .rr-beer-photo-pair {
-        grid-template-columns: 1fr;
-        gap: 16px;
+        display: flex;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        gap: 22px;
+        transform: none;
     }
 
     .rr-beer-photo-six,
     .rr-beer-photo-bowie {
+        position: relative;
+        inset: auto;
+        width: 92%;
         aspect-ratio: 4 / 5;
-        transform: none;
+    }
+
+    .rr-beer-photo-six {
+        align-self: flex-start;
+        transform: rotate(-1.5deg);
+    }
+
+    .rr-beer-photo-bowie {
+        align-self: flex-end;
+        transform: rotate(1.5deg);
+    }
+
+    .rr-beer-photo-pair::before {
+        top: 49%;
+        left: -4%;
+        width: 108%;
+    }
+
+    .rr-beer-photo-pair::after {
+        right: -8%;
+        bottom: 17%;
+        width: 70%;
+        height: 24%;
     }
 }
