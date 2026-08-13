@@ -1,0 +1,165 @@
+@model List<Rebel.Domain.Entities.Event>
+
+@{
+    ViewData["Title"] = "Events";
+
+    var today = DateTime.UtcNow.Date;
+    var events = Model ?? new List<Rebel.Domain.Entities.Event>();
+
+    var tonightEvents = events
+        .Where(eventItem => eventItem.Date.Date == today)
+        .OrderBy(eventItem => eventItem.StartTime)
+        .ToList();
+
+    var upcomingEvents = events
+        .Where(eventItem => eventItem.Date.Date > today)
+        .OrderBy(eventItem => eventItem.Date)
+        .ThenBy(eventItem => eventItem.StartTime)
+        .ToList();
+
+    var pastEvents = events
+        .Where(eventItem => eventItem.Date.Date < today)
+        .OrderByDescending(eventItem => eventItem.Date)
+        .ThenByDescending(eventItem => eventItem.StartTime)
+        .ToList();
+
+    var hiddenCount = events.Count(eventItem => !eventItem.IsActive);
+}
+
+<div class="admin-workspace">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">
+                Gig calendar
+            </span>
+
+            <h1 class="admin-workspace-title">
+                Events
+            </h1>
+
+            <p class="admin-workspace-copy">
+                See what is happening, monitor bookings, and update an event
+                without opening several separate dashboards.
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="AdminEvents"
+               asp-action="Create"
+               class="admin-primary-button">
+                Add event
+            </a>
+
+            <a asp-controller="Events"
+               asp-action="Index"
+               target="_blank"
+               rel="noopener"
+               class="admin-secondary-button">
+                Public page
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar"
+             aria-label="Event summary">
+        <div class="admin-metric is-attention">
+            <span>Tonight</span>
+            <strong>@tonightEvents.Count</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Upcoming</span>
+            <strong>@upcomingEvents.Count</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Hidden</span>
+            <strong>@hiddenCount</strong>
+        </div>
+    </section>
+
+    @if (events.Count == 0)
+    {
+        <div class="admin-empty-state">
+            <strong>No events scheduled.</strong>
+            <span>Create the first event to publish it on the website.</span>
+        </div>
+    }
+    else
+    {
+        @if (tonightEvents.Count > 0)
+        {
+            <section class="admin-section">
+                <header class="admin-section-heading">
+                    <div>
+                        <span class="admin-workspace-eyebrow">Live schedule</span>
+                        <h2>Tonight</h2>
+                    </div>
+
+                    <span class="admin-section-count">
+                        @tonightEvents.Count
+                    </span>
+                </header>
+
+                <div class="admin-list">
+                    @foreach (var eventItem in tonightEvents)
+                    {
+                        <partial name="_EventAdminRow"
+                                 model="eventItem" />
+                    }
+                </div>
+            </section>
+        }
+
+        <section class="admin-section">
+            <header class="admin-section-heading">
+                <div>
+                    <span class="admin-workspace-eyebrow">Future schedule</span>
+                    <h2>Upcoming</h2>
+                </div>
+
+                <span class="admin-section-count">
+                    @upcomingEvents.Count
+                </span>
+            </header>
+
+            @if (upcomingEvents.Count == 0)
+            {
+                <div class="admin-empty-state">
+                    <strong>No upcoming events.</strong>
+                    <span>Add an event when the next night is confirmed.</span>
+                </div>
+            }
+            else
+            {
+                <div class="admin-list">
+                    @foreach (var eventItem in upcomingEvents)
+                    {
+                        <partial name="_EventAdminRow"
+                                 model="eventItem" />
+                    }
+                </div>
+            }
+        </section>
+
+        @if (pastEvents.Count > 0)
+        {
+            <details class="admin-content-disclosure">
+                <summary>
+                    <span>Past events</span>
+                    <span>@pastEvents.Count events</span>
+                </summary>
+
+                <div class="admin-list">
+                    @foreach (var eventItem in pastEvents)
+                    {
+                        <partial name="_EventAdminRow"
+                                 model="eventItem" />
+                    }
+                </div>
+            </details>
+        }
+    }
+
+</div>

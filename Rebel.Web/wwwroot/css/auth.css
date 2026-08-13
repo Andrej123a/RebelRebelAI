@@ -1,0 +1,550 @@
+:root {
+    --auth-black: #080808;
+    --auth-panel: #11110f;
+    --auth-cream: #f1ede4;
+    --auth-muted: #aaa59b;
+    --auth-red: #c8202d;
+    --auth-orange: #f04a24;
+    --auth-yellow: #f4c400;
+    --auth-line: rgba(241, 237, 228, 0.17);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+    background: var(--auth-black);
+}
+
+body.rr-auth {
+    position: relative;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+    color: var(--auth-cream);
+    background:
+        linear-gradient(90deg, rgba(200, 32, 45, 0.12), transparent 24%) left top / 2px 100% no-repeat,
+        radial-gradient(circle at 76% 35%, rgba(200, 32, 45, 0.14), transparent 27%),
+        linear-gradient(118deg, #080808 0%, #0d0c0a 56%, #070707 100%);
+    font-family: "Space Grotesk", sans-serif;
+    isolation: isolate;
+}
+
+body.rr-auth::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.28;
+    background:
+        repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255, 255, 255, 0.035) 4px),
+        url("../images/rebel-paper-texture.jpg") center / 680px 680px repeat;
+    filter: contrast(1.2);
+    mix-blend-mode: screen;
+}
+
+body.rr-auth::after {
+    content: "STAFF";
+    position: fixed;
+    right: -0.08em;
+    bottom: -0.22em;
+    z-index: -1;
+    color: rgba(241, 237, 228, 0.025);
+    font-family: "Anton", sans-serif;
+    font-size: 22rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+a {
+    color: inherit;
+}
+
+.rr-auth-header {
+    display: flex;
+    width: min(1440px, calc(100% - 64px));
+    min-height: 112px;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--auth-line);
+}
+
+.rr-auth-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    color: var(--auth-cream);
+    text-decoration: none;
+}
+
+.rr-auth-logo {
+    position: relative;
+    display: grid;
+    width: 66px;
+    height: 72px;
+    place-items: center;
+    background: var(--auth-red);
+    transform: rotate(-3deg);
+    box-shadow: 5px 5px 0 var(--auth-orange);
+}
+
+.rr-auth-logo img {
+    width: 62px;
+    height: 68px;
+    object-fit: cover;
+}
+
+.rr-auth-brand > span:last-child {
+    display: grid;
+}
+
+.rr-auth-brand strong {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.75rem;
+    line-height: 0.95;
+    letter-spacing: 1px;
+}
+
+.rr-auth-brand small,
+.rr-auth-door,
+.rr-auth-footer {
+    color: var(--auth-muted);
+    font-family: "Space Mono", monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+}
+
+.rr-auth-door {
+    position: relative;
+    padding-left: 24px;
+}
+
+.rr-auth-door::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    background: var(--auth-orange);
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.rr-auth-main {
+    display: grid;
+    width: min(1280px, calc(100% - 64px));
+    min-height: calc(100vh - 188px);
+    margin: 0 auto;
+    align-items: center;
+}
+
+.rr-login {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(420px, 0.72fr);
+    gap: clamp(60px, 9vw, 150px);
+    align-items: center;
+    padding: 54px 0 62px;
+}
+
+.rr-login-copy {
+    position: relative;
+}
+
+.rr-login-eyebrow,
+.rr-login-form header span {
+    color: var(--auth-orange);
+    font-family: "Space Mono", monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.rr-login-copy h1 {
+    margin: 14px 0 20px;
+    font-family: "Anton", sans-serif;
+    font-size: 7.2rem;
+    font-weight: 400;
+    line-height: 0.78;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.rr-login-copy h1 span {
+    display: inline-block;
+    color: var(--auth-orange);
+    text-shadow: 7px 7px 0 var(--auth-red);
+    transform: rotate(-2deg);
+}
+
+.rr-login-copy p {
+    max-width: 470px;
+    margin: 32px 0 0;
+    color: #c8c3b9;
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.rr-login-signal {
+    display: flex;
+    width: 190px;
+    margin-top: 34px;
+    gap: 7px;
+    transform: rotate(-2deg);
+}
+
+.rr-login-signal span {
+    display: block;
+    height: 8px;
+    background: var(--auth-red);
+}
+
+.rr-login-signal span:first-child {
+    width: 76px;
+}
+
+.rr-login-signal span:nth-child(2) {
+    width: 34px;
+    background: var(--auth-orange);
+}
+
+.rr-login-signal span:last-child {
+    flex: 1;
+    background: var(--auth-yellow);
+}
+
+.rr-login-form-wrap {
+    position: relative;
+    border: 1px solid var(--auth-line);
+    background: rgba(13, 13, 11, 0.94);
+    box-shadow: 12px 12px 0 rgba(200, 32, 45, 0.64);
+}
+
+.rr-login-form-wrap::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    right: 42px;
+    width: 90px;
+    height: 16px;
+    background: var(--auth-orange);
+    transform: rotate(2deg);
+}
+
+.rr-login-stamp {
+    position: absolute;
+    top: 34px;
+    right: -18px;
+    z-index: 2;
+    padding: 7px 12px;
+    color: var(--auth-cream);
+    border: 2px solid var(--auth-red);
+    font-family: "Space Mono", monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transform: rotate(7deg);
+}
+
+.rr-login-form {
+    position: relative;
+    padding: clamp(36px, 4vw, 58px);
+}
+
+.rr-login-form header {
+    margin-bottom: 35px;
+}
+
+.rr-login-form h2 {
+    margin: 7px 0 0;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 3.8rem;
+    line-height: 1;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.rr-login-field {
+    margin-top: 23px;
+}
+
+.rr-login-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #d6d1c7;
+    font-family: "Space Mono", monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+}
+
+.rr-login-field input {
+    width: 100%;
+    height: 56px;
+    padding: 0 16px;
+    color: var(--auth-cream);
+    border: 1px solid rgba(241, 237, 228, 0.24);
+    border-radius: 0;
+    outline: 0;
+    background: #070707;
+    font: 500 1rem "Space Grotesk", sans-serif;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.rr-login-field input:focus {
+    border-color: var(--auth-orange);
+    box-shadow: 5px 5px 0 rgba(200, 32, 45, 0.55);
+}
+
+.rr-login-field > span,
+.rr-login-alert {
+    display: block;
+    margin-top: 7px;
+    color: #ff7866;
+    font-size: 0.78rem;
+}
+
+.rr-login-alert:empty,
+.rr-login-alert.validation-summary-valid {
+    display: none;
+}
+
+.rr-login-alert ul {
+    margin: 0;
+    padding: 12px 15px;
+    border-left: 4px solid var(--auth-orange);
+    background: rgba(200, 32, 45, 0.12);
+    list-style: none;
+}
+
+.rr-login-options {
+    display: flex;
+    margin: 22px 0 26px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    font-size: 0.78rem;
+}
+
+.rr-login-options a {
+    color: var(--auth-muted);
+    text-underline-offset: 4px;
+}
+
+.rr-login-options a:hover,
+.rr-login-options a:focus-visible {
+    color: var(--auth-cream);
+}
+
+.rr-login-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+}
+
+.rr-login-check input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.rr-login-check span {
+    display: grid;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    place-items: center;
+    border: 1px solid rgba(241, 237, 228, 0.4);
+    background: #070707;
+}
+
+.rr-login-check input:checked + span::after {
+    content: "";
+    width: 9px;
+    height: 9px;
+    background: var(--auth-orange);
+    transform: rotate(-7deg);
+}
+
+.rr-login-check input:focus-visible + span {
+    outline: 2px solid var(--auth-yellow);
+    outline-offset: 3px;
+}
+
+.rr-login-submit {
+    display: flex;
+    width: 100%;
+    min-height: 58px;
+    padding: 0 20px;
+    align-items: center;
+    justify-content: space-between;
+    color: #080808;
+    border: 0;
+    border-radius: 0;
+    background: var(--auth-orange);
+    box-shadow: 6px 6px 0 var(--auth-red);
+    font-family: "Space Mono", monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.rr-login-submit span {
+    font-size: 1.35rem;
+}
+
+.rr-login-submit:hover {
+    background: #ff5b33;
+    transform: translate(2px, 2px);
+    box-shadow: 4px 4px 0 var(--auth-red);
+}
+
+.rr-login-submit:focus-visible {
+    outline: 3px solid var(--auth-cream);
+    outline-offset: 4px;
+}
+
+.rr-auth-footer {
+    display: flex;
+    width: min(1440px, calc(100% - 64px));
+    min-height: 76px;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--auth-line);
+}
+
+.rr-auth-footer a {
+    color: var(--auth-muted);
+    text-decoration-color: var(--auth-red);
+    text-underline-offset: 5px;
+}
+
+@media (max-width: 900px) {
+    body.rr-auth::after {
+        font-size: 17rem;
+    }
+
+    .rr-login {
+        min-width: 0;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 50px;
+        padding-top: 70px;
+    }
+
+    .rr-login-copy p {
+        max-width: 600px;
+    }
+
+    .rr-login-copy h1 {
+        font-size: 6.5rem;
+    }
+
+    .rr-login-form-wrap {
+        width: min(100%, 580px);
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .rr-auth-header,
+    .rr-auth-main,
+    .rr-auth-footer {
+        width: calc(100% - 36px);
+    }
+
+    .rr-auth-header {
+        min-height: 92px;
+    }
+
+    .rr-auth-logo {
+        width: 54px;
+        height: 59px;
+    }
+
+    .rr-auth-logo img {
+        width: 50px;
+        height: 55px;
+    }
+
+    .rr-auth-brand strong {
+        font-size: 1.4rem;
+    }
+
+    .rr-auth-door,
+    .rr-auth-brand small {
+        display: none;
+    }
+
+    .rr-login {
+        gap: 40px;
+        padding: 48px 0 55px;
+    }
+
+    body.rr-auth::after {
+        font-size: 13rem;
+    }
+
+    .rr-login-copy h1 {
+        font-size: 5.15rem;
+    }
+
+    .rr-login-copy p {
+        margin-top: 26px;
+        font-size: 0.95rem;
+    }
+
+    .rr-login-form {
+        padding: 34px 24px 38px;
+    }
+
+    .rr-login-form h2 {
+        font-size: 3.1rem;
+    }
+
+    .rr-login-options {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .rr-login-stamp {
+        right: -8px;
+    }
+
+    .rr-auth-footer {
+        min-height: 88px;
+        align-items: flex-start;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .rr-auth-footer span,
+    .rr-auth-footer a {
+        white-space: nowrap;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+    }
+}

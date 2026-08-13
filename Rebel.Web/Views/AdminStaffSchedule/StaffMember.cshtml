@@ -1,0 +1,141 @@
+@model AdminStaffMemberScheduleViewModel
+@using Rebel.Web.Authorization
+
+@{
+    ViewData["Title"] = $"{Model.StaffMember.FullName} Schedule";
+
+    var days = Enumerable
+        .Range(0, 7)
+        .Select(offset => Model.StartDate.AddDays(offset))
+        .ToList();
+
+    var shiftsByDay = Model.Shifts
+        .GroupBy(shift => shift.ShiftDate.Date)
+        .ToDictionary(
+            group => group.Key,
+            group => group
+                .OrderBy(shift => shift.StartsAt)
+                .ToList());
+
+    var freeDays = days.Count(day =>
+        !shiftsByDay.ContainsKey(day.Date));
+
+    var canManage =
+        User.IsInRole(AdminRoles.Manager) ||
+        User.IsInRole(AdminRoles.LegacyAdmin);
+}
+
+<div class="admin-workspace">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <a asp-controller="AdminStaffSchedule"
+               asp-action="Index"
+               asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")"
+               class="admin-workspace-eyebrow">
+                Back to staff
+            </a>
+
+            <h1 class="admin-workspace-title">
+                @Model.StaffMember.FullName
+            </h1>
+
+            <p class="admin-workspace-copy">
+                @Model.StaffMember.Role /
+                @Model.StartDate.ToString("dd MMM") -
+                @Model.EndDate.ToString("dd MMM yyyy")
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            @if (canManage)
+            {
+                <a asp-controller="AdminStaffSchedule"
+                   asp-action="Index"
+                   asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")"
+                   asp-route-staffMemberId="@Model.StaffMember.Id"
+                   asp-fragment="add-shift"
+                   class="admin-primary-button">
+                    Add shift
+                </a>
+            }
+
+            <a asp-controller="AdminStaffSchedule"
+               asp-action="StaffMember"
+               asp-route-id="@Model.StaffMember.Id"
+               asp-route-startDate="@Model.PreviousWeek.ToString("yyyy-MM-dd")"
+               class="admin-secondary-button">
+                Previous
+            </a>
+
+            <a asp-controller="AdminStaffSchedule"
+               asp-action="StaffMember"
+               asp-route-id="@Model.StaffMember.Id"
+               asp-route-startDate="@Model.NextWeek.ToString("yyyy-MM-dd")"
+               class="admin-secondary-button">
+                Next
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar"
+             aria-label="Employee week summary">
+        <div class="admin-metric">
+            <span>Shifts</span>
+            <strong>@Model.Shifts.Count</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Free days</span>
+            <strong>@freeDays</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Status</span>
+            <strong>
+                @(Model.StaffMember.IsActive ? "Active" : "Inactive")
+            </strong>
+        </div>
+    </section>
+
+    <section class="staff-person-week">
+        @foreach (var day in days)
+        {
+            var dayShifts = shiftsByDay.TryGetValue(day.Date, out var shifts)
+                ? shifts
+                : new List<Rebel.Domain.Entities.StaffShift>();
+
+            <article class="staff-person-day @(day.Date == DateTime.Today ? "is-today" : "") @(dayShifts.Count == 0 ? "is-free" : "")">
+                <header>
+                    <span>@day.ToString("ddd")</span>
+                    <strong>@day.ToString("dd MMM")</strong>
+                </header>
+
+                @if (dayShifts.Count == 0)
+                {
+                    <div class="staff-person-free">
+                        Free day
+                    </div>
+                }
+                else
+                {
+                    @foreach (var shift in dayShifts)
+                    {
+                        <div class="staff-person-shift">
+                            <strong>
+                                @shift.StartsAt.ToString(@"hh\:mm") -
+                                @shift.EndsAt.ToString(@"hh\:mm")
+                            </strong>
+
+                            @if (!string.IsNullOrWhiteSpace(shift.Note))
+                            {
+                                <span>@shift.Note</span>
+                            }
+                        </div>
+                    }
+                }
+            </article>
+        }
+    </section>
+
+</div>

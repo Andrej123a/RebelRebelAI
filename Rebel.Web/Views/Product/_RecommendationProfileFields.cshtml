@@ -1,0 +1,149 @@
+@model Rebel.Domain.Entities.Product
+@using Rebel.Web.Models
+
+@{
+    var suggestions = ViewBag.BeerProfileSuggestions as IReadOnlyList<BeerProfileSuggestionViewModel>
+        ?? [];
+}
+
+<fieldset class="product-recommendation-profile">
+    <legend>Beer guide profile</legend>
+
+    <div class="beer-profile-guidance">
+        <strong>Make recommendations accurate</strong>
+        <span>Use exact words a guest might say. Separate flavours and food pairings with commas. The guide never invents missing details.</span>
+    </div>
+
+    @if (suggestions.Count > 0)
+    {
+        <section class="beer-profile-suggestions" aria-label="Suggestions from menu text">
+            <header>
+                <div>
+                    <strong>Found in the existing menu text</strong>
+                    <span>Apply only the facts you recognize, then save normally.</span>
+                </div>
+                <span>@suggestions.Count suggestion@(suggestions.Count == 1 ? "" : "s")</span>
+            </header>
+
+            @foreach (var suggestion in suggestions)
+            {
+                <div class="beer-profile-suggestion">
+                    <div>
+                        <span>@suggestion.Label</span>
+                        <strong>@suggestion.Value</strong>
+                        <small>Source: @suggestion.Evidence</small>
+                    </div>
+                    <button type="button"
+                            class="admin-secondary-button"
+                            data-beer-suggestion-field="@suggestion.Field"
+                            data-beer-suggestion-value="@suggestion.Value">
+                        Apply
+                    </button>
+                </div>
+            }
+        </section>
+    }
+
+    <div class="admin-editor-fields-grid">
+        <div>
+            <label asp-for="OriginCountry" class="form-label"></label>
+            <input asp-for="OriginCountry"
+                   class="form-control"
+                   placeholder="Belgium, Germany, Czechia..." />
+            <span asp-validation-for="OriginCountry" class="text-danger small"></span>
+        </div>
+
+        <div>
+            <label asp-for="BeerStyle" class="form-label"></label>
+            <input asp-for="BeerStyle"
+                   class="form-control"
+                   placeholder="IPA, Czech pilsner, Belgian tripel..." />
+            <span asp-validation-for="BeerStyle" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="product-profile-scale-grid">
+        <div>
+            <label asp-for="AlcoholByVolume" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="AlcoholByVolume"
+                       class="form-control"
+                       min="0"
+                       max="25"
+                       step="0.1"
+                       placeholder="5.2" />
+                <span class="input-group-text">%</span>
+            </div>
+            <span asp-validation-for="AlcoholByVolume" class="text-danger small"></span>
+        </div>
+
+        @foreach (var scale in new[]
+        {
+            (For: "BodyLevel", Label: "Body"),
+            (For: "BitternessLevel", Label: "Bitterness"),
+            (For: "SweetnessLevel", Label: "Sweetness"),
+            (For: "AcidityLevel", Label: "Acidity")
+        })
+        {
+            <div>
+                <label for="@scale.For" class="form-label">@scale.Label</label>
+                <select id="@scale.For"
+                        name="@scale.For"
+                        class="form-select">
+                    <option value="">Not set</option>
+                    @for (var level = 1; level <= 5; level++)
+                    {
+                        var currentValue = scale.For switch
+                        {
+                            "BodyLevel" => Model.BodyLevel,
+                            "BitternessLevel" => Model.BitternessLevel,
+                            "SweetnessLevel" => Model.SweetnessLevel,
+                            _ => Model.AcidityLevel
+                        };
+
+                        <option value="@level"
+                                selected="@(currentValue == level ? "selected" : null)">
+                            @level / 5
+                        </option>
+                    }
+                </select>
+            </div>
+        }
+    </div>
+
+    <div class="admin-editor-field">
+        <label asp-for="FlavorNotes" class="form-label"></label>
+        <input asp-for="FlavorNotes"
+               class="form-control"
+               placeholder="grapefruit, citrus, pine, caramel..." />
+        <span asp-validation-for="FlavorNotes" class="text-danger small"></span>
+    </div>
+
+    <div class="admin-editor-field mb-0">
+        <label asp-for="PairingTags" class="form-label"></label>
+        <input asp-for="PairingTags"
+               class="form-control"
+               placeholder="burger, pizza, spicy food, smoked meat..." />
+        <span asp-validation-for="PairingTags" class="text-danger small"></span>
+    </div>
+</fieldset>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("[data-beer-suggestion-field]").forEach(button => {
+            button.addEventListener("click", () => {
+                const field = button.dataset.beerSuggestionField;
+                const input = document.querySelector(`[name="${CSS.escape(field)}"]`);
+
+                if (!input) {
+                    return;
+                }
+
+                input.value = button.dataset.beerSuggestionValue ?? "";
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+                button.textContent = "Applied";
+                button.disabled = true;
+            });
+        });
+    });
+</script>

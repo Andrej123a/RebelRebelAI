@@ -1,0 +1,305 @@
+@model Rebel.Web.Models.AdminTonightViewModel
+@using Rebel.Domain.Enums
+@using Rebel.Web.Authorization
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Tonight";
+
+    var tonightDate = Model.LocalDate;
+    var canManageSchedule =
+        User.IsInRole(AdminRoles.Manager) ||
+        User.IsInRole(AdminRoles.LegacyAdmin);
+
+    ViewBag.CurrentTime = Model.CurrentTime;
+    ViewBag.ActiveTables = Model.ActiveTables;
+    ViewBag.TonightReservations = Model.Reservations;
+
+    var pendingReservations = Model.Reservations
+        .Where(reservation =>
+            reservation.Status == ReservationStatus.Pending)
+        .OrderBy(reservation => reservation.ReservationTime)
+        .ToList();
+
+    var expectedReservations = Model.Reservations
+        .Where(reservation =>
+            reservation.Status == ReservationStatus.Approved)
+        .OrderBy(reservation => reservation.ReservationTime)
+        .ToList();
+
+    var completedReservations = Model.Reservations
+        .Where(reservation =>
+            reservation.Status == ReservationStatus.Arrived ||
+            reservation.Status == ReservationStatus.NoShow)
+        .OrderBy(reservation => reservation.ReservationTime)
+        .ToList();
+
+    var expectedGuests = expectedReservations
+        .Sum(reservation => reservation.NumberOfGuests);
+
+    var arrivedReservations = completedReservations
+        .Where(reservation =>
+            reservation.Status == ReservationStatus.Arrived)
+        .ToList();
+
+    var arrivedGuests = arrivedReservations
+        .Sum(reservation => reservation.NumberOfGuests);
+
+    var slotCapacity = Model.SlotCapacity;
+    var slotLoads = Model.SlotLoads;
+
+    var frontShifts = Model.StaffShifts
+        .Where(shift => shift.Role == StaffRole.Front)
+        .ToList();
+
+    var kitchenShifts = Model.StaffShifts
+        .Where(shift => shift.Role == StaffRole.Kitchen)
+        .ToList();
+
+    var assignedTables = Model.Reservations
+        .Where(reservation =>
+            reservation.Status == ReservationStatus.Approved ||
+            reservation.Status == ReservationStatus.Arrived)
+        .Select(reservation => reservation.TableLabel)
+        .Where(label => !string.IsNullOrWhiteSpace(label))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .Count();
+
+    var featuredEvent = Model.Events.FirstOrDefault();
+}
+
+<div class="tonight-workspace">
+
+    <header class="tonight-workspace-header">
+
+        <div>
+            <span class="tonight-eyebrow">Tonight's service</span>
+
+            <h1>Tonight</h1>
+
+            <p>
+                @tonightDate.ToString(
+                    "dddd, dd MMMM yyyy",
+                    CultureInfo.InvariantCulture)
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="AdminTables"
+               asp-action="Index"
+               class="admin-primary-button">Open floor</a>
+
+            <a asp-controller="AdminReservations"
+               asp-action="Index"
+               class="admin-secondary-button">All bookings</a>
+        </div>
+
+    </header>
+
+    <section class="tonight-service-summary"
+             aria-label="Tonight service summary">
+
+        <div class="tonight-summary-item is-new">
+            <span>Need review</span>
+            <strong>@pendingReservations.Count</strong>
+        </div>
+
+        <div class="tonight-summary-item">
+            <span>Still expected</span>
+            <strong>
+                @expectedReservations.Count bookings
+                <small>@expectedGuests guests</small>
+            </strong>
+        </div>
+
+        <div class="tonight-summary-item">
+            <span>Checked in</span>
+            <strong>
+                @arrivedReservations.Count bookings
+                <small>@arrivedGuests guests</small>
+            </strong>
+        </div>
+
+    </section>
+
+    <section class="tonight-command-strip" aria-label="Tonight operations">
+        <a asp-controller="AdminStaffSchedule"
+           asp-action="@(canManageSchedule ? "Index" : "MyShifts")"
+           class="tonight-command-item @(frontShifts.Count == 0 ? "needs-attention" : "")">
+            <span>Front</span>
+            <strong>@(frontShifts.Count == 0 ? "No cover" : string.Join(", ", frontShifts.Select(shift => shift.StaffMember?.FullName)))</strong>
+            <small>@(frontShifts.Count == 0
+                ? canManageSchedule ? "Add staff" : "Tell a manager"
+                : string.Join(" / ", frontShifts.Select(shift => $"{shift.StartsAt:hh\\:mm}-{shift.EndsAt:hh\\:mm}")))</small>
+        </a>
+
+        <a asp-controller="AdminStaffSchedule"
+           asp-action="@(canManageSchedule ? "Index" : "MyShifts")"
+           class="tonight-command-item @(kitchenShifts.Count == 0 ? "needs-attention" : "")">
+            <span>Kitchen</span>
+            <strong>@(kitchenShifts.Count == 0 ? "No cover" : string.Join(", ", kitchenShifts.Select(shift => shift.StaffMember?.FullName)))</strong>
+            <small>@(kitchenShifts.Count == 0
+                ? canManageSchedule ? "Add staff" : "Tell a manager"
+                : string.Join(" / ", kitchenShifts.Select(shift => $"{shift.StartsAt:hh\\:mm}-{shift.EndsAt:hh\\:mm}")))</small>
+        </a>
+
+        <a asp-controller="AdminTables"
+           asp-action="Index"
+           class="tonight-command-item">
+            <span>Floor</span>
+            <strong>@assignedTables / @Model.ActiveTables.Count tables assigned</strong>
+            <small>@Model.ActiveTableCapacity active seats</small>
+        </a>
+
+        <a asp-controller="AdminEvents"
+           asp-action="@(Model.Events.Count == 1 ? "Bookings" : "Index")"
+           asp-route-id="@(Model.Events.Count == 1 ? Model.Events[0].Id : null)"
+           class="tonight-command-item tonight-event-item @(!string.IsNullOrWhiteSpace(featuredEvent?.ImageUrl) ? "has-image" : "")">
+            @if (!string.IsNullOrWhiteSpace(featuredEvent?.ImageUrl))
+            {
+                <img src="@Url.Content(featuredEvent.ImageUrl)"
+                     class="tonight-event-image"
+                     alt=""
+                     loading="lazy" />
+            }
+
+            <div class="tonight-event-copy">
+                <span>Event</span>
+                <strong>@(Model.Events.Count == 0 ? "No event tonight" : string.Join(", ", Model.Events.Select(eventItem => eventItem.Title)))</strong>
+                <small>@(Model.Events.Count == 0 ? "Regular service" : string.Join(" / ", Model.Events.Select(eventItem => eventItem.StartTime?.ToString(@"hh\:mm") ?? "Time TBC")))</small>
+            </div>
+        </a>
+    </section>
+
+    @if (Model.Warnings.Count > 0)
+    {
+        <section class="tonight-warning-board" aria-labelledby="tonightWarningsTitle">
+            <header>
+                <span>Before service</span>
+                <h2 id="tonightWarningsTitle">Needs attention</h2>
+            </header>
+
+            <div>
+                @foreach (var warning in Model.Warnings)
+                {
+                    <a asp-controller="@warning.Controller"
+                       asp-action="@warning.Action"
+                       asp-all-route-data="@warning.RouteValues"
+                       class="tonight-warning is-@warning.Tone">
+                        <span aria-hidden="true">!</span>
+                        <span>
+                            <strong>@warning.Title</strong>
+                            <small>@warning.Detail</small>
+                        </span>
+                        <span aria-hidden="true">&rarr;</span>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    @if (slotLoads.Count > 0)
+    {
+        <details class="tonight-cover-load">
+            <summary>
+                <span>Cover load by time</span>
+                <span>View</span>
+            </summary>
+
+            <div class="tonight-cover-load-grid">
+                @foreach (var slot in slotLoads.OrderBy(slot => slot.Key))
+                {
+                    <div>
+                        <strong>@slot.Key.ToString(@"hh\:mm")</strong>
+                        <span>@slot.Value / @slotCapacity guests</span>
+                    </div>
+                }
+            </div>
+        </details>
+    }
+
+    @if (pendingReservations.Count > 0)
+    {
+        <section class="tonight-queue-section is-priority">
+
+            <header class="tonight-queue-heading">
+                <div>
+                    <span class="tonight-eyebrow">Action needed</span>
+                    <h2>Review requests</h2>
+                </div>
+
+                <span>@pendingReservations.Count</span>
+            </header>
+
+            <div class="tonight-queue">
+                @foreach (var reservation in pendingReservations)
+                {
+                    <partial name="_TonightReservationRow"
+                             model="reservation" />
+                }
+            </div>
+
+        </section>
+    }
+
+    <section class="tonight-queue-section">
+
+        <header class="tonight-queue-heading">
+            <div>
+                <span class="tonight-eyebrow">Arrivals</span>
+                <h2>Expected arrivals</h2>
+            </div>
+
+            <span>@expectedReservations.Count</span>
+        </header>
+
+        @if (expectedReservations.Count == 0)
+        {
+            <div class="tonight-empty-state">
+                No approved guests are waiting to arrive.
+            </div>
+        }
+        else
+        {
+            <div class="tonight-queue">
+                @foreach (var reservation in expectedReservations)
+                {
+                    <partial name="_TonightReservationRow"
+                             model="reservation" />
+                }
+            </div>
+        }
+
+    </section>
+
+    @if (completedReservations.Count > 0)
+    {
+        <details class="tonight-completed">
+            <summary>
+                <span>
+                    <strong>Completed</strong>
+                    <small>Checked-in and closed reservations</small>
+                </span>
+
+                <span>@completedReservations.Count bookings</span>
+            </summary>
+
+            <div class="tonight-queue">
+                @foreach (var reservation in completedReservations)
+                {
+                    <partial name="_TonightReservationRow"
+                             model="reservation" />
+                }
+            </div>
+        </details>
+    }
+
+    @if (Model.Reservations.Count == 0)
+    {
+        <div class="tonight-empty-state is-page-empty">
+            <strong>No reservations for tonight.</strong>
+            <span>New requests will appear here automatically.</span>
+        </div>
+    }
+
+</div>

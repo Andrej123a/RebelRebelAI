@@ -1,0 +1,336 @@
+@model IEnumerable<Rebel.Domain.Entities.Product>
+
+@{
+    ViewData["Title"] = "Menu";
+
+    var products = Model?.ToList()
+        ?? new List<Rebel.Domain.Entities.Product>();
+
+    var unavailableCount =
+        products.Count(product => !product.IsAvailable);
+
+    var beerProducts = products
+        .Where(Rebel.Web.Services.BeerProfileQuality.IsBeer)
+        .ToList();
+
+    var guideReadyCount = beerProducts.Count(
+        Rebel.Web.Services.BeerProfileQuality.IsReadyForGuide);
+}
+
+<div class="admin-workspace">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">
+                Menu board
+            </span>
+
+            <h1 class="admin-workspace-title">
+                Menu
+            </h1>
+
+            <p class="admin-workspace-copy">
+                Keep prices, availability, dietary tags, and menu sections
+                accurate from one working list.
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="Product"
+               asp-action="Create"
+               class="admin-primary-button">
+                Add item
+            </a>
+
+            <a asp-controller="Category"
+               asp-action="Index"
+               class="admin-secondary-button">
+                Sections
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar"
+             aria-label="Menu summary">
+        <div class="admin-metric">
+            <span>Showing</span>
+            <strong>@products.Count</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Available</span>
+            <strong>@products.Count(product => product.IsAvailable)</strong>
+        </div>
+
+        <a asp-controller="Product"
+           asp-action="Index"
+           asp-route-isAvailable="false"
+           class="admin-metric @(ViewBag.IsAvailable == false ? "active" : "")">
+            <span>Unavailable</span>
+            <strong>@unavailableCount</strong>
+        </a>
+
+        @if (beerProducts.Count > 0)
+        {
+            <a asp-controller="AdminBeerCatalog"
+               asp-action="Index"
+               class="admin-metric">
+                <span>Beer guide ready</span>
+                <strong>@guideReadyCount / @beerProducts.Count</strong>
+            </a>
+        }
+    </section>
+
+    <details class="admin-filter-disclosure">
+        <summary>
+            <span>Search and filters</span>
+            <span>Open</span>
+        </summary>
+
+        <form id="productFilterForm"
+              class="admin-filter-panel">
+            <label>
+                Search
+                <input type="search"
+                       name="searchTerm"
+                       value="@ViewBag.SearchTerm"
+                       placeholder="Item name"
+                       id="searchTermInput"
+                       autocomplete="off" />
+            </label>
+
+            <label>
+                Section
+                <select name="categoryId"
+                        asp-items="ViewBag.Categories"
+                        id="categorySelect">
+                    <option value="">All sections</option>
+                </select>
+            </label>
+
+            <label>
+                Availability
+                <select name="isAvailable"
+                        id="statusSelect">
+                    <option value="">All items</option>
+                    <option value="true"
+                            selected="@(ViewBag.IsAvailable == true ? "selected" : null)">
+                        Available
+                    </option>
+                    <option value="false"
+                            selected="@(ViewBag.IsAvailable == false ? "selected" : null)">
+                        Unavailable
+                    </option>
+                </select>
+            </label>
+
+            <label>
+                Dietary tag
+                <select name="tag"
+                        id="tagSelect">
+                    <option value="">All tags</option>
+                    @foreach (var tagOption in new[]
+                    {
+                        ("popular", "Popular"),
+                        ("spicy", "Spicy"),
+                        ("vegetarian", "Vegetarian"),
+                        ("vegan", "Vegan"),
+                        ("gluten-free", "Gluten free"),
+                        ("nuts", "Contains nuts"),
+                        ("limited", "Limited"),
+                        ("promo", "Promo")
+                    })
+                    {
+                        <option value="@tagOption.Item1"
+                                selected="@(ViewBag.Tag == tagOption.Item1 ? "selected" : null)">
+                            @tagOption.Item2
+                        </option>
+                    }
+                </select>
+            </label>
+
+            <button type="submit"
+                    class="admin-primary-button">
+                Apply filters
+            </button>
+        </form>
+
+        <div class="admin-filter-shortcuts">
+            <a asp-controller="Product"
+               asp-action="Index">
+                Clear filters
+            </a>
+        </div>
+    </details>
+
+    <div id="productsTableContainer"
+         aria-live="polite">
+        <partial name="_ProductsTablePartial"
+                 model="Model" />
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterForm = document.getElementById("productFilterForm");
+            const searchInput = document.getElementById("searchTermInput");
+            const categorySelect = document.getElementById("categorySelect");
+            const statusSelect = document.getElementById("statusSelect");
+            const tagSelect = document.getElementById("tagSelect");
+            const productsContainer = document.getElementById("productsTableContainer");
+            const filterUrl = '@Url.Action("FilterProducts", "Product")';
+
+            let debounceTimer;
+            let openGroupKey;
+
+            function rememberOpenGroup() {
+                const openGroup = productsContainer.querySelector(
+                    "[data-product-group][open]"
+                );
+
+                openGroupKey = openGroup?.dataset.groupKey;
+            }
+
+            function bindProductGroups() {
+                const groups = Array.from(
+                    productsContainer.querySelectorAll("[data-product-group]")
+                );
+
+                if (groups.length > 0) {
+                    const groupToOpen =
+                        groups.find(group => group.dataset.groupKey === openGroupKey) ||
+                        groups.find(group => group.open) ||
+                        groups[0];
+
+                    groups.forEach(function (group) {
+                        group.open = group === groupToOpen;
+                    });
+                }
+
+                groups.forEach(function (group) {
+                    if (group.dataset.accordionBound === "true") {
+                        return;
+                    }
+
+                    group.dataset.accordionBound = "true";
+                    group.addEventListener("toggle", function () {
+                        if (!group.open) {
+                            return;
+                        }
+
+                        groups.forEach(function (otherGroup) {
+                            if (otherGroup !== group) {
+                                otherGroup.open = false;
+                            }
+                        });
+                    });
+                });
+
+                productsContainer
+                    .querySelectorAll(".product-status-form")
+                    .forEach(function (form) {
+                        if (form.dataset.toggleBound === "true") {
+                            return;
+                        }
+
+                        form.dataset.toggleBound = "true";
+                        form.addEventListener("submit", async function (event) {
+                            event.preventDefault();
+                            const button = form.querySelector("button");
+
+                            try {
+                                rememberOpenGroup();
+                                button?.setAttribute("disabled", "disabled");
+
+                                const response = await fetch(form.action, {
+                                    method: "POST",
+                                    body: new FormData(form),
+                                    headers: {
+                                        "X-Requested-With": "XMLHttpRequest"
+                                    }
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error("Failed to update item availability.");
+                                }
+
+                                await loadProducts();
+                            }
+                            catch (error) {
+                                console.error(error);
+                                button?.removeAttribute("disabled");
+                            }
+                        });
+                    });
+            }
+
+            async function loadProducts() {
+                rememberOpenGroup();
+
+                const query = new URLSearchParams({
+                    searchTerm: searchInput.value.trim(),
+                    categoryId: categorySelect.value,
+                    isAvailable: statusSelect.value,
+                    tag: tagSelect.value
+                });
+
+                try {
+                    productsContainer.setAttribute("aria-busy", "true");
+
+                    const response = await fetch(
+                        `${filterUrl}?${query.toString()}`,
+                        {
+                            method: "GET",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error("Failed to load menu items.");
+                    }
+
+                    productsContainer.innerHTML = await response.text();
+                    bindProductGroups();
+                }
+                catch (error) {
+                    console.error(error);
+                    productsContainer.innerHTML = `
+                        <div class="admin-empty-state">
+                            <strong>Menu items could not be loaded.</strong>
+                            <span>Refresh the page and try again.</span>
+                        </div>
+                    `;
+                }
+                finally {
+                    productsContainer.removeAttribute("aria-busy");
+                }
+            }
+
+            filterForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                loadProducts();
+            });
+
+            searchInput.addEventListener("input", function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(function () {
+                    if (searchInput.value.trim().length === 1) {
+                        return;
+                    }
+
+                    loadProducts();
+                }, 350);
+            });
+
+            categorySelect.addEventListener("change", loadProducts);
+            statusSelect.addEventListener("change", loadProducts);
+            tagSelect.addEventListener("change", loadProducts);
+
+            bindProductGroups();
+        });
+    </script>
+}

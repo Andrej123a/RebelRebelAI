@@ -1,0 +1,118 @@
+@model AdminMyShiftsViewModel
+
+@{
+    ViewData["Title"] = "My shifts";
+
+    var days = Enumerable
+        .Range(0, 7)
+        .Select(offset => Model.StartDate.AddDays(offset))
+        .ToList();
+
+    var shiftsByDay = Model.Shifts
+        .GroupBy(shift => shift.ShiftDate.Date)
+        .ToDictionary(
+            group => group.Key,
+            group => group.OrderBy(shift => shift.StartsAt).ToList());
+
+    var todayShifts = Model.Shifts
+        .Where(shift => shift.ShiftDate.Date == DateTime.Today)
+        .OrderBy(shift => shift.StartsAt)
+        .ToList();
+
+    var todayLabel = todayShifts.Count == 0
+        ? "Off"
+        : string.Join(", ", todayShifts.Select(shift =>
+            shift.StartsAt.ToString(@"hh\:mm") + "-" +
+            shift.EndsAt.ToString(@"hh\:mm")));
+}
+
+<div class="admin-workspace">
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">Personal schedule</span>
+            <h1 class="admin-workspace-title">My shifts</h1>
+            <p class="admin-workspace-copy">
+                @if (Model.StaffMember != null)
+                {
+                    <text>@Model.StaffMember.FullName / @Model.StaffMember.Role / </text>
+                }
+                @Model.StartDate.ToString("dd MMM") - @Model.EndDate.ToString("dd MMM yyyy")
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-action="MyShifts"
+               asp-route-startDate="@Model.PreviousWeek.ToString("yyyy-MM-dd")"
+               class="admin-secondary-button">Previous</a>
+            <a asp-action="MyShifts"
+               class="admin-secondary-button">This week</a>
+            <a asp-action="MyShifts"
+               asp-route-startDate="@Model.NextWeek.ToString("yyyy-MM-dd")"
+               class="admin-secondary-button">Next</a>
+        </div>
+    </header>
+
+    @if (Model.StaffMember == null)
+    {
+        <section class="admin-section">
+            <div class="admin-empty-state">
+                <strong>Your account is not connected to a staff profile yet.</strong>
+                <p>Ask a manager to link your account from Staff accounts.</p>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="admin-metric-bar" aria-label="My week summary">
+            <div class="admin-metric">
+                <span>Today</span>
+                <strong>@todayLabel</strong>
+            </div>
+            <div class="admin-metric">
+                <span>This week</span>
+                <strong>@Model.Shifts.Count shifts</strong>
+            </div>
+            <div class="admin-metric">
+                <span>Section</span>
+                <strong>@Model.StaffMember.Role</strong>
+            </div>
+        </section>
+
+        <section class="staff-person-week my-shifts-week">
+            @foreach (var day in days)
+            {
+                var dayShifts = shiftsByDay.TryGetValue(day.Date, out var shifts)
+                    ? shifts
+                    : new List<Rebel.Domain.Entities.StaffShift>();
+
+                <article class="staff-person-day @(day.Date == DateTime.Today ? "is-today" : "") @(dayShifts.Count == 0 ? "is-free" : "")">
+                    <header>
+                        <span>@day.ToString("ddd")</span>
+                        <strong>@day.ToString("dd MMM")</strong>
+                    </header>
+
+                    @if (dayShifts.Count == 0)
+                    {
+                        <div class="staff-person-free">Free day</div>
+                    }
+                    else
+                    {
+                        @foreach (var shift in dayShifts)
+                        {
+                            <div class="staff-person-shift">
+                                <strong>
+                                    @shift.StartsAt.ToString(@"hh\:mm") -
+                                    @shift.EndsAt.ToString(@"hh\:mm")
+                                </strong>
+                                @if (!string.IsNullOrWhiteSpace(shift.Note))
+                                {
+                                    <span>@shift.Note</span>
+                                }
+                            </div>
+                        }
+                    }
+                </article>
+            }
+        </section>
+    }
+</div>

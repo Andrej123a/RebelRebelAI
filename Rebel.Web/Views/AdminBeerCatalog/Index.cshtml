@@ -1,0 +1,219 @@
+@model Rebel.Web.Models.AdminBeerCatalogViewModel
+
+@{
+    ViewData["Title"] = "Beer catalogue";
+
+    var groups = new[]
+    {
+        new
+        {
+            Key = "missing",
+            Title = "Missing information",
+            Copy = "Available beers the guide cannot describe accurately yet.",
+            Items = Model.MissingInformation,
+            State = "is-attention"
+        },
+        new
+        {
+            Key = "review",
+            Title = "Needs review",
+            Copy = "Check inferred details or availability before relying on these profiles.",
+            Items = Model.NeedsReview,
+            State = "is-danger"
+        },
+        new
+        {
+            Key = "ready",
+            Title = "Ready for recommendations",
+            Copy = "Complete, available profiles currently used by the Beer Guide.",
+            Items = Model.Ready,
+            State = "is-success"
+        }
+    };
+}
+
+<div class="admin-workspace beer-catalog-workspace">
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">Beer Guide</span>
+            <h1 class="admin-workspace-title">Beer catalogue</h1>
+            <p class="admin-workspace-copy">
+                Fix the beers that need attention first. Complete profiles produce more accurate recommendations.
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="Product"
+               asp-action="Create"
+               class="admin-primary-button">Add beer</a>
+            <a asp-controller="AdminBeerGuideLab"
+               asp-action="Index"
+               class="admin-secondary-button">Run quality checks</a>
+            <a asp-controller="AdminBeerFeedback"
+               asp-action="Index"
+               class="admin-secondary-button">Guest feedback</a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar beer-catalog-metrics"
+             aria-label="Beer catalogue summary">
+        <a href="#missing" class="admin-metric is-attention">
+            <span>Missing information</span>
+            <strong>@Model.MissingInformation.Count</strong>
+        </a>
+        <a href="#review" class="admin-metric">
+            <span>Needs review</span>
+            <strong>@Model.NeedsReview.Count</strong>
+        </a>
+        <a href="#ready" class="admin-metric">
+            <span>Ready</span>
+            <strong>@Model.Ready.Count / @Model.Total</strong>
+        </a>
+    </section>
+
+    @foreach (var group in groups)
+    {
+        <section id="@group.Key" class="admin-section beer-quality-section">
+            <div class="admin-section-heading">
+                <div>
+                    <span class="admin-workspace-eyebrow">@group.Title</span>
+                    <h2>@group.Copy</h2>
+                </div>
+                <span class="admin-section-count">@group.Items.Count</span>
+            </div>
+
+            @if (group.Items.Count == 0)
+            {
+                <div class="admin-empty-state beer-quality-empty">
+                    <strong>Nothing here.</strong>
+                    <span>This part of the catalogue is clear.</span>
+                </div>
+            }
+            else
+            {
+                <div class="beer-quality-list">
+                    @foreach (var item in group.Items)
+                    {
+                        var beer = item.Beer;
+                        var abv = Rebel.Web.Services.BeerProfileQuality.AlcoholByVolume(beer);
+                        var issues = item.ReviewNotes.Concat(item.MissingFields).ToList();
+
+                        <article class="beer-quality-item @group.State">
+                            <div class="beer-quality-row">
+                                <div class="beer-quality-main">
+                                    @if (!string.IsNullOrWhiteSpace(beer.ImageUrl))
+                                    {
+                                        <img src="@Url.Content(beer.ImageUrl)"
+                                             alt=""
+                                             loading="lazy"
+                                             class="admin-row-thumbnail" />
+                                    }
+                                    <div class="admin-row-copy">
+                                        <strong>@beer.Name</strong>
+                                        <span>
+                                            @(!string.IsNullOrWhiteSpace(beer.BeerStyle) ? beer.BeerStyle : "Style not set")
+                                            @if (abv.HasValue)
+                                            {
+                                                <text> / @abv.Value.ToString("0.#")% ABV</text>
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="beer-quality-progress"
+                                     aria-label="Profile @item.CompletionPercent percent complete">
+                                    <span>Profile</span>
+                                    <strong>@item.CompletionPercent%</strong>
+                                    <i style="--beer-profile-progress: @item.CompletionPercent%"></i>
+                                </div>
+
+                                <div class="beer-quality-issues">
+                                    @if (issues.Count == 0)
+                                    {
+                                        <span class="admin-state is-success">Ready</span>
+                                    }
+                                    else
+                                    {
+                                        <strong>@issues.First()</strong>
+                                        @if (issues.Count > 1)
+                                        {
+                                            <span>+@(issues.Count - 1) more</span>
+                                        }
+                                    }
+                                    @if (item.Suggestions.Count > 0)
+                                    {
+                                        <span class="beer-quality-suggestion-count">
+                                            @item.Suggestions.Count safe suggestion@(item.Suggestions.Count == 1 ? "" : "s")
+                                        </span>
+                                    }
+                                </div>
+
+                                <div class="admin-row-actions">
+                                    <a asp-controller="Product"
+                                       asp-action="Edit"
+                                       asp-route-id="@beer.Id"
+                                       asp-route-returnTo="beer-catalog"
+                                       class="admin-primary-button">
+                                        @(issues.Count == 0 ? "Edit" : "Fix profile")
+                                    </a>
+                                </div>
+                            </div>
+
+                            <details class="beer-quality-test">
+                                <summary>
+                                    <span>Test profile</span>
+                                    <span>@(item.Tests.Count == 0 ? "Unavailable" : $"{item.Tests.Count} checks")</span>
+                                </summary>
+
+                                <div class="beer-quality-test-body">
+                                    @if (issues.Count > 0)
+                                    {
+                                        <div class="beer-quality-fix-list">
+                                            <strong>Fix next</strong>
+                                            <span>@string.Join(" / ", issues)</span>
+                                        </div>
+                                    }
+
+                                    @if (item.Suggestions.Count > 0)
+                                    {
+                                        <div class="beer-quality-suggestion-preview">
+                                            <strong>Found in menu text</strong>
+                                            <span>
+                                                @string.Join(" / ", item.Suggestions.Select(suggestion =>
+                                                    $"{suggestion.Label}: {suggestion.Value}"))
+                                            </span>
+                                        </div>
+                                    }
+
+                                    @if (item.Tests.Count == 0)
+                                    {
+                                        <p>This beer is unavailable or needs enough profile information to create a useful check.</p>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var test in item.Tests)
+                                        {
+                                            <div class="beer-quality-test-row">
+                                                <code>"@test.Prompt"</code>
+                                                @if (test.Rank.HasValue)
+                                                {
+                                                    <span class="admin-state @(test.Rank <= 3 ? "is-success" : "is-attention")">
+                                                        @(test.Rank == 1 ? "Top match" : $"Rank #{test.Rank}")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="admin-state is-danger">Not matched</span>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </details>
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    }
+</div>

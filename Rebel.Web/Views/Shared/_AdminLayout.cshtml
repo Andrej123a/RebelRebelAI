@@ -1,0 +1,552 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using Rebel.Web.Authorization
+@inject Rebel.Infrastructure.Data.AppDbContext DbContext
+
+@{
+    var currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+
+    var currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+
+    var isManager =
+        User.IsInRole(AdminRoles.Manager) ||
+        User.IsInRole(AdminRoles.LegacyAdmin);
+
+    var signedInName =
+        User.FindFirst(AdminRoles.DisplayNameClaim)?.Value ??
+        User.Identity?.Name ??
+        "Staff";
+
+    var unreadNotificationsCount = await DbContext.Notifications
+        .AsNoTracking()
+        .CountAsync(notification =>
+            !notification.IsRead &&
+            notification.ReservationId.HasValue &&
+            notification.Reservation != null &&
+            notification.Reservation.Status ==
+                Rebel.Domain.Enums.ReservationStatus.Pending);
+
+    var latestUnreadReservationId = await DbContext.Notifications
+        .AsNoTracking()
+        .Where(notification =>
+            !notification.IsRead &&
+            notification.ReservationId.HasValue &&
+            notification.Reservation != null &&
+            notification.Reservation.Status ==
+                Rebel.Domain.Enums.ReservationStatus.Pending)
+        .OrderByDescending(notification => notification.CreatedAt)
+        .Select(notification => notification.ReservationId)
+        .FirstOrDefaultAsync();
+
+    var displayedNotificationCount = unreadNotificationsCount > 99
+        ? "99+"
+        : unreadNotificationsCount.ToString();
+
+    var reservationSignalAction =
+        unreadNotificationsCount == 1 &&
+        latestUnreadReservationId.HasValue
+            ? "Details"
+            : "Index";
+
+    var reservationSignalRouteValues = new Dictionary<string, string?>();
+
+    if (unreadNotificationsCount == 1 &&
+        latestUnreadReservationId.HasValue)
+    {
+        reservationSignalRouteValues["id"] =
+            latestUnreadReservationId.Value.ToString();
+    }
+    else if (unreadNotificationsCount > 1)
+    {
+        reservationSignalRouteValues["status"] = "Pending";
+    }
+
+    string GetActiveClass(string controllerName)
+    {
+        return currentController == controllerName
+            ? "active"
+            : string.Empty;
+    }
+
+    string GetReservationsActiveClass()
+    {
+        return currentController == "AdminReservations" &&
+               currentAction != "Tonight" &&
+               currentAction != "Planner"
+            ? "active"
+            : string.Empty;
+    }
+
+    string GetCommandActiveClass(
+        string controllerName,
+        string actionName)
+    {
+        return currentController == controllerName &&
+               currentAction == actionName
+            ? "active"
+            : string.Empty;
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - Rebel Admin</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/admin.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/admin-refresh.css"
+          asp-append-version="true" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+          rel="stylesheet" />
+</head>
+
+<body class="admin-shell-body">
+
+    <div class="admin-shell">
+
+        <aside class="admin-rail">
+
+            <div class="admin-rail-header">
+
+                <a asp-controller="Admin"
+                   asp-action="Index"
+                   class="admin-brand">
+                    <span class="admin-brand-logo">
+                        <img src="~/images/email/rebel-logo.png"
+                             alt="" />
+                    </span>
+
+                    <span class="admin-brand-copy">
+                        <span class="admin-brand-name">Rebel Admin</span>
+                        <span class="admin-brand-kicker">Staff control room</span>
+                    </span>
+                </a>
+
+                <button class="admin-mobile-toggle"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#adminNavigation"
+                        aria-controls="adminNavigation"
+                        aria-expanded="false"
+                        aria-label="Toggle admin navigation">
+
+                    <span>Menu</span>
+                    <i aria-hidden="true"></i>
+                </button>
+
+            </div>
+
+            <div class="collapse d-lg-block"
+                 id="adminNavigation">
+
+                <nav class="admin-navigation">
+
+                    <span class="admin-nav-section">
+                        Daily work
+                    </span>
+
+                    <a asp-controller="Admin"
+                       asp-action="Index"
+                       class="admin-nav-link @GetActiveClass("Admin")"
+                       aria-current="@(GetActiveClass("Admin") == "active" ? "page" : null)">
+
+                        <span class="admin-nav-symbol is-dashboard" aria-hidden="true"></span>
+                        <span>Overview</span>
+                    </a>
+
+                    <a asp-controller="AdminReservations"
+                       asp-action="Tonight"
+                       class="admin-nav-link @GetCommandActiveClass("AdminReservations", "Tonight")"
+                       aria-current="@(GetCommandActiveClass("AdminReservations", "Tonight") == "active" ? "page" : null)">
+
+                        <span class="admin-nav-symbol is-tonight" aria-hidden="true"></span>
+                        <span>Tonight</span>
+                    </a>
+
+                    <a asp-controller="AdminReservations"
+                       asp-action="Index"
+                       class="admin-nav-link @GetReservationsActiveClass()"
+                       aria-current="@(GetReservationsActiveClass() == "active" ? "page" : null)">
+
+                        <span class="admin-nav-symbol is-bookings" aria-hidden="true"></span>
+                        <span>All bookings</span>
+
+                        <span id="reservationNavBadge"
+                              class="admin-nav-alert @(unreadNotificationsCount > 0 ? string.Empty : "d-none")"
+                              aria-label="@unreadNotificationsCount unread reservation notifications">
+                            @displayedNotificationCount
+                        </span>
+
+                    </a>
+
+                    <div class="admin-subnav" aria-label="Reservation planning">
+                        <a asp-controller="AdminReservations"
+                           asp-action="Planner"
+                           class="admin-nav-link @GetCommandActiveClass("AdminReservations", "Planner")">
+                            <span class="admin-nav-symbol is-planner" aria-hidden="true"></span>
+                            Week planner
+                        </a>
+                    </div>
+
+                    <a asp-controller="AdminTables"
+                       asp-action="Index"
+                       class="admin-nav-link @GetActiveClass("AdminTables")"
+                       aria-current="@(GetActiveClass("AdminTables") == "active" ? "page" : null)">
+
+                        <span class="admin-nav-symbol is-tables" aria-hidden="true"></span>
+                        <span>Floor</span>
+                    </a>
+
+                    @if (isManager)
+                    {
+                        <a asp-controller="AdminStaffSchedule"
+                           asp-action="Index"
+                           class="admin-nav-link @GetActiveClass("AdminStaffSchedule")"
+                           aria-current="@(GetActiveClass("AdminStaffSchedule") == "active" ? "page" : null)">
+                            <span class="admin-nav-symbol is-staff" aria-hidden="true"></span>
+                            <span>Staff schedule</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="AdminStaffSchedule"
+                           asp-action="MyShifts"
+                           class="admin-nav-link @GetActiveClass("AdminStaffSchedule")"
+                           aria-current="@(GetActiveClass("AdminStaffSchedule") == "active" ? "page" : null)">
+                            <span class="admin-nav-symbol is-staff" aria-hidden="true"></span>
+                            <span>My shifts</span>
+                        </a>
+                    }
+
+                    @if (isManager)
+                    {
+                        <span class="admin-nav-section">
+                            Setup
+                        </span>
+
+                    <a asp-controller="AdminEvents"
+                       asp-action="Index"
+                       class="admin-nav-link @GetActiveClass("AdminEvents")"
+                       aria-current="@(GetActiveClass("AdminEvents") == "active" ? "page" : null)">
+
+                        <span class="admin-nav-symbol is-events" aria-hidden="true"></span>
+                        <span>Events</span>
+                    </a>
+
+                    <a asp-controller="Product"
+                       asp-action="Index"
+                       class="admin-nav-link @((currentController == "Product" || currentController == "Category") ? "active" : "")"
+                       aria-current="@((currentController == "Product" || currentController == "Category") ? "page" : null)">
+
+                        <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
+                        <span>Menu</span>
+                    </a>
+
+                    <a asp-controller="AdminBeerCatalog"
+                       asp-action="Index"
+                       class="admin-nav-link @GetActiveClass("AdminBeerCatalog")"
+                       aria-current="@(GetActiveClass("AdminBeerCatalog") == "active" ? "page" : null)">
+                        <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
+                        <span>Beer catalogue</span>
+                    </a>
+
+                    <a asp-controller="AdminBeerFeedback"
+                       asp-action="Index"
+                       class="admin-nav-link @GetActiveClass("AdminBeerFeedback")"
+                       aria-current="@(GetActiveClass("AdminBeerFeedback") == "active" ? "page" : null)">
+                        <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
+                        <span>Beer feedback</span>
+                    </a>
+
+                    <a asp-controller="AdminBeerGuideLab"
+                       asp-action="Index"
+                       class="admin-nav-link @GetActiveClass("AdminBeerGuideLab")"
+                       aria-current="@(GetActiveClass("AdminBeerGuideLab") == "active" ? "page" : null)">
+                        <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
+                        <span>AI test lab</span>
+                    </a>
+
+                        <a asp-controller="AdminStaffAccounts"
+                           asp-action="Index"
+                           class="admin-nav-link @GetActiveClass("AdminStaffAccounts")"
+                           aria-current="@(GetActiveClass("AdminStaffAccounts") == "active" ? "page" : null)">
+                            <span class="admin-nav-symbol is-accounts" aria-hidden="true"></span>
+                            <span>Staff accounts</span>
+                        </a>
+                    }
+
+                </nav>
+
+                <div class="admin-rail-footer">
+
+                    <div class="admin-user-block">
+                        <span class="admin-user-label">
+                            Signed in as
+                        </span>
+
+                        <strong>
+                            @signedInName
+                        </strong>
+                    </div>
+
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       target="_blank"
+                       class="admin-view-site">
+
+                        <span>View website</span>
+                        <span aria-hidden="true">&nearr;</span>
+                    </a>
+
+                    @if (isManager)
+                    {
+                        <a asp-controller="AdminArchive"
+                           asp-action="Index"
+                           class="admin-view-site">
+
+                            <span>Archive</span>
+                            <span aria-hidden="true">&rarr;</span>
+                        </a>
+                    }
+
+                    <form asp-area="Identity"
+                          asp-page="/Account/Logout"
+                          asp-route-returnUrl="@Url.Action("Index", "Home")"
+                          method="post">
+
+                        <button type="submit"
+                                class="admin-logout-button">
+
+                            Log out
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+        <main class="admin-stage">
+
+            <div class="admin-stage-topline">
+                <span class="admin-topline-location">
+                    <strong>Control room</strong>
+                    <span>/</span>
+                    @ViewData["Title"]
+                </span>
+
+                <div class="admin-topline-actions">
+
+                    <a id="reservationSignal"
+                       asp-controller="AdminReservations"
+                       asp-action="@reservationSignalAction"
+                       asp-all-route-data="@reservationSignalRouteValues"
+                       class="admin-reservation-signal @(unreadNotificationsCount > 0 ? "has-notifications" : string.Empty)"
+                       aria-label="Open reservation notifications">
+
+                        <span class="admin-signal-icon"
+                              aria-hidden="true">
+
+                            <svg viewBox="0 0 24 24"
+                                 fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+
+                                <path d="M18 8A6 6 0 0 0 6 8C6 15 3 15 3 17H21C21 15 18 15 18 8Z"
+                                      stroke-width="1.8"
+                                      stroke-linecap="square"
+                                      stroke-linejoin="miter" />
+
+                                <path d="M9.75 20H14.25"
+                                      stroke-width="1.8"
+                                      stroke-linecap="square" />
+
+                            </svg>
+
+                        </span>
+
+                        <span class="admin-signal-copy">
+
+                            <span class="admin-signal-label">
+                                Reservations
+                            </span>
+
+                            <span id="reservationSignalState"
+                                  class="admin-signal-state">
+
+                                @(unreadNotificationsCount > 0
+                                                                ? "Needs review"
+                                                                : "All clear")
+
+                            </span>
+
+                        </span>
+
+                        <span id="notificationBadge"
+                              class="admin-signal-count @(unreadNotificationsCount > 0 ? string.Empty : "d-none")">
+
+                            @displayedNotificationCount
+
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            @if (TempData["SuccessMessage"] != null ||
+                 TempData["ErrorMessage"] != null)
+            {
+                <div class="admin-system-signals"
+                     aria-live="polite">
+
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="admin-system-signal success"
+                             role="status">
+                            <span>OK</span>
+
+                            <div>
+                                <small>Update</small>
+                                <strong>@TempData["SuccessMessage"]</strong>
+                            </div>
+
+                            <button type="button"
+                                    aria-label="Dismiss message"
+                                    data-admin-dismiss-signal>
+                                Close
+                            </button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="admin-system-signal danger"
+                             role="alert">
+                            <span>!</span>
+
+                            <div>
+                                <small>Needs attention</small>
+                                <strong>@TempData["ErrorMessage"]</strong>
+                            </div>
+
+                            <button type="button"
+                                    aria-label="Dismiss message"
+                                    data-admin-dismiss-signal>
+                                Close
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="admin-page-frame">
+                @RenderBody()
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+
+    <script src="~/js/admin-notifications.js"
+            asp-append-version="true"></script>
+
+    <script>
+        (() => {
+            document.addEventListener("submit", (event) => {
+                const form = event.target;
+
+                if (!(form instanceof HTMLFormElement)) {
+                    return;
+                }
+
+                if (form.classList.contains("product-status-form")) {
+                    return;
+                }
+
+                if (form.dataset.submitting === "true") {
+                    event.preventDefault();
+                    return;
+                }
+
+                form.dataset.submitting = "true";
+
+                window.setTimeout(() => {
+                    form
+                        .querySelectorAll("button[type='submit']")
+                        .forEach((button) => {
+                            button.setAttribute("disabled", "disabled");
+                    });
+                }, 0);
+            });
+
+            document.addEventListener("click", (event) => {
+                const panelOpenButton =
+                    event.target.closest("[data-admin-panel-open]");
+
+                if (panelOpenButton) {
+                    const panel = document.getElementById(
+                        panelOpenButton.dataset.adminPanelOpen ?? "");
+
+                    if (panel instanceof HTMLDialogElement) {
+                        panel.showModal();
+                    }
+
+                    return;
+                }
+
+                const panelCloseButton =
+                    event.target.closest("[data-admin-panel-close]");
+
+                if (panelCloseButton) {
+                    panelCloseButton.closest("dialog")?.close();
+                    return;
+                }
+
+                const dismissButton =
+                    event.target.closest("[data-admin-dismiss-signal]");
+
+                if (!dismissButton) {
+                    return;
+                }
+
+                dismissButton
+                    .closest(".admin-system-signal")
+                    ?.remove();
+            });
+
+            document.addEventListener("click", (event) => {
+                if (event.target instanceof HTMLDialogElement &&
+                    event.target.classList.contains("admin-quick-panel")) {
+                    event.target.close();
+                }
+            });
+        })();
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

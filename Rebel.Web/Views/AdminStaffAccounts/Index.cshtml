@@ -1,0 +1,245 @@
+@model Rebel.Web.Models.AdminStaffAccountsViewModel
+
+@{
+    ViewData["Title"] = "Staff accounts";
+}
+
+<div class="admin-workspace staff-accounts-workspace">
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">Setup</span>
+            <h1 class="admin-workspace-title">Staff accounts</h1>
+            <p class="admin-workspace-copy">
+                Everyone signs in through the same staff entrance. Their role controls what they see.
+            </p>
+        </div>
+    </header>
+
+    <section class="staff-account-role-guide" aria-label="Account roles">
+        <div>
+            <span>Staff</span>
+            <strong>Daily work + My shifts</strong>
+            <small>Tonight, bookings, floor and their own schedule</small>
+        </div>
+        <div>
+            <span>Manager</span>
+            <strong>Daily work + Setup</strong>
+            <small>Accounts, events, menu and configuration</small>
+        </div>
+    </section>
+
+    <section class="admin-section">
+        <header class="admin-section-heading">
+            <div>
+                <span class="admin-workspace-eyebrow">Access</span>
+                <h2>Current accounts</h2>
+            </div>
+            <span class="admin-section-count">@Model.Accounts.Count</span>
+        </header>
+
+        <div class="staff-account-list">
+            @foreach (var account in Model.Accounts)
+            {
+                var availableProfiles = Model.StaffProfiles
+                    .Where(profile =>
+                        profile.IsActive &&
+                        (profile.LinkedAccountId == null ||
+                         profile.LinkedAccountId == account.Id))
+                    .ToList();
+
+                <article class="staff-account-row @(account.IsDisabled ? "is-disabled" : "")">
+                    <div class="staff-account-identity">
+                        <span aria-hidden="true">
+                            @(string.IsNullOrWhiteSpace(account.DisplayName)
+                                ? "?"
+                                : account.DisplayName.Trim()[0].ToString())
+                        </span>
+                        <div>
+                            <strong>@account.DisplayName</strong>
+                            <small>@account.Email</small>
+                            <small class="staff-account-profile @(account.StaffMemberId.HasValue ? "is-linked" : "")">
+                                @(account.StaffMemberName ?? "No staff profile linked")
+                            </small>
+                        </div>
+                    </div>
+
+                    <span class="admin-state @(account.Role == "Manager" ? "is-attention" : "")">
+                        @account.Role
+                    </span>
+
+                    <span class="admin-state @(account.IsDisabled ? "is-danger" : "is-success")">
+                        @(account.IsDisabled ? "Disabled" : "Active")
+                    </span>
+
+                    <div class="staff-account-actions">
+                        <details class="admin-more-menu staff-account-menu">
+                            <summary>
+                                @(account.IsCurrentUser ? "Your account" : "Manage")
+                            </summary>
+                            <div class="admin-more-panel">
+                                <form asp-controller="AdminStaffAccounts"
+                                      asp-action="LinkProfile"
+                                      method="post"
+                                      class="staff-account-inline-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@account.Id" />
+                                    <label>
+                                        Staff profile
+                                        <select name="staffMemberId" required>
+                                            <option value="">Choose profile</option>
+                                            @foreach (var profile in availableProfiles)
+                                            {
+                                                if (profile.Id == account.StaffMemberId)
+                                                {
+                                                    <option value="@profile.Id" selected>
+                                                        @profile.Name / @profile.Section
+                                                    </option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@profile.Id">
+                                                        @profile.Name / @profile.Section
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                    </label>
+                                    <button type="submit">
+                                        @(account.StaffMemberId.HasValue ? "Change profile" : "Link profile")
+                                    </button>
+                                </form>
+
+                                @if (!account.IsCurrentUser && !account.IsOwner)
+                                {
+                                    <form asp-controller="AdminStaffAccounts"
+                                          asp-action="ChangeRole"
+                                          method="post"
+                                          class="staff-account-inline-form">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@account.Id" />
+                                        <label>
+                                            Role
+                                            <select name="role">
+                                                @if (account.Role == "Staff")
+                                                {
+                                                    <option value="Staff" selected>Staff</option>
+                                                    <option value="Manager">Manager</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="Staff">Staff</option>
+                                                    <option value="Manager" selected>Manager</option>
+                                                }
+                                            </select>
+                                        </label>
+                                        <button type="submit">Change role</button>
+                                    </form>
+                                }
+
+                                <form asp-controller="AdminStaffAccounts"
+                                      asp-action="ResetPassword"
+                                      method="post"
+                                      class="staff-account-inline-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@account.Id" />
+                                    <label>
+                                        New password
+                                        <input type="password"
+                                               name="temporaryPassword"
+                                               minlength="8"
+                                               autocomplete="new-password"
+                                               required />
+                                    </label>
+                                    <button type="submit">Reset password</button>
+                                </form>
+
+                                @if (!account.IsCurrentUser && !account.IsOwner)
+                                {
+                                    <form asp-controller="AdminStaffAccounts"
+                                          asp-action="ToggleAccess"
+                                          method="post"
+                                          onsubmit="return confirm('@(account.IsDisabled ? "Enable" : "Disable") access for @account.DisplayName?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@account.Id" />
+                                        <button type="submit" class="@(account.IsDisabled ? "" : "is-danger")">
+                                            @(account.IsDisabled ? "Enable account" : "Disable account")
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </details>
+                    </div>
+                </article>
+            }
+        </div>
+    </section>
+
+    <details class="admin-content-disclosure staff-account-create">
+        <summary>
+            <span>Add staff account</span>
+            <span>Open</span>
+        </summary>
+
+        <form asp-controller="AdminStaffAccounts"
+              asp-action="Create"
+              method="post"
+              class="admin-form-surface">
+            @Html.AntiForgeryToken()
+
+            <div class="admin-form-grid">
+                <label>
+                    Name
+                    <input asp-for="NewAccount.DisplayName"
+                           name="DisplayName"
+                           autocomplete="name"
+                           placeholder="Staff member's name" />
+                </label>
+
+                <label>
+                    Email
+                    <input asp-for="NewAccount.Email"
+                           name="Email"
+                           autocomplete="off"
+                           inputmode="email"
+                           placeholder="name@example.com" />
+                </label>
+
+                <label>
+                    Role
+                    <select asp-for="NewAccount.Role" name="Role">
+                        <option value="Staff">Staff</option>
+                        <option value="Manager">Manager</option>
+                    </select>
+                </label>
+
+                <label>
+                    Staff profile
+                    <select asp-for="NewAccount.StaffMemberId"
+                            name="StaffMemberId"
+                            required>
+                        <option value="">Choose profile</option>
+                        @foreach (var profile in Model.StaffProfiles.Where(profile =>
+                            profile.IsActive && profile.LinkedAccountId == null))
+                        {
+                            <option value="@profile.Id">
+                                @profile.Name / @profile.Section
+                            </option>
+                        }
+                    </select>
+                </label>
+
+                <label>
+                    Initial password
+                    <input asp-for="NewAccount.TemporaryPassword"
+                           name="TemporaryPassword"
+                           autocomplete="new-password"
+                           placeholder="At least 8 characters" />
+                </label>
+            </div>
+
+            <button type="submit" class="admin-primary-button">
+                Create account
+            </button>
+        </form>
+    </details>
+</div>

@@ -1,0 +1,21 @@
+﻿@{
+    var controller =
+        ViewContext.RouteData.Values["controller"]?.ToString();
+
+    var isAdminSection =
+        controller == "Admin" ||
+        controller == "AdminEvents" ||
+        controller == "AdminBeerCatalog" ||
+        controller == "AdminBeerGuideLab" ||
+        controller == "AdminBeerFeedback" ||
+        controller == "AdminReservations" ||
+        controller == "AdminStaffAccounts" ||
+        controller == "AdminStaffSchedule" ||
+        controller == "AdminTables" ||
+        controller == "Category" ||
+        controller == "Product";
+
+    Layout = isAdminSection
+        ? "_AdminLayout"
+        : "_Layout";
+}

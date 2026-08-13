@@ -1,0 +1,118 @@
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<section class="rr-contact-page">
+    <header class="rr-contact-hero">
+        <div class="rr-contact-shell rr-contact-hero-grid">
+            <div class="rr-contact-heading">
+                <p>Skopje / Center / After dark</p>
+
+                <h1>
+                    <span>Find</span>
+                    <strong>the Rebels.</strong>
+                </h1>
+
+                <div class="rr-contact-heading-note">
+                    Cold beer, loud records and Fat Kitchen food.<br />
+                    You bring the people.
+                </div>
+            </div>
+
+            <aside class="rr-contact-open" aria-label="Opening hours">
+                <span>Open every day</span>
+                <strong>12:00</strong>
+                <i>until</i>
+                <strong>01:00</strong>
+                <small>No dress code. No ceremony.</small>
+            </aside>
+        </div>
+    </header>
+
+    <div class="rr-contact-shell">
+        <section class="rr-contact-board" aria-label="Contact details">
+            <a class="rr-contact-place"
+               href="https://www.google.com/maps/search/?api=1&amp;query=Naum+Naumovski+Borce+62+Skopje"
+               target="_blank"
+               rel="noopener noreferrer">
+                <span>Where to find us</span>
+                <strong>
+                    Naum Naumovski<br />
+                    Borce 62, Skopje
+                </strong>
+                <small>Open directions &nearr;</small>
+            </a>
+
+            <div class="rr-contact-direct">
+                <span>Talk to us</span>
+
+                <a href="tel:+38970123456">
+                    <small>Phone</small>
+                    +389 70 123 456
+                </a>
+
+                <a href="mailto:info@rebelrebelpub.mk">
+                    <small>Email</small>
+                    info@rebelrebelpub.mk
+                </a>
+
+                <a href="https://www.instagram.com/rebelrebelpub"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <small>Instagram</small>
+                    @@rebelrebelpub
+                </a>
+            </div>
+
+            <div class="rr-contact-walkin">
+                <span>Coming tonight?</span>
+                <strong>Walk in.<br />Or play it smart.</strong>
+                <a asp-controller="Reservations"
+                   asp-action="Create">
+                    Book a table <b>&rarr;</b>
+                </a>
+            </div>
+        </section>
+
+        <section class="rr-contact-manifesto">
+            <h2>
+                Come thirsty.<br />
+                <span>Leave louder.</span>
+            </h2>
+
+            <div>
+                <p>
+                    Rebel Rebel is a small alternative pub for beer lovers,
+                    hungry tables and people who prefer their nights with a
+                    little character.
+                </p>
+                <p>
+                    Drop by for one drink, stay for the food, and let the
+                    playlist rearrange the rest of your plans.
+                </p>
+            </div>
+        </section>
+
+        <section class="rr-contact-map-section">
+            <header>
+                <div>
+                    <span>Naum Naumovski Borce 62</span>
+                    <h2>You're almost here.</h2>
+                </div>
+
+                <p>Skopje 1000 / North Macedonia</p>
+            </header>
+
+            <div class="rr-contact-map">
+                <iframe src="https://www.google.com/maps?q=Naum%20Naumovski%20Borce%2062,%20Skopje&amp;output=embed"
+                        title="Map showing Rebel Rebel by Fat Kitchen in Skopje"
+                        width="100%"
+                        height="480"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </section>
+    </div>
+</section>

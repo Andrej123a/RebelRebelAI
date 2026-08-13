@@ -1,0 +1,539 @@
+@model Rebel.Domain.Entities.Reservation
+@using Rebel.Domain.Enums
+
+@{
+    ViewData["Title"] = "Reservation";
+
+    var skopjeTimeZone =
+        TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje");
+
+    var createdAtUtc = DateTime.SpecifyKind(
+        Model.CreatedAtUtc,
+        DateTimeKind.Utc);
+
+    var createdInSkopje = TimeZoneInfo.ConvertTimeFromUtc(
+        createdAtUtc,
+        skopjeTimeZone);
+
+    var activeTables =
+        ViewBag.ActiveTables as List<Rebel.Domain.Entities.PubTable>
+        ?? new List<Rebel.Domain.Entities.PubTable>();
+
+    var busyTables =
+        ViewBag.BusyTables as List<string>
+        ?? new List<string>();
+
+    var activities =
+        ViewBag.ReservationActivities as List<Rebel.Domain.Entities.ReservationActivity>
+        ?? new List<Rebel.Domain.Entities.ReservationActivity>();
+
+    var recommendedTable = activeTables
+        .Where(table =>
+            !busyTables.Contains(table.Label) &&
+            table.Capacity >= Model.NumberOfGuests)
+        .OrderBy(table => table.Capacity)
+        .ThenBy(table => table.Area)
+        .ThenBy(table => table.Label)
+        .FirstOrDefault();
+
+    var canEditFloor =
+        Model.Status != ReservationStatus.Rejected &&
+        Model.Status != ReservationStatus.NoShow &&
+        Model.Status != ReservationStatus.Cancelled;
+
+    var canCancel =
+        Model.Status == ReservationStatus.Pending ||
+        Model.Status == ReservationStatus.Approved;
+
+    var emailFailed =
+        Model.EmailStatus?.Contains(
+            "Failed",
+            StringComparison.OrdinalIgnoreCase) == true;
+
+    var statusLabel = Model.Status switch
+    {
+        ReservationStatus.Pending => "Needs review",
+        ReservationStatus.Approved => "Approved",
+        ReservationStatus.Arrived => "Arrived",
+        ReservationStatus.NoShow => "No-show",
+        ReservationStatus.Cancelled => "Cancelled",
+        ReservationStatus.Rejected => "Rejected",
+        _ => Model.Status.ToString()
+    };
+
+    var statusClass = Model.Status switch
+    {
+        ReservationStatus.Pending => "is-attention",
+        ReservationStatus.Arrived => "is-success",
+        ReservationStatus.NoShow => "is-danger",
+        ReservationStatus.Cancelled => "is-danger",
+        ReservationStatus.Rejected => "is-danger",
+        _ => string.Empty
+    };
+
+    var emailStatusLabel = Model.EmailStatus switch
+    {
+        "RequestSent" => "Request email sent",
+        "ApprovedSent" => "Approval email sent",
+        "RejectedSent" => "Rejection email sent",
+        "CancelledSent" => "Cancellation email sent",
+        "RequestEmailFailed" => "Request email failed",
+        "ApprovedEmailFailed" => "Approval email failed",
+        "RejectedEmailFailed" => "Rejection email failed",
+        "CancelledEmailFailed" => "Cancellation email failed",
+        _ => "Email pending"
+    };
+}
+
+<div class="admin-workspace reservation-focus-page">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <a asp-controller="AdminReservations"
+               asp-action="Index"
+               class="admin-workspace-eyebrow">
+                Back to all bookings
+            </a>
+
+            <h1 class="admin-workspace-title">
+                @Model.FullName
+            </h1>
+
+            <p class="admin-workspace-copy">
+                @Model.ReservationCode / @Model.ReservationDate.ToString("dd MMM yyyy") at @Model.ReservationTime.ToString(@"hh\:mm")
+            </p>
+        </div>
+
+        <div class="reservation-header-actions">
+            <span class="reservation-focus-status @statusClass">
+                @statusLabel
+            </span>
+
+            <a href="tel:@Model.PhoneNumber"
+               class="admin-secondary-button">
+                Call guest
+            </a>
+
+            <a href="mailto:@Model.Email"
+               class="admin-secondary-button">
+                Email guest
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar"
+             style="--metric-columns: 4;"
+             aria-label="Reservation summary">
+        <div class="admin-metric">
+            <span>Party</span>
+            <strong>@Model.NumberOfGuests guests</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Date</span>
+            <strong>@Model.ReservationDate.ToString("dd MMM")</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Arrival</span>
+            <strong>@Model.ReservationTime.ToString(@"hh\:mm")</strong>
+        </div>
+
+        <div class="admin-metric @(string.IsNullOrWhiteSpace(Model.TableLabel) ? "is-attention" : "")">
+            <span>Table</span>
+            <strong>
+                @(string.IsNullOrWhiteSpace(Model.TableLabel)
+                    ? "Not assigned"
+                    : Model.TableLabel)
+            </strong>
+        </div>
+    </section>
+
+    @if (Model.NumberOfGuests >= 9 || Model.Event != null)
+    {
+        <div class="reservation-focus-alert reservation-context-alert">
+            @if (Model.NumberOfGuests >= 9)
+            {
+                <span>
+                    Large party: confirm the seating plan before approval.
+                </span>
+            }
+
+            @if (Model.Event != null)
+            {
+                <span>
+                    Event booking: @Model.Event.Title.
+                </span>
+            }
+        </div>
+    }
+
+    @if (emailFailed)
+    {
+        <div class="reservation-focus-alert is-danger">
+            <div>
+                <strong>@emailStatusLabel</strong>
+                <span>@Model.LastEmailError</span>
+            </div>
+
+            <form asp-controller="AdminReservations"
+                  asp-action="ResendGuestEmail"
+                  asp-route-id="@Model.Id"
+                  method="post">
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="admin-secondary-button">
+                    Resend email
+                </button>
+            </form>
+        </div>
+    }
+
+    @if (Model.Status == ReservationStatus.Pending)
+    {
+        <section class="admin-section">
+            <header class="admin-section-heading">
+                <div>
+                    <span class="admin-workspace-eyebrow">Decision</span>
+                    <h2>Review and approve</h2>
+                    <p>Assign a table if possible. If the floor is not final, approve without a table and assign it later.</p>
+                </div>
+            </header>
+
+            <form asp-controller="AdminReservations"
+                  asp-action="Approve"
+                  method="post"
+                  class="admin-form-surface reservation-decision-form">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.Id" />
+
+                <div class="admin-form-grid">
+                    <label class="wide">
+                        Table
+                        <select name="tableLabel">
+                            <option value=""
+                                    selected="@(recommendedTable == null)">
+                                No table yet
+                            </option>
+
+                            @foreach (var table in activeTables)
+                            {
+                                var isBusy =
+                                    busyTables.Contains(table.Label);
+
+                                var isTooSmall =
+                                    Model.NumberOfGuests > table.Capacity;
+
+                                var tableText =
+                                    $"{table.Label} / {table.Capacity} seats";
+
+                                if (!string.IsNullOrWhiteSpace(table.Area))
+                                {
+                                    tableText =
+                                        $"{table.Area} / {tableText}";
+                                }
+
+                                if (isBusy)
+                                {
+                                    tableText += " / busy";
+                                }
+                                else if (isTooSmall)
+                                {
+                                    tableText += " / too small";
+                                }
+
+                                <option value="@table.Label"
+                                        selected="@(recommendedTable?.Label == table.Label ? "selected" : null)"
+                                        disabled="@(isBusy || isTooSmall)">
+                                    @tableText
+                                    @(recommendedTable?.Label == table.Label
+                                        ? " / recommended"
+                                        : "")
+                                </option>
+                            }
+                        </select>
+                    </label>
+
+                    <label>
+                        Message to guest
+                        <textarea name="adminNote"
+                                  rows="2"
+                                  maxlength="500"
+                                  placeholder="Optional confirmation note"></textarea>
+                    </label>
+
+                    <label>
+                        Staff-only note
+                        <textarea name="internalNote"
+                                  rows="2"
+                                  maxlength="500"
+                                  placeholder="Visible only in admin"></textarea>
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="admin-primary-button is-success">
+                    Approve
+                </button>
+            </form>
+        </section>
+
+        <details class="admin-content-disclosure reservation-reject-disclosure reservation-reject-zone">
+            <summary>
+                <span class="reservation-disclosure-title">
+                    <small>Alternative decision</small>
+                    <strong>Decline this request</strong>
+                </span>
+                <span class="reservation-disclosure-value">Reject</span>
+            </summary>
+
+            <form asp-controller="AdminReservations"
+                  asp-action="Reject"
+                  method="post"
+                  class="admin-form-surface">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.Id" />
+
+                <div class="admin-form-grid">
+                    <label class="wide">
+                        Message to guest
+                        <textarea name="adminNote"
+                                  rows="3"
+                                  maxlength="500"
+                                  placeholder="Short reason or alternative time"></textarea>
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="admin-primary-button is-danger">
+                    Reject
+                </button>
+            </form>
+        </details>
+    }
+    else if (canEditFloor)
+    {
+        <details class="admin-content-disclosure reservation-workflow-disclosure"
+                 open="@(string.IsNullOrWhiteSpace(Model.TableLabel) ? "open" : null)">
+            <summary>
+                <span class="reservation-disclosure-title">
+                    <small>Floor</small>
+                    <strong>Table assignment</strong>
+                </span>
+                <span class="reservation-disclosure-value">
+                    @(string.IsNullOrWhiteSpace(Model.TableLabel)
+                        ? "Needs table"
+                        : Model.TableLabel)
+                </span>
+            </summary>
+
+            <form asp-controller="AdminReservations"
+                  asp-action="UpdateFloorDetails"
+                  method="post"
+                  class="admin-form-surface">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.Id" />
+
+                <div class="admin-form-grid">
+                    <label>
+                        Table
+                        <select name="tableLabel">
+                            <option value="">Not assigned</option>
+
+                            @foreach (var table in activeTables)
+                            {
+                                var isBusy =
+                                    busyTables.Contains(table.Label);
+
+                                var isTooSmall =
+                                    Model.NumberOfGuests > table.Capacity;
+
+                                var tableText =
+                                    $"{table.Label} / {table.Capacity} seats";
+
+                                if (!string.IsNullOrWhiteSpace(table.Area))
+                                {
+                                    tableText =
+                                        $"{table.Area} / {tableText}";
+                                }
+
+                                if (isBusy)
+                                {
+                                    tableText += " / busy";
+                                }
+                                else if (isTooSmall)
+                                {
+                                    tableText += " / too small";
+                                }
+
+                                <option value="@table.Label"
+                                        selected="@(Model.TableLabel == table.Label ? "selected" : null)"
+                                        disabled="@(isBusy || isTooSmall)">
+                                    @tableText
+                                </option>
+                            }
+                        </select>
+                    </label>
+
+                    <label>
+                        Staff-only note
+                        <input name="internalNote"
+                               value="@Model.InternalNote"
+                               maxlength="500"
+                               placeholder="Optional floor note" />
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="admin-primary-button">
+                    Save table
+                </button>
+            </form>
+        </details>
+    }
+
+    <div class="reservation-reference-grid">
+        <details class="admin-content-disclosure reservation-reference-disclosure">
+            <summary>
+                <span class="reservation-disclosure-title">
+                    <small>Guest</small>
+                    <strong>Contact &amp; notes</strong>
+                </span>
+                <span class="reservation-disclosure-value">Open</span>
+            </summary>
+
+            <div class="reservation-detail-list">
+                <div>
+                    <span>Phone</span>
+                    <a href="tel:@Model.PhoneNumber">@Model.PhoneNumber</a>
+                </div>
+
+                <div>
+                    <span>Email</span>
+                    <a href="mailto:@Model.Email">@Model.Email</a>
+                </div>
+
+                <div>
+                    <span>Submitted</span>
+                    <strong>@createdInSkopje.ToString("dd MMM yyyy, HH:mm")</strong>
+                </div>
+
+                <div>
+                    <span>Email status</span>
+                    <strong>@emailStatusLabel</strong>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Note))
+                {
+                    <div class="wide">
+                        <span>Guest note</span>
+                        <strong>@Model.Note</strong>
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.AdminNote))
+                {
+                    <div class="wide">
+                        <span>Message sent to guest</span>
+                        <strong>@Model.AdminNote</strong>
+                    </div>
+                }
+            </div>
+        </details>
+
+        <details class="admin-content-disclosure reservation-reference-disclosure">
+            <summary>
+                <span class="reservation-disclosure-title">
+                    <small>Audit trail</small>
+                    <strong>Booking history</strong>
+                </span>
+                <span class="reservation-disclosure-value">
+                    @activities.Count update@(activities.Count == 1 ? "" : "s")
+                </span>
+            </summary>
+
+            <ol class="reservation-focus-log">
+                @if (activities.Count == 0)
+                {
+                    <li>
+                        <strong>Reservation submitted</strong>
+                        <span>@createdInSkopje.ToString("dd MMM yyyy, HH:mm")</span>
+                    </li>
+                }
+                else
+                {
+                    @foreach (var activity in activities)
+                    {
+                        var activityAtUtc = DateTime.SpecifyKind(
+                            activity.CreatedAtUtc,
+                            DateTimeKind.Utc);
+
+                        var activityAt = TimeZoneInfo
+                            .ConvertTimeFromUtc(
+                                activityAtUtc,
+                                skopjeTimeZone)
+                            .ToString("dd MMM yyyy, HH:mm");
+
+                        <li>
+                            <strong>@activity.Title</strong>
+                            <span>
+                                @activity.Actor / @activityAt /
+                                @activity.Description
+                            </span>
+                        </li>
+                    }
+                }
+            </ol>
+        </details>
+    </div>
+
+    @if (canCancel)
+    {
+        <details class="admin-content-disclosure reservation-cancel-disclosure reservation-danger-zone">
+            <summary>
+                <span class="reservation-disclosure-title">
+                    <small>Danger zone</small>
+                    <strong>Cancel this booking</strong>
+                </span>
+                <span class="reservation-disclosure-value">Open</span>
+            </summary>
+
+            <form asp-controller="AdminReservations"
+                  asp-action="Cancel"
+                  method="post"
+                  class="admin-form-surface"
+                  onsubmit="return confirm('Cancel this reservation and release its table?');">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.Id" />
+
+                <div class="admin-form-grid">
+                    <label class="wide">
+                        Optional cancellation note
+                        <textarea name="adminNote"
+                                  rows="2"
+                                  maxlength="500"></textarea>
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="admin-primary-button is-danger">
+                    Cancel booking
+                </button>
+            </form>
+        </details>
+    }
+
+</div>

@@ -1,0 +1,115 @@
+@model Rebel.Domain.Entities.Event
+@{
+    var today = DateTime.UtcNow.Date;
+
+    var reservationStats =
+        ViewBag.ReservationStats as Dictionary<Guid, Dictionary<string, int>>
+        ?? new Dictionary<Guid, Dictionary<string, int>>();
+
+    var stats = reservationStats.TryGetValue(
+        Model.Id,
+        out var eventStats)
+            ? eventStats
+            : new Dictionary<string, int>();
+
+    var reservationsCount = stats.GetValueOrDefault("Reservations");
+    var guestsCount = stats.GetValueOrDefault("Guests");
+    var pendingCount = stats.GetValueOrDefault("Pending");
+
+    var isTonight = Model.Date.Date == today;
+    var isPast = Model.Date.Date < today;
+
+    var timeText =
+        Model.StartTime.HasValue && Model.EndTime.HasValue
+            ? $"{Model.StartTime.Value:hh\\:mm} - {Model.EndTime.Value:hh\\:mm}"
+            : Model.StartTime.HasValue
+                ? $"Starts {Model.StartTime.Value:hh\\:mm}"
+                : "Time TBC";
+
+    var isFull =
+        (Model.MaxGuests.HasValue &&
+         guestsCount >= Model.MaxGuests.Value) ||
+        (Model.MaxReservations.HasValue &&
+         reservationsCount >= Model.MaxReservations.Value);
+
+    var nearCapacity =
+        !isFull &&
+        ((Model.MaxGuests.HasValue &&
+          guestsCount >= Model.MaxGuests.Value * 0.8) ||
+         (Model.MaxReservations.HasValue &&
+          reservationsCount >= Model.MaxReservations.Value * 0.8));
+
+    var rowClass =
+        isFull || pendingCount > 0 ? "is-attention" :
+        !Model.IsActive || isPast ? "is-danger" :
+        string.Empty;
+}
+
+<article class="admin-list-row @rowClass">
+    <div class="admin-row-main">
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <img src="@Url.Content(Model.ImageUrl)"
+                 alt=""
+                 loading="lazy"
+                 class="admin-row-thumbnail" />
+        }
+
+        <div class="admin-row-copy">
+            <strong>@Model.Title</strong>
+            <span>@Model.Date.ToString("dd MMM yyyy")</span>
+        </div>
+    </div>
+
+    <div class="admin-row-data">
+        <strong>@reservationsCount bookings</strong>
+        <span>@guestsCount guests / @pendingCount new</span>
+    </div>
+
+    <span class="admin-state @(isFull || nearCapacity ? "is-attention" : !Model.IsActive ? "is-danger" : "")">
+        @(isFull ? "Full" :
+          nearCapacity ? "Almost full" :
+          !Model.IsActive ? "Hidden" :
+          isTonight ? "Tonight" :
+          isPast ? "Past" :
+          "Published")
+    </span>
+
+    <div class="admin-row-actions">
+        <a asp-controller="AdminEvents"
+           asp-action="Bookings"
+           asp-route-id="@Model.Id"
+           class="admin-primary-button">
+            Bookings
+        </a>
+
+        <details class="admin-more-menu">
+            <summary>More</summary>
+
+            <div class="admin-more-panel">
+                <a asp-controller="AdminEvents"
+                   asp-action="Edit"
+                   asp-route-id="@Model.Id">
+                    Edit event
+                </a>
+
+                <a asp-controller="AdminReservations"
+                   asp-action="Index"
+                   asp-route-eventId="@Model.Id">
+                    Reservation list
+                </a>
+
+                <a asp-controller="AdminEvents"
+                   asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   class="is-danger">
+                    Archive event
+                </a>
+
+                <span class="admin-inline-note">
+                    @timeText
+                </span>
+            </div>
+        </details>
+    </div>
+</article>

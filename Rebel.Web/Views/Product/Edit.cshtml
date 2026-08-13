@@ -1,0 +1,360 @@
+﻿@model Rebel.Domain.Entities.Product
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Edit Product";
+
+    var categories = ViewBag.Categories as List<Rebel.Domain.Entities.Category>
+                     ?? new List<Rebel.Domain.Entities.Category>();
+
+    var categoryOptions = new SelectList(
+        categories,
+        "Id",
+        "Name",
+        Model.CategoryId
+    );
+
+    var returnTo = ViewBag.ReturnTo as string;
+    var reviewQueue = ViewBag.BeerProfileReviewQueue as Rebel.Web.Models.BeerProfileReviewQueueViewModel;
+    var backUrl = returnTo switch
+    {
+        "beer-catalog" => Url.Action("Index", "AdminBeerCatalog"),
+        "beer-lab" => Url.Action("Index", "AdminBeerGuideLab"),
+        _ => Url.Action("Index", "Product")
+    };
+    var isBeerProfile = returnTo is "beer-catalog" or "beer-lab";
+    var backLabel = returnTo switch
+    {
+        "beer-catalog" => "Back to Beer Catalogue",
+        "beer-lab" => "Back to Test Lab",
+        _ => "Back to Products"
+    };
+}
+
+<section class="admin-editor-page">
+    <header class="admin-editor-hero">
+                <div>
+                    <small>Menu board</small>
+
+                    <h1>
+                        @(isBeerProfile ? "Edit Beer Profile" : "Edit Product")
+                    </h1>
+
+                    <p>
+                        @(isBeerProfile
+                            ? "Keep the facts guests use to choose this beer accurate."
+                            : "Update the product information, category and availability.")
+                    </p>
+                </div>
+
+                <a href="@backUrl"
+                   class="admin-tool-button">
+                    @backLabel
+                </a>
+    </header>
+
+    @if (returnTo == "beer-catalog" && reviewQueue != null)
+    {
+        <section class="beer-review-progress" aria-label="Beer profile review progress">
+            <div>
+                <span>Catalogue cleanup</span>
+                <strong>
+                    @if (reviewQueue.CurrentPosition.HasValue)
+                    {
+                        <text>Reviewing @reviewQueue.CurrentPosition of @reviewQueue.RemainingCount active profiles</text>
+                    }
+                    else
+                    {
+                        <text>@reviewQueue.RemainingCount active profile@(reviewQueue.RemainingCount == 1 ? "" : "s") still need attention</text>
+                    }
+                </strong>
+            </div>
+
+            @if (reviewQueue.NextBeer != null)
+            {
+                <a asp-action="Edit"
+                   asp-route-id="@reviewQueue.NextBeer.Id"
+                   asp-route-returnTo="beer-catalog">
+                    Skip to @reviewQueue.NextBeer.Name
+                </a>
+            }
+            else
+            {
+                <span class="admin-state is-success">Last active profile</span>
+            }
+        </section>
+    }
+
+    <form asp-action="Edit"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  class="admin-editor-form"
+                  autocomplete="off">
+
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" name="returnTo" value="@returnTo" />
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger mb-4">
+                </div>
+
+                <div class="admin-editor-grid">
+
+                    <div>
+                        <div class="admin-editor-panel">
+                            <h2>Product Details</h2>
+
+                            <div class="admin-editor-field">
+                                <label asp-for="Name"
+                                       class="form-label fw-semibold text-light">
+                                </label>
+
+                                <input asp-for="Name"
+                                       class="form-control"
+                                       autocomplete="off"
+                                       placeholder="Enter product name" />
+
+                                <span asp-validation-for="Name"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <div class="admin-editor-field">
+                                <label asp-for="Description"
+                                       class="form-label fw-semibold text-light">
+                                </label>
+
+                                <textarea asp-for="Description"
+                                          class="form-control"
+                                          rows="5"
+                                          placeholder="Enter a short product description"></textarea>
+
+                                <span asp-validation-for="Description"
+                                      class="text-danger small">
+                                </span>
+                            </div>
+
+                            <div class="admin-editor-fields-grid">
+
+                                <div>
+                                    <label asp-for="Price"
+                                           class="form-label fw-semibold text-light">
+                                    </label>
+
+                                    <div class="input-group">
+                                        <input asp-for="Price"
+                                               class="form-control"
+                                               min="0"
+                                               step="0.01"
+                                               placeholder="0.00" />
+
+                                        <span class="input-group-text">
+                                            MKD
+                                        </span>
+                                    </div>
+
+                                    <span asp-validation-for="Price"
+                                          class="text-danger small">
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <label asp-for="CategoryId"
+                                           class="form-label fw-semibold text-light">
+                                    </label>
+
+                                    <select asp-for="CategoryId"
+                                            asp-items="categoryOptions"
+                                            class="form-select">
+                                        <option value="">
+                                            -- Select category --
+                                        </option>
+                                    </select>
+
+                                    <span asp-validation-for="CategoryId"
+                                          class="text-danger small">
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <div class="form-check form-switch admin-editor-switch">
+                                <input asp-for="IsAvailable"
+                                       class="form-check-input"
+                                       role="switch" />
+
+                                <label asp-for="IsAvailable"
+                                       class="form-check-label text-light">
+                                </label>
+                            </div>
+
+                            <div class="product-tag-editor mt-4">
+                                <span>Menu Signals</span>
+
+                                <label>
+                                    <input asp-for="IsPopular" />
+                                    Popular
+                                </label>
+
+                                <label>
+                                    <input asp-for="IsSpicy" />
+                                    Spicy
+                                </label>
+
+                                <label>
+                                    <input asp-for="IsVegetarian" />
+                                    Vegetarian
+                                </label>
+
+                                <label>
+                                    <input asp-for="IsVegan" />
+                                    Vegan
+                                </label>
+
+                                <label>
+                                    <input asp-for="IsGlutenFree" />
+                                    Gluten free
+                                </label>
+
+                                <label>
+                                    <input asp-for="ContainsNuts" />
+                                    Contains nuts
+                                </label>
+
+                                <label>
+                                    <input asp-for="IsLimited" />
+                                    Limited
+                                </label>
+
+                                <label>
+                                    <input asp-for="IsPromo" />
+                                    Promo
+                                </label>
+                            </div>
+
+                            <partial name="_RecommendationProfileFields"
+                                     model="Model" />
+
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="admin-editor-panel">
+                            <h2>Menu Image</h2>
+
+                            <label asp-for="ImageUrl"
+                                   class="form-label fw-semibold text-light">
+                            </label>
+
+                            <input asp-for="ImageUrl"
+                                   class="form-control"
+                                   autocomplete="off"
+                                   placeholder="https://example.com/product.jpg"
+                                   id="imageUrlInput" />
+
+                            <span asp-validation-for="ImageUrl"
+                                  class="text-danger small">
+                            </span>
+
+                            <p class="text-secondary small mt-2 mb-3">
+                                Change the URL to update the product image.
+                            </p>
+
+                            <div class="admin-media-preview">
+
+                                <img id="imagePreview"
+                                     src="@Model.ImageUrl"
+                                     alt="@Model.Name"
+                                     style="display: @(string.IsNullOrWhiteSpace(Model.ImageUrl)
+                                                                                     ? "none"
+                                                                                     : "block");" />
+
+                                <div id="imagePlaceholder"
+                                     class="admin-media-placeholder"
+                                     style="display: @(string.IsNullOrWhiteSpace(Model.ImageUrl)
+                                                                              ? "flex"
+                                                                              : "none");">
+
+                                    <span>IMG</span>
+
+                                    <strong>
+                                        Product image preview
+                                    </strong>
+
+                                    <small>
+                                        Enter an image URL to display the preview.
+                                    </small>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="admin-editor-actions">
+                    <button type="submit"
+                            name="submitAction"
+                            value="save"
+                            class="btn btn-warning px-4 fw-semibold">
+                        Save Changes
+                    </button>
+
+                    @if (returnTo == "beer-catalog" && reviewQueue?.NextBeer != null)
+                    {
+                        <button type="submit"
+                                name="submitAction"
+                                value="save-next"
+                                class="btn btn-outline-warning px-4 fw-semibold">
+                            Save and review next
+                        </button>
+                    }
+
+                    <a href="@backUrl"
+                       class="btn btn-outline-light px-4">
+                        Cancel
+                    </a>
+                </div>
+
+    </form>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const imageInput = document.getElementById("imageUrlInput");
+            const imagePreview = document.getElementById("imagePreview");
+            const imagePlaceholder = document.getElementById("imagePlaceholder");
+
+            if (!imageInput || !imagePreview || !imagePlaceholder) {
+                return;
+            }
+
+            function showPlaceholder() {
+                imagePreview.style.display = "none";
+                imagePlaceholder.style.display = "flex";
+            }
+
+            function updatePreview() {
+                const imageUrl = imageInput.value.trim();
+
+                if (!imageUrl) {
+                    imagePreview.removeAttribute("src");
+                    showPlaceholder();
+                    return;
+                }
+
+                imagePreview.src = imageUrl;
+                imagePreview.style.display = "block";
+                imagePlaceholder.style.display = "none";
+            }
+
+            imagePreview.addEventListener("error", showPlaceholder);
+            imageInput.addEventListener("input", updatePreview);
+        });
+    </script>
+}

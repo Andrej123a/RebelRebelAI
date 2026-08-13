@@ -1,0 +1,521 @@
+﻿@using Rebel.Domain.Enums
+@model List<Rebel.Domain.Entities.Product>
+
+@{
+    ViewData["Title"] = "Menu";
+
+    var selectedSection = (ViewBag.Section as string ?? "food").ToLower();
+
+    if (selectedSection != "food" &&
+        selectedSection != "beer" &&
+        selectedSection != "drink")
+    {
+        selectedSection = "food";
+    }
+
+    var selectedType = selectedSection switch
+    {
+        "beer" => CategoryType.Beer,
+        "drink" => CategoryType.Drink,
+        _ => CategoryType.Food
+    };
+
+    var sectionTitle = selectedSection switch
+    {
+        "beer" => "Beer Menu",
+        "drink" => "Drinks Menu",
+        _ => "Food Menu"
+    };
+
+    var sectionMessage = selectedSection switch
+    {
+        "beer" => "Cold bottles, fresh pours and zero bad decisions.",
+        "drink" => "Pick your poison. We are not here to judge.",
+        _ => "Messy hands. Full stomach. No regrets."
+    };
+
+    var menuGroups = Model
+        .Where(p => p.Category != null && p.Category.Type == selectedType)
+        .GroupBy(p => p.Category!.Name)
+        .OrderBy(g => g.Key)
+        .ToList();
+}
+
+<div class="rr-menu-page">
+
+    <header class="rr-menu-hero">
+        <div class="rr-menu-hero-noise"></div>
+        <div class="rr-menu-star rr-menu-star-one">✦</div>
+        <div class="rr-menu-star rr-menu-star-two">✦</div>
+
+        <div class="rr-menu-hero-content">
+            <div class="rr-menu-stamp">
+                EST. SKOPJE
+            </div>
+
+            <p class="rr-menu-eyebrow">
+                FOOD · BEER · LOUD NIGHTS
+            </p>
+
+            <h1 class="rr-menu-main-title">
+                REBEL
+                <span>REBEL</span>
+            </h1>
+
+            <p class="rr-menu-lead">
+                Come hungry. Leave louder.
+            </p>
+
+            <nav class="rr-menu-navigation" aria-label="Menu sections">
+                <a asp-controller="Home"
+                   asp-action="Menu"
+                   asp-route-section="food"
+                   class="rr-menu-nav-link @(selectedSection == "food" ? "active" : "")">
+
+                    <span class="rr-menu-nav-number">01</span>
+                    <span>Food</span>
+                </a>
+
+                <a asp-controller="Home"
+                   asp-action="Menu"
+                   asp-route-section="beer"
+                   class="rr-menu-nav-link @(selectedSection == "beer" ? "active" : "")">
+
+                    <span class="rr-menu-nav-number">02</span>
+                    <span>Beer</span>
+                </a>
+
+                <a asp-controller="Home"
+                   asp-action="Menu"
+                   asp-route-section="drink"
+                   class="rr-menu-nav-link @(selectedSection == "drink" ? "active" : "")">
+
+                    <span class="rr-menu-nav-number">03</span>
+                    <span>Drinks</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="rr-menu-content">
+
+        @if (selectedSection == "beer")
+        {
+            <aside class="rr-menu-guide-callout">
+                <div>
+                    <span>CAN'T PICK?</span>
+                    <strong>Let the Beer Guide narrow the fridge.</strong>
+                </div>
+
+                <a asp-controller="BeerGuide" asp-action="Index">
+                    Find my beer &rarr;
+                </a>
+            </aside>
+        }
+
+        <div class="rr-menu-intro">
+            <div>
+                <p class="rr-menu-intro-label">CURRENTLY SERVING</p>
+                <h2>@sectionTitle</h2>
+            </div>
+
+        <p class="rr-menu-intro-text">
+            @sectionMessage
+        </p>
+    </div>
+
+        <section class="rr-menu-tools"
+                 aria-label="Menu search and filters">
+            <div class="rr-menu-search">
+                <label for="menuSearchInput">
+                    Find your order
+                </label>
+                <input id="menuSearchInput"
+                       type="search"
+                       placeholder="Search burgers, beer, spicy, vegan..."
+                       autocomplete="off" />
+            </div>
+
+            <div class="rr-menu-chip-row"
+                 aria-label="Menu tag filters">
+                <button type="button"
+                        class="rr-menu-chip active"
+                        aria-pressed="true"
+                        data-filter="all">
+                    All
+                </button>
+                <button type="button"
+                        class="rr-menu-chip"
+                        aria-pressed="false"
+                        data-filter="available">
+                    Available
+                </button>
+                <button type="button"
+                        class="rr-menu-chip"
+                        aria-pressed="false"
+                        data-filter="popular">
+                    Popular
+                </button>
+                <button type="button"
+                        class="rr-menu-chip"
+                        aria-pressed="false"
+                        data-filter="spicy">
+                    Spicy
+                </button>
+                <button type="button"
+                        class="rr-menu-chip"
+                        aria-pressed="false"
+                        data-filter="vegan">
+                    Vegan
+                </button>
+                <button type="button"
+                        class="rr-menu-chip"
+                        aria-pressed="false"
+                        data-filter="vegetarian">
+                    Vegetarian
+                </button>
+                <button type="button"
+                        class="rr-menu-chip"
+                        aria-pressed="false"
+                        data-filter="glutenfree">
+                    Gluten-free
+                </button>
+            </div>
+
+            <p id="menuFilterSummary"
+               class="rr-menu-filter-summary"></p>
+
+            <div id="menuFilterEmpty"
+                 class="rr-menu-filter-empty"
+                 hidden>
+                <strong>No matching menu items.</strong>
+                <span>Try another search or clear the filters.</span>
+                <button type="button"
+                        id="menuFilterClear">
+                    Clear filters
+                </button>
+            </div>
+        </section>
+
+        @if (!menuGroups.Any())
+        {
+            <div class="rr-menu-empty">
+                <span class="rr-menu-empty-symbol">✕</span>
+                <h3>Nothing here yet.</h3>
+                <p>The rebels are still working on this part of the menu.</p>
+            </div>
+        }
+        else
+        {
+            var categoryNumber = 1;
+
+            @foreach (var group in menuGroups)
+            {
+                <section class="rr-menu-category">
+
+                    <div class="rr-category-heading">
+                        <div class="rr-category-number">
+                            @categoryNumber.ToString("00")
+                        </div>
+
+                        <div class="rr-category-title-wrap">
+                            <span>REBEL MENU FILE</span>
+                            <h3>@group.Key</h3>
+                        </div>
+
+                        <div class="rr-category-count">
+                            @group.Count()
+                            @(group.Count() == 1 ? "ITEM" : "ITEMS")
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+
+                        @foreach (var product in group)
+                        {
+                            var pairingDescription = string.IsNullOrWhiteSpace(product.Description)
+                                ? null
+                                : product.Description.Trim()[..Math.Min(product.Description.Trim().Length, 180)];
+                            var rebelPrompt = selectedType switch
+                            {
+                                CategoryType.Food when product.IsAvailable =>
+                                    $"I need a beer pairing for {product.Name}." +
+                                    (pairingDescription == null
+                                        ? ""
+                                        : $" The dish is: {pairingDescription}.") +
+                                    " Give me three available options.",
+                                CategoryType.Beer when product.IsAvailable =>
+                                    $"Tell me about {product.Name}.",
+                                CategoryType.Beer =>
+                                    $"Tell me about {product.Name}.",
+                                _ => null
+                            };
+
+                            var searchableText =
+                                $"{product.Name} {product.Description} {group.Key}"
+                                    .ToLowerInvariant()
+                                    .Replace("\"", string.Empty);
+
+                            var tagData = string.Join(
+                                " ",
+                                new[]
+                                {
+                                    product.IsAvailable ? "available" : "unavailable",
+                                    product.IsPopular ? "popular" : "",
+                                    product.IsSpicy ? "spicy" : "",
+                                    product.IsVegetarian ? "vegetarian" : "",
+                                    product.IsVegan ? "vegan" : "",
+                                    product.IsGlutenFree ? "glutenfree" : "",
+                                    product.ContainsNuts ? "nuts" : "",
+                                    product.IsLimited ? "limited" : "",
+                                    product.IsPromo ? "promo" : ""
+                                }.Where(tag => !string.IsNullOrWhiteSpace(tag)));
+
+                            <div class="col-md-6 col-xl-4 rr-menu-product-shell"
+                                 data-menu-item
+                                 data-search="@searchableText"
+                                 data-tags="@tagData">
+
+                                <article class="rr-menu-card h-100 @(!product.IsAvailable ? "is-unavailable" : "")">
+
+                                    <div class="rr-menu-card-image-wrap">
+
+                                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                        {
+                                            <img src="@product.ImageUrl"
+                                                 alt="@product.Name"
+                                                 class="rr-menu-card-image"
+                                                 loading="lazy" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rr-menu-card-placeholder">
+                                                <span>RR</span>
+                                                <small>NO PHOTO.<br />STILL TASTES GOOD.</small>
+                                            </div>
+                                        }
+
+                                        <div class="rr-menu-card-shade"></div>
+
+                                        <div class="rr-menu-price">
+                                            <strong>@product.Price.ToString("0.##")</strong>
+                                            <span>ДЕН</span>
+                                        </div>
+
+                                        @if (!product.IsAvailable)
+                                        {
+                                            <div class="rr-sold-out">
+                                                SOLD OUT
+                                            </div>
+                                        }
+                                    </div>
+
+                                    <div class="rr-menu-card-body">
+
+                                        <div class="rr-menu-card-topline">
+                                            <span>@group.Key</span>
+
+                                            @if (product.IsAvailable)
+                                            {
+                                                <span class="rr-availability-dot">
+                                                    AVAILABLE
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="rr-availability-dot unavailable">
+                                                    UNAVAILABLE
+                                                </span>
+                                            }
+                                        </div>
+
+                                        <h4 class="rr-menu-card-title">
+                                            @product.Name
+                                        </h4>
+
+                                        <div class="rr-menu-tags">
+                                            @if (product.IsPopular)
+                                            {
+                                                <span><i>*</i>Popular</span>
+                                            }
+
+                                            @if (product.IsSpicy)
+                                            {
+                                                <span><i>🌶</i>Spicy</span>
+                                            }
+
+                                            @if (product.IsVegetarian)
+                                            {
+                                                <span><i>☘</i>Vegetarian</span>
+                                            }
+
+                                            @if (product.IsVegan)
+                                            {
+                                                <span><i>🌿</i>Vegan</span>
+                                            }
+
+                                            @if (product.IsGlutenFree)
+                                            {
+                                                <span><i>GF</i>Gluten free</span>
+                                            }
+
+                                            @if (product.ContainsNuts)
+                                            {
+                                                <span class="warning"><i>!</i>Contains nuts</span>
+                                            }
+
+                                            @if (product.IsLimited)
+                                            {
+                                                <span><i>#</i>Limited</span>
+                                            }
+
+                                            @if (product.IsPromo)
+                                            {
+                                                <span><i>%</i>Promo</span>
+                                            }
+                                        </div>
+
+                                        <p class="rr-menu-card-description">
+                                            @product.Description
+                                        </p>
+
+                                        @if (!string.IsNullOrWhiteSpace(rebelPrompt))
+                                        {
+                                            <a asp-controller="BeerGuide"
+                                               asp-action="Index"
+                                               asp-route-prompt="@rebelPrompt"
+                                               class="rr-menu-rebel-action">
+                                                <span aria-hidden="true"></span>
+                                                <strong>
+                                                    @(selectedType == CategoryType.Food
+                                                        ? "Find a beer for this"
+                                                        : product.IsAvailable
+                                                            ? "Ask about this beer"
+                                                            : "Find something similar")
+                                                </strong>
+                                                <i aria-hidden="true">&rarr;</i>
+                                            </a>
+                                        }
+
+                                        <div class="rr-menu-card-footer">
+                                            <span>REBEL REBEL BY FAT KITCHEN</span>
+                                            <span>✦</span>
+                                        </div>
+                                    </div>
+
+                                </article>
+
+                            </div>
+                        }
+
+                    </div>
+                </section>
+
+                categoryNumber++;
+            }
+        }
+
+    </main>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const searchInput =
+                document.getElementById("menuSearchInput");
+            const summary =
+                document.getElementById("menuFilterSummary");
+            const emptyState =
+                document.getElementById("menuFilterEmpty");
+            const clearButton =
+                document.getElementById("menuFilterClear");
+            const chips =
+                Array.from(document.querySelectorAll(".rr-menu-chip"));
+            const items =
+                Array.from(document.querySelectorAll("[data-menu-item]"));
+            const categories =
+                Array.from(document.querySelectorAll(".rr-menu-category"));
+
+            if (!searchInput || !items.length) {
+                return;
+            }
+
+            let activeFilter = "all";
+
+            const applyFilters = () => {
+                const query =
+                    searchInput.value.trim().toLowerCase();
+
+                let visibleCount = 0;
+
+                items.forEach((item) => {
+                    const matchesSearch =
+                        !query ||
+                        item.dataset.search.includes(query);
+                    const matchesFilter =
+                        activeFilter === "all" ||
+                        item.dataset.tags.split(" ").includes(activeFilter);
+                    const isVisible =
+                        matchesSearch && matchesFilter;
+
+                    item.hidden = !isVisible;
+
+                    if (isVisible) {
+                        visibleCount++;
+                    }
+                });
+
+                categories.forEach((category) => {
+                    const hasVisibleItems =
+                        category.querySelector("[data-menu-item]:not([hidden])") !== null;
+
+                    category.hidden = !hasVisibleItems;
+                });
+
+                if (summary) {
+                    summary.textContent =
+                        visibleCount === 1
+                            ? "1 item found"
+                            : `${visibleCount} items found`;
+                }
+
+                if (emptyState) {
+                    emptyState.hidden = visibleCount > 0;
+                }
+            };
+
+            chips.forEach((chip) => {
+                chip.addEventListener("click", () => {
+                    activeFilter = chip.dataset.filter ?? "all";
+
+                    chips.forEach((item) => {
+                        item.classList.toggle("active", item === chip);
+                        item.setAttribute(
+                            "aria-pressed",
+                            item === chip ? "true" : "false");
+                    });
+
+                    applyFilters();
+                });
+            });
+
+            searchInput.addEventListener("input", applyFilters);
+            clearButton?.addEventListener("click", () => {
+                searchInput.value = "";
+                activeFilter = "all";
+
+                chips.forEach((item) => {
+                    const isAll = item.dataset.filter === "all";
+                    item.classList.toggle("active", isAll);
+                    item.setAttribute(
+                        "aria-pressed",
+                        isAll ? "true" : "false");
+                });
+
+                applyFilters();
+                searchInput.focus();
+            });
+            applyFilters();
+        })();
+    </script>
+}

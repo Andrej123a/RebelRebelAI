@@ -1,0 +1,96 @@
+@model Rebel.Domain.Entities.Reservation
+@using Rebel.Domain.Enums
+
+@{
+    var isPending =
+        Model.Status == ReservationStatus.Pending;
+
+    var isClosed =
+        Model.Status == ReservationStatus.Arrived ||
+        Model.Status == ReservationStatus.NoShow ||
+        Model.Status == ReservationStatus.Cancelled ||
+        Model.Status == ReservationStatus.Rejected;
+
+    var rowClass =
+        isPending ? "is-attention" :
+        Model.Status == ReservationStatus.Arrived ? "is-success" :
+        Model.Status == ReservationStatus.NoShow ||
+        Model.Status == ReservationStatus.Cancelled ||
+        Model.Status == ReservationStatus.Rejected
+            ? "is-danger"
+            : string.Empty;
+
+    var stateClass =
+        isPending ? "is-attention" :
+        Model.Status == ReservationStatus.Arrived ? "is-success" :
+        Model.Status == ReservationStatus.NoShow ||
+        Model.Status == ReservationStatus.Cancelled ||
+        Model.Status == ReservationStatus.Rejected
+            ? "is-danger"
+            : string.Empty;
+
+    var statusLabel = Model.Status switch
+    {
+        ReservationStatus.Pending => "Needs review",
+        ReservationStatus.Approved => "Approved",
+        ReservationStatus.Arrived => "Arrived",
+        ReservationStatus.NoShow => "No-show",
+        ReservationStatus.Cancelled => "Cancelled",
+        ReservationStatus.Rejected => "Rejected",
+        _ => Model.Status.ToString()
+    };
+
+}
+
+<article class="admin-list-row @rowClass">
+    <div class="admin-row-main">
+        <div class="admin-row-data">
+            <strong>@Model.ReservationTime.ToString(@"hh\:mm")</strong>
+            <span>@Model.ReservationDate.ToString("ddd")</span>
+        </div>
+
+        <div class="admin-row-copy">
+            <strong>@Model.FullName</strong>
+            <span>
+                @Model.NumberOfGuests
+                @(Model.NumberOfGuests == 1 ? "guest" : "guests")
+                /
+                @(string.IsNullOrWhiteSpace(Model.TableLabel)
+                    ? "No table"
+                    : $"Table {Model.TableLabel}")
+            </span>
+        </div>
+    </div>
+
+    <div class="admin-row-data">
+        @if (Model.Event != null)
+        {
+            <strong>@Model.Event.Title</strong>
+            <span>Event booking</span>
+        }
+        else if (Model.NumberOfGuests >= 9)
+        {
+            <strong>@Model.NumberOfGuests guests</strong>
+            <span>Large party</span>
+        }
+        else
+        {
+            <strong>@(isClosed ? "Complete" : "Standard")</strong>
+            <span>Booking</span>
+        }
+    </div>
+
+    <span class="admin-state @stateClass">
+        @statusLabel
+    </span>
+
+    <div class="admin-row-actions">
+        <a asp-controller="AdminReservations"
+           asp-action="Details"
+           asp-route-id="@Model.Id"
+           class="reservation-list-open-action @(isPending ? "admin-primary-button" : "admin-secondary-button")"
+           aria-label="@(isPending ? $"Review booking for {Model.FullName}" : $"Open booking for {Model.FullName}")">
+            @(isPending ? "Review" : "Open booking")
+        </a>
+    </div>
+</article>

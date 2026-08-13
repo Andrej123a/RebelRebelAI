@@ -1,0 +1,310 @@
+@model Rebel.Domain.Entities.Event
+
+@{
+    ViewData["Title"] = "Edit Event";
+}
+
+<section class="admin-editor-page">
+    <header class="admin-editor-hero">
+        <div>
+            <small>Gig calendar</small>
+            <h1>Edit Event</h1>
+            <p>
+                Update the public event details, service schedule, capacity
+                and visibility from one focused editor.
+            </p>
+        </div>
+
+        <a asp-controller="AdminEvents"
+           asp-action="Index"
+           class="admin-tool-button">
+            Back to Events
+        </a>
+    </header>
+
+    <form asp-controller="AdminEvents"
+          asp-action="Edit"
+          asp-route-id="@Model.Id"
+          method="post"
+          class="admin-editor-form"
+          autocomplete="off">
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+        <div class="admin-editor-grid">
+            <section class="admin-editor-panel">
+                <h2>Event Details</h2>
+                <p class="admin-editor-help">
+                    Capacity fields are optional. Leave them empty when normal
+                    table availability should control reservations.
+                </p>
+
+                <div class="admin-editor-field">
+                    <label asp-for="Title"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="Title"
+                           class="form-control"
+                           placeholder="Beer tasting, DJ night, live band..."
+                           autocomplete="off" />
+
+                    <span asp-validation-for="Title"
+                          class="text-danger small">
+                    </span>
+                </div>
+
+                <div class="admin-editor-field">
+                    <label asp-for="Description"
+                           class="form-label">
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="6"
+                              placeholder="Describe the event, music and atmosphere"></textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger small">
+                    </span>
+                </div>
+
+                <div class="admin-editor-fields-grid">
+                    <div>
+                        <label asp-for="Date"
+                               class="form-label">
+                        </label>
+
+                        <input asp-for="Date"
+                               type="date"
+                               class="form-control" />
+
+                        <span asp-validation-for="Date"
+                              class="text-danger small">
+                        </span>
+                    </div>
+
+                    <div>
+                        <label asp-for="StartTime"
+                               class="form-label">
+                            Start Time
+                        </label>
+
+                        <input asp-for="StartTime"
+                               type="time"
+                               class="form-control"
+                               id="startTimeInput" />
+
+                        <span asp-validation-for="StartTime"
+                              class="text-danger small">
+                        </span>
+                    </div>
+
+                    <div>
+                        <label asp-for="EndTime"
+                               class="form-label">
+                            End Time
+                        </label>
+
+                        <input asp-for="EndTime"
+                               type="time"
+                               class="form-control"
+                               id="endTimeInput" />
+
+                        <span asp-validation-for="EndTime"
+                              class="text-danger small">
+                        </span>
+
+                        <div id="timeValidationMessage"
+                             class="small mt-2 d-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label asp-for="MaxReservations"
+                               class="form-label">
+                            Reservation Limit
+                        </label>
+
+                        <input asp-for="MaxReservations"
+                               type="number"
+                               min="1"
+                               class="form-control"
+                               placeholder="Unlimited" />
+
+                        <span asp-validation-for="MaxReservations"
+                              class="text-danger small">
+                        </span>
+                    </div>
+
+                    <div>
+                        <label asp-for="MaxGuests"
+                               class="form-label">
+                            Guest Capacity
+                        </label>
+
+                        <input asp-for="MaxGuests"
+                               type="number"
+                               min="1"
+                               class="form-control"
+                               placeholder="Unlimited" />
+
+                        <span asp-validation-for="MaxGuests"
+                              class="text-danger small">
+                        </span>
+                    </div>
+                </div>
+
+                <div class="form-check form-switch admin-editor-switch">
+                    <input asp-for="IsActive"
+                           class="form-check-input"
+                           role="switch" />
+
+                    <label asp-for="IsActive"
+                           class="form-check-label">
+                        Visible on the public Events page
+                    </label>
+                </div>
+            </section>
+
+            <section class="admin-editor-panel">
+                <h2>Event Poster</h2>
+
+                <div class="admin-editor-field">
+                    <label asp-for="ImageUrl"
+                           class="form-label">
+                        Image URL
+                    </label>
+
+                    <input asp-for="ImageUrl"
+                           class="form-control"
+                           placeholder="https://example.com/event.jpg"
+                           autocomplete="off"
+                           id="imageUrlInput" />
+
+                    <span asp-validation-for="ImageUrl"
+                          class="text-danger small">
+                    </span>
+                </div>
+
+                <div class="admin-media-preview">
+                    <img id="imagePreview"
+                         src="@Model.ImageUrl"
+                         alt="@Model.Title"
+                         style="display: @(string.IsNullOrWhiteSpace(Model.ImageUrl) ? "none" : "block");" />
+
+                    <div id="imagePlaceholder"
+                         class="admin-media-placeholder"
+                         style="display: @(string.IsNullOrWhiteSpace(Model.ImageUrl) ? "flex" : "none");">
+                        <span>IMG</span>
+                        <strong>Event image preview</strong>
+                        <small>The poster will appear here after entering its URL.</small>
+                    </div>
+                </div>
+
+                <ul class="admin-editor-note-list mt-3">
+                    <li>Changing visibility immediately affects the public Events page.</li>
+                    <li>Existing event reservations stay connected after editing.</li>
+                </ul>
+            </section>
+        </div>
+
+        <div class="admin-editor-actions">
+            <button type="submit"
+                    class="btn btn-warning"
+                    id="saveEventButton">
+                Save Changes
+            </button>
+
+            <a asp-controller="AdminEvents"
+               asp-action="Index"
+               class="btn btn-outline-light">
+                Cancel
+            </a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const imageInput = document.getElementById("imageUrlInput");
+            const imagePreview = document.getElementById("imagePreview");
+            const imagePlaceholder = document.getElementById("imagePlaceholder");
+
+            const startTimeInput = document.getElementById("startTimeInput");
+            const endTimeInput = document.getElementById("endTimeInput");
+            const timeMessage = document.getElementById("timeValidationMessage");
+            const submitButton = document.getElementById("saveEventButton");
+
+            function showImagePlaceholder() {
+                imagePreview.style.display = "none";
+                imagePlaceholder.style.display = "flex";
+            }
+
+            function updateImagePreview() {
+                const imageUrl = imageInput.value.trim();
+
+                if (!imageUrl) {
+                    imagePreview.removeAttribute("src");
+                    showImagePlaceholder();
+                    return;
+                }
+
+                imagePreview.src = imageUrl;
+                imagePreview.style.display = "block";
+                imagePlaceholder.style.display = "none";
+            }
+
+            function validateTimes() {
+                const startTime = startTimeInput.value;
+                const endTime = endTimeInput.value;
+
+                timeMessage.classList.add("d-none");
+                timeMessage.classList.remove("text-danger", "text-warning");
+                submitButton.disabled = false;
+
+                if (!startTime || !endTime) {
+                    return;
+                }
+
+                if (startTime === endTime) {
+                    timeMessage.textContent =
+                        "Start time and end time cannot be the same.";
+
+                    timeMessage.classList.remove("d-none");
+                    timeMessage.classList.add("text-danger");
+                    submitButton.disabled = true;
+
+                    return;
+                }
+
+                if (endTime < startTime) {
+                    timeMessage.textContent =
+                        "This event ends after midnight on the following day.";
+
+                    timeMessage.classList.remove("d-none");
+                    timeMessage.classList.add("text-warning");
+                }
+            }
+
+            if (imageInput && imagePreview && imagePlaceholder) {
+                imagePreview.addEventListener("error", showImagePlaceholder);
+                imageInput.addEventListener("input", updateImagePreview);
+            }
+
+            if (startTimeInput && endTimeInput) {
+                startTimeInput.addEventListener("change", validateTimes);
+                endTimeInput.addEventListener("change", validateTimes);
+                validateTimes();
+            }
+        });
+    </script>
+}

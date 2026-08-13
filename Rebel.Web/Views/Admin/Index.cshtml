@@ -1,0 +1,293 @@
+@model Rebel.Web.Models.DashboardViewModel
+@using Rebel.Web.Authorization
+
+@{
+    ViewData["Title"] = "Dashboard";
+
+    var canManageSetup =
+        User.IsInRole(AdminRoles.Manager) ||
+        User.IsInRole(AdminRoles.LegacyAdmin);
+
+    var visibleSearchResults = canManageSetup
+        ? Model.SearchResults
+        : Model.SearchResults
+            .Where(result => result.Type == "Reservation")
+            .ToList();
+
+    var actionCount =
+        Model.TonightPendingReservationsCount +
+        Model.TonightUnassignedTablesCount +
+        Model.EmailFailuresCount;
+}
+
+<div class="admin-workspace dashboard-simple">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">Today</span>
+            <h1 class="admin-workspace-title">Dashboard</h1>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="AdminReservations"
+               asp-action="Tonight"
+               class="admin-primary-button">
+                Open tonight
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar" aria-label="Today summary">
+        <a asp-controller="AdminReservations"
+           asp-action="Index"
+           asp-route-status="Pending"
+           class="admin-metric @(Model.TonightPendingReservationsCount > 0 ? "is-attention" : "")">
+            <span>Need review</span>
+            <strong>@Model.TonightPendingReservationsCount</strong>
+        </a>
+
+        <a asp-controller="AdminReservations"
+           asp-action="Tonight"
+           class="admin-metric">
+            <span>Tonight's guests</span>
+            <strong>@Model.TonightGuestsCount</strong>
+        </a>
+
+        <a asp-controller="AdminReservations"
+           asp-action="Index"
+           asp-route-needsTable="true"
+           class="admin-metric @(Model.TonightUnassignedTablesCount > 0 ? "is-attention" : "")">
+            <span>Need table</span>
+            <strong>@Model.TonightUnassignedTablesCount</strong>
+        </a>
+    </section>
+
+    <section class="admin-section dashboard-actions">
+        <header class="admin-section-heading">
+            <div>
+                <span class="admin-workspace-eyebrow">Now</span>
+                <h2>@(actionCount > 0 ? "Needs attention" : "All clear")</h2>
+            </div>
+
+            @if (actionCount > 0)
+            {
+                <span class="admin-section-count">@actionCount</span>
+            }
+        </header>
+
+        @if (actionCount == 0)
+        {
+            <div class="dashboard-clear-state">
+                <span aria-hidden="true"></span>
+                <strong>Nothing needs action right now.</strong>
+            </div>
+        }
+        else
+        {
+            <div class="admin-list">
+                @if (Model.TonightPendingReservationsCount > 0)
+                {
+                    <article class="admin-list-row is-attention">
+                        <div class="admin-row-copy">
+                            <strong>New reservation requests</strong>
+                            <span>@Model.TonightPendingReservationsCount waiting</span>
+                        </div>
+                        <span class="admin-state is-attention">Review</span>
+                        <div class="admin-row-actions">
+                            <a asp-controller="AdminReservations"
+                               asp-action="Index"
+                               asp-route-status="Pending"
+                               class="admin-primary-button">
+                                Open requests
+                            </a>
+                        </div>
+                    </article>
+                }
+
+                @if (Model.TonightUnassignedTablesCount > 0)
+                {
+                    <article class="admin-list-row is-attention">
+                        <div class="admin-row-copy">
+                            <strong>Bookings without a table</strong>
+                            <span>@Model.TonightUnassignedTablesCount waiting</span>
+                        </div>
+                        <span class="admin-state is-attention">Assign</span>
+                        <div class="admin-row-actions">
+                            <a asp-controller="AdminReservations"
+                               asp-action="Index"
+                               asp-route-needsTable="true"
+                               class="admin-primary-button">
+                                Assign tables
+                            </a>
+                        </div>
+                    </article>
+                }
+
+                @if (Model.EmailFailuresCount > 0)
+                {
+                    <article class="admin-list-row is-danger">
+                        <div class="admin-row-copy">
+                            <strong>Guest emails failed</strong>
+                            <span>@Model.EmailFailuresCount failed</span>
+                        </div>
+                        <span class="admin-state is-danger">Check</span>
+                        <div class="admin-row-actions">
+                            <a asp-controller="AdminReservations"
+                               asp-action="Index"
+                               class="admin-secondary-button">
+                                Open bookings
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="admin-section">
+        <header class="admin-section-heading">
+            <div>
+                <span class="admin-workspace-eyebrow">Tonight</span>
+                <h2>Next arrivals</h2>
+            </div>
+
+            <a asp-controller="AdminReservations"
+               asp-action="Tonight"
+               class="admin-secondary-button">
+                See everyone
+            </a>
+        </header>
+
+        @if (Model.NextArrivals.Count == 0)
+        {
+            <div class="admin-empty-state">
+                <strong>No arrivals waiting.</strong>
+            </div>
+        }
+        else
+        {
+            <div class="admin-list">
+                @foreach (var reservation in Model.NextArrivals)
+                {
+                    <article class="admin-list-row dashboard-arrival-row">
+                        <div class="admin-row-main">
+                            <div class="admin-row-data">
+                                <strong>@reservation.ReservationTime.ToString(@"hh\:mm")</strong>
+                                <span>Arrival</span>
+                            </div>
+                            <div class="admin-row-copy">
+                                <strong>@reservation.FullName</strong>
+                                <span>
+                                    @reservation.NumberOfGuests guests /
+                                    @(string.IsNullOrWhiteSpace(reservation.TableLabel)
+                                        ? "No table"
+                                        : $"Table {reservation.TableLabel}")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="admin-row-actions">
+                            <a asp-controller="AdminReservations"
+                               asp-action="Details"
+                               asp-route-id="@reservation.Id"
+                               class="admin-secondary-button">
+                                Open
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <details class="admin-filter-disclosure"
+             open="@(!string.IsNullOrWhiteSpace(Model.SearchQuery) ? "open" : null)">
+        <summary>
+            <span>Search everything</span>
+            <span>Guest, booking, event or menu item</span>
+        </summary>
+
+        <form asp-controller="Admin"
+              asp-action="Index"
+              method="get"
+              class="admin-filter-panel admin-dashboard-search">
+            <label>
+                Search
+                <input type="search"
+                       name="q"
+                       value="@Model.SearchQuery"
+                       placeholder="Name or reservation code"
+                       autocomplete="off" />
+            </label>
+            <button type="submit" class="admin-primary-button">Search</button>
+            @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+            {
+                <a asp-controller="Admin"
+                   asp-action="Index"
+                   class="admin-secondary-button">Clear</a>
+            }
+        </form>
+
+        @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+        {
+            @if (visibleSearchResults.Count == 0)
+            {
+                <div class="admin-empty-state"><strong>No results found.</strong></div>
+            }
+            else
+            {
+                <div class="admin-list">
+                    @foreach (var result in visibleSearchResults)
+                    {
+                        <a asp-controller="@result.Controller"
+                           asp-action="@result.Action"
+                           asp-route-id="@result.Id"
+                           class="admin-list-row admin-search-result-row">
+                            <div class="admin-row-copy">
+                                <strong>@result.Title</strong>
+                                <span>@result.Meta</span>
+                            </div>
+                            <span class="admin-state">@result.Type</span>
+                        </a>
+                    }
+                </div>
+            }
+        }
+    </details>
+
+    @if (canManageSetup && Model.UpcomingEvents.Count > 0)
+    {
+        <details class="admin-content-disclosure">
+            <summary>
+                <span>Upcoming events</span>
+                <span>@Model.UpcomingEvents.Count</span>
+            </summary>
+            <div class="admin-list">
+                @foreach (var eventItem in Model.UpcomingEvents)
+                {
+                    <article class="admin-list-row">
+                        <div class="admin-row-main">
+                            @if (!string.IsNullOrWhiteSpace(eventItem.ImageUrl))
+                            {
+                                <img src="@Url.Content(eventItem.ImageUrl)"
+                                     alt=""
+                                     loading="lazy"
+                                     class="admin-row-thumbnail" />
+                            }
+                            <div class="admin-row-copy">
+                                <strong>@eventItem.Title</strong>
+                                <span>@eventItem.Date.ToString("dd MMM yyyy")</span>
+                            </div>
+                        </div>
+                        <div class="admin-row-actions">
+                            <a asp-controller="AdminEvents"
+                               asp-action="Edit"
+                               asp-route-id="@eventItem.Id"
+                               class="admin-secondary-button">Open</a>
+                        </div>
+                    </article>
+                }
+            </div>
+        </details>
+    }
+
+</div>

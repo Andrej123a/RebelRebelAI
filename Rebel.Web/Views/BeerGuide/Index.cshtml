@@ -1,0 +1,963 @@
+@model Rebel.Web.Models.BeerGuideViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Beer Guide";
+    ViewData["MetaDescription"] = "Find a Rebel Rebel beer that matches your taste or tonight's food.";
+
+    var request = Model.Request;
+    var selectedMode = request.Mode == "food" ? "food" : "taste";
+    var activeTool = Model.HasSearched ? "quick" : "chat";
+    var initialChatPrompt = JsonSerializer.Serialize(Model.InitialChatPrompt);
+}
+
+<div class="rr-guide-page">
+    <header class="rr-guide-header">
+        <div class="rr-guide-header-copy">
+            <span class="rr-guide-kicker">YOUR BARTENDER, MINUS THE SHOUTING</span>
+            <h1>FIND YOUR<br /><em>POUR.</em></h1>
+            <p>Say what you are craving. We will search the beers actually in the fridge.</p>
+        </div>
+
+        <div class="rr-guide-count" aria-label="Available beer count">
+            <strong>@Model.AvailableBeerCount</strong>
+            <span>available<br />now</span>
+        </div>
+    </header>
+
+    <nav class="rr-guide-tool-tabs"
+         role="tablist"
+         aria-label="Choose beer guide mode">
+        <button type="button"
+                role="tab"
+                data-guide-tool-button="chat"
+                aria-controls="rr-guide-chat"
+                aria-selected="@(activeTool == "chat" ? "true" : "false")">
+            <span>Chat with the bartender</span>
+            <small>Say it your way</small>
+        </button>
+        <button type="button"
+                role="tab"
+                data-guide-tool-button="quick"
+                aria-controls="rr-guide-quick"
+                aria-selected="@(activeTool == "quick" ? "true" : "false")">
+            <span>Quick picker</span>
+            <small>Tap through it</small>
+        </button>
+    </nav>
+
+    <main class="rr-guide-workspace" data-active-tool="@activeTool">
+        <section id="rr-guide-chat"
+                 class="rr-guide-chat"
+                 data-guide-tool-panel="chat"
+                 role="tabpanel"
+                 aria-labelledby="rr-guide-chat-title">
+            <header class="rr-guide-chat-heading">
+                <div>
+                    <span>BEHIND THE BAR</span>
+                    <h2 id="rr-guide-chat-title">WHAT ARE YOU<br />THIRSTY FOR?</h2>
+                </div>
+                <button type="button"
+                        class="rr-guide-chat-reset"
+                        data-chat-reset
+                        title="Start a new beer chat"
+                        aria-label="Start a new beer chat">&#8635;</button>
+            </header>
+
+            <div class="rr-guide-preference-strip"
+                 data-chat-preferences
+                 aria-live="polite"
+                 hidden>
+                <span>Keeping in mind</span>
+                <div data-chat-preference-items></div>
+            </div>
+
+            <div class="rr-guide-chat-shell">
+                <div class="rr-guide-chat-thread"
+                     data-chat-thread
+                     role="log"
+                     aria-live="polite"
+                     aria-busy="false">
+                    <article class="rr-guide-message rr-guide-message-assistant">
+                        <span class="rr-guide-message-speaker rr-guide-ziggy"
+                              aria-label="Rebel Rebel bartender">
+                            <img src="~/images/hero.jpg" alt="" aria-hidden="true" />
+                        </span>
+                        <div class="rr-guide-message-content">
+                            <p>What are you in the mood for? Give me a taste, a style, or what is on your plate.</p>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="rr-guide-chat-controls">
+                    <div class="rr-guide-chat-prompts" aria-label="Example questions">
+                        <button type="button" data-chat-prompt="I want one citrussy IPA with grapefruit aroma.">
+                            Grapefruit IPA
+                        </button>
+                        <button type="button" data-chat-prompt="I want something dark and roasty, but not too sweet.">
+                            Dark / roasty / not sweet
+                        </button>
+                        <button type="button" data-chat-prompt="What beer should I have with a Rebel Burger? Give me two options.">
+                            Pair with Rebel Burger
+                        </button>
+                    </div>
+
+                    <form class="rr-guide-chat-form" data-chat-form>
+                        @Html.AntiForgeryToken()
+                        <label for="rr-guide-chat-input" class="visually-hidden">
+                            Ask for a beer recommendation
+                        </label>
+                        <textarea id="rr-guide-chat-input"
+                                  data-chat-input
+                                  maxlength="500"
+                                  rows="2"
+                                  placeholder="Try: I want two crisp beers under 5%..."></textarea>
+                        <button type="submit" data-chat-submit>
+                            <span>Shout it</span>
+                            <b aria-hidden="true">&rarr;</b>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <form asp-controller="BeerGuide"
+              asp-action="Index"
+              method="post"
+              id="rr-guide-quick"
+              class="rr-guide-form rr-guide-quick-panel"
+              role="tabpanel"
+              data-guide-tool-panel="quick">
+            <div asp-validation-summary="ModelOnly"
+                 class="rr-guide-validation"></div>
+
+            <fieldset class="rr-guide-step rr-guide-mode-step">
+                <legend>What are we solving?</legend>
+
+                <div class="rr-guide-mode-switch">
+                    <label>
+                        <input type="radio"
+                               name="Mode"
+                               value="taste"
+                               checked="@(selectedMode == "taste" ? "checked" : null)" />
+                        <span>
+                            <b>Find my beer</b>
+                            <small>Start with taste</small>
+                        </span>
+                    </label>
+
+                    <label>
+                        <input type="radio"
+                               name="Mode"
+                               value="food"
+                               checked="@(selectedMode == "food" ? "checked" : null)" />
+                        <span>
+                            <b>Pair with food</b>
+                            <small>Start with the plate</small>
+                        </span>
+                    </label>
+                </div>
+            </fieldset>
+
+            <fieldset class="rr-guide-step" data-guide-panel="taste">
+                <legend>Where should the flavour lean?</legend>
+
+                <div class="rr-guide-choice-grid">
+                    @foreach (var choice in new[]
+                    {
+                        (Value: "crisp", Label: "Crisp", Note: "clean / easy"),
+                        (Value: "hoppy", Label: "Hoppy", Note: "bitter / bright"),
+                        (Value: "malty", Label: "Malty", Note: "toast / caramel"),
+                        (Value: "fruity", Label: "Fruity", Note: "soft / aromatic"),
+                        (Value: "dark", Label: "Dark", Note: "roast / deep"),
+                        (Value: "sour", Label: "Sour", Note: "tart / strange")
+                    })
+                    {
+                        <label>
+                            <input type="radio"
+                                   name="Taste"
+                                   value="@choice.Value"
+                                   checked="@(request.Taste == choice.Value ? "checked" : null)" />
+                            <span>
+                                <b>@choice.Label</b>
+                                <small>@choice.Note</small>
+                            </span>
+                        </label>
+                    }
+                </div>
+                @Html.ValidationMessage("Taste", null, new { @class = "rr-guide-field-error" })
+            </fieldset>
+
+            <fieldset class="rr-guide-step" data-guide-panel="food">
+                <legend>What is on the table?</legend>
+
+                <select name="FoodProductId" class="rr-guide-food-select">
+                    <option value="">Choose from tonight's food menu</option>
+                    @foreach (var food in Model.Foods)
+                    {
+                        <option value="@food.Id"
+                                selected="@(request.FoodProductId == food.Id ? "selected" : null)">
+                            @food.Name
+                        </option>
+                    }
+                </select>
+                @Html.ValidationMessage("FoodProductId", null, new { @class = "rr-guide-field-error" })
+            </fieldset>
+
+            <fieldset class="rr-guide-step">
+                <legend>How loud should it drink?</legend>
+
+                <div class="rr-guide-intensity-row">
+                    @foreach (var level in new[]
+                    {
+                        (Value: 1, Label: "Light"),
+                        (Value: 3, Label: "Balanced"),
+                        (Value: 5, Label: "Full force")
+                    })
+                    {
+                        <label>
+                            <input type="radio"
+                                   name="Intensity"
+                                   value="@level.Value"
+                                   checked="@(request.Intensity == level.Value ? "checked" : null)" />
+                            <span>@level.Label</span>
+                        </label>
+                    }
+                </div>
+            </fieldset>
+
+            <fieldset class="rr-guide-step">
+                <legend>How brave are we?</legend>
+
+                <div class="rr-guide-intensity-row">
+                    @foreach (var option in new[]
+                    {
+                        (Value: "familiar", Label: "Keep it familiar"),
+                        (Value: "curious", Label: "Surprise me a little"),
+                        (Value: "wild", Label: "Make it weird")
+                    })
+                    {
+                        <label>
+                            <input type="radio"
+                                   name="Adventure"
+                                   value="@option.Value"
+                                   checked="@(request.Adventure == option.Value ? "checked" : null)" />
+                            <span>@option.Label</span>
+                        </label>
+                    }
+                </div>
+            </fieldset>
+
+            <button type="submit" class="rr-guide-submit">
+                <span>Show me the beers</span>
+                <b aria-hidden="true">&rarr;</b>
+            </button>
+        </form>
+
+        @if (Model.HasSearched)
+        {
+            <section class="rr-guide-results rr-guide-quick-panel"
+                     data-guide-tool-panel="quick"
+                     aria-live="polite"
+                     data-ai-used="@Model.AiWasUsed.ToString().ToLowerInvariant()">
+                <header>
+                    <span>THE SHORTLIST</span>
+                    <h2>YOUR THREE<br />GOOD DECISIONS.</h2>
+                </header>
+
+                @if (Model.Recommendations.Count == 0)
+                {
+                    <div class="rr-guide-empty-result">
+                        <strong>The fridge has no eligible beer right now.</strong>
+                        <a asp-controller="Home" asp-action="Menu" asp-route-section="beer">
+                            Check the beer menu
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="rr-guide-result-list">
+                        @foreach (var recommendation in Model.Recommendations)
+                        {
+                            var beer = recommendation.Beer;
+
+                            <article class="rr-guide-result">
+                                <div class="rr-guide-result-image">
+                                    @if (!string.IsNullOrWhiteSpace(beer.ImageUrl))
+                                    {
+                                        <img src="@beer.ImageUrl"
+                                             alt="@beer.Name"
+                                             loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <span>RR</span>
+                                    }
+                                </div>
+
+                                <div class="rr-guide-result-copy">
+                                    <div class="rr-guide-result-label">@recommendation.Label</div>
+                                    <h3>@beer.Name</h3>
+
+                                    <div class="rr-guide-result-facts">
+                                        @if (!string.IsNullOrWhiteSpace(beer.BeerStyle))
+                                        {
+                                            <span>@beer.BeerStyle</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(beer.OriginCountry))
+                                        {
+                                            <span>@beer.OriginCountry</span>
+                                        }
+                                        @if (beer.AlcoholByVolume.HasValue)
+                                        {
+                                            <span>@beer.AlcoholByVolume.Value.ToString("0.#")% ABV</span>
+                                        }
+                                    </div>
+
+                                    <p>@recommendation.Reason</p>
+
+                                    <div class="rr-guide-result-footer">
+                                        <strong>@beer.Price.ToString("0.##") MKD</strong>
+                                        <a asp-controller="Home"
+                                           asp-action="Menu"
+                                           asp-route-section="beer">
+                                            See beer menu &rarr;
+                                        </a>
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        }
+    </main>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const initialChatPrompt = @Html.Raw(initialChatPrompt);
+            const workspace = document.querySelector(".rr-guide-workspace");
+            const toolButtons = Array.from(
+                document.querySelectorAll("[data-guide-tool-button]"));
+            const modeInputs = Array.from(
+                document.querySelectorAll('input[name="Mode"]'));
+            const panels = Array.from(
+                document.querySelectorAll('[data-guide-panel]'));
+
+            const setActiveTool = tool => {
+                if (!workspace) {
+                    return;
+                }
+
+                workspace.dataset.activeTool = tool;
+                toolButtons.forEach(button => {
+                    const isActive = button.dataset.guideToolButton === tool;
+                    button.setAttribute(
+                        "aria-selected",
+                        isActive ? "true" : "false");
+                    button.tabIndex = isActive ? 0 : -1;
+                });
+            };
+
+            toolButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    setActiveTool(button.dataset.guideToolButton ?? "chat");
+                });
+
+                button.addEventListener("keydown", event => {
+                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    const currentIndex = toolButtons.indexOf(button);
+                    const direction = event.key === "ArrowRight" ? 1 : -1;
+                    const nextButton = toolButtons[
+                        (currentIndex + direction + toolButtons.length) % toolButtons.length];
+                    setActiveTool(nextButton.dataset.guideToolButton ?? "chat");
+                    nextButton.focus();
+                });
+            });
+
+            setActiveTool("@activeTool");
+
+            const updateMode = () => {
+                const mode = modeInputs.find(input => input.checked)?.value ?? "taste";
+
+                panels.forEach(panel => {
+                    panel.hidden = panel.dataset.guidePanel !== mode;
+                });
+            };
+
+            modeInputs.forEach(input => input.addEventListener("change", updateMode));
+            updateMode();
+
+            const chatForm = document.querySelector("[data-chat-form]");
+            const chatInput = document.querySelector("[data-chat-input]");
+            const chatThread = document.querySelector("[data-chat-thread]");
+            const chatSubmit = document.querySelector("[data-chat-submit]");
+            const resetButton = document.querySelector("[data-chat-reset]");
+            const promptButtons = Array.from(
+                document.querySelectorAll("[data-chat-prompt]"));
+            const preferenceStrip = document.querySelector("[data-chat-preferences]");
+            const preferenceItems = document.querySelector("[data-chat-preference-items]");
+            const token = chatForm?.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            const history = [];
+            let preferences = {};
+            const rejectedBeerIds = new Set();
+            let latestBeerIds = [];
+            let activeChatRequest = null;
+            let requestSequence = 0;
+            const feedbackSessionKey = "rr-beer-guide-feedback-session";
+            let feedbackSessionId = sessionStorage.getItem(feedbackSessionKey);
+
+            if (!feedbackSessionId) {
+                feedbackSessionId = crypto.randomUUID();
+                sessionStorage.setItem(feedbackSessionKey, feedbackSessionId);
+            }
+
+            const createElement = (tag, className, text) => {
+                const element = document.createElement(tag);
+                if (className) {
+                    element.className = className;
+                }
+                if (text !== undefined) {
+                    element.textContent = text;
+                }
+                return element;
+            };
+
+            const renderPreferences = () => {
+                if (!preferenceStrip || !preferenceItems) return;
+
+                const values = [
+                    preferences.style,
+                    ...(preferences.flavours ?? []),
+                    preferences.origin,
+                    preferences.strength === "high" ? "strong" : null,
+                    preferences.strength === "low" ? "light alcohol" : null,
+                    preferences.bitterness === "low" ? "not bitter" : null,
+                    preferences.bitterness === "high" ? "bitter" : null,
+                    preferences.sweetness === "low" ? "not sweet" : null,
+                    preferences.sweetness === "high" ? "sweet" : null,
+                    preferences.foodPairing ? `with ${preferences.foodPairing}` : null,
+                    preferences.maximumAbv ? `under ${preferences.maximumAbv}%` : null,
+                    preferences.minimumAbv ? `over ${preferences.minimumAbv}%` : null,
+                    ...(preferences.excludedStyles ?? []).map(style => `not ${style}`)
+                ].filter(Boolean);
+
+                preferenceItems.innerHTML = "";
+                values.forEach(value => preferenceItems.append(
+                    createElement("span", "", value)));
+                preferenceStrip.hidden = values.length === 0;
+            };
+
+            const scrollChat = () => {
+                chatThread?.lastElementChild?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest"
+                });
+            };
+
+            const appendMessage = (
+                role,
+                text,
+                beers = [],
+                isThinking = false,
+                responseId = null,
+                followUps = []) => {
+                if (!chatThread) {
+                    return null;
+                }
+
+                const article = createElement(
+                    "article",
+                    `rr-guide-message rr-guide-message-${role}`);
+                if (isThinking) {
+                    article.dataset.chatThinking = "true";
+                }
+
+                const speaker = createElement(
+                    "span",
+                    "rr-guide-message-speaker",
+                    role === "user" ? "YOU" : undefined);
+                if (role === "assistant") {
+                    speaker.classList.add("rr-guide-ziggy");
+                    speaker.setAttribute("aria-label", "Rebel Rebel bartender");
+                    const portrait = document.createElement("img");
+                    portrait.src = "/images/hero.jpg";
+                    portrait.alt = "";
+                    portrait.setAttribute("aria-hidden", "true");
+                    speaker.append(portrait);
+                }
+                const content = createElement("div", "rr-guide-message-content");
+                content.append(createElement("p", "", text));
+
+                if (beers.length > 0) {
+                    const comparison = createComparisonArea();
+                    const list = createElement("div", "rr-guide-chat-beers");
+                    beers.forEach(beer => list.append(createBeerCard(
+                        beer,
+                        comparison.toggle)));
+                    content.append(list);
+                    content.append(comparison.element);
+
+                    if (responseId) {
+                        content.append(createFeedbackControls(responseId, beers));
+                    }
+                }
+
+                if (followUps.length > 0) {
+                    const recovery = createElement("div", "rr-guide-recovery-actions");
+                    recovery.append(createElement(
+                        "span",
+                        "",
+                        "Pick a direction"));
+                    const actions = createElement("div", "");
+                    followUps.forEach(followUp => {
+                        const button = createElement("button", "", followUp.label);
+                        button.type = "button";
+                        button.addEventListener("click", () => {
+                            actions.querySelectorAll("button").forEach(item => {
+                                item.disabled = true;
+                            });
+                            sendMessage(
+                                followUp.prompt,
+                                null,
+                                followUp.guestText || followUp.label);
+                        });
+                        actions.append(button);
+                    });
+                    recovery.append(actions);
+                    content.append(recovery);
+                }
+
+                article.append(speaker, content);
+                chatThread.append(article);
+                scrollChat();
+                return article;
+            };
+
+            const createBeerCard = (beer, toggleComparison) => {
+                const card = createElement("article", "rr-guide-chat-beer");
+                const media = createElement("div", "rr-guide-chat-beer-image");
+
+                if (beer.imageUrl && isSafeImageUrl(beer.imageUrl)) {
+                    const image = document.createElement("img");
+                    image.src = beer.imageUrl;
+                    image.alt = beer.name;
+                    image.loading = "lazy";
+                    media.append(image);
+                } else {
+                    media.append(createElement("span", "", "RR"));
+                }
+
+                const copy = createElement("div", "rr-guide-chat-beer-copy");
+                copy.append(createElement("h3", "", beer.name));
+
+                const facts = [
+                    beer.style,
+                    beer.country,
+                    beer.alcoholByVolume ? `${beer.alcoholByVolume}% ABV` : null
+                ].filter(Boolean);
+
+                if (facts.length > 0) {
+                    copy.append(createElement(
+                        "div",
+                        "rr-guide-chat-beer-facts",
+                        facts.join(" / ")));
+                }
+
+                copy.append(createElement("p", "", beer.reason));
+
+                const footer = createElement("div", "rr-guide-chat-beer-footer");
+                footer.append(createElement(
+                    "strong",
+                    "",
+                    `${Number(beer.price).toLocaleString("en-US", {
+                        maximumFractionDigits: 2
+                    })} MKD`));
+                const menuLink = createElement("a", "", "Beer menu →");
+                menuLink.href = "/Home/Menu?section=beer";
+                const compareButton = createElement(
+                    "button",
+                    "rr-guide-compare-button",
+                    "Compare");
+                compareButton.type = "button";
+                compareButton.setAttribute("aria-pressed", "false");
+                compareButton.addEventListener("click", () => {
+                    const selected = toggleComparison(beer);
+                    compareButton.setAttribute("aria-pressed", String(selected));
+                    compareButton.textContent = selected ? "Selected" : "Compare";
+                });
+                footer.append(compareButton, menuLink);
+                copy.append(footer);
+
+                card.append(media, copy);
+                return card;
+            };
+
+            const createComparisonArea = () => {
+                const selected = new Map();
+                const element = createElement("section", "rr-guide-comparison");
+                element.hidden = true;
+
+                const render = () => {
+                    element.innerHTML = "";
+                    const beers = Array.from(selected.values());
+                    element.hidden = beers.length === 0;
+
+                    if (beers.length === 0) {
+                        return;
+                    }
+
+                    const heading = createElement("div", "rr-guide-comparison-heading");
+                    heading.append(
+                        createElement("strong", "", beers.length === 1
+                            ? "Pick one more beer"
+                            : "Head to head"),
+                        createElement("span", "", `${beers.length}/2 selected`));
+                    element.append(heading);
+
+                    const grid = createElement("div", "rr-guide-comparison-grid");
+                    beers.forEach(beer => {
+                        const column = createElement("div", "rr-guide-comparison-beer");
+                        column.append(createElement("h4", "", beer.name));
+                        const rows = [
+                            ["Style", beer.style || "Not listed"],
+                            ["Flavour", beer.flavorNotes || "Not listed"],
+                            ["Bitterness", beer.bitternessLevel ? `${beer.bitternessLevel}/5` : "Not listed"],
+                            ["Sweetness", beer.sweetnessLevel ? `${beer.sweetnessLevel}/5` : "Not listed"],
+                            ["ABV", beer.alcoholByVolume ? `${beer.alcoholByVolume}%` : "Not listed"],
+                            ["Pairing", beer.pairingTags || "Not listed"],
+                            ["Price", `${Number(beer.price).toLocaleString("en-US", { maximumFractionDigits: 2 })} MKD`]
+                        ];
+
+                        rows.forEach(([label, value]) => {
+                            const row = createElement("div", "rr-guide-comparison-row");
+                            row.append(
+                                createElement("span", "", label),
+                                createElement("strong", "", value));
+                            column.append(row);
+                        });
+                        grid.append(column);
+                    });
+                    element.append(grid);
+
+                    if (beers.length === 2) {
+                        const cheaper = [...beers].sort((a, b) => a.price - b.price)[0];
+                        const gentler = [...beers]
+                            .filter(beer => beer.bitternessLevel)
+                            .sort((a, b) => a.bitternessLevel - b.bitternessLevel)[0];
+                        const verdict = createElement("p", "rr-guide-comparison-verdict");
+                        verdict.textContent = gentler && gentler.id !== cheaper.id
+                            ? `${cheaper.name} is cheaper. ${gentler.name} is less bitter.`
+                            : `${cheaper.name} is the cheaper${gentler ? " and less bitter" : ""} choice.`;
+                        element.append(verdict);
+                    }
+                };
+
+                return {
+                    element,
+                    toggle: beer => {
+                        if (selected.has(beer.id)) {
+                            selected.delete(beer.id);
+                            render();
+                            return false;
+                        }
+
+                        if (selected.size >= 2) {
+                            return false;
+                        }
+
+                        selected.set(beer.id, beer);
+                        render();
+                        return true;
+                    }
+                };
+            };
+
+            const isSafeImageUrl = value => {
+                try {
+                    const url = new URL(value, window.location.origin);
+                    return url.protocol === "http:" || url.protocol === "https:";
+                } catch {
+                    return false;
+                }
+            };
+
+            const feedbackReasons = [
+                ["WrongStyle", "Wrong style", "Try again. The previous beers were the wrong style."],
+                ["WrongFlavour", "Wrong flavour", "Try again. The previous beers had the wrong flavour."],
+                ["TooBitter", "Too bitter", "Try again with something less bitter."],
+                ["TooSweet", "Too sweet", "Try again with something less sweet."],
+                ["TooStrong", "Too strong", "Try again with something lighter in alcohol."],
+                ["TooWeak", "Too weak", "Try again with something stronger."],
+                ["AlreadyTried", "Already tried", "Try again with different beers."]
+            ];
+
+            const submitFeedback = async (
+                responseId,
+                productIds,
+                isPositive,
+                reason = null) => {
+                const response = await fetch("/BeerGuide/Feedback", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "RequestVerificationToken": token ?? ""
+                    },
+                    body: JSON.stringify({
+                        responseId,
+                        sessionId: feedbackSessionId,
+                        isPositive,
+                        reason,
+                        productIds
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Feedback could not be recorded.");
+                }
+            };
+
+            const createFeedbackControls = (responseId, beers) => {
+                const productIds = beers.map(beer => beer.id);
+                const feedback = createElement("div", "rr-guide-feedback");
+                feedback.append(createElement(
+                    "span",
+                    "rr-guide-feedback-question",
+                    "Did we get it right?"));
+
+                const actions = createElement("div", "rr-guide-feedback-actions");
+                const goodButton = createElement("button", "is-good", "Good pick");
+                const rejectButton = createElement("button", "is-reject", "Not for me");
+                goodButton.type = "button";
+                rejectButton.type = "button";
+                actions.append(goodButton, rejectButton);
+                feedback.append(actions);
+
+                const status = createElement("span", "rr-guide-feedback-status", "");
+                status.setAttribute("role", "status");
+                feedback.append(status);
+
+                const finish = message => {
+                    actions.remove();
+                    feedback.querySelector(".rr-guide-feedback-reasons")?.remove();
+                    status.textContent = message;
+                };
+
+                goodButton.addEventListener("click", async () => {
+                    goodButton.disabled = true;
+                    rejectButton.disabled = true;
+                    try {
+                        await submitFeedback(responseId, productIds, true);
+                        history.length = 0;
+                        preferences = {};
+                        renderPreferences();
+                        rejectedBeerIds.clear();
+                        latestBeerIds = [];
+                        finish("Nice. Fresh round whenever you are ready.");
+                    } catch {
+                        goodButton.disabled = false;
+                        rejectButton.disabled = false;
+                        status.textContent = "Could not save that rating. Try once more.";
+                    }
+                });
+
+                rejectButton.addEventListener("click", () => {
+                    actions.remove();
+                    const reasons = createElement("div", "rr-guide-feedback-reasons");
+                    reasons.append(createElement("span", "", "What missed?"));
+
+                    feedbackReasons.forEach(([value, label, retryMessage]) => {
+                        const reasonButton = createElement("button", "", label);
+                        reasonButton.type = "button";
+                        reasonButton.addEventListener("click", async () => {
+                            reasons.querySelectorAll("button").forEach(button => {
+                                button.disabled = true;
+                            });
+
+                            try {
+                                await submitFeedback(
+                                    responseId,
+                                    productIds,
+                                    false,
+                                    value);
+                                productIds.forEach(id => rejectedBeerIds.add(id));
+                                finish("Got it. Looking for a better fit...");
+                                await sendMessage(retryMessage, value);
+                            } catch {
+                                reasons.querySelectorAll("button").forEach(button => {
+                                    button.disabled = false;
+                                });
+                                status.textContent = "Could not save that correction. Try once more.";
+                            }
+                        });
+                        reasons.append(reasonButton);
+                    });
+
+                    feedback.append(reasons);
+                });
+
+                return feedback;
+            };
+
+            const sendMessage = async (
+                message,
+                correctionReason = null,
+                displayMessage = null) => {
+                const cleanMessage = message.trim();
+                if (!cleanMessage || !chatThread || !chatSubmit || !chatInput) {
+                    return;
+                }
+
+                activeChatRequest?.abort();
+                const requestController = new AbortController();
+                activeChatRequest = requestController;
+                const currentSequence = ++requestSequence;
+
+                const previousHistory = history.slice(-8);
+                appendMessage("user", displayMessage?.trim() || cleanMessage);
+                history.push({ role: "user", text: cleanMessage });
+                chatInput.value = "";
+                chatInput.disabled = true;
+                chatSubmit.disabled = false;
+                chatSubmit.querySelector("span").textContent = "Stop";
+                promptButtons.forEach(button => button.disabled = true);
+                chatThread.setAttribute("aria-busy", "true");
+                const thinking = appendMessage(
+                    "assistant",
+                    "One sec...",
+                    [],
+                    true);
+
+                try {
+                    const response = await fetch("/BeerGuide/Chat", {
+                        method: "POST",
+                        signal: requestController.signal,
+                        headers: {
+                            "Content-Type": "application/json",
+                            "RequestVerificationToken": token ?? ""
+                        },
+                        body: JSON.stringify({
+                            message: cleanMessage,
+                            history: previousHistory,
+                            preferences,
+                            excludedBeerIds: Array.from(rejectedBeerIds),
+                            previousBeerIds: latestBeerIds,
+                            correctionReason
+                        })
+                    });
+
+                    if (currentSequence !== requestSequence) {
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        throw new Error("The bartender could not answer.");
+                    }
+
+                    const data = await response.json();
+                    thinking?.remove();
+                    const assistantMessage = appendMessage(
+                        "assistant",
+                        data.reply,
+                        data.beers ?? [],
+                        false,
+                        data.responseId,
+                        data.followUps ?? []);
+                    if (assistantMessage) {
+                        assistantMessage.dataset.aiUsed = String(data.aiWasUsed === true);
+                    }
+                    history.push({ role: "assistant", text: data.reply });
+                    preferences = data.preferences ?? {};
+                    renderPreferences();
+                    if ((data.beers ?? []).length > 0) {
+                        latestBeerIds = data.beers.map(beer => beer.id);
+                    }
+                } catch (error) {
+                    thinking?.remove();
+                    if (error?.name === "AbortError") {
+                        return;
+                    }
+                    chatInput.value = cleanMessage;
+                    appendMessage(
+                        "assistant",
+                        "That did not come through. Your message is still below, ready to try again.");
+                } finally {
+                    if (currentSequence !== requestSequence) {
+                        return;
+                    }
+                    activeChatRequest = null;
+                    chatInput.disabled = false;
+                    chatSubmit.disabled = false;
+                    chatSubmit.querySelector("span").textContent = "Shout it";
+                    promptButtons.forEach(button => button.disabled = false);
+                    chatThread.setAttribute("aria-busy", "false");
+                    chatInput.focus();
+                }
+            };
+
+            chatForm?.addEventListener("submit", event => {
+                event.preventDefault();
+                if (activeChatRequest) {
+                    activeChatRequest.abort();
+                    activeChatRequest = null;
+                    requestSequence += 1;
+                    chatThread?.querySelectorAll('[data-chat-thinking="true"]')
+                        .forEach(item => item.remove());
+                    chatInput.disabled = false;
+                    chatSubmit.disabled = false;
+                    chatSubmit.querySelector("span").textContent = "Shout it";
+                    promptButtons.forEach(button => button.disabled = false);
+                    chatThread?.setAttribute("aria-busy", "false");
+                    chatInput.focus();
+                    return;
+                }
+                sendMessage(chatInput?.value ?? "");
+            });
+
+            chatInput?.addEventListener("keydown", event => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    chatForm?.requestSubmit();
+                }
+            });
+
+            promptButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    sendMessage(button.dataset.chatPrompt ?? "");
+                });
+            });
+
+            resetButton?.addEventListener("click", () => {
+                activeChatRequest?.abort();
+                activeChatRequest = null;
+                requestSequence += 1;
+                history.length = 0;
+                preferences = {};
+                renderPreferences();
+                rejectedBeerIds.clear();
+                latestBeerIds = [];
+                if (chatThread) {
+                    chatThread.innerHTML = "";
+                    appendMessage(
+                        "assistant",
+                        "Fresh round. What are you in the mood for?");
+                }
+                chatInput?.focus();
+            });
+
+            if (initialChatPrompt) {
+                const cleanUrl = new URL(window.location.href);
+                cleanUrl.searchParams.delete("prompt");
+                window.history.replaceState({}, "", cleanUrl);
+                setActiveTool("chat");
+                sendMessage(initialChatPrompt);
+            }
+        })();
+    </script>
+}

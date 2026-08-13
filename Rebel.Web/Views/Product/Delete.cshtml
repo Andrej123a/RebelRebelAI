@@ -1,0 +1,105 @@
+@model Rebel.Domain.Entities.Product
+
+@{
+    ViewData["Title"] = "Archive Product";
+}
+
+<section class="admin-archive-confirm">
+    <header class="admin-archive-hero">
+        <div>
+            <small>Archive product</small>
+            <h1>Confirm Archive</h1>
+            <p>
+                Archive this item when it should disappear from active menu
+                screens while staying available in admin history.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="admin-tool-button">
+            Back to Products
+        </a>
+    </header>
+
+    <div class="admin-archive-warning">
+        <span>!</span>
+        <div>
+            <strong>@Model.Name will be archived.</strong>
+            <p>
+                This item will be removed from normal menu screens, but the
+                product record remains in the database.
+            </p>
+        </div>
+    </div>
+
+    <div class="admin-archive-grid">
+        <aside class="admin-archive-panel">
+            <div class="admin-media-preview">
+                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                {
+                    <img src="@Url.Content(Model.ImageUrl)"
+                         alt="@Model.Name" />
+                }
+                else
+                {
+                    <div class="admin-media-placeholder">
+                        <span>IMG</span>
+                        <strong>No product image</strong>
+                        <small>This product does not currently have an image.</small>
+                    </div>
+                }
+            </div>
+        </aside>
+
+        <section class="admin-archive-panel">
+            <h2 class="admin-archive-title">
+                @Model.Name
+            </h2>
+
+            <dl class="admin-archive-meta">
+                <div>
+                    <dt>Description</dt>
+                    <dd>
+                        @(string.IsNullOrWhiteSpace(Model.Description)
+                            ? "No description available."
+                            : Model.Description)
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Category</dt>
+                    <dd>
+                        @(Model.Category?.Name ?? "No category")
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Price</dt>
+                    <dd>@Model.Price.ToString("0.##") MKD</dd>
+                </div>
+
+                <div>
+                    <dt>Status</dt>
+                    <dd>@(Model.IsAvailable ? "Available" : "Unavailable")</dd>
+                </div>
+            </dl>
+
+            <form asp-action="Delete"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  class="admin-archive-actions">
+                <input type="hidden" asp-for="Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Archive Product
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-outline-light">
+                    Cancel
+                </a>
+            </form>
+        </section>
+    </div>
+</section>

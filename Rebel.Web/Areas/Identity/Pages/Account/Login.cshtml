@@ -1,0 +1,83 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Staff login";
+    Layout = "/Areas/Identity/Pages/Shared/_AuthLayout.cshtml";
+}
+
+<section class="rr-login" aria-labelledby="login-title">
+    <div class="rr-login-copy">
+        <span class="rr-login-eyebrow">Staff access</span>
+
+        <h1 id="login-title">
+            Backstage<br />
+            <span>only.</span>
+        </h1>
+
+        <p>
+            Sign in to manage tonight's service.
+        </p>
+
+        <div class="rr-login-signal" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <div class="rr-login-form-wrap">
+        <div class="rr-login-stamp" aria-hidden="true">Crew</div>
+
+        <form id="account"
+              method="post"
+              class="rr-login-form">
+            <header>
+                <span>Rebel Rebel / Control room</span>
+                <h2>Clock in.</h2>
+            </header>
+
+            <div asp-validation-summary="ModelOnly"
+                 class="rr-login-alert"
+                 role="alert"></div>
+
+            <div class="rr-login-field">
+                <label asp-for="Input.Email">Email address</label>
+                <input asp-for="Input.Email"
+                       autocomplete="username"
+                       inputmode="email"
+                       autofocus />
+                <span asp-validation-for="Input.Email"></span>
+            </div>
+
+            <div class="rr-login-field">
+                <label asp-for="Input.Password">Password</label>
+                <input asp-for="Input.Password"
+                       autocomplete="current-password" />
+                <span asp-validation-for="Input.Password"></span>
+            </div>
+
+            <div class="rr-login-options">
+                <label asp-for="Input.RememberMe" class="rr-login-check">
+                    <input asp-for="Input.RememberMe" />
+                    <span aria-hidden="true"></span>
+                    Keep me signed in
+                </label>
+
+                <a asp-page="./ForgotPassword">
+                    Forgot password?
+                </a>
+            </div>
+
+            <button id="login-submit"
+                    type="submit"
+                    class="rr-login-submit">
+                Enter staff
+                <span aria-hidden="true">&rarr;</span>
+            </button>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

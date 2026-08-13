@@ -1,0 +1,278 @@
+@model ReservationLookupViewModel
+
+@using Rebel.Domain.Enums
+
+@{
+    ViewData["Title"] = "Find My Reservation";
+
+    bool CanCancel(ReservationStatus status)
+    {
+        if (Model.Reservation == null)
+        {
+            return false;
+        }
+
+        var reservationStart =
+            Model.Reservation.ReservationDate.Date
+                .Add(Model.Reservation.ReservationTime);
+
+        return (status == ReservationStatus.Pending ||
+                status == ReservationStatus.Approved) &&
+               reservationStart > Model.CurrentLocalTime;
+    }
+
+    string StatusLabel(ReservationStatus status)
+    {
+        return status switch
+        {
+            ReservationStatus.NoShow => "No-show",
+            ReservationStatus.Cancelled => "Cancelled",
+            _ => status.ToString()
+        };
+    }
+
+    string GuestStatusMessage(ReservationStatus status)
+    {
+        return status switch
+        {
+            ReservationStatus.Pending =>
+                "Your request is waiting for staff approval.",
+            ReservationStatus.Approved =>
+                "Your table is confirmed. See you soon.",
+            ReservationStatus.Arrived =>
+                "This reservation has already been checked in.",
+            ReservationStatus.Cancelled =>
+                "This reservation has been cancelled.",
+            ReservationStatus.Rejected =>
+                "This request could not be confirmed.",
+            ReservationStatus.NoShow =>
+                "This reservation is closed as no-show.",
+            _ => "Reservation status is available below."
+        };
+    }
+
+    string StatusClass(ReservationStatus status)
+    {
+        return status switch
+        {
+            ReservationStatus.Pending => "is-pending",
+            ReservationStatus.Approved => "is-approved",
+            ReservationStatus.Arrived => "is-arrived",
+            ReservationStatus.Cancelled => "is-cancelled",
+            ReservationStatus.Rejected => "is-cancelled",
+            ReservationStatus.NoShow => "is-cancelled",
+            _ => "is-pending"
+        };
+    }
+
+    string CancellationHelp(ReservationStatus status)
+    {
+        return status switch
+        {
+            ReservationStatus.Pending =>
+                "You can cancel while staff are reviewing the request.",
+            ReservationStatus.Approved =>
+                "You can still cancel before the reservation time.",
+            ReservationStatus.Arrived =>
+                "This reservation is already checked in.",
+            ReservationStatus.Cancelled =>
+                "This reservation has already been cancelled.",
+            ReservationStatus.Rejected =>
+                "This request was not confirmed, so there is nothing to cancel.",
+            ReservationStatus.NoShow =>
+                "This reservation is already closed.",
+            _ => "Online changes are not available for this reservation."
+        };
+    }
+}
+
+<section class="rr-booking-page">
+    <div class="container">
+        <div class="rr-booking-header">
+            <p>Reservation Desk</p>
+
+            <h1>Find My Reservation</h1>
+
+            <p>
+                Enter your code to see what staff decided, review the details, or cancel before the booking time.
+            </p>
+        </div>
+
+        @if (TempData["LookupMessage"] is string lookupMessage)
+        {
+            <div class="rr-lookup-message">
+                @lookupMessage
+            </div>
+        }
+
+        <form asp-action="Lookup"
+              method="post"
+              class="rr-lookup-search">
+            @Html.AntiForgeryToken()
+
+            <div>
+                <span>Guest lookup</span>
+                <strong>Enter your reservation code</strong>
+                <p>Codes look like RR-A1B2C3. Spaces and lowercase are fine.</p>
+            </div>
+
+            <div class="rr-lookup-input-group">
+                <label asp-for="ReservationCode"></label>
+                <input asp-for="ReservationCode"
+                       placeholder="RR-A1B2C3"
+                       autocomplete="off" />
+                <span asp-validation-for="ReservationCode"></span>
+            </div>
+
+            <button type="submit" class="rr-booking-submit">
+                Find Reservation
+            </button>
+        </form>
+
+        @if (Model.HasSearched)
+        {
+            if (Model.Reservation == null)
+            {
+                <div class="rr-lookup-empty">
+                    <strong>No upcoming reservation found.</strong>
+                    <span>Check the reservation code, or contact the pub directly.</span>
+                </div>
+            }
+            else
+            {
+                var reservation = Model.Reservation;
+
+                <div class="rr-lookup-results">
+                    <article class="rr-lookup-row @StatusClass(reservation.Status)">
+                        <div class="rr-lookup-result-head">
+                            <span class="rr-lookup-status">
+                                @StatusLabel(reservation.Status)
+                            </span>
+
+                            <h2>
+                                @GuestStatusMessage(reservation.Status)
+                            </h2>
+
+                            <p>
+                                Code
+                                <strong id="lookupReservationCode">
+                                    @reservation.ReservationCode
+                                </strong>
+                                <button type="button"
+                                        class="rr-copy-code-button"
+                                        data-copy-code="@reservation.ReservationCode">
+                                    Copy
+                                </button>
+                            </p>
+                        </div>
+
+                        <dl class="rr-lookup-summary">
+                            <div>
+                                <dt>Date</dt>
+                                <dd>@reservation.ReservationDate.ToString("dd MMM yyyy")</dd>
+                            </div>
+
+                            <div>
+                                <dt>Time</dt>
+                                <dd>@reservation.ReservationTime.ToString(@"hh\:mm")</dd>
+                            </div>
+
+                            <div>
+                                <dt>Guests</dt>
+                                <dd>@reservation.NumberOfGuests</dd>
+                            </div>
+
+                            @if (reservation.Event != null)
+                            {
+                                <div>
+                                    <dt>Event</dt>
+                                    <dd>@reservation.Event.Title</dd>
+                                </div>
+                            }
+                        </dl>
+
+                        <div class="rr-lookup-cancel-panel">
+                            <div>
+                                <span>Changes</span>
+                                <strong>
+                                    @(CanCancel(reservation.Status)
+                                        ? "Cancellation available"
+                                        : "Online changes closed")
+                                </strong>
+                                <p>@CancellationHelp(reservation.Status)</p>
+                            </div>
+
+                            @if (CanCancel(reservation.Status))
+                            {
+                                <form asp-action="Cancel"
+                                      method="post"
+                                      onsubmit="return confirm('Cancel this reservation?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@reservation.Id" />
+                                    <input type="hidden" name="reservationCode" value="@Model.ReservationCode" />
+                                    <button type="submit">
+                                        Cancel Reservation
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="rr-lookup-locked">
+                                    Locked
+                                </span>
+                            }
+                        </div>
+
+                        <div class="rr-lookup-actions">
+                            <a asp-controller="Reservations"
+                               asp-action="Create">
+                                New Reservation
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const copyButton =
+                document.querySelector("[data-copy-code]");
+
+            if (!copyButton) {
+                return;
+            }
+
+            copyButton.addEventListener("click", async () => {
+                const code = copyButton.dataset.copyCode ?? "";
+                const originalText = copyButton.textContent;
+
+                try {
+                    await navigator.clipboard.writeText(code);
+                    copyButton.textContent = "Copied";
+                } catch {
+                    const codeElement =
+                        document.getElementById("lookupReservationCode");
+
+                    if (codeElement) {
+                        const range = document.createRange();
+                        range.selectNodeContents(codeElement);
+                        const selection = window.getSelection();
+                        selection?.removeAllRanges();
+                        selection?.addRange(range);
+                    }
+
+                    copyButton.textContent = "Selected";
+                }
+
+                window.setTimeout(() => {
+                    copyButton.textContent = originalText;
+                }, 1800);
+            });
+        })();
+    </script>
+}

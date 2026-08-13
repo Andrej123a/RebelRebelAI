@@ -1,0 +1,331 @@
+@model Rebel.Web.Models.AdminFloorPlanViewModel
+@using Rebel.Web.Authorization
+
+@{
+    ViewData["Title"] = "Floor";
+
+    var canManage =
+        User.IsInRole(AdminRoles.Manager) ||
+        User.IsInRole(AdminRoles.LegacyAdmin);
+
+    var activeItems = Model.Tables
+        .Where(item => item.Table.IsActive)
+        .ToList();
+
+    var inactiveItems = Model.Tables
+        .Where(item => !item.Table.IsActive)
+        .ToList();
+
+    var occupiedCount = activeItems.Count(item => item.IsOccupied);
+    var freeNowCount = activeItems.Count - occupiedCount;
+    var activeCapacity = activeItems.Sum(item => item.Table.Capacity);
+
+    var tableGroups = activeItems
+        .GroupBy(item =>
+            string.IsNullOrWhiteSpace(item.Table.Area)
+                ? "Main floor"
+                : item.Table.Area!)
+        .OrderBy(group => group.Key)
+        .ToList();
+}
+
+<div class="admin-workspace floor-workspace">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">Today</span>
+            <h1 class="admin-workspace-title">Floor</h1>
+            <p class="admin-workspace-copy">
+                @Model.CurrentLocalDate.ToString("dddd, dd MMMM yyyy")
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            @if (canManage)
+            {
+                <a asp-controller="AdminTables"
+                   asp-action="Create"
+                   class="admin-primary-button">
+                    Add a table
+                </a>
+            }
+
+            <a asp-controller="AdminReservations"
+               asp-action="Tonight"
+               class="admin-secondary-button">
+                Open tonight
+            </a>
+        </div>
+    </header>
+
+    <section class="floor-status-bar" aria-label="Floor status">
+        <div class="floor-status-item is-free">
+            <span>Free now</span>
+            <strong>@freeNowCount</strong>
+        </div>
+
+        <div class="floor-status-item is-busy">
+            <span>In use</span>
+            <strong>@occupiedCount</strong>
+        </div>
+
+        <div class="floor-status-item">
+            <span>Total seats</span>
+            <strong>@activeCapacity</strong>
+        </div>
+    </section>
+
+    @if (activeItems.Count == 0)
+    {
+        <div class="admin-empty-state floor-empty-state">
+            <strong>No active tables.</strong>
+            <span>Add the first table to begin assigning bookings.</span>
+            @if (canManage)
+            {
+                <a asp-controller="AdminTables"
+                   asp-action="Create"
+                   class="admin-primary-button">
+                    Add a table
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="floor-zones">
+            @foreach (var group in tableGroups)
+            {
+                var zoneCapacity = group.Sum(item => item.Table.Capacity);
+
+                <section class="floor-zone">
+                    <header class="floor-zone-header">
+                        <div>
+                            <span>Area</span>
+                            <h2>@group.Key</h2>
+                        </div>
+
+                        <p>
+                            @group.Count() tables / @zoneCapacity seats
+                        </p>
+                    </header>
+
+                    <div class="floor-table-grid">
+                        @foreach (var item in group.OrderBy(item => item.Table.Label))
+                        {
+                            var table = item.Table;
+                            var reservation = item.OperationalReservation;
+                            var isToday = reservation?.ReservationDate == Model.CurrentLocalDate;
+                            var isTomorrow = reservation?.ReservationDate == Model.CurrentLocalDate.AddDays(1);
+
+                            var reservationDateLabel =
+                                isToday ? "Today" :
+                                isTomorrow ? "Tomorrow" :
+                                reservation?.ReservationDate.ToString("ddd, dd MMM");
+
+                            var reservationTimeLabel =
+                                reservation?.ReservationTime.ToString(@"hh\:mm");
+
+                            var stateClass = item.IsOccupied
+                                ? "is-occupied"
+                                : isToday
+                                    ? "is-reserved"
+                                    : "is-free";
+
+                            var stateLabel = item.IsOccupied
+                                ? "In use"
+                                : isToday
+                                    ? "Reserved later"
+                                    : "Free now";
+
+                            var compatibleBookings = Model.UnassignedReservations
+                                .Where(booking => booking.NumberOfGuests <= table.Capacity)
+                                .ToList();
+
+                            var assignPanelId = $"assign-table-{table.Id:N}";
+
+                            <article class="floor-table-card @stateClass">
+                                <header>
+                                    <div>
+                                        <span>Table</span>
+                                        <h3>@table.Label</h3>
+                                    </div>
+
+                                    <span class="floor-table-state">
+                                        <i aria-hidden="true"></i>
+                                        @stateLabel
+                                    </span>
+                                </header>
+
+                                <div class="floor-table-capacity">
+                                    <span class="floor-seat-mark" aria-hidden="true"></span>
+                                    <strong>@table.Capacity seats</strong>
+                                </div>
+
+                                <div class="floor-table-booking">
+                                    @if (reservation == null)
+                                    {
+                                        <span>Next booking</span>
+                                        <strong>Nothing scheduled</strong>
+                                    }
+                                    else
+                                    {
+                                        <span>@(item.IsOccupied ? "At the table now" : "Next booking")</span>
+                                        <strong>
+                                            @(item.IsOccupied
+                                                ? reservation.FullName
+                                                : $"{reservationDateLabel} at {reservationTimeLabel}")
+                                        </strong>
+                                        <small>
+                                            @reservation.FullName / @reservation.NumberOfGuests
+                                            @(reservation.NumberOfGuests == 1 ? "guest" : "guests")
+                                        </small>
+                                    }
+                                </div>
+
+                                <footer>
+                                    @if (item.IsOccupied && reservation != null)
+                                    {
+                                        <a asp-controller="AdminReservations"
+                                           asp-action="Details"
+                                           asp-route-id="@reservation.Id"
+                                           class="admin-primary-button">
+                                            Open booking
+                                        </a>
+
+                                        <form asp-controller="AdminReservations"
+                                              asp-action="UpdateFloorDetails"
+                                              method="post"
+                                              onsubmit="return confirm('Release @table.Label from this booking?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@reservation.Id" />
+                                            <input type="hidden" name="tableLabel" value="" />
+                                            <input type="hidden" name="internalNote" value="@reservation.InternalNote" />
+                                            <input type="hidden" name="returnUrl" value="/AdminTables" />
+                                            <button type="submit" class="admin-secondary-button">
+                                                Release
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (reservation != null)
+                                    {
+                                        <a asp-controller="AdminReservations"
+                                           asp-action="Details"
+                                           asp-route-id="@reservation.Id"
+                                           class="admin-primary-button">
+                                            Open booking
+                                        </a>
+                                    }
+                                    else if (compatibleBookings.Count > 0)
+                                    {
+                                        <button type="button"
+                                                class="admin-primary-button"
+                                                data-admin-panel-open="@assignPanelId">
+                                            Assign booking
+                                        </button>
+                                    }
+
+                                    @if (canManage)
+                                    {
+                                        <a asp-controller="AdminTables"
+                                           asp-action="Edit"
+                                           asp-route-id="@table.Id"
+                                           class="admin-secondary-button">
+                                            Table settings
+                                        </a>
+                                    }
+                                </footer>
+                            </article>
+
+                            @if (!item.IsOccupied && reservation == null && compatibleBookings.Count > 0)
+                            {
+                                <dialog class="admin-quick-panel"
+                                        id="@assignPanelId"
+                                        aria-labelledby="@($"{assignPanelId}-title")">
+                                    <div class="admin-quick-panel-shell">
+                                        <header class="admin-quick-panel-header">
+                                            <div>
+                                                <span>Assign a booking</span>
+                                                <h2 id="@($"{assignPanelId}-title")">@table.Label</h2>
+                                                <p>@table.Capacity seats / @(string.IsNullOrWhiteSpace(table.Area) ? "Main floor" : table.Area)</p>
+                                            </div>
+                                            <button type="button"
+                                                    data-admin-panel-close
+                                                    aria-label="Close table assignment">&times;</button>
+                                        </header>
+
+                                        <div class="admin-quick-panel-body admin-quick-choice-list">
+                                            @foreach (var booking in compatibleBookings)
+                                            {
+                                                <form asp-controller="AdminReservations"
+                                                      asp-action="UpdateFloorDetails"
+                                                      method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@booking.Id" />
+                                                    <input type="hidden" name="tableLabel" value="@table.Label" />
+                                                    <input type="hidden" name="internalNote" value="@booking.InternalNote" />
+                                                    <input type="hidden" name="returnUrl" value="/AdminTables" />
+                                                    <button type="submit">
+                                                        <time>@booking.ReservationTime.ToString(@"hh\:mm")</time>
+                                                        <span>
+                                                            <strong>@booking.FullName</strong>
+                                                            <small>@booking.NumberOfGuests guests</small>
+                                                        </span>
+                                                        <span aria-hidden="true">&rarr;</span>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </div>
+                                </dialog>
+                            }
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    }
+
+    @if (canManage && inactiveItems.Count > 0)
+    {
+        <details class="admin-content-disclosure floor-inactive">
+            <summary>
+                <span>Unavailable tables</span>
+                <span>@inactiveItems.Count</span>
+            </summary>
+
+            <div class="floor-table-grid">
+                @foreach (var item in inactiveItems.OrderBy(item => item.Table.Area).ThenBy(item => item.Table.Label))
+                {
+                    <article class="floor-table-card is-inactive">
+                        <header>
+                            <div>
+                                <span>@(string.IsNullOrWhiteSpace(item.Table.Area) ? "Main floor" : item.Table.Area)</span>
+                                <h3>@item.Table.Label</h3>
+                            </div>
+
+                            <span class="floor-table-state">
+                                <i aria-hidden="true"></i>
+                                Unavailable
+                            </span>
+                        </header>
+
+                        <div class="floor-table-capacity">
+                            <span class="floor-seat-mark" aria-hidden="true"></span>
+                            <strong>@item.Table.Capacity seats</strong>
+                        </div>
+
+                        <footer>
+                            <a asp-controller="AdminTables"
+                               asp-action="Edit"
+                               asp-route-id="@item.Table.Id"
+                               class="admin-secondary-button">
+                                Table settings
+                            </a>
+                        </footer>
+                    </article>
+                }
+            </div>
+        </details>
+    }
+
+</div>

@@ -1,0 +1,1012 @@
+@model AdminStaffScheduleViewModel
+@using Rebel.Domain.Enums
+@using Rebel.Web.Authorization
+
+@{
+    ViewData["Title"] = "Staff Schedule";
+
+    var canManage =
+        User.IsInRole(AdminRoles.Manager) ||
+        User.IsInRole(AdminRoles.LegacyAdmin);
+
+    var days = Enumerable
+        .Range(0, 7)
+        .Select(offset => Model.StartDate.AddDays(offset))
+        .ToList();
+
+    var activeStaff = Model.StaffMembers
+        .Where(staff => staff.IsActive)
+        .ToList();
+
+    var sections = Enum.GetValues<StaffRole>().ToList();
+
+    var shiftsByDay = Model.Shifts
+        .GroupBy(shift => shift.ShiftDate.Date)
+        .ToDictionary(
+            group => group.Key,
+            group => group
+                .OrderBy(shift => shift.StartsAt)
+                .ThenBy(shift => shift.Role)
+                .ToList());
+
+    var shiftsByStaff = Model.Shifts
+        .GroupBy(shift => shift.StaffMemberId)
+        .ToDictionary(
+            group => group.Key,
+            group => group.Count());
+
+    var eventsByDay = Model.Events
+        .GroupBy(eventItem => eventItem.Date.Date)
+        .ToDictionary(
+            group => group.Key,
+            group => group.ToList());
+
+    var scheduleWarnings = new List<string>();
+
+    foreach (var day in days)
+    {
+        var dayShifts = shiftsByDay.TryGetValue(day.Date, out var shifts)
+            ? shifts
+            : new List<Rebel.Domain.Entities.StaffShift>();
+
+        var dayEvents = eventsByDay.TryGetValue(day.Date, out var events)
+            ? events
+            : new List<StaffScheduleEventViewModel>();
+
+        if (dayEvents.Count > 0)
+        {
+            if (!dayShifts.Any(shift => shift.Role == StaffRole.Front))
+            {
+                scheduleWarnings.Add(
+                    $"{day:ddd dd MMM}: event night has no front cover.");
+            }
+
+            if (!dayShifts.Any(shift => shift.Role == StaffRole.Kitchen))
+            {
+                scheduleWarnings.Add(
+                    $"{day:ddd dd MMM}: event night has no kitchen cover.");
+            }
+        }
+
+        foreach (var staffDay in dayShifts.GroupBy(shift => shift.StaffMemberId))
+        {
+            var staffShifts = staffDay
+                .OrderBy(shift => shift.StartsAt)
+                .ToList();
+
+            for (var index = 0;
+                 index < staffShifts.Count - 1;
+                 index++)
+            {
+                var current = staffShifts[index];
+                var next = staffShifts[index + 1];
+                var currentEnd =
+                    current.EndsAt <= current.StartsAt
+                        ? current.EndsAt.Add(TimeSpan.FromHours(24))
+                        : current.EndsAt;
+
+                if (currentEnd > next.StartsAt)
+                {
+                    scheduleWarnings.Add(
+                        $"{day:ddd dd MMM}: " +
+                        $"{current.StaffMember?.FullName ?? "Staff"} " +
+                        "has overlapping shifts.");
+                    break;
+                }
+            }
+        }
+    }
+
+    var frontShiftCount = Model.Shifts.Count(shift =>
+        shift.Role == StaffRole.Front);
+
+    var kitchenShiftCount = Model.Shifts.Count(shift =>
+        shift.Role == StaffRole.Kitchen);
+}
+
+<div class="admin-workspace">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">
+                Weekly rota
+            </span>
+
+            <h1 class="admin-workspace-title">
+                Staff
+            </h1>
+
+            <p class="admin-workspace-copy">
+                @Model.StartDate.ToString("dd MMM") -
+                @Model.EndDate.ToString("dd MMM yyyy").
+                Front and kitchen coverage stay visible together.
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            @if (canManage)
+            {
+                <form asp-controller="AdminStaffSchedule"
+                  asp-action="CopyPreviousWeek"
+                  method="post"
+                  onsubmit="return confirm('Fill this week with shifts from last week? Existing shifts will stay unchanged.');">
+                @Html.AntiForgeryToken()
+                <input type="hidden"
+                       name="startDate"
+                       value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                <button type="submit" class="admin-secondary-button">
+                    Fill from last week
+                </button>
+                </form>
+            }
+
+            <a asp-controller="AdminStaffSchedule"
+               asp-action="Index"
+               asp-route-startDate="@Model.PreviousWeek.ToString("yyyy-MM-dd")"
+               class="admin-secondary-button">
+                Previous
+            </a>
+
+            <a asp-controller="AdminStaffSchedule"
+               asp-action="Index"
+               asp-route-startDate="@DateTime.Today.ToString("yyyy-MM-dd")"
+               class="admin-primary-button">
+                This week
+            </a>
+
+            <a asp-controller="AdminStaffSchedule"
+               asp-action="Index"
+               asp-route-startDate="@Model.NextWeek.ToString("yyyy-MM-dd")"
+               class="admin-secondary-button">
+                Next
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar"
+             aria-label="Staff coverage summary">
+        <div class="admin-metric">
+            <span>Front shifts</span>
+            <strong>@frontShiftCount</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Kitchen shifts</span>
+            <strong>@kitchenShiftCount</strong>
+        </div>
+
+        <div class="admin-metric @(scheduleWarnings.Count > 0 ? "is-attention" : "")">
+            <span>Needs attention</span>
+            <strong>@scheduleWarnings.Count</strong>
+        </div>
+    </section>
+
+    @if (scheduleWarnings.Count > 0)
+    {
+        <details class="admin-content-disclosure"
+                 open>
+            <summary>
+                <span>Coverage warnings</span>
+                <span>@scheduleWarnings.Count</span>
+            </summary>
+
+            <div class="admin-form-surface staff-warning-list">
+                @foreach (var warning in scheduleWarnings)
+                {
+                    <p>@warning</p>
+                }
+            </div>
+        </details>
+    }
+
+    <div class="staff-week-board">
+        @foreach (var day in days)
+        {
+            var dayShifts = shiftsByDay.TryGetValue(day.Date, out var shifts)
+                ? shifts
+                : new List<Rebel.Domain.Entities.StaffShift>();
+
+            var dayEvents = eventsByDay.TryGetValue(day.Date, out var events)
+                ? events
+                : new List<StaffScheduleEventViewModel>();
+
+            var scheduledStaffIds = dayShifts
+                .Select(shift => shift.StaffMemberId)
+                .Distinct()
+                .ToList();
+
+            <article class="staff-day-card @(day.Date == DateTime.Today ? "is-today" : "")">
+                <header>
+                    <span>@day.ToString("ddd")</span>
+                    <strong>@day.ToString("dd MMM")</strong>
+                    <small>@dayShifts.Count shifts</small>
+                </header>
+
+                <div class="staff-shift-list">
+                    @foreach (var eventItem in dayEvents)
+                    {
+                        <a asp-controller="AdminEvents"
+                           asp-action="Bookings"
+                           asp-route-id="@eventItem.Id"
+                           class="staff-day-event">
+                            @if (!string.IsNullOrWhiteSpace(eventItem.ImageUrl))
+                            {
+                                <img src="@Url.Content(eventItem.ImageUrl)"
+                                     alt=""
+                                     loading="lazy" />
+                            }
+
+                            <span>
+                                <strong>@eventItem.Title</strong>
+                                <small>
+                                    @(eventItem.StartTime?.ToString(@"hh\:mm") ?? "TBC")
+                                    / @eventItem.ReservationCount bookings
+                                    / @eventItem.GuestCount guests
+                                </small>
+                            </span>
+                        </a>
+                    }
+
+                    @foreach (var staffSection in sections)
+                    {
+                        var sectionShifts = dayShifts
+                            .Where(shift => shift.Role == staffSection)
+                            .ToList();
+
+                        <div class="staff-day-section">
+                            <span>@staffSection</span>
+
+                            @if (sectionShifts.Count == 0)
+                            {
+                                @if (canManage)
+                                {
+                                    <button type="button"
+                                        class="staff-no-cover-button"
+                                        data-cover-picker
+                                        data-role="@staffSection"
+                                        data-date="@day.ToString("yyyy-MM-dd")"
+                                        data-date-label="@day.ToString("dddd, dd MMMM")"
+                                        data-scheduled-staff="@string.Join(",", scheduledStaffIds)">
+                                    <span>No cover</span>
+                                    <strong>Add @staffSection.ToString().ToLowerInvariant()</strong>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <small class="staff-no-cover-readonly">No cover</small>
+                                }
+                            }
+                            else
+                            {
+                                @foreach (var shift in sectionShifts)
+                                {
+                                    <div class="staff-shift-card role-@shift.Role.ToString().ToLowerInvariant()">
+                                        @if (canManage)
+                                        {
+                                            <button type="button"
+                                                class="staff-shift-edit-trigger"
+                                                data-shift-edit
+                                                data-shift-id="@shift.Id"
+                                                data-staff-id="@shift.StaffMemberId"
+                                                data-shift-date="@shift.ShiftDate.ToString("yyyy-MM-dd")"
+                                                data-shift-date-label="@shift.ShiftDate.ToString("dddd, dd MMMM")"
+                                                data-shift-start="@shift.StartsAt.ToString(@"hh\:mm")"
+                                                data-shift-end="@shift.EndsAt.ToString(@"hh\:mm")"
+                                                data-shift-note="@shift.Note">
+                                            <strong>@shift.StaffMember?.FullName</strong>
+                                            <small>
+                                                @shift.StartsAt.ToString(@"hh\:mm") -
+                                                @shift.EndsAt.ToString(@"hh\:mm")
+                                            </small>
+
+                                            @if (!string.IsNullOrWhiteSpace(shift.Note))
+                                            {
+                                                <em>@shift.Note</em>
+                                            }
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <div class="staff-shift-readonly">
+                                                <strong>@shift.StaffMember?.FullName</strong>
+                                                <small>
+                                                    @shift.StartsAt.ToString(@"hh\:mm") -
+                                                    @shift.EndsAt.ToString(@"hh\:mm")
+                                                </small>
+                                                @if (!string.IsNullOrWhiteSpace(shift.Note))
+                                                {
+                                                    <em>@shift.Note</em>
+                                                }
+                                            </div>
+                                        }
+
+                                        @if (canManage)
+                                        {
+                                            <form asp-controller="AdminStaffSchedule"
+                                              asp-action="DeleteShift"
+                                              method="post"
+                                              onsubmit="return confirm('Remove this shift?');">
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@shift.Id" />
+
+                                            <input type="hidden"
+                                                   name="startDate"
+                                                   value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+
+                                            <button type="submit"
+                                                    aria-label="Remove shift">
+                                                X
+                                            </button>
+                                            </form>
+                                        }
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+
+    @if (canManage)
+    {
+    <section class="admin-section staff-tools-row">
+        <details class="admin-content-disclosure"
+                 id="shift-tools">
+            <summary>
+                <span>Add a shift</span>
+                <span>Open</span>
+            </summary>
+
+            <form asp-controller="AdminStaffSchedule"
+                  asp-action="CreateShift"
+                  method="post"
+                  id="add-shift"
+                  class="admin-form-surface">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="startDate"
+                       value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+
+                <div class="staff-shift-presets"
+                     aria-label="Quick shift presets">
+                    <button type="button"
+                            data-shift-start="10:00"
+                            data-shift-end="16:00">
+                        First / 10-16
+                    </button>
+
+                    <button type="button"
+                            data-shift-start="16:00"
+                            data-shift-end="00:00">
+                        Second / 16-00
+                    </button>
+
+                    <button type="button"
+                            data-shift-start="12:00"
+                            data-shift-end="20:00">
+                        Middle / 12-20
+                    </button>
+                </div>
+
+                <div class="admin-form-grid">
+                    <label class="wide">
+                        Staff
+                        <select name="StaffMemberId" required>
+                            <option value="">Choose staff</option>
+                            @foreach (var staffMember in activeStaff)
+                            {
+                                <option value="@staffMember.Id"
+                                        selected="@(Model.NewShift.StaffMemberId == staffMember.Id)">
+                                    @staffMember.FullName / @staffMember.Role
+                                </option>
+                            }
+                        </select>
+                    </label>
+
+                    <label>
+                        Date
+                        <input name="ShiftDate"
+                               type="date"
+                               value="@Model.NewShift.ShiftDate.ToString("yyyy-MM-dd")"
+                               required />
+                    </label>
+
+                    <label>
+                        Note
+                        <input name="Note"
+                               maxlength="160"
+                               placeholder="Optional" />
+                    </label>
+
+                    <label>
+                        Start
+                        <input name="StartsAt"
+                               id="shiftStartsAt"
+                               type="time"
+                               value="@Model.NewShift.StartsAt.ToString(@"hh\:mm")"
+                               required />
+                    </label>
+
+                    <label>
+                        End
+                        <input name="EndsAt"
+                               id="shiftEndsAt"
+                               type="time"
+                               value="@Model.NewShift.EndsAt.ToString(@"hh\:mm")"
+                               required />
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="admin-primary-button">
+                    Add shift
+                </button>
+            </form>
+        </details>
+
+        <details class="admin-content-disclosure"
+                 id="staff-tools">
+            <summary>
+                <span>Add a staff member</span>
+                <span>Open</span>
+            </summary>
+
+            <form asp-controller="AdminStaffSchedule"
+                  asp-action="CreateStaff"
+                  method="post"
+                  class="admin-form-surface">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="startDate"
+                       value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+
+                <div class="admin-form-grid">
+                    <label class="wide">
+                        Name
+                        <input name="FullName"
+                               maxlength="80"
+                               placeholder="Staff name"
+                               required />
+                    </label>
+
+                    <label>
+                        Section
+                        <select name="Role">
+                            @foreach (var staffSection in sections)
+                            {
+                                <option value="@staffSection">
+                                    @staffSection
+                                </option>
+                            }
+                        </select>
+                    </label>
+
+                    <label>
+                        Phone
+                        <input name="PhoneNumber"
+                               maxlength="40"
+                               placeholder="Optional" />
+                    </label>
+                </div>
+
+                <button type="submit"
+                        class="admin-primary-button">
+                    Add staff
+                </button>
+            </form>
+        </details>
+    </section>
+
+    <details class="admin-content-disclosure staff-team-disclosure">
+        <summary>
+            <span>Team</span>
+            <span>@Model.StaffMembers.Count people</span>
+        </summary>
+
+        @foreach (var staffSection in sections)
+        {
+            var sectionStaff = Model.StaffMembers
+                .Where(staffMember => staffMember.Role == staffSection)
+                .OrderBy(staffMember => staffMember.FullName)
+                .ToList();
+
+            <section class="admin-section">
+                <header class="admin-section-heading">
+                    <h2>@staffSection</h2>
+                    <span class="admin-section-count">@sectionStaff.Count</span>
+                </header>
+
+                @if (sectionStaff.Count == 0)
+                {
+                    <div class="admin-empty-state">
+                        <strong>No @staffSection.ToString().ToLowerInvariant() staff.</strong>
+                    </div>
+                }
+                else
+                {
+                    <div class="admin-list">
+                        @foreach (var staffMember in sectionStaff)
+                        {
+                            var staffShiftCount =
+                                shiftsByStaff.TryGetValue(
+                                    staffMember.Id,
+                                    out var count)
+                                    ? count
+                                    : 0;
+
+                            <article class="admin-list-row @(!staffMember.IsActive ? "is-danger" : "")">
+                                <div class="admin-row-main">
+                                    <div class="admin-row-copy">
+                                        <a asp-controller="AdminStaffSchedule"
+                                           asp-action="StaffMember"
+                                           asp-route-id="@staffMember.Id"
+                                           asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")">
+                                            @staffMember.FullName
+                                        </a>
+
+                                        <span>
+                                            @(string.IsNullOrWhiteSpace(staffMember.PhoneNumber)
+                                                ? staffSection.ToString()
+                                                : staffMember.PhoneNumber)
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="admin-row-data">
+                                    <strong>@staffShiftCount shifts</strong>
+                                    <span>This week</span>
+                                </div>
+
+                                <span class="admin-state @(staffMember.IsActive ? "is-success" : "is-danger")">
+                                    @(staffMember.IsActive ? "Active" : "Inactive")
+                                </span>
+
+                                <div class="admin-row-actions">
+                                    @if (staffMember.IsActive)
+                                    {
+                                        <a asp-controller="AdminStaffSchedule"
+                                           asp-action="Index"
+                                           asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")"
+                                           asp-route-staffMemberId="@staffMember.Id"
+                                           asp-fragment="add-shift"
+                                           class="admin-primary-button">
+                                            Add shift
+                                        </a>
+                                    }
+
+                                    <details class="admin-more-menu">
+                                        <summary>More</summary>
+
+                                        <div class="admin-more-panel">
+                                            <a asp-controller="AdminStaffSchedule"
+                                               asp-action="StaffMember"
+                                               asp-route-id="@staffMember.Id"
+                                               asp-route-startDate="@Model.StartDate.ToString("yyyy-MM-dd")">
+                                                View schedule
+                                            </a>
+
+                                            <form asp-controller="AdminStaffSchedule"
+                                                  asp-action="ToggleStaff"
+                                                  method="post">
+                                                @Html.AntiForgeryToken()
+
+                                                <input type="hidden"
+                                                       name="id"
+                                                       value="@staffMember.Id" />
+
+                                                <input type="hidden"
+                                                       name="startDate"
+                                                       value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+
+                                                <button type="submit"
+                                                        class="@(staffMember.IsActive ? "is-danger" : "")">
+                                                    @(staffMember.IsActive
+                                                        ? "Deactivate"
+                                                        : "Reactivate")
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </details>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </section>
+        }
+    </details>
+
+    <dialog class="staff-cover-dialog"
+            id="staffCoverDialog"
+            aria-labelledby="coverDialogTitle">
+        <form asp-controller="AdminStaffSchedule"
+              asp-action="CreateShift"
+              method="post"
+              id="staffCoverForm">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="startDate"
+                   value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+            <input type="hidden"
+                   name="ShiftDate"
+                   id="coverShiftDate" />
+
+            <header class="staff-cover-dialog-header">
+                <div>
+                    <span id="coverDialogRole">Front cover</span>
+                    <h2 id="coverDialogTitle">Choose staff</h2>
+                    <p id="coverDialogDate"></p>
+                </div>
+
+                <button type="button"
+                        class="staff-cover-close"
+                        data-cover-close
+                        aria-label="Close staff picker">
+                    &times;
+                </button>
+            </header>
+
+            <fieldset class="staff-cover-list">
+                <legend>Available staff</legend>
+
+                @foreach (var staffMember in activeStaff.OrderBy(staff => staff.FullName))
+                {
+                    <label class="staff-cover-option"
+                           data-cover-staff
+                           data-staff-id="@staffMember.Id"
+                           data-role="@staffMember.Role">
+                        <input type="radio"
+                               name="StaffMemberId"
+                               value="@staffMember.Id"
+                               required />
+
+                        <span class="staff-cover-avatar" aria-hidden="true">
+                            @(string.IsNullOrWhiteSpace(staffMember.FullName)
+                                ? "?"
+                                : staffMember.FullName.Trim()[0].ToString())
+                        </span>
+
+                        <span class="staff-cover-person">
+                            <strong>@staffMember.FullName</strong>
+                            <small data-cover-availability>Available</small>
+                        </span>
+
+                        <span class="staff-cover-check" aria-hidden="true"></span>
+                    </label>
+                }
+
+                <p class="staff-cover-empty" id="coverEmptyState" hidden>
+                    No active staff in this section.
+                </p>
+            </fieldset>
+
+            <fieldset class="staff-cover-time">
+                <legend>Shift time</legend>
+
+                <div class="staff-cover-presets">
+                    <button type="button"
+                            data-cover-start="10:00"
+                            data-cover-end="16:00">
+                        Day
+                        <small>10-16</small>
+                    </button>
+
+                    <button type="button"
+                            class="active"
+                            data-cover-start="16:00"
+                            data-cover-end="00:00">
+                        Night
+                        <small>16-00</small>
+                    </button>
+
+                    <button type="button"
+                            data-cover-start="12:00"
+                            data-cover-end="20:00">
+                        Middle
+                        <small>12-20</small>
+                    </button>
+                </div>
+
+                <div class="staff-cover-time-fields">
+                    <label>
+                        Start
+                        <input name="StartsAt"
+                               id="coverStartsAt"
+                               type="time"
+                               value="16:00"
+                               required />
+                    </label>
+
+                    <label>
+                        End
+                        <input name="EndsAt"
+                               id="coverEndsAt"
+                               type="time"
+                               value="00:00"
+                               required />
+                    </label>
+                </div>
+            </fieldset>
+
+            <footer class="staff-cover-dialog-actions">
+                <button type="button"
+                        class="admin-secondary-button"
+                        data-cover-close>
+                    Cancel
+                </button>
+
+                <button type="submit"
+                        class="admin-primary-button">
+                    Assign shift
+                </button>
+            </footer>
+        </form>
+    </dialog>
+
+    <dialog class="admin-quick-panel"
+            id="staffShiftEditDialog"
+            aria-labelledby="editShiftTitle">
+        <form asp-controller="AdminStaffSchedule"
+              asp-action="EditShift"
+              method="post"
+              class="admin-quick-panel-shell">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" id="editShiftId" />
+            <input type="hidden"
+                   name="startDate"
+                   value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+
+            <header class="admin-quick-panel-header">
+                <div>
+                    <span>Edit shift</span>
+                    <h2 id="editShiftTitle">Scheduled shift</h2>
+                    <p id="editShiftDateLabel"></p>
+                </div>
+                <button type="button"
+                        data-shift-edit-close
+                        aria-label="Close shift editor">&times;</button>
+            </header>
+
+            <div class="admin-quick-panel-body">
+                <div class="admin-quick-form">
+                    <label>
+                        Staff member
+                        <select name="StaffMemberId" id="editShiftStaff" required>
+                            @foreach (var staffMember in activeStaff.OrderBy(staff => staff.Role).ThenBy(staff => staff.FullName))
+                            {
+                                <option value="@staffMember.Id">
+                                    @staffMember.FullName / @staffMember.Role
+                                </option>
+                            }
+                        </select>
+                    </label>
+
+                    <label>
+                        Date
+                        <input type="date"
+                               name="ShiftDate"
+                               id="editShiftDate"
+                               required />
+                    </label>
+
+                    <div class="staff-cover-time-fields">
+                        <label>
+                            Start
+                            <input type="time"
+                                   name="StartsAt"
+                                   id="editShiftStart"
+                                   required />
+                        </label>
+                        <label>
+                            End
+                            <input type="time"
+                                   name="EndsAt"
+                                   id="editShiftEnd"
+                                   required />
+                        </label>
+                    </div>
+
+                    <label>
+                        Note
+                        <textarea name="Note"
+                                  id="editShiftNote"
+                                  rows="3"
+                                  maxlength="160"
+                                  placeholder="Optional shift note"></textarea>
+                    </label>
+                </div>
+            </div>
+
+            <footer class="admin-quick-panel-actions">
+                <button type="button"
+                        class="admin-secondary-button"
+                        data-shift-edit-close>Cancel</button>
+                <button type="submit" class="admin-primary-button">Save shift</button>
+            </footer>
+        </form>
+    </dialog>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const startInput = document.getElementById("shiftStartsAt");
+            const endInput = document.getElementById("shiftEndsAt");
+            const shiftTools = document.getElementById("shift-tools");
+            const coverDialog = document.getElementById("staffCoverDialog");
+            const coverDateInput = document.getElementById("coverShiftDate");
+            const coverRole = document.getElementById("coverDialogRole");
+            const coverDate = document.getElementById("coverDialogDate");
+            const coverEmpty = document.getElementById("coverEmptyState");
+            const coverStart = document.getElementById("coverStartsAt");
+            const coverEnd = document.getElementById("coverEndsAt");
+            const editDialog = document.getElementById("staffShiftEditDialog");
+            const editId = document.getElementById("editShiftId");
+            const editStaff = document.getElementById("editShiftStaff");
+            const editDate = document.getElementById("editShiftDate");
+            const editStart = document.getElementById("editShiftStart");
+            const editEnd = document.getElementById("editShiftEnd");
+            const editNote = document.getElementById("editShiftNote");
+            const editDateLabel = document.getElementById("editShiftDateLabel");
+
+            document.querySelectorAll("[data-shift-edit]").forEach((button) => {
+                button.addEventListener("click", () => {
+                    if (!(editDialog instanceof HTMLDialogElement)) {
+                        return;
+                    }
+
+                    if (editId) editId.value = button.dataset.shiftId ?? "";
+                    if (editStaff) editStaff.value = button.dataset.staffId ?? "";
+                    if (editDate) editDate.value = button.dataset.shiftDate ?? "";
+                    if (editStart) editStart.value = button.dataset.shiftStart ?? "";
+                    if (editEnd) editEnd.value = button.dataset.shiftEnd ?? "";
+                    if (editNote) editNote.value = button.dataset.shiftNote ?? "";
+                    if (editDateLabel) editDateLabel.textContent = button.dataset.shiftDateLabel ?? "";
+
+                    editDialog.showModal();
+                });
+            });
+
+            document.querySelectorAll("[data-shift-edit-close]").forEach((button) => {
+                button.addEventListener("click", () => editDialog?.close());
+            });
+
+            editDialog?.addEventListener("click", (event) => {
+                if (event.target === editDialog) {
+                    editDialog.close();
+                }
+            });
+
+            document.querySelectorAll("[data-cover-picker]").forEach((button) => {
+                button.addEventListener("click", () => {
+                    if (!(coverDialog instanceof HTMLDialogElement)) {
+                        return;
+                    }
+
+                    const selectedRole = button.dataset.role ?? "";
+                    const scheduledStaff = new Set(
+                        (button.dataset.scheduledStaff ?? "")
+                            .split(",")
+                            .filter(Boolean));
+
+                    let matchingStaff = 0;
+                    let availableStaff = 0;
+
+                    document.querySelectorAll("[data-cover-staff]").forEach((option) => {
+                        const isMatchingRole = option.dataset.role === selectedRole;
+                        const isScheduled = scheduledStaff.has(option.dataset.staffId ?? "");
+                        const input = option.querySelector("input[type='radio']");
+                        const availability = option.querySelector("[data-cover-availability]");
+
+                        option.hidden = !isMatchingRole;
+                        option.classList.toggle("is-unavailable", isScheduled);
+
+                        if (input) {
+                            input.checked = false;
+                            input.disabled = !isMatchingRole || isScheduled;
+                        }
+
+                        if (availability) {
+                            availability.textContent = isScheduled
+                                ? "Already scheduled"
+                                : "Available";
+                        }
+
+                        if (isMatchingRole) {
+                            matchingStaff++;
+                            if (!isScheduled) {
+                                availableStaff++;
+                            }
+                        }
+                    });
+
+                    if (coverDateInput) {
+                        coverDateInput.value = button.dataset.date ?? "";
+                    }
+
+                    if (coverRole) {
+                        coverRole.textContent = `${selectedRole} cover`;
+                    }
+
+                    if (coverDate) {
+                        coverDate.textContent = button.dataset.dateLabel ?? "";
+                    }
+
+                    if (coverEmpty) {
+                        coverEmpty.hidden = matchingStaff > 0;
+                        coverEmpty.textContent = matchingStaff === 0
+                            ? `No active ${selectedRole.toLowerCase()} staff.`
+                            : availableStaff === 0
+                                ? `Everyone in ${selectedRole.toLowerCase()} is already scheduled.`
+                                : "";
+                        coverEmpty.hidden = availableStaff > 0;
+                    }
+
+                    coverDialog.showModal();
+                });
+            });
+
+            document.querySelectorAll("[data-cover-close]").forEach((button) => {
+                button.addEventListener("click", () => {
+                    if (coverDialog instanceof HTMLDialogElement) {
+                        coverDialog.close();
+                    }
+                });
+            });
+
+            document
+                .querySelectorAll("[data-cover-start][data-cover-end]")
+                .forEach((button) => {
+                    button.addEventListener("click", () => {
+                        if (coverStart) {
+                            coverStart.value = button.dataset.coverStart ?? "";
+                        }
+
+                        if (coverEnd) {
+                            coverEnd.value = button.dataset.coverEnd ?? "";
+                        }
+
+                        document
+                            .querySelectorAll("[data-cover-start][data-cover-end]")
+                            .forEach((preset) => preset.classList.remove("active"));
+
+                        button.classList.add("active");
+                    });
+                });
+
+            coverDialog?.addEventListener("click", (event) => {
+                if (event.target === coverDialog) {
+                    coverDialog.close();
+                }
+            });
+
+            if (window.location.hash === "#add-shift" && shiftTools) {
+                shiftTools.open = true;
+            }
+
+            if (startInput && endInput) {
+                document
+                    .querySelectorAll("[data-shift-start][data-shift-end]")
+                    .forEach((button) => {
+                        button.addEventListener("click", () => {
+                            startInput.value =
+                                button.dataset.shiftStart ?? "";
+
+                            endInput.value =
+                                button.dataset.shiftEnd ?? "";
+                        });
+                    });
+            }
+        })();
+    </script>
+}

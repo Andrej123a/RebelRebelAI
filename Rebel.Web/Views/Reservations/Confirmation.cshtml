@@ -1,0 +1,130 @@
+﻿@{
+    ViewData["Title"] = "Reservation Sent";
+}
+
+<section class="rr-booking-page">
+    <div class="container">
+        <div class="rr-confirmation-panel">
+            <div class="rr-confirmation-top">
+                <span class="rr-confirmation-mark">OK</span>
+
+                <div>
+                    <p class="rr-booking-kicker">
+                        Request received
+                    </p>
+
+                    <h1>
+                        Thanks, @ViewBag.ReservationName.
+                    </h1>
+
+                    <p>
+                        Your request is now with the team. Keep your code safe; it is your shortcut to status updates and cancellation.
+                    </p>
+                </div>
+            </div>
+
+            <div class="rr-confirmation-status">
+                <span>Current status</span>
+                <strong>Pending staff approval</strong>
+                <p>The table is not final until staff approve it.</p>
+            </div>
+
+            <div class="rr-reservation-code">
+                <span>Reservation Code</span>
+                <div class="rr-reservation-code-line">
+                    <strong id="reservationCodeValue">@ViewBag.ReservationCode</strong>
+                    <button type="button"
+                            id="copyReservationCode"
+                            data-code="@ViewBag.ReservationCode">
+                        Copy
+                    </button>
+                </div>
+                <p>No account needed. This code is enough to find or cancel your reservation.</p>
+            </div>
+
+            <dl class="rr-reservation-summary">
+                <div>
+                    <dt>Date</dt>
+                    <dd>@ViewBag.ReservationDate</dd>
+                </div>
+
+                <div>
+                    <dt>Time</dt>
+                    <dd>@ViewBag.ReservationTime</dd>
+                </div>
+
+                <div>
+                    <dt>Guests</dt>
+                    <dd>@ViewBag.ReservationGuests</dd>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(ViewBag.ReservationEvent as string))
+                {
+                    <div>
+                        <dt>Event</dt>
+                        <dd>@ViewBag.ReservationEvent</dd>
+                    </div>
+                }
+            </dl>
+
+            <div class="rr-confirmation-next">
+                <span>What happens next</span>
+                <ol>
+                    <li>Staff checks the floor, party size, and event capacity.</li>
+                    <li>Your request is approved or declined by the team.</li>
+                    <li>Use your code anytime to track or cancel before the booking time.</li>
+                </ol>
+            </div>
+
+            <div class="rr-confirmation-actions">
+                <a asp-controller="Reservations"
+                   asp-action="Lookup">
+                    Find My Reservation
+                </a>
+
+                <a asp-controller="Home"
+                   asp-action="Index">
+                    Back Home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const button = document.getElementById("copyReservationCode");
+
+            if (!button) {
+                return;
+            }
+
+            button.addEventListener("click", async () => {
+                const code = button.dataset.code ?? "";
+
+                try {
+                    await navigator.clipboard.writeText(code);
+                    button.textContent = "Copied";
+                } catch {
+                    const codeElement =
+                        document.getElementById("reservationCodeValue");
+
+                    if (codeElement) {
+                        const range = document.createRange();
+                        range.selectNodeContents(codeElement);
+                        const selection = window.getSelection();
+                        selection?.removeAllRanges();
+                        selection?.addRange(range);
+                    }
+
+                    button.textContent = "Selected";
+                }
+
+                window.setTimeout(() => {
+                    button.textContent = "Copy";
+                }, 1800);
+            });
+        })();
+    </script>
+}

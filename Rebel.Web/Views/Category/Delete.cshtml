@@ -1,0 +1,90 @@
+@model Rebel.Domain.Entities.Category
+
+@{
+    ViewData["Title"] = "Archive Category";
+    var productCount = Model.Products?.Count ?? 0;
+}
+
+<section class="admin-archive-confirm">
+    <header class="admin-archive-hero">
+        <div>
+            <small>Archive category</small>
+            <h1>Confirm Archive</h1>
+            <p>
+                Archive this category when it should no longer be used on the
+                active menu board. Existing records stay in the system.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="admin-tool-button">
+            Back to Categories
+        </a>
+    </header>
+
+    <div class="admin-archive-warning">
+        <span>!</span>
+        <div>
+            <strong>@Model.Name will be archived.</strong>
+            <p>
+                This is a soft archive. The category is hidden from active
+                admin/public flows, but the database record is kept.
+            </p>
+        </div>
+    </div>
+
+    <div class="admin-archive-grid">
+        <aside class="admin-archive-panel">
+            <h2 class="admin-archive-title">
+                @Model.Name
+            </h2>
+
+            <ul class="admin-editor-note-list">
+                <li>Check that this category is no longer needed.</li>
+                <li>Products attached to it should be moved first if they are still active.</li>
+                <li>Use Archive instead of permanent deletion for safer admin history.</li>
+            </ul>
+        </aside>
+
+        <section class="admin-archive-panel">
+            <dl class="admin-archive-meta">
+                <div>
+                    <dt>Description</dt>
+                    <dd>
+                        @(string.IsNullOrWhiteSpace(Model.Description)
+                            ? "No description available."
+                            : Model.Description)
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Type</dt>
+                    <dd>@Model.Type</dd>
+                </div>
+
+                <div>
+                    <dt>Products</dt>
+                    <dd>
+                        @productCount @(productCount == 1 ? "product" : "products")
+                    </dd>
+                </div>
+            </dl>
+
+            <form asp-action="Delete"
+                  method="post"
+                  class="admin-archive-actions">
+                <input type="hidden" asp-for="Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Archive Category
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-outline-light">
+                    Cancel
+                </a>
+            </form>
+        </section>
+    </div>
+</section>

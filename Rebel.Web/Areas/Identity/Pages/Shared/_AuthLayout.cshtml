@@ -1,0 +1,56 @@
+@{
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Staff login";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>@pageTitle - Rebel Rebel by Fat Kitchen</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet"
+          href="~/css/auth.css"
+          asp-append-version="true" />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+          rel="stylesheet" />
+</head>
+<body class="rr-auth">
+    <header class="rr-auth-header">
+        <a asp-area=""
+           asp-controller="Home"
+           asp-action="Index"
+           class="rr-auth-brand"
+           aria-label="Back to Rebel Rebel home">
+            <span class="rr-auth-logo">
+                <img src="~/images/email/rebel-logo.png"
+                     alt="" />
+            </span>
+            <span>
+                <strong>Rebel Rebel</strong>
+                <small>by Fat Kitchen</small>
+            </span>
+        </a>
+
+        <span class="rr-auth-door">Staff entrance</span>
+    </header>
+
+    <main class="rr-auth-main">
+        @RenderBody()
+    </main>
+
+    <footer class="rr-auth-footer">
+        <span>Skopje / Staff access</span>
+        <a asp-area=""
+           asp-controller="Home"
+           asp-action="Index">
+            Back to the public site
+        </a>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

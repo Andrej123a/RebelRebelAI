@@ -1,0 +1,115 @@
+@model Rebel.Domain.Entities.Category
+
+@{
+    ViewData["Title"] = "Edit Category";
+}
+
+<section class="admin-editor-page">
+    <header class="admin-editor-hero">
+        <div>
+            <small>Menu sections</small>
+            <h1>Edit Category</h1>
+            <p>
+                Update the section name, description and type without
+                disturbing the products already assigned to it.
+            </p>
+        </div>
+
+        <a asp-action="Index"
+           class="admin-tool-button">
+            Back to Categories
+        </a>
+    </header>
+
+    <form asp-action="Edit"
+          method="post"
+          class="admin-editor-form"
+          autocomplete="off">
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="alert alert-danger">
+        </div>
+
+        <div class="admin-editor-grid is-simple">
+            <section class="admin-editor-panel">
+                <h2>Category Details</h2>
+                <p class="admin-editor-help">
+                    Keep the category simple and recognizable. Staff and guests
+                    should understand it at a glance.
+                </p>
+
+                <div class="admin-editor-field">
+                    <label asp-for="Name"
+                           class="form-label">
+                    </label>
+
+                    <input asp-for="Name"
+                           class="form-control"
+                           placeholder="Beer, Burgers, Cocktails..." />
+
+                    <span asp-validation-for="Name"
+                          class="text-danger small">
+                    </span>
+                </div>
+
+                <div class="admin-editor-field">
+                    <label asp-for="Description"
+                           class="form-label">
+                    </label>
+
+                    <textarea asp-for="Description"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Short internal/public description for this section"></textarea>
+
+                    <span asp-validation-for="Description"
+                          class="text-danger small">
+                    </span>
+                </div>
+
+                <div class="admin-editor-field">
+                    <label asp-for="Type"
+                           class="form-label">
+                    </label>
+
+                    <select asp-for="Type"
+                            class="form-select"
+                            asp-items="Html.GetEnumSelectList<Rebel.Domain.Enums.CategoryType>()">
+                    </select>
+
+                    <span asp-validation-for="Type"
+                          class="text-danger small">
+                    </span>
+                </div>
+            </section>
+
+            <aside class="admin-editor-panel">
+                <h2>Before Saving</h2>
+                <ul class="admin-editor-note-list">
+                    <li>Changing the type can move this section between menu areas.</li>
+                    <li>Products stay attached to this category after saving.</li>
+                    <li>Archive empty or outdated categories from the category board.</li>
+                </ul>
+            </aside>
+        </div>
+
+        <div class="admin-editor-actions">
+            <button type="submit"
+                    class="btn btn-warning">
+                Save Changes
+            </button>
+
+            <a asp-action="Index"
+               class="btn btn-outline-light">
+                Cancel
+            </a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

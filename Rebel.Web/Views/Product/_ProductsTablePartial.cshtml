@@ -1,0 +1,136 @@
+@model IEnumerable<Rebel.Domain.Entities.Product>
+
+@{
+    var products = Model?.ToList()
+        ?? new List<Rebel.Domain.Entities.Product>();
+
+    var productGroups = products
+        .GroupBy(product =>
+            string.IsNullOrWhiteSpace(product.Category?.Name)
+                ? "Uncategorized"
+                : product.Category!.Name)
+        .OrderBy(group => group.Key)
+        .ToList();
+}
+
+@if (products.Count == 0)
+{
+    <div class="admin-empty-state">
+        <strong>No menu items found.</strong>
+        <span>Try clearing the selected filters.</span>
+    </div>
+}
+else
+{
+    <div class="admin-section">
+        @foreach (var group in productGroups)
+        {
+            <details class="admin-content-disclosure"
+                     data-group-key="@group.Key"
+                     data-product-group>
+                <summary>
+                    <span>@group.Key</span>
+                    <span>@group.Count() items</span>
+                </summary>
+
+                <div class="admin-list">
+                    @foreach (var item in group.OrderBy(product => product.Name))
+                    {
+                        var tagNames = new List<string>();
+                        var isBeer = Rebel.Web.Services.BeerProfileQuality.IsBeer(item);
+                        var profilePercent = isBeer
+                            ? Rebel.Web.Services.BeerProfileQuality.CompletionPercent(item)
+                            : 0;
+                        var missingProfileFields = isBeer
+                            ? Rebel.Web.Services.BeerProfileQuality.MissingFields(item)
+                            : [];
+
+                        if (item.IsPopular) tagNames.Add("Popular");
+                        if (item.IsSpicy) tagNames.Add("Spicy");
+                        if (item.IsVegetarian) tagNames.Add("Vegetarian");
+                        if (item.IsVegan) tagNames.Add("Vegan");
+                        if (item.IsGlutenFree) tagNames.Add("Gluten free");
+                        if (item.ContainsNuts) tagNames.Add("Contains nuts");
+                        if (item.IsLimited) tagNames.Add("Limited");
+                        if (item.IsPromo) tagNames.Add("Promo");
+
+                        <article class="admin-list-row @(!item.IsAvailable ? "is-danger" : "")">
+                            <div class="admin-row-main">
+                                @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                {
+                                    <img src="@Url.Content(item.ImageUrl)"
+                                         alt=""
+                                         loading="lazy"
+                                         class="admin-row-thumbnail" />
+                                }
+
+                                <div class="admin-row-copy">
+                                    <strong>@item.Name</strong>
+                                    <span>
+                                        @(tagNames.Count == 0
+                                            ? group.Key
+                                            : string.Join(" / ", tagNames))
+                                    </span>
+                                    @if (isBeer)
+                                    {
+                                        <span class="beer-profile-status @(profilePercent >= 85 ? "is-ready" : "is-incomplete")"
+                                              title="@(missingProfileFields.Count == 0 ? "Beer guide profile complete" : $"Missing: {string.Join(", ", missingProfileFields)}")">
+                                            Beer guide: @(profilePercent >= 85 ? "ready" : $"{profilePercent}%")
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="admin-row-data">
+                                <strong>@item.Price.ToString("0.##") MKD</strong>
+                                <span>@group.Key</span>
+                            </div>
+
+                            <form asp-controller="Product"
+                                  asp-action="ToggleAvailability"
+                                  asp-route-id="@item.Id"
+                                  method="post"
+                                  class="product-status-form admin-state">
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit"
+                                        class="admin-state @(item.IsAvailable ? "is-success" : "is-danger")"
+                                        aria-label="Mark @item.Name as @(item.IsAvailable ? "unavailable" : "available")">
+                                    @(item.IsAvailable ? "Available" : "Unavailable")
+                                </button>
+                            </form>
+
+                            <div class="admin-row-actions">
+                                <a asp-controller="Product"
+                                   asp-action="Edit"
+                                   asp-route-id="@item.Id"
+                                   class="admin-secondary-button">
+                                    Edit
+                                </a>
+
+                                <details class="admin-more-menu">
+                                    <summary>More</summary>
+
+                                    <div class="admin-more-panel">
+                                        <a asp-controller="Product"
+                                           asp-action="Edit"
+                                           asp-route-id="@item.Id">
+                                            Edit item
+                                        </a>
+
+                                        <a asp-controller="Product"
+                                           asp-action="Delete"
+                                           asp-route-id="@item.Id"
+                                           class="is-danger">
+                                            Archive item
+                                        </a>
+                                    </div>
+                                </details>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </details>
+        }
+    </div>
+}

@@ -1,0 +1,59 @@
+@model Rebel.Domain.Entities.PubTable
+
+<div asp-validation-summary="ModelOnly"
+     class="alert alert-danger"></div>
+
+<div class="table-simple-fields">
+    <div class="table-form-field">
+        <label asp-for="Label" class="table-form-label">
+            Table name
+        </label>
+        <input asp-for="Label"
+               class="form-control"
+               placeholder="T1" />
+        <span asp-validation-for="Label" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="Area" class="table-form-label">
+            Area
+        </label>
+        <input asp-for="Area"
+               class="form-control"
+               list="tableAreaSuggestions"
+               placeholder="Main floor" />
+        <datalist id="tableAreaSuggestions">
+            <option value="Main floor"></option>
+            <option value="Bar"></option>
+            <option value="Patio"></option>
+            <option value="Booths"></option>
+            <option value="Terrace"></option>
+        </datalist>
+        <span asp-validation-for="Area" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="Capacity" class="table-form-label">
+            Number of seats
+        </label>
+        <input asp-for="Capacity"
+               type="number"
+               min="1"
+               max="30"
+               class="form-control" />
+        <span asp-validation-for="Capacity" class="text-danger small"></span>
+    </div>
+</div>
+
+<details class="table-advanced-settings" @(!Model.IsActive ? "open" : null)>
+    <summary>
+        <span>Availability</span>
+        <span>@(Model.IsActive ? "Available" : "Unavailable")</span>
+    </summary>
+
+    <label class="table-active-toggle">
+        <input asp-for="IsActive" />
+        <span aria-hidden="true"></span>
+        <strong>Allow bookings to use this table</strong>
+    </label>
+</details>

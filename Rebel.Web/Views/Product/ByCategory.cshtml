@@ -1,0 +1,86 @@
+@model Rebel.Domain.Entities.Category
+
+@{
+    ViewData["Title"] = Model.Name;
+
+    var products = Model.Products?
+        .OrderBy(product => product.Name)
+        .ToList()
+        ?? new List<Rebel.Domain.Entities.Product>();
+}
+
+<div class="admin-workspace">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <a asp-controller="Category"
+               asp-action="Index"
+               class="admin-workspace-eyebrow">
+                Back to sections
+            </a>
+
+            <h1 class="admin-workspace-title">
+                @Model.Name
+            </h1>
+
+            <p class="admin-workspace-copy">
+                @(string.IsNullOrWhiteSpace(Model.Description)
+                    ? "Menu items in this section."
+                    : Model.Description)
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="Product"
+               asp-action="Create"
+               asp-route-categoryId="@Model.Id"
+               class="admin-primary-button">
+                Add item
+            </a>
+
+            <a asp-controller="Product"
+               asp-action="Index"
+               class="admin-secondary-button">
+                Full menu
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar"
+             aria-label="Section summary">
+        <div class="admin-metric">
+            <span>Items</span>
+            <strong>@products.Count</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Available</span>
+            <strong>@products.Count(product => product.IsAvailable)</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Unavailable</span>
+            <strong>@products.Count(product => !product.IsAvailable)</strong>
+        </div>
+    </section>
+
+    @if (products.Count == 0)
+    {
+        <div class="admin-empty-state">
+            <strong>No items in this section.</strong>
+
+            <a asp-controller="Product"
+               asp-action="Create"
+               asp-route-categoryId="@Model.Id"
+               class="admin-primary-button">
+                Add first item
+            </a>
+        </div>
+    }
+    else
+    {
+        <partial name="_ProductsTablePartial"
+                 model="products" />
+    }
+
+</div>

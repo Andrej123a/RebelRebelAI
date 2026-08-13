@@ -1,0 +1,274 @@
+@model AdminArchiveViewModel
+
+@{
+    ViewData["Title"] = "Archive";
+    Layout = "_AdminLayout";
+}
+
+<div class="admin-workspace">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">
+                Recovery
+            </span>
+
+            <h1 class="admin-workspace-title">
+                Archive
+            </h1>
+
+            <p class="admin-workspace-copy">
+                Restore records that were removed from active screens.
+                Nothing here is permanently deleted.
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="Admin"
+               asp-action="Index"
+               class="admin-secondary-button">
+                Start here
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar"
+             style="--metric-columns: 4;"
+             aria-label="Archive summary">
+        <div class="admin-metric">
+            <span>Menu items</span>
+            <strong>@Model.Products.Count</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Events</span>
+            <strong>@Model.Events.Count</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Reservations</span>
+            <strong>@Model.Reservations.Count</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Sections</span>
+            <strong>@Model.Categories.Count</strong>
+        </div>
+    </section>
+
+    @if (Model.TotalItems == 0)
+    {
+        <div class="admin-empty-state">
+            <strong>The archive is empty.</strong>
+            <span>Archived records will appear here for recovery.</span>
+        </div>
+    }
+    else
+    {
+        <details class="admin-content-disclosure">
+            <summary>
+                <span>Menu items</span>
+                <span>@Model.Products.Count</span>
+            </summary>
+
+            @if (Model.Products.Count == 0)
+            {
+                <div class="admin-empty-state">
+                    <strong>No archived menu items.</strong>
+                </div>
+            }
+            else
+            {
+                <div class="admin-list">
+                    @foreach (var product in Model.Products)
+                    {
+                        <article class="admin-list-row">
+                            <div class="admin-row-main">
+                                <div class="admin-row-copy">
+                                    <strong>@product.Name</strong>
+                                    <span>@product.Category?.Name</span>
+                                </div>
+                            </div>
+
+                            <div class="admin-row-data">
+                                <strong>@product.Price.ToString("0.##") MKD</strong>
+                                <span>Menu item</span>
+                            </div>
+
+                            <span class="admin-state">Archived</span>
+
+                            <form asp-action="RestoreProduct"
+                                  method="post"
+                                  class="admin-row-actions">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden"
+                                       name="id"
+                                       value="@product.Id" />
+                                <button type="submit"
+                                        class="admin-primary-button">
+                                    Restore
+                                </button>
+                            </form>
+                        </article>
+                    }
+                </div>
+            }
+        </details>
+
+        <details class="admin-content-disclosure">
+            <summary>
+                <span>Events</span>
+                <span>@Model.Events.Count</span>
+            </summary>
+
+            @if (Model.Events.Count == 0)
+            {
+                <div class="admin-empty-state">
+                    <strong>No archived events.</strong>
+                </div>
+            }
+            else
+            {
+                <div class="admin-list">
+                    @foreach (var eventItem in Model.Events)
+                    {
+                        <article class="admin-list-row">
+                            <div class="admin-row-main">
+                                <div class="admin-row-copy">
+                                    <strong>@eventItem.Title</strong>
+                                    <span>@eventItem.Date.ToString("dd MMM yyyy")</span>
+                                </div>
+                            </div>
+
+                            <div class="admin-row-data">
+                                <strong>
+                                    @(eventItem.StartTime?.ToString(@"hh\:mm") ?? "TBC")
+                                </strong>
+                                <span>Event time</span>
+                            </div>
+
+                            <span class="admin-state">Archived</span>
+
+                            <form asp-action="RestoreEvent"
+                                  method="post"
+                                  class="admin-row-actions">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden"
+                                       name="id"
+                                       value="@eventItem.Id" />
+                                <button type="submit"
+                                        class="admin-primary-button">
+                                    Restore
+                                </button>
+                            </form>
+                        </article>
+                    }
+                </div>
+            }
+        </details>
+
+        <details class="admin-content-disclosure">
+            <summary>
+                <span>Reservations</span>
+                <span>@Model.Reservations.Count</span>
+            </summary>
+
+            @if (Model.Reservations.Count == 0)
+            {
+                <div class="admin-empty-state">
+                    <strong>No archived reservations.</strong>
+                </div>
+            }
+            else
+            {
+                <div class="admin-list">
+                    @foreach (var reservation in Model.Reservations)
+                    {
+                        <article class="admin-list-row">
+                            <div class="admin-row-main">
+                                <div class="admin-row-copy">
+                                    <strong>@reservation.FullName</strong>
+                                    <span>
+                                        @reservation.ReservationDate.ToString("dd MMM yyyy")
+                                        / @reservation.ReservationTime.ToString(@"hh\:mm")
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="admin-row-data">
+                                <strong>@reservation.NumberOfGuests guests</strong>
+                                <span>Reservation</span>
+                            </div>
+
+                            <span class="admin-state">Archived</span>
+
+                            <form asp-action="RestoreReservation"
+                                  method="post"
+                                  class="admin-row-actions">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden"
+                                       name="id"
+                                       value="@reservation.Id" />
+                                <button type="submit"
+                                        class="admin-primary-button">
+                                    Restore
+                                </button>
+                            </form>
+                        </article>
+                    }
+                </div>
+            }
+        </details>
+
+        <details class="admin-content-disclosure">
+            <summary>
+                <span>Menu sections</span>
+                <span>@Model.Categories.Count</span>
+            </summary>
+
+            @if (Model.Categories.Count == 0)
+            {
+                <div class="admin-empty-state">
+                    <strong>No archived menu sections.</strong>
+                </div>
+            }
+            else
+            {
+                <div class="admin-list">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <article class="admin-list-row">
+                            <div class="admin-row-main">
+                                <div class="admin-row-copy">
+                                    <strong>@category.Name</strong>
+                                    <span>@category.Type</span>
+                                </div>
+                            </div>
+
+                            <div class="admin-row-data">
+                                <strong>Menu section</strong>
+                                <span>@category.Type</span>
+                            </div>
+
+                            <span class="admin-state">Archived</span>
+
+                            <form asp-action="RestoreCategory"
+                                  method="post"
+                                  class="admin-row-actions">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden"
+                                       name="id"
+                                       value="@category.Id" />
+                                <button type="submit"
+                                        class="admin-primary-button">
+                                    Restore
+                                </button>
+                            </form>
+                        </article>
+                    }
+                </div>
+            }
+        </details>
+    }
+
+</div>

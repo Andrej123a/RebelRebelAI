@@ -1,0 +1,139 @@
+@model Rebel.Domain.Entities.Event
+@{
+    ViewData["Title"] = "Archive Event";
+}
+
+@functions {
+    public string FormatTimeRange(TimeSpan? startTime, TimeSpan? endTime)
+    {
+        if (!startTime.HasValue && !endTime.HasValue)
+        {
+            return "Time not specified";
+        }
+
+        if (startTime.HasValue && endTime.HasValue)
+        {
+            var nextDay = endTime.Value < startTime.Value
+                ? " / next day"
+                : "";
+
+            return $"{startTime.Value:hh\\:mm} - {endTime.Value:hh\\:mm}{nextDay}";
+        }
+
+        if (startTime.HasValue)
+        {
+            return $"Starts at {startTime.Value:hh\\:mm}";
+        }
+
+        return $"Ends at {endTime!.Value:hh\\:mm}";
+    }
+}
+
+<section class="admin-archive-confirm">
+    <header class="admin-archive-hero">
+        <div>
+            <small>Archive event</small>
+            <h1>Confirm Archive</h1>
+            <p>
+                Archive this event when it should disappear from active event
+                screens while keeping the event and its booking history.
+            </p>
+        </div>
+
+        <a asp-controller="AdminEvents"
+           asp-action="Index"
+           class="admin-tool-button">
+            Back to Events
+        </a>
+    </header>
+
+    <div class="admin-archive-warning">
+        <span>!</span>
+        <div>
+            <strong>@Model.Title will be archived.</strong>
+            <p>
+                The event will be hidden from normal event screens. Existing
+                reservations and admin records remain connected.
+            </p>
+        </div>
+    </div>
+
+    <div class="admin-archive-grid">
+        <aside class="admin-archive-panel">
+            <div class="admin-media-preview">
+                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                {
+                    <img src="@Url.Content(Model.ImageUrl)"
+                         alt="@Model.Title" />
+                }
+                else
+                {
+                    <div class="admin-media-placeholder">
+                        <span>IMG</span>
+                        <strong>No event image</strong>
+                        <small>This event does not currently have a poster.</small>
+                    </div>
+                }
+            </div>
+        </aside>
+
+        <section class="admin-archive-panel">
+            <h2 class="admin-archive-title">
+                @Model.Title
+            </h2>
+
+            <dl class="admin-archive-meta">
+                <div>
+                    <dt>Date</dt>
+                    <dd>@Model.Date.ToString("dd MMMM yyyy")</dd>
+                </div>
+
+                <div>
+                    <dt>Time</dt>
+                    <dd>@FormatTimeRange(Model.StartTime, Model.EndTime)</dd>
+                </div>
+
+                <div>
+                    <dt>Status</dt>
+                    <dd>@(Model.IsActive ? "Active" : "Hidden")</dd>
+                </div>
+
+                <div>
+                    <dt>Capacity</dt>
+                    <dd>
+                        @(Model.MaxReservations?.ToString() ?? "Unlimited") bookings /
+                        @(Model.MaxGuests?.ToString() ?? "Unlimited") guests
+                    </dd>
+                </div>
+
+                <div>
+                    <dt>Description</dt>
+                    <dd>
+                        @(string.IsNullOrWhiteSpace(Model.Description)
+                            ? "No description available."
+                            : Model.Description)
+                    </dd>
+                </div>
+            </dl>
+
+            <form asp-controller="AdminEvents"
+                  asp-action="Delete"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  class="admin-archive-actions">
+                <input type="hidden" asp-for="Id" />
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Archive Event
+                </button>
+
+                <a asp-controller="AdminEvents"
+                   asp-action="Index"
+                   class="btn btn-outline-light">
+                    Cancel
+                </a>
+            </form>
+        </section>
+    </div>
+</section>

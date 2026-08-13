@@ -1,0 +1,184 @@
+@model Rebel.Web.Models.AdminBeerGuideLabViewModel
+
+@{
+    ViewData["Title"] = "Beer Guide test lab";
+    var groups = new[]
+    {
+        new { Status = "fail", Title = "Failed", Copy = "Rules that are currently broken." },
+        new { Status = "warning", Title = "Catalogue gaps", Copy = "Honest no-match checks and requests with fewer exact options." },
+        new { Status = "pass", Title = "Passed", Copy = "Rules working against the current catalogue." }
+    };
+}
+
+<div class="admin-workspace beer-lab-workspace">
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">Ask Rebel / Quality</span>
+            <h1 class="admin-workspace-title">Beer Guide test lab</h1>
+            <p class="admin-workspace-copy">
+                The full catalogue check is free. Run OpenAI only on the individual questions you want to inspect.
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="AdminBeerCatalog"
+               asp-action="Index"
+               class="admin-primary-button">Fix beer profiles</a>
+            <a asp-controller="AdminBeerFeedback"
+               asp-action="Index"
+               class="admin-secondary-button">Guest feedback</a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar beer-lab-metrics"
+             aria-label="Beer Guide test summary">
+        <div class="admin-metric"><span>Total tests</span><strong>@Model.Scenarios.Count</strong></div>
+        <a href="#failed" class="admin-metric"><span>Failed</span><strong>@Model.Failed</strong></a>
+        <a href="#warnings" class="admin-metric is-attention"><span>Catalogue gaps</span><strong>@Model.Warnings</strong></a>
+        <a href="#passed" class="admin-metric"><span>Passed</span><strong>@Model.Passed</strong></a>
+    </section>
+
+    @if (Model.AiResult != null)
+    {
+        var ai = Model.AiResult;
+        <section id="ai-result" class="beer-lab-ai-result is-@ai.Status">
+            <div class="beer-lab-ai-heading">
+                <div>
+                    <span class="admin-workspace-eyebrow">Live comparison</span>
+                    <h2>@(ai.UsedAi ? "OpenAI answer" : "Catalogue fallback answer")</h2>
+                    <code>"@ai.Prompt"</code>
+                </div>
+                <span class="beer-lab-status is-@ai.Status">@ai.Status</span>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(ai.Reply))
+            {
+                <p class="beer-lab-reply">@ai.Reply</p>
+            }
+
+            <div class="beer-lab-results">
+                @foreach (var beer in ai.Beers)
+                {
+                    <span>@beer.Name</span>
+                }
+            </div>
+
+            @if (ai.Issues.Count > 0)
+            {
+                <div class="beer-lab-issues">
+                    @foreach (var issue in ai.Issues)
+                    {
+                        <div class="beer-lab-issue is-@issue.Severity">
+                            <span>@issue.Message</span>
+                            @if (issue.ProductId.HasValue)
+                            {
+                                <a asp-controller="Product"
+                                   asp-action="Edit"
+                                   asp-route-id="@issue.ProductId"
+                                   asp-route-returnTo="beer-lab">Fix @issue.ProductName</a>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+    }
+
+    @foreach (var group in groups)
+    {
+        var scenarios = Model.Scenarios
+            .Where(scenario => scenario.Status == group.Status)
+            .ToList();
+        var sectionId = group.Status == "fail"
+            ? "failed"
+            : group.Status == "warning"
+                ? "warnings"
+                : "passed";
+
+        <section id="@sectionId" class="admin-section beer-lab-section">
+            <div class="admin-section-heading">
+                <div>
+                    <span class="admin-workspace-eyebrow">@group.Title</span>
+                    <h2>@group.Copy</h2>
+                </div>
+                <span class="admin-section-count">@scenarios.Count</span>
+            </div>
+
+            @if (scenarios.Count == 0)
+            {
+                <div class="admin-empty-state beer-quality-empty">
+                    <strong>Nothing here.</strong>
+                    <span>This group is clear.</span>
+                </div>
+            }
+            else
+            {
+                <div class="beer-lab-list">
+                    @foreach (var scenario in scenarios)
+                    {
+                        <details class="beer-lab-scenario is-@scenario.Status">
+                            <summary>
+                                <span class="beer-lab-status is-@scenario.Status">@scenario.Status</span>
+                                <span class="beer-lab-question">@scenario.Prompt</span>
+                                <span class="beer-lab-count">@scenario.Beers.Count / @scenario.RequestedCount beers</span>
+                            </summary>
+
+                            <div class="beer-lab-body">
+                                <div class="beer-lab-rule">
+                                    <span>Expected rule</span>
+                                    <strong>@scenario.Checks</strong>
+                                </div>
+
+                                <div class="beer-lab-results">
+                                    @foreach (var beer in scenario.Beers)
+                                    {
+                                        var abv = Rebel.Web.Services.BeerProfileQuality.AlcoholByVolume(beer);
+                                        <span>
+                                            @beer.Name
+                                            @if (abv.HasValue)
+                                            {
+                                                <small>@abv.Value.ToString("0.#")%</small>
+                                            }
+                                        </span>
+                                    }
+                                </div>
+
+                                @if (scenario.Issues.Count > 0)
+                                {
+                                    <div class="beer-lab-issues">
+                                        @foreach (var issue in scenario.Issues)
+                                        {
+                                            <div class="beer-lab-issue is-@issue.Severity">
+                                                <span>
+                                                    @if (!string.IsNullOrWhiteSpace(issue.ProductName))
+                                                    {
+                                                        <strong>@issue.ProductName:</strong>
+                                                    }
+                                                    @issue.Message
+                                                </span>
+                                                @if (issue.ProductId.HasValue)
+                                                {
+                                                    <a asp-controller="Product"
+                                                       asp-action="Edit"
+                                                       asp-route-id="@issue.ProductId"
+                                                       asp-route-returnTo="beer-lab">Fix profile</a>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                <form asp-action="RunAi" method="post" class="beer-lab-ai-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="key" value="@scenario.Key" />
+                                    <span>Uses one OpenAI request</span>
+                                    <button type="submit" class="admin-secondary-button">Test with OpenAI</button>
+                                </form>
+                            </div>
+                        </details>
+                    }
+                </div>
+            }
+        </section>
+    }
+</div>

@@ -1,0 +1,299 @@
+@model List<Rebel.Domain.Entities.Reservation>
+@using Rebel.Domain.Enums
+
+@{
+    ViewData["Title"] = "All bookings";
+
+    ReservationStatus? selectedStatus =
+        ViewBag.SelectedStatus is ReservationStatus status
+            ? status
+            : null;
+
+    var selectedEvent =
+        ViewBag.SelectedEvent as Rebel.Domain.Entities.Event;
+
+    Guid? selectedEventId =
+        ViewBag.SelectedEventId is Guid eventId
+            ? eventId
+            : null;
+
+    DateTime? selectedDate =
+        ViewBag.SelectedDate is DateTime date
+            ? date.Date
+            : null;
+
+    TimeSpan? selectedTime =
+        ViewBag.SelectedTime is TimeSpan time
+            ? time
+            : null;
+
+    var selectedRange = ViewBag.SelectedRange as string;
+
+    var needsTable =
+        ViewBag.NeedsTable is bool needsTableValue &&
+        needsTableValue;
+
+    var pendingCount = Model.Count(reservation =>
+        reservation.Status == ReservationStatus.Pending);
+
+    var approvedCount = Model.Count(reservation =>
+        reservation.Status == ReservationStatus.Approved);
+
+    var unassignedCount = Model.Count(reservation =>
+        (reservation.Status == ReservationStatus.Pending ||
+         reservation.Status == ReservationStatus.Approved) &&
+        string.IsNullOrWhiteSpace(reservation.TableLabel));
+
+    var hasFilters =
+        selectedStatus.HasValue ||
+        selectedEventId.HasValue ||
+        selectedDate.HasValue ||
+        selectedTime.HasValue ||
+        !string.IsNullOrWhiteSpace(selectedRange) ||
+        needsTable;
+
+    var filterSummary =
+        selectedEvent != null ? $"Event: {selectedEvent.Title}" :
+        needsTable ? "Bookings that need a table" :
+        selectedDate.HasValue ? selectedDate.Value.ToString("dd MMM yyyy") :
+        selectedTime.HasValue ? selectedTime.Value.ToString(@"hh\:mm") :
+        !string.IsNullOrWhiteSpace(selectedRange)
+            ? selectedRange switch
+            {
+                "today" => "Today",
+                "tomorrow" => "Tomorrow",
+                "week" => "This week",
+                _ => "Filtered"
+            } :
+        selectedStatus.HasValue ? selectedStatus.Value.ToString() :
+        "All bookings";
+
+    string StatusLabel(ReservationStatus reservationStatus)
+    {
+        return reservationStatus switch
+        {
+            ReservationStatus.Pending => "Needs review",
+            ReservationStatus.Approved => "Approved",
+            ReservationStatus.Arrived => "Arrived",
+            ReservationStatus.NoShow => "No-show",
+            ReservationStatus.Cancelled => "Cancelled",
+            ReservationStatus.Rejected => "Rejected",
+            _ => reservationStatus.ToString()
+        };
+    }
+}
+
+<div class="admin-workspace">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">
+                Bookings
+            </span>
+
+            <h1 class="admin-workspace-title">
+                All bookings
+            </h1>
+
+            <p class="admin-workspace-copy">
+                Review requests, confirm tables, and find guest bookings quickly.
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="AdminReservations"
+               asp-action="Index"
+               asp-route-status="Pending"
+               class="admin-primary-button">
+                Need review
+            </a>
+
+            <a asp-controller="AdminReservations"
+               asp-action="Tonight"
+               class="admin-secondary-button">
+                Tonight
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar"
+             style="--metric-columns: 4;"
+             aria-label="Reservation summary">
+
+        <a asp-controller="AdminReservations"
+           asp-action="Index"
+           class="admin-metric @(!hasFilters ? "active" : "")">
+            <span>Showing</span>
+            <strong>@Model.Count</strong>
+        </a>
+
+        <a asp-controller="AdminReservations"
+           asp-action="Index"
+           asp-route-status="Pending"
+           class="admin-metric is-attention @(selectedStatus == ReservationStatus.Pending ? "active" : "")">
+            <span>Need review</span>
+            <strong>@pendingCount</strong>
+        </a>
+
+        <a asp-controller="AdminReservations"
+           asp-action="Index"
+           asp-route-status="Approved"
+           class="admin-metric @(selectedStatus == ReservationStatus.Approved ? "active" : "")">
+            <span>Approved</span>
+            <strong>@approvedCount</strong>
+        </a>
+
+        <a asp-controller="AdminReservations"
+           asp-action="Index"
+           asp-route-needsTable="true"
+           class="admin-metric @(needsTable ? "active" : "")">
+            <span>Need table</span>
+            <strong>@unassignedCount</strong>
+        </a>
+
+    </section>
+
+    <details class="admin-filter-disclosure">
+        <summary>
+            <span>Filters: @filterSummary</span>
+            <span>@(hasFilters ? "Change" : "Open")</span>
+        </summary>
+
+        <div class="admin-filter-shortcuts">
+            <a asp-controller="AdminReservations"
+               asp-action="Index"
+               asp-route-range="today"
+               class="@(selectedRange == "today" ? "active" : "")">
+                Today
+            </a>
+
+            <a asp-controller="AdminReservations"
+               asp-action="Index"
+               asp-route-range="tomorrow"
+               class="@(selectedRange == "tomorrow" ? "active" : "")">
+                Tomorrow
+            </a>
+
+            <a asp-controller="AdminReservations"
+               asp-action="Index"
+               asp-route-range="week"
+               class="@(selectedRange == "week" ? "active" : "")">
+                This week
+            </a>
+
+            <a asp-controller="AdminReservations"
+               asp-action="Index">
+                Clear filters
+            </a>
+        </div>
+
+        <form asp-controller="AdminReservations"
+              asp-action="Index"
+              method="get"
+              class="admin-filter-panel">
+
+            <label>
+                Date
+                <input type="date"
+                       name="date"
+                       value="@selectedDate?.ToString("yyyy-MM-dd")" />
+            </label>
+
+            <label>
+                Time
+                <input type="time"
+                       name="time"
+                       value="@selectedTime?.ToString(@"hh\:mm")" />
+            </label>
+
+            <label>
+                Status
+                <select name="status">
+                    <option value="">All statuses</option>
+                    @foreach (var statusOption in Enum.GetValues<ReservationStatus>())
+                    {
+                        <option value="@statusOption"
+                                selected="@(selectedStatus == statusOption ? "selected" : null)">
+                            @StatusLabel(statusOption)
+                        </option>
+                    }
+                </select>
+            </label>
+
+            @if (selectedEventId.HasValue)
+            {
+                <input type="hidden"
+                       name="eventId"
+                       value="@selectedEventId" />
+            }
+
+            @if (needsTable)
+            {
+                <input type="hidden"
+                       name="needsTable"
+                       value="true" />
+            }
+
+            <button type="submit"
+                    class="admin-primary-button">
+                Apply filters
+            </button>
+        </form>
+    </details>
+
+    @if (Model.Count == 0)
+    {
+        <div class="admin-empty-state">
+            <strong>No reservations found.</strong>
+            <span>Try clearing the filters or choosing another date.</span>
+        </div>
+    }
+    else
+    {
+        var reservationGroups = Model
+            .GroupBy(reservation => reservation.ReservationDate.Date)
+            .OrderByDescending(group => group.Key);
+
+        @foreach (var reservationGroup in reservationGroups)
+        {
+            var orderedReservations = reservationGroup
+                .OrderBy(reservation =>
+                    reservation.Status == ReservationStatus.Pending ? 0 :
+                    reservation.Status == ReservationStatus.Approved ? 1 :
+                    reservation.Status == ReservationStatus.Arrived ? 2 :
+                    3)
+                .ThenBy(reservation => reservation.ReservationTime)
+                .ToList();
+
+            var newCount = orderedReservations.Count(reservation =>
+                reservation.Status == ReservationStatus.Pending);
+
+            <section class="admin-section">
+                <header class="admin-section-heading">
+                    <div>
+                        <span class="admin-workspace-eyebrow">
+                            @(newCount > 0 ? $"{newCount} new" : "Schedule")
+                        </span>
+
+                        <h2>
+                            @reservationGroup.Key.ToString("dddd, dd MMM yyyy")
+                        </h2>
+                    </div>
+
+                    <span class="admin-section-count">
+                        @orderedReservations.Count
+                    </span>
+                </header>
+
+                <div class="admin-list">
+                    @foreach (var reservation in orderedReservations)
+                    {
+                        <partial name="_ReservationDeskRow"
+                                 model="reservation" />
+                    }
+                </div>
+            </section>
+        }
+    }
+
+</div>

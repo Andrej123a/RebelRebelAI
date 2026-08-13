@@ -1,0 +1,86 @@
+@model Rebel.Web.Models.AdminBeerFeedbackViewModel
+
+@{
+    ViewData["Title"] = "Beer Guide feedback";
+}
+
+<div class="admin-workspace">
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">Beer Guide</span>
+            <h1 class="admin-workspace-title">Guest feedback</h1>
+            <p class="admin-workspace-copy">
+                See which recommendations land and where the beer profiles need work.
+                Guest messages are never stored here.
+            </p>
+        </div>
+        <div class="admin-workspace-actions">
+            <a asp-controller="AdminBeerCatalog" asp-action="Index" class="admin-secondary-button">
+                Beer profiles
+            </a>
+            <a asp-controller="AdminBeerGuideLab" asp-action="Index" class="admin-secondary-button">
+                Test lab
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar" aria-label="Beer Guide feedback summary">
+        <div class="admin-metric"><span>Rated answers</span><strong>@Model.RatedAnswers</strong></div>
+        <div class="admin-metric"><span>Good picks</span><strong>@Model.PositiveAnswers</strong></div>
+        <div class="admin-metric"><span>Missed the mark</span><strong>@Model.NegativeAnswers</strong></div>
+    </section>
+
+    @if (Model.Beers.Count == 0)
+    {
+        <div class="admin-empty-state">
+            <strong>No ratings yet.</strong>
+            <span>Feedback will appear after guests rate Beer Guide answers.</span>
+        </div>
+    }
+    else
+    {
+        <section class="admin-section">
+            <div class="admin-section-heading">
+                <div>
+                    <span class="admin-workspace-eyebrow">By beer</span>
+                    <h2>What guests are telling us</h2>
+                </div>
+            </div>
+
+            <div class="admin-list">
+                @foreach (var beer in Model.Beers)
+                {
+                    <article class="admin-list-row">
+                        <div class="admin-row-copy">
+                            <strong>@beer.ProductName</strong>
+                            <span>@beer.Ratings ratings</span>
+                            @if (!string.IsNullOrWhiteSpace(beer.BestContext))
+                            {
+                                <span>Works for: @beer.BestContext</span>
+                            }
+                        </div>
+                        <div class="admin-row-data">
+                            <strong>@beer.PositivePercent%</strong>
+                            <span>@beer.PositiveRatings good / @beer.NegativeRatings missed</span>
+                        </div>
+                        <span class="admin-state @(beer.PositivePercent >= 70 ? "is-success" : beer.NegativeRatings > 0 ? "is-attention" : "")">
+                            @(beer.PositivePercent >= 70 ? "Landing well" : "Needs review")
+                        </span>
+                        <div class="admin-row-actions">
+                            @if (!string.IsNullOrWhiteSpace(beer.MostCommonIssue))
+                            {
+                                <span class="admin-state is-attention">@beer.MostCommonIssue</span>
+                            }
+                            <a asp-controller="Product"
+                               asp-action="Edit"
+                               asp-route-id="@beer.ProductId"
+                               class="admin-secondary-button">
+                                Edit profile
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+    }
+</div>

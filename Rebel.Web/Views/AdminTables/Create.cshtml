@@ -1,0 +1,42 @@
+@model Rebel.Domain.Entities.PubTable
+
+@{
+    ViewData["Title"] = "Add Table";
+}
+
+<section class="admin-workspace table-simple-page">
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <a asp-controller="AdminTables"
+               asp-action="Index"
+               class="admin-workspace-eyebrow">
+                Back to floor
+            </a>
+            <h1 class="admin-workspace-title">Add a table</h1>
+        </div>
+    </header>
+
+    <form asp-controller="AdminTables"
+          asp-action="Create"
+          method="post"
+          class="table-simple-form">
+        @Html.AntiForgeryToken()
+
+        <partial name="_Form" model="Model" />
+
+        <div class="table-form-actions">
+            <button type="submit" class="admin-primary-button">
+                Add table
+            </button>
+            <a asp-controller="AdminTables"
+               asp-action="Index"
+               class="admin-secondary-button">
+                Cancel
+            </a>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

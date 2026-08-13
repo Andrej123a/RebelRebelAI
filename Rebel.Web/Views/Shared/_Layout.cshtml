@@ -1,0 +1,302 @@
+﻿@{
+    var pageTitle = ViewData["Title"]?.ToString();
+    var metaTitle = string.IsNullOrWhiteSpace(pageTitle)
+        ? "Rebel Rebel by Fat Kitchen"
+        : $"{pageTitle} - Rebel Rebel by Fat Kitchen";
+
+    var metaDescription =
+        ViewData["MetaDescription"]?.ToString()
+        ?? "Rebel Rebel by Fat Kitchen in Skopje. Bold pub food, rare beer, events, and table reservations.";
+
+    var ogImage =
+        ViewData["OgImage"]?.ToString()
+        ?? Url.Content("~/images/email/rebel-logo.png");
+
+    var currentController =
+        ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    var currentAction =
+        ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    string IsActive(string controller, string? action = null)
+    {
+        var controllerMatches =
+            currentController.Equals(
+                controller,
+                StringComparison.OrdinalIgnoreCase
+            );
+
+        var actionMatches =
+            string.IsNullOrWhiteSpace(action) ||
+            currentAction.Equals(
+                action,
+                StringComparison.OrdinalIgnoreCase
+            );
+
+        return controllerMatches && actionMatches
+            ? "active"
+            : "";
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@metaTitle</title>
+
+    <meta name="description"
+          content="@metaDescription" />
+
+    <meta name="robots"
+          content="index, follow" />
+
+    <meta property="og:type"
+          content="website" />
+
+    <meta property="og:title"
+          content="@metaTitle" />
+
+    <meta property="og:description"
+          content="@metaDescription" />
+
+    <meta property="og:image"
+          content="@ogImage" />
+
+    <meta property="og:site_name"
+          content="Rebel Rebel by Fat Kitchen" />
+
+    <meta name="twitter:card"
+          content="summary_large_image" />
+
+    <link rel="canonical"
+          href="@($"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}")" />
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/Rebel.Web.styles.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/home.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/css/beer-guide.css"
+          asp-append-version="true" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Rock+Salt&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Special+Elite&display=swap"
+          rel="stylesheet" />
+</head>
+
+<body class="rr-public-shell">
+
+    <header class="rr-site-header">
+
+        <nav class="rr-site-nav">
+
+            <div class="rr-nav-container">
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="rr-site-brand">
+
+                    <span class="rr-brand-image-frame">
+
+                        <img src="~/images/email/rebel-logo.png"
+                             alt="Rebel Rebel by Fat Kitchen"
+                             class="rr-brand-image" />
+
+                    </span>
+
+                    <span class="rr-brand-text">
+
+                        <strong>
+                            <span class="rr-brand-name">Rebel Rebel</span>
+                            <small class="rr-brand-maker">by Fat Kitchen</small>
+                        </strong>
+
+                    </span>
+
+                </a>
+
+                <button class="rr-nav-toggle"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#rebelNavigation"
+                        aria-controls="rebelNavigation"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+
+                    <span></span>
+                    <span></span>
+                    <span></span>
+
+                    <small>
+                        MENU
+                    </small>
+
+                </button>
+
+                <div class="collapse rr-nav-collapse"
+                     id="rebelNavigation">
+
+                    <div class="rr-navigation">
+
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           class="rr-nav-link @IsActive("Home", "Index")">
+                            <span class="rr-nav-mark rr-nav-mark-home" aria-hidden="true">
+                                <i></i>
+                            </span>
+
+                            <span class="rr-nav-name">
+                                Home
+                            </span>
+
+                        </a>
+
+                        <a asp-controller="Home"
+                           asp-action="Menu"
+                           asp-route-section="food"
+                           class="rr-nav-link @IsActive("Home", "Menu")">
+                            <span class="rr-nav-mark rr-nav-mark-menu" aria-hidden="true">
+                                <i></i>
+                            </span>
+
+                            <span class="rr-nav-name">
+                                Menu
+                            </span>
+
+                        </a>
+
+                        <a asp-controller="BeerGuide"
+                           asp-action="Index"
+                           class="rr-nav-link @IsActive("BeerGuide")"
+                           aria-label="Ask the Rebel beer guide">
+                            <span class="rr-nav-mark rr-nav-mark-guide" aria-hidden="true">
+                                <i></i>
+                            </span>
+
+                            <span class="rr-nav-name">
+                                Ask Rebel
+                            </span>
+                        </a>
+
+                        <a asp-controller="Events"
+                           asp-action="Index"
+                           class="rr-nav-link @IsActive("Events")">
+                            <span class="rr-nav-mark rr-nav-mark-events" aria-hidden="true">
+                                <i></i>
+                            </span>
+
+                            <span class="rr-nav-name">
+                                Events
+                            </span>
+
+                        </a>
+
+                        <a asp-controller="Home"
+                           asp-action="Contact"
+                           class="rr-nav-link @IsActive("Home", "Contact")">
+                            <span class="rr-nav-mark rr-nav-mark-contact" aria-hidden="true">
+                                <i></i>
+                            </span>
+
+                            <span class="rr-nav-name">
+                                Contact
+                            </span>
+
+                        </a>
+
+                        <a asp-controller="Reservations"
+                           asp-action="Lookup"
+                           class="rr-nav-link @IsActive("Reservations", "Lookup")">
+                            <span class="rr-nav-mark rr-nav-mark-booking" aria-hidden="true">
+                                <i></i>
+                            </span>
+
+                            <span class="rr-nav-name">
+                                My Booking
+                            </span>
+
+                        </a>
+
+                    </div>
+
+                    <a asp-controller="Reservations"
+                       asp-action="Create"
+                       aria-label="Book a table"
+                       class="rr-nav-reserve @IsActive("Reservations", "Create")">
+                        <strong>
+                            Book a Table
+                        </strong>
+
+                        <span class="rr-reserve-arrow">
+                            &rarr;
+                        </span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </nav>
+
+    </header>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="rr-site-footer">
+
+        <div class="rr-footer-container">
+
+            <div class="rr-footer-brand">
+
+                <span>
+                    Rebel Rebel by Fat Kitchen
+                </span>
+
+            </div>
+
+            <div class="rr-footer-copy">
+                © 2026 Rebel Rebel by Fat Kitchen · Skopje
+            </div>
+
+            <a asp-controller="Reservations"
+               asp-action="Create"
+               class="rr-footer-link">
+
+                Book a table &rarr;
+            </a>
+
+        </div>
+
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+
+</html>

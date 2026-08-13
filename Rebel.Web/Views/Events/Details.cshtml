@@ -1,0 +1,543 @@
+﻿@model Rebel.Domain.Entities.Event
+
+@{
+    ViewData["Title"] = Model.Title;
+
+    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje");
+
+    var eventUtcDate = Model.Date.Kind == DateTimeKind.Utc
+        ? Model.Date
+        : DateTime.SpecifyKind(Model.Date, DateTimeKind.Utc);
+
+    var localEventDate = TimeZoneInfo
+        .ConvertTimeFromUtc(eventUtcDate, timeZone)
+        .Date;
+}
+
+@functions {
+    public DateTime GetSkopjeDate(DateTime date)
+    {
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje");
+
+        var utcDate = date.Kind == DateTimeKind.Utc
+            ? date
+            : DateTime.SpecifyKind(date, DateTimeKind.Utc);
+
+        return TimeZoneInfo
+            .ConvertTimeFromUtc(utcDate, timeZone)
+            .Date;
+    }
+
+    public string FormatEventDate(DateTime date)
+    {
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje");
+
+        var today = TimeZoneInfo
+            .ConvertTimeFromUtc(DateTime.UtcNow, timeZone)
+            .Date;
+
+        var eventDate = GetSkopjeDate(date);
+
+        if (eventDate == today)
+            return "Tonight";
+
+        if (eventDate == today.AddDays(1))
+            return "Tomorrow";
+
+        if (eventDate > today && eventDate <= today.AddDays(7))
+            return $"This {eventDate:dddd}";
+
+        return eventDate.ToString("dd MMM yyyy");
+    }
+
+}
+
+<style>
+    .rebel-event-page {
+        position: relative;
+        min-height: calc(100vh - 80px);
+        padding: 55px 0 85px;
+        background: radial-gradient(circle at 15% 20%, rgba(255, 190, 0, 0.10), transparent 30%), radial-gradient(circle at 90% 85%, rgba(185, 20, 30, 0.13), transparent 32%), #080808;
+        color: #ffffff;
+        overflow: hidden;
+    }
+
+        .rebel-event-page::before {
+            content: "REBEL";
+            position: absolute;
+            top: 50%;
+            left: -45px;
+            transform: translateY(-50%) rotate(-90deg);
+            font-size: clamp(90px, 14vw, 190px);
+            font-weight: 900;
+            letter-spacing: 18px;
+            color: rgba(255, 255, 255, 0.025);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+    .event-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+        color: #a7a7a7;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 1.8px;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: 0.25s ease;
+    }
+
+        .event-back-link span {
+            font-size: 1.1rem;
+            transition: transform 0.25s ease;
+        }
+
+        .event-back-link:hover {
+            color: #ffc107;
+        }
+
+            .event-back-link:hover span {
+                transform: translateX(-5px);
+            }
+
+    .event-poster {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(380px, 0.92fr);
+        min-height: 650px;
+        background: #111111;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        box-shadow: 0 35px 90px rgba(0, 0, 0, 0.55);
+        overflow: hidden;
+    }
+
+    .event-visual {
+        position: relative;
+        min-height: 650px;
+        background: #171717;
+        overflow: hidden;
+    }
+
+        .event-visual img {
+            width: 100%;
+            height: 100%;
+            min-height: 650px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.8s ease;
+        }
+
+    .event-poster:hover .event-visual img {
+        transform: scale(1.035);
+    }
+
+    .event-visual::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.90) 0%, transparent 48%), linear-gradient(to right, transparent 65%, rgba(17, 17, 17, 0.55) 100%);
+        pointer-events: none;
+    }
+
+    .event-visual::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        opacity: 0.18;
+        pointer-events: none;
+        background-image: repeating-linear-gradient( 0deg, transparent, transparent 3px, rgba(255,255,255,0.04) 4px );
+    }
+
+    .event-placeholder {
+        width: 100%;
+        height: 100%;
+        min-height: 650px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at center, #292929, #111111 65%);
+        color: #666666;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+    }
+
+    .event-date-stamp {
+        position: absolute;
+        z-index: 4;
+        left: 32px;
+        bottom: 30px;
+        display: flex;
+        align-items: flex-end;
+        gap: 16px;
+    }
+
+    .event-day {
+        font-size: clamp(4.8rem, 9vw, 8rem);
+        line-height: 0.78;
+        font-weight: 950;
+        letter-spacing: -7px;
+        color: #ffffff;
+        text-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
+    }
+
+    .event-month-year {
+        padding-bottom: 4px;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        font-weight: 900;
+        letter-spacing: 2.5px;
+        color: #ffc107;
+        text-transform: uppercase;
+    }
+
+    .event-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 65px 55px;
+        background: linear-gradient(145deg, rgba(255,255,255,0.025), transparent 38%), #111111;
+    }
+
+        .event-content::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, #ffc107, #b50d19);
+        }
+
+    .event-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        color: #ffc107;
+        font-size: 0.73rem;
+        font-weight: 900;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+    }
+
+        .event-eyebrow::before {
+            content: "";
+            width: 35px;
+            height: 2px;
+            background: #ffc107;
+        }
+
+    .event-title {
+        margin: 0 0 24px;
+        font-size: clamp(2.7rem, 5vw, 5.6rem);
+        line-height: 0.93;
+        font-weight: 950;
+        letter-spacing: -3px;
+        text-transform: uppercase;
+        overflow-wrap: anywhere;
+    }
+
+        .event-title span {
+            position: relative;
+            z-index: 1;
+        }
+
+    .event-description {
+        max-width: 600px;
+        margin-bottom: 34px;
+        color: #b8b8b8;
+        font-size: 1.02rem;
+        line-height: 1.8;
+        white-space: pre-line;
+    }
+
+    .event-info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-bottom: 36px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .event-info-item {
+        padding: 19px 16px 19px 0;
+    }
+
+        .event-info-item:not(:last-child) {
+            border-right: 1px solid rgba(255, 255, 255, 0.12);
+            margin-right: 18px;
+        }
+
+    .event-info-label {
+        display: block;
+        margin-bottom: 6px;
+        color: #777777;
+        font-size: 0.64rem;
+        font-weight: 900;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+    }
+
+    .event-info-value {
+        display: block;
+        color: #ffffff;
+        font-size: 0.92rem;
+        font-weight: 800;
+    }
+
+    .event-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+    }
+
+    .event-button {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-width: 205px;
+        padding: 16px 24px;
+        background: #ffc107;
+        color: #111111;
+        border: 2px solid #ffc107;
+        font-size: 0.78rem;
+        font-weight: 950;
+        letter-spacing: 1.5px;
+        text-decoration: none;
+        text-transform: uppercase;
+        transition: 0.25s ease;
+        box-shadow: 7px 7px 0 #5d0b12;
+    }
+
+        .event-button:hover {
+            color: #ffffff;
+            background: #b50d19;
+            border-color: #b50d19;
+            transform: translate(-3px, -3px);
+            box-shadow: 10px 10px 0 #ffc107;
+        }
+
+    .event-tagline {
+        margin: 0;
+        color: #777777;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+        text-align: right;
+    }
+
+        .event-tagline strong {
+            display: block;
+            color: #ffffff;
+            font-size: 0.86rem;
+        }
+
+    @@media (max-width: 991.98px) {
+        .rebel-event-page {
+            padding-top: 35px;
+        }
+
+        .event-poster {
+            grid-template-columns: 1fr;
+        }
+
+        .event-visual,
+        .event-visual img,
+        .event-placeholder {
+            min-height: 540px;
+        }
+
+        .event-content {
+            padding: 55px 40px;
+        }
+
+            .event-content::before {
+                width: 100%;
+                height: 5px;
+                background: linear-gradient(to right, #ffc107, #b50d19);
+            }
+
+        .event-visual::before {
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent 55%);
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .rebel-event-page {
+            padding: 25px 0 55px;
+        }
+
+        .event-visual,
+        .event-visual img,
+        .event-placeholder {
+            min-height: 420px;
+        }
+
+        .event-date-stamp {
+            left: 20px;
+            bottom: 22px;
+        }
+
+        .event-day {
+            font-size: 5.1rem;
+        }
+
+        .event-content {
+            padding: 42px 24px 48px;
+        }
+
+        .event-title {
+            font-size: 2.65rem;
+            letter-spacing: -2px;
+        }
+
+        .event-description {
+            font-size: 0.95rem;
+        }
+
+        .event-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .event-info-item {
+            padding: 15px 0;
+        }
+
+            .event-info-item:not(:last-child) {
+                border-right: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+                margin-right: 0;
+            }
+
+        .event-actions {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .event-button {
+            width: 100%;
+        }
+
+        .event-tagline {
+            text-align: center;
+        }
+    }
+</style>
+
+<section class="rebel-event-page">
+    <div class="container">
+
+        <a asp-controller="Events"
+           asp-action="Index"
+           class="event-back-link">
+            <span>&larr;</span>
+            All Events
+        </a>
+
+        <article class="event-poster">
+
+            <div class="event-visual">
+
+                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl"
+                         alt="@Model.Title" />
+                }
+                else
+                {
+                    <div class="event-placeholder">Rebel Rebel by Fat Kitchen</div>
+                }
+
+                <div class="event-date-stamp">
+                    <div class="event-day">
+                        @localEventDate.ToString("dd")
+                    </div>
+
+                    <div class="event-month-year">
+                        @localEventDate.ToString("MMM")<br />
+                        @localEventDate.ToString("yyyy")
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="event-content">
+
+                <div class="event-eyebrow">
+                    Rebel Rebel by Fat Kitchen Presents
+                </div>
+
+                <h1 class="event-title">
+                    <span>@Model.Title</span>
+                </h1>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <div class="event-description">
+                        @Model.Description
+                    </div>
+                }
+
+                <div class="event-info-grid">
+
+                    <div class="event-info-item">
+                        <span class="event-info-label">When</span>
+                        <span class="event-info-value">
+                            @FormatEventDate(Model.Date)
+                        </span>
+                    </div>
+
+                    <div class="event-info-item">
+                        <span class="event-info-label">Starts at</span>
+                        <span class="event-info-value">
+                            @(Model.StartTime.HasValue
+                                                        ? Model.StartTime.Value.ToString(@"hh\:mm")
+                                                        : "TBA")
+                        </span>
+                    </div>
+
+                    <div class="event-info-item">
+                        <span class="event-info-label">Until</span>
+                        <span class="event-info-value">
+                            @(Model.EndTime.HasValue
+                                                        ? Model.EndTime.Value.ToString(@"hh\:mm")
+                                                        : "Late")
+                        </span>
+                    </div>
+
+                </div>
+
+                <div class="event-actions">
+
+                    <a asp-controller="Events"
+                       asp-action="Index"
+                       class="event-button">
+                        <span>&larr;</span>
+                        Back to Events
+                    </a>
+
+                    <p class="event-tagline">
+                        No boring nights
+                        <strong>See you at the bar.</strong>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    </div>
+</section>

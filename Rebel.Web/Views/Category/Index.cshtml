@@ -1,0 +1,203 @@
+@model List<Rebel.Domain.Entities.Category>
+@using Rebel.Domain.Enums
+
+@{
+    ViewData["Title"] = "Menu Sections";
+
+    var categories = Model
+        ?? new List<Rebel.Domain.Entities.Category>();
+
+    var sections = new[]
+    {
+        new
+        {
+            Title = "Food",
+            Type = CategoryType.Food,
+            Items = categories
+                .Where(category => category.Type == CategoryType.Food)
+                .OrderBy(category => category.Name)
+                .ToList()
+        },
+        new
+        {
+            Title = "Drinks",
+            Type = CategoryType.Drink,
+            Items = categories
+                .Where(category => category.Type == CategoryType.Drink)
+                .OrderBy(category => category.Name)
+                .ToList()
+        },
+        new
+        {
+            Title = "Beer",
+            Type = CategoryType.Beer,
+            Items = categories
+                .Where(category => category.Type == CategoryType.Beer)
+                .OrderBy(category => category.Name)
+                .ToList()
+        }
+    };
+
+    var totalProducts = categories
+        .Sum(category => category.Products?.Count ?? 0);
+}
+
+<div class="admin-workspace">
+
+    <header class="admin-workspace-header">
+        <div class="admin-workspace-heading">
+            <span class="admin-workspace-eyebrow">
+                Menu structure
+            </span>
+
+            <h1 class="admin-workspace-title">
+                Sections
+            </h1>
+
+            <p class="admin-workspace-copy">
+                Organize the public menu into clear food, drink, and beer
+                sections. Products remain managed from the Menu page.
+            </p>
+        </div>
+
+        <div class="admin-workspace-actions">
+            <a asp-controller="Category"
+               asp-action="Create"
+               class="admin-primary-button">
+                Add section
+            </a>
+
+            <a asp-controller="Product"
+               asp-action="Index"
+               class="admin-secondary-button">
+                Back to menu
+            </a>
+        </div>
+    </header>
+
+    <section class="admin-metric-bar"
+             aria-label="Menu section summary">
+        <div class="admin-metric">
+            <span>Sections</span>
+            <strong>@categories.Count</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Menu items</span>
+            <strong>@totalProducts</strong>
+        </div>
+
+        <div class="admin-metric">
+            <span>Empty sections</span>
+            <strong>
+                @categories.Count(category =>
+                    category.Products == null ||
+                    category.Products.Count == 0)
+            </strong>
+        </div>
+    </section>
+
+    @if (categories.Count == 0)
+    {
+        <div class="admin-empty-state">
+            <strong>No menu sections yet.</strong>
+            <span>Add Food, Drinks, or Beer to start organizing the menu.</span>
+        </div>
+    }
+    else
+    {
+        @for (var index = 0; index < sections.Length; index++)
+        {
+            var categoryGroup = sections[index];
+
+            <details class="admin-content-disclosure"
+                     open="@(index == 0 ? "open" : null)">
+                <summary>
+                    <span>@categoryGroup.Title</span>
+                    <span>@categoryGroup.Items.Count sections</span>
+                </summary>
+
+                @if (categoryGroup.Items.Count == 0)
+                {
+                    <div class="admin-empty-state">
+                        <strong>No @categoryGroup.Title.ToLowerInvariant() sections.</strong>
+
+                        <a asp-controller="Category"
+                           asp-action="Create"
+                           asp-route-type="@categoryGroup.Type"
+                           class="admin-primary-button">
+                            Add @categoryGroup.Title section
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="admin-list">
+                        @foreach (var category in categoryGroup.Items)
+                        {
+                            var productCount =
+                                category.Products?.Count ?? 0;
+
+                            <article class="admin-list-row">
+                                <div class="admin-row-main">
+                                    <div class="admin-row-copy">
+                                        <strong>@category.Name</strong>
+                                        <span>
+                                            @(string.IsNullOrWhiteSpace(category.Description)
+                                                ? $"{categoryGroup.Title} section"
+                                                : category.Description)
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="admin-row-data">
+                                    <strong>@productCount items</strong>
+                                    <span>@categoryGroup.Title</span>
+                                </div>
+
+                                <span class="admin-state">
+                                    @(productCount == 0 ? "Empty" : "In use")
+                                </span>
+
+                                <div class="admin-row-actions">
+                                    <a asp-controller="Product"
+                                       asp-action="ByCategory"
+                                       asp-route-id="@category.Id"
+                                       class="admin-secondary-button">
+                                        View items
+                                    </a>
+
+                                    <details class="admin-more-menu">
+                                        <summary>More</summary>
+
+                                        <div class="admin-more-panel">
+                                            <a asp-controller="Product"
+                                               asp-action="Create"
+                                               asp-route-categoryId="@category.Id">
+                                                Add menu item
+                                            </a>
+
+                                            <a asp-controller="Category"
+                                               asp-action="Edit"
+                                               asp-route-id="@category.Id">
+                                                Edit section
+                                            </a>
+
+                                            <a asp-controller="Category"
+                                               asp-action="Delete"
+                                               asp-route-id="@category.Id"
+                                               class="is-danger">
+                                                Archive section
+                                            </a>
+                                        </div>
+                                    </details>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                }
+            </details>
+        }
+    }
+
+</div>
