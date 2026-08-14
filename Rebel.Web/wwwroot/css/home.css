@@ -2060,9 +2060,10 @@
 
 .rr-booking-section {
     position: relative;
-    padding: 68px 0 84px;
+    padding: clamp(70px, 8vw, 118px) 0 clamp(78px, 9vw, 128px);
     background:
-        linear-gradient(90deg, rgba(200, 32, 45, 0.07), transparent 34%),
+        linear-gradient(105deg, rgba(200, 32, 45, 0.12), transparent 32%),
+        linear-gradient(175deg, transparent 67%, rgba(239, 68, 40, 0.045) 67%),
         #080808;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     overflow: hidden;
@@ -2071,37 +2072,43 @@
     .rr-booking-section::before {
         content: "";
         position: absolute;
-        right: 3%;
-        bottom: -170px;
-        width: 230px;
-        height: 620px;
+        right: -24px;
+        bottom: -175px;
+        width: 270px;
+        height: 690px;
         pointer-events: none;
-        background: rgba(200, 32, 45, 0.11);
+        background: rgba(239, 68, 40, 0.13);
         clip-path: polygon(58% 0, 100% 0, 67% 38%, 100% 38%, 22% 100%, 40% 55%, 0 55%);
-        filter: drop-shadow(22px 18px 0 rgba(244, 196, 0, 0.055));
-        transform: rotate(12deg);
+        filter: drop-shadow(24px 18px 0 rgba(122, 12, 29, 0.24));
+        transform: rotate(9deg);
     }
 
 .rr-booking-panel {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: clamp(55px, 8vw, 130px);
-    align-items: end;
-    padding: 0 32px 30px;
-    border-bottom: 4px solid var(--rr-red);
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.42fr);
+    gap: clamp(54px, 7vw, 118px);
+    align-items: center;
+    padding: clamp(34px, 4vw, 62px) clamp(26px, 4vw, 64px);
+    border-top: 1px solid rgba(239, 68, 40, 0.34);
+    border-bottom: 1px solid rgba(239, 68, 40, 0.34);
+    border-left: 9px solid #ef4428;
+    background:
+        linear-gradient(100deg, rgba(200, 32, 45, 0.09), transparent 48%),
+        rgba(8, 8, 8, 0.58);
 }
 
     .rr-booking-panel::before {
         content: "";
         position: absolute;
-        right: 0;
-        bottom: -13px;
-        left: 42%;
-        height: 5px;
-        background: var(--rr-yellow);
+        top: -10px;
+        right: 12%;
+        width: 190px;
+        height: 8px;
+        background: #ef4428;
         pointer-events: none;
-        transform: rotate(-0.4deg);
+        box-shadow: 62px 14px 0 #8b1322;
+        transform: rotate(-1.4deg);
     }
 
 .rr-booking-number {
@@ -2120,40 +2127,52 @@
 
     .rr-booking-copy > span {
         display: inline-block;
-        color: var(--rr-yellow);
-        font-family: "Special Elite", serif;
-        font-size: 0.86rem;
-        font-weight: 400;
-        letter-spacing: 1px;
+        padding-left: 12px;
+        color: #ef4428;
+        border-left: 3px solid #ef4428;
+        font-family: "Space Mono", monospace;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 1.6px;
         text-transform: uppercase;
-        transform: rotate(-1deg);
     }
 
     .rr-booking-copy h2 {
         display: grid;
         justify-items: start;
-        gap: 10px;
-        margin: 22px 0 28px;
+        gap: 0;
+        margin: 25px 0 31px;
         font-family: "Anton", sans-serif;
-        font-size: clamp(3.4rem, 5.8vw, 6.4rem);
-        line-height: 0.88;
+        line-height: 0.82;
         letter-spacing: 0;
         text-transform: uppercase;
     }
 
-        .rr-booking-copy h2 span:first-child {
+        .rr-booking-copy h2 .rr-booking-bring {
             color: var(--rr-white);
-            transform: scaleX(0.96);
+            font-size: clamp(3.2rem, 5.5vw, 6rem);
+        }
+
+        .rr-booking-copy h2 .rr-booking-crew {
+            display: inline-block;
+            margin: -0.03em 0 0 -0.02em;
+            color: #ef4428;
+            font-size: clamp(6.2rem, 11vw, 11.5rem);
+            line-height: 0.78;
+            text-shadow: 5px 5px 0 #7a0c1d;
+            transform: rotate(-2deg);
             transform-origin: left center;
         }
 
-        .rr-booking-copy h2 span:last-child {
-            display: inline-block;
-            padding: 0.06em 0.13em 0.08em;
-            color: #090909;
-            background: var(--rr-yellow);
-            box-shadow: 10px 10px 0 var(--rr-red);
-            transform: rotate(-1.15deg);
+        .rr-booking-copy h2 .rr-booking-rest {
+            margin-top: 0.16em;
+            padding-top: 0.18em;
+            color: #ece7de;
+            border-top: 3px solid #ef4428;
+            font-family: "Bebas Neue", sans-serif;
+            font-size: clamp(2.3rem, 4.1vw, 4.5rem);
+            line-height: 0.9;
+            transform: rotate(0.45deg);
         }
 
     .rr-booking-copy p {
@@ -2169,9 +2188,9 @@
     position: relative;
     z-index: 2;
     display: flex;
-    min-width: 270px;
+    min-width: 0;
     flex-direction: column;
-    gap: 23px;
+    gap: 28px;
     align-items: stretch;
 }
 
@@ -2180,33 +2199,47 @@
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    padding: 19px 22px;
+    min-height: 104px;
+    padding: 24px 26px 24px 30px;
     color: #ffffff;
-    background: var(--rr-red);
-    border: 2px solid var(--rr-red);
-    box-shadow: 8px 8px 0 var(--rr-yellow);
-    font-family: "Space Mono", monospace;
-    font-size: 0.72rem;
+    background: #ef4428;
+    border: 2px solid #ff6948;
+    box-shadow: 12px 12px 0 #7a0c1d;
+    clip-path: polygon(0 0, 92% 0, 100% 24%, 100% 100%, 7% 100%, 0 78%);
+    font-family: "Anton", sans-serif;
+    font-size: 1.45rem;
     font-weight: 900;
-    letter-spacing: 1.7px;
+    letter-spacing: 0;
     text-decoration: none;
     text-transform: uppercase;
     transition: 0.24s ease;
-    transform: rotate(1deg);
+    transform: rotate(1.1deg);
 }
 
+    .rr-booking-button-arrow {
+        display: grid;
+        width: 46px;
+        height: 46px;
+        flex: 0 0 46px;
+        place-items: center;
+        color: #ef4428;
+        background: #0a0a0a;
+        font-family: "Space Mono", monospace;
+        font-size: 1rem;
+    }
+
     .rr-booking-button:hover {
-        color: #111111;
-        background: var(--rr-yellow);
-        border-color: var(--rr-yellow);
-        transform: translate(-3px, -3px);
-        box-shadow: 11px 11px 0 var(--rr-red);
+        color: #ffffff;
+        background: #c8202d;
+        border-color: #f2ebe2;
+        transform: translate(-4px, -4px) rotate(0.3deg);
+        box-shadow: 16px 16px 0 #4d0712;
     }
 
 .rr-contact-link {
-    color: #8f8f8f;
-    font-family: "Special Elite", serif;
-    font-size: 0.65rem;
+    color: #c6bfb6;
+    font-family: "Space Mono", monospace;
+    font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 1.5px;
     text-align: center;
@@ -2215,7 +2248,7 @@
 }
 
     .rr-contact-link:hover {
-        color: var(--rr-yellow);
+        color: #ef4428;
     }
 
 /* RESPONSIVE */
@@ -2585,21 +2618,29 @@
 
     .rr-booking-panel {
         grid-template-columns: 1fr;
-        gap: 36px;
-        padding: 0 0 31px;
+        gap: 42px;
+        padding: 34px 22px 40px;
+        border-left-width: 6px;
     }
 
         .rr-booking-panel::before {
-            left: 28%;
+            right: 8%;
+            left: auto;
+            width: 120px;
         }
 
-    .rr-booking-copy h2 {
-        font-size: 3.35rem;
+    .rr-booking-copy h2 .rr-booking-crew {
+        font-size: clamp(5.4rem, 26vw, 7.4rem);
     }
 
-        .rr-booking-copy h2 span:last-child {
-            box-shadow: 7px 7px 0 var(--rr-red);
-        }
+    .rr-booking-copy h2 .rr-booking-rest {
+        font-size: clamp(2.1rem, 10vw, 3rem);
+    }
+
+    .rr-booking-copy > span {
+        font-size: 0.58rem;
+        letter-spacing: 1px;
+    }
 
     .rr-booking-number {
         font-size: 5rem;
@@ -2611,6 +2652,7 @@
     }
 
     .rr-booking-button {
+        min-height: 90px;
         transform: rotate(0.6deg);
     }
 }
