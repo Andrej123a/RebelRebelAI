@@ -260,6 +260,9 @@ namespace Rebel.Web.Controllers
             existingProduct.BitternessLevel = product.BitternessLevel;
             existingProduct.SweetnessLevel = product.SweetnessLevel;
             existingProduct.AcidityLevel = product.AcidityLevel;
+            existingProduct.HeatLevel = product.HeatLevel;
+            existingProduct.SaltinessLevel = product.SaltinessLevel;
+            existingProduct.RichnessLevel = product.RichnessLevel;
             existingProduct.FlavorNotes = product.FlavorNotes;
             existingProduct.PairingTags = product.PairingTags;
 

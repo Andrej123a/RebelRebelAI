@@ -169,7 +169,8 @@ public class BeerGuideController : Controller
             cancellationToken,
             menuProducts);
 
-        var responseId = result.Matches.Count > 0
+        var responseId = result.Matches.Count > 0 &&
+            result.Matches.All(match => match.Beer.Category?.Type == CategoryType.Beer)
             ? Guid.NewGuid()
             : (Guid?)null;
 
@@ -198,17 +199,26 @@ public class BeerGuideController : Controller
             await _context.SaveChangesAsync(cancellationToken);
         }
 
+        var returnedFood = result.Matches.Any(match =>
+            match.Beer.Category?.Type == CategoryType.Food);
+
         return Json(new BeerChatResponse
         {
             ResponseId = responseId,
             Reply = result.Reply,
             AiWasUsed = result.UsedAi,
             FollowUps = result.FollowUps?.ToList() ?? [],
-            Preferences = stateUpdate.Preferences,
+            Preferences = returnedFood
+                ? new BeerChatPreferenceState()
+                : stateUpdate.Preferences,
             Beers = result.Matches.Select(match => new BeerChatBeerResponse
             {
                 Id = match.Beer.Id,
                 Name = match.Beer.Name,
+                ItemType = match.Beer.Category?.Type == CategoryType.Food
+                    ? "food"
+                    : "beer",
+                Category = match.Beer.Category?.Name,
                 ImageUrl = match.Beer.ImageUrl,
                 Style = match.Beer.BeerStyle,
                 Country = match.Beer.OriginCountry,
@@ -217,6 +227,10 @@ public class BeerGuideController : Controller
                 Reason = match.Reason,
                 BitternessLevel = match.Beer.BitternessLevel,
                 SweetnessLevel = match.Beer.SweetnessLevel,
+                AcidityLevel = match.Beer.AcidityLevel,
+                HeatLevel = match.Beer.HeatLevel,
+                SaltinessLevel = match.Beer.SaltinessLevel,
+                RichnessLevel = match.Beer.RichnessLevel,
                 FlavorNotes = match.Beer.FlavorNotes,
                 PairingTags = match.Beer.PairingTags
             }).ToList()

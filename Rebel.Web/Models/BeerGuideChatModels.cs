@@ -104,6 +104,10 @@ public class BeerChatBeerResponse
 
     public string Name { get; set; } = string.Empty;
 
+    public string ItemType { get; set; } = "beer";
+
+    public string? Category { get; set; }
+
     public string? ImageUrl { get; set; }
 
     public string? Style { get; set; }
@@ -119,6 +123,14 @@ public class BeerChatBeerResponse
     public int? BitternessLevel { get; set; }
 
     public int? SweetnessLevel { get; set; }
+
+    public int? AcidityLevel { get; set; }
+
+    public int? HeatLevel { get; set; }
+
+    public int? SaltinessLevel { get; set; }
+
+    public int? RichnessLevel { get; set; }
 
     public string? FlavorNotes { get; set; }
 

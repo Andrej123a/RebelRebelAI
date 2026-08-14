@@ -1,132 +1,174 @@
 @model Rebel.Domain.Entities.Product
+@using Rebel.Domain.Entities
+@using Rebel.Domain.Enums
 @using Rebel.Web.Models
 
 @{
     var suggestions = ViewBag.BeerProfileSuggestions as IReadOnlyList<BeerProfileSuggestionViewModel>
         ?? [];
+    var categories = ViewBag.Categories as IReadOnlyCollection<Category>
+        ?? [];
+    var categoryType = Model.Category?.Type ??
+        categories.FirstOrDefault(category => category.Id == Model.CategoryId)?.Type;
+    var isBeer = categoryType == CategoryType.Beer;
+    var isFood = categoryType == CategoryType.Food;
 }
 
-<fieldset class="product-recommendation-profile">
-    <legend>Beer guide profile</legend>
+@if (isBeer || isFood)
+{
+    <fieldset class="product-recommendation-profile">
+        <legend>@(isFood ? "Food guide profile" : "Beer guide profile")</legend>
 
-    <div class="beer-profile-guidance">
-        <strong>Make recommendations accurate</strong>
-        <span>Use exact words a guest might say. Separate flavours and food pairings with commas. The guide never invents missing details.</span>
-    </div>
+        <div class="beer-profile-guidance">
+            <strong>Make recommendations accurate</strong>
+            <span>
+                @(isFood
+                    ? "Rate the dish as guests experience it. Add clear flavours and the beer styles that work with it."
+                    : "Use exact words a guest might say. Separate flavours and food pairings with commas. The guide never invents missing details.")
+            </span>
+        </div>
 
-    @if (suggestions.Count > 0)
-    {
-        <section class="beer-profile-suggestions" aria-label="Suggestions from menu text">
-            <header>
-                <div>
-                    <strong>Found in the existing menu text</strong>
-                    <span>Apply only the facts you recognize, then save normally.</span>
-                </div>
-                <span>@suggestions.Count suggestion@(suggestions.Count == 1 ? "" : "s")</span>
-            </header>
-
-            @foreach (var suggestion in suggestions)
-            {
-                <div class="beer-profile-suggestion">
+        @if (isBeer && suggestions.Count > 0)
+        {
+            <section class="beer-profile-suggestions" aria-label="Suggestions from menu text">
+                <header>
                     <div>
-                        <span>@suggestion.Label</span>
-                        <strong>@suggestion.Value</strong>
-                        <small>Source: @suggestion.Evidence</small>
+                        <strong>Found in the existing menu text</strong>
+                        <span>Apply only the facts you recognize, then save normally.</span>
                     </div>
-                    <button type="button"
-                            class="admin-secondary-button"
-                            data-beer-suggestion-field="@suggestion.Field"
-                            data-beer-suggestion-value="@suggestion.Value">
-                        Apply
-                    </button>
+                    <span>@suggestions.Count suggestion@(suggestions.Count == 1 ? "" : "s")</span>
+                </header>
+
+                @foreach (var suggestion in suggestions)
+                {
+                    <div class="beer-profile-suggestion">
+                        <div>
+                            <span>@suggestion.Label</span>
+                            <strong>@suggestion.Value</strong>
+                            <small>Source: @suggestion.Evidence</small>
+                        </div>
+                        <button type="button"
+                                class="admin-secondary-button"
+                                data-beer-suggestion-field="@suggestion.Field"
+                                data-beer-suggestion-value="@suggestion.Value">
+                            Apply
+                        </button>
+                    </div>
+                }
+            </section>
+        }
+
+        @if (isBeer)
+        {
+            <div class="admin-editor-fields-grid">
+                <div>
+                    <label asp-for="OriginCountry" class="form-label"></label>
+                    <input asp-for="OriginCountry"
+                           class="form-control"
+                           placeholder="Belgium, Germany, Czechia..." />
+                    <span asp-validation-for="OriginCountry" class="text-danger small"></span>
                 </div>
-            }
-        </section>
-    }
 
-    <div class="admin-editor-fields-grid">
-        <div>
-            <label asp-for="OriginCountry" class="form-label"></label>
-            <input asp-for="OriginCountry"
-                   class="form-control"
-                   placeholder="Belgium, Germany, Czechia..." />
-            <span asp-validation-for="OriginCountry" class="text-danger small"></span>
-        </div>
-
-        <div>
-            <label asp-for="BeerStyle" class="form-label"></label>
-            <input asp-for="BeerStyle"
-                   class="form-control"
-                   placeholder="IPA, Czech pilsner, Belgian tripel..." />
-            <span asp-validation-for="BeerStyle" class="text-danger small"></span>
-        </div>
-    </div>
-
-    <div class="product-profile-scale-grid">
-        <div>
-            <label asp-for="AlcoholByVolume" class="form-label"></label>
-            <div class="input-group">
-                <input asp-for="AlcoholByVolume"
-                       class="form-control"
-                       min="0"
-                       max="25"
-                       step="0.1"
-                       placeholder="5.2" />
-                <span class="input-group-text">%</span>
+                <div>
+                    <label asp-for="BeerStyle" class="form-label"></label>
+                    <input asp-for="BeerStyle"
+                           class="form-control"
+                           placeholder="IPA, Czech pilsner, Belgian tripel..." />
+                    <span asp-validation-for="BeerStyle" class="text-danger small"></span>
+                </div>
             </div>
-            <span asp-validation-for="AlcoholByVolume" class="text-danger small"></span>
-        </div>
 
-        @foreach (var scale in new[]
-        {
-            (For: "BodyLevel", Label: "Body"),
-            (For: "BitternessLevel", Label: "Bitterness"),
-            (For: "SweetnessLevel", Label: "Sweetness"),
-            (For: "AcidityLevel", Label: "Acidity")
-        })
-        {
-            <div>
-                <label for="@scale.For" class="form-label">@scale.Label</label>
-                <select id="@scale.For"
-                        name="@scale.For"
-                        class="form-select">
-                    <option value="">Not set</option>
-                    @for (var level = 1; level <= 5; level++)
-                    {
-                        var currentValue = scale.For switch
-                        {
-                            "BodyLevel" => Model.BodyLevel,
-                            "BitternessLevel" => Model.BitternessLevel,
-                            "SweetnessLevel" => Model.SweetnessLevel,
-                            _ => Model.AcidityLevel
-                        };
+            <div class="product-profile-scale-grid">
+                <div>
+                    <label asp-for="AlcoholByVolume" class="form-label"></label>
+                    <div class="input-group">
+                        <input asp-for="AlcoholByVolume"
+                               class="form-control"
+                               min="0"
+                               max="25"
+                               step="0.1"
+                               placeholder="5.2" />
+                        <span class="input-group-text">%</span>
+                    </div>
+                    <span asp-validation-for="AlcoholByVolume" class="text-danger small"></span>
+                </div>
 
-                        <option value="@level"
-                                selected="@(currentValue == level ? "selected" : null)">
-                            @level / 5
-                        </option>
-                    }
-                </select>
+                @foreach (var scale in new[]
+                {
+                    (For: "BodyLevel", Label: "Body", Value: Model.BodyLevel),
+                    (For: "BitternessLevel", Label: "Bitterness", Value: Model.BitternessLevel),
+                    (For: "SweetnessLevel", Label: "Sweetness", Value: Model.SweetnessLevel),
+                    (For: "AcidityLevel", Label: "Acidity", Value: Model.AcidityLevel)
+                })
+                {
+                    <div>
+                        <label for="@scale.For" class="form-label">@scale.Label</label>
+                        <select id="@scale.For" name="@scale.For" class="form-select">
+                            <option value="">Not set</option>
+                            @for (var level = 1; level <= 5; level++)
+                            {
+                                <option value="@level" selected="@(scale.Value == level ? "selected" : null)">
+                                    @level / 5
+                                </option>
+                            }
+                        </select>
+                    </div>
+                }
             </div>
         }
-    </div>
+        else
+        {
+            <div class="product-profile-scale-grid">
+                @foreach (var scale in new[]
+                {
+                    (For: "HeatLevel", Label: "Heat", Value: Model.HeatLevel),
+                    (For: "SaltinessLevel", Label: "Saltiness", Value: Model.SaltinessLevel),
+                    (For: "RichnessLevel", Label: "Richness", Value: Model.RichnessLevel),
+                    (For: "SweetnessLevel", Label: "Sweetness", Value: Model.SweetnessLevel),
+                    (For: "AcidityLevel", Label: "Acidity", Value: Model.AcidityLevel)
+                })
+                {
+                    <div>
+                        <label for="@scale.For" class="form-label">@scale.Label</label>
+                        <select id="@scale.For" name="@scale.For" class="form-select">
+                            <option value="">Not set</option>
+                            @for (var level = 1; level <= 5; level++)
+                            {
+                                <option value="@level" selected="@(scale.Value == level ? "selected" : null)">
+                                    @level / 5
+                                </option>
+                            }
+                        </select>
+                    </div>
+                }
+            </div>
+        }
 
-    <div class="admin-editor-field">
-        <label asp-for="FlavorNotes" class="form-label"></label>
-        <input asp-for="FlavorNotes"
-               class="form-control"
-               placeholder="grapefruit, citrus, pine, caramel..." />
-        <span asp-validation-for="FlavorNotes" class="text-danger small"></span>
-    </div>
+        <div class="admin-editor-field">
+            <label asp-for="FlavorNotes" class="form-label">
+                @(isFood ? "Taste and texture notes" : "Flavour notes")
+            </label>
+            <input asp-for="FlavorNotes"
+                   class="form-control"
+                   placeholder="@(isFood
+                       ? "crispy chicken, buffalo sauce, ranch..."
+                       : "grapefruit, citrus, pine, caramel...")" />
+            <span asp-validation-for="FlavorNotes" class="text-danger small"></span>
+        </div>
 
-    <div class="admin-editor-field mb-0">
-        <label asp-for="PairingTags" class="form-label"></label>
-        <input asp-for="PairingTags"
-               class="form-control"
-               placeholder="burger, pizza, spicy food, smoked meat..." />
-        <span asp-validation-for="PairingTags" class="text-danger small"></span>
-    </div>
-</fieldset>
+        <div class="admin-editor-field mb-0">
+            <label asp-for="PairingTags" class="form-label">
+                @(isFood ? "Suitable beer styles" : "Food pairings")
+            </label>
+            <input asp-for="PairingTags"
+                   class="form-control"
+                   placeholder="@(isFood
+                       ? "IPA, pilsner, sour beer, amber ale..."
+                       : "burger, pizza, spicy food, smoked meat...")" />
+            <span asp-validation-for="PairingTags" class="text-danger small"></span>
+        </div>
+    </fieldset>
+}
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {

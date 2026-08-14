@@ -66,6 +66,18 @@ namespace Rebel.Domain.Entities
         [Display(Name = "Acidity")]
         public int? AcidityLevel { get; set; }
 
+        [Range(1, 5)]
+        [Display(Name = "Heat")]
+        public int? HeatLevel { get; set; }
+
+        [Range(1, 5)]
+        [Display(Name = "Saltiness")]
+        public int? SaltinessLevel { get; set; }
+
+        [Range(1, 5)]
+        [Display(Name = "Richness")]
+        public int? RichnessLevel { get; set; }
+
         [StringLength(300)]
         [Display(Name = "Flavour notes")]
         public string? FlavorNotes { get; set; }

@@ -16,12 +16,12 @@
         <div class="rr-guide-header-copy">
             <span class="rr-guide-kicker">YOUR BARTENDER, MINUS THE SHOUTING</span>
             <h1>FIND YOUR<br /><em>POUR.</em></h1>
-            <p>Say what you are craving. We will search the beers actually in the fridge.</p>
+            <p>Say what you are craving. We will search the food and beers actually serving.</p>
         </div>
 
         <div class="rr-guide-count" aria-label="Available beer count">
             <strong>@Model.AvailableBeerCount</strong>
-            <span>available<br />now</span>
+            <span>beers available<br />now</span>
         </div>
     </header>
 
@@ -100,18 +100,21 @@
                         <button type="button" data-chat-prompt="What beer should I have with a Rebel Burger? Give me two options.">
                             Pair with Rebel Burger
                         </button>
+                        <button type="button" data-chat-prompt="I want something hot and salty to eat. Give me three options.">
+                            Hot / salty food
+                        </button>
                     </div>
 
                     <form class="rr-guide-chat-form" data-chat-form>
                         @Html.AntiForgeryToken()
                         <label for="rr-guide-chat-input" class="visually-hidden">
-                            Ask for a beer recommendation
+                            Ask for a menu recommendation
                         </label>
                         <textarea id="rr-guide-chat-input"
                                   data-chat-input
                                   maxlength="500"
                                   rows="2"
-                                  placeholder="Try: I want two crisp beers under 5%..."></textarea>
+                                  placeholder="Try: something hot and salty, or two crisp beers..."></textarea>
                         <button type="submit" data-chat-submit>
                             <span>Shout it</span>
                             <b aria-hidden="true">&rarr;</b>
@@ -542,6 +545,10 @@
 
             const createBeerCard = (beer, toggleComparison) => {
                 const card = createElement("article", "rr-guide-chat-beer");
+                const isFood = beer.itemType === "food";
+                if (isFood) {
+                    card.classList.add("is-food");
+                }
                 const media = createElement("div", "rr-guide-chat-beer-image");
 
                 if (beer.imageUrl && isSafeImageUrl(beer.imageUrl)) {
@@ -557,11 +564,18 @@
                 const copy = createElement("div", "rr-guide-chat-beer-copy");
                 copy.append(createElement("h3", "", beer.name));
 
-                const facts = [
-                    beer.style,
-                    beer.country,
-                    beer.alcoholByVolume ? `${beer.alcoholByVolume}% ABV` : null
-                ].filter(Boolean);
+                const facts = isFood
+                    ? [
+                        beer.category,
+                        beer.heatLevel ? `Heat ${beer.heatLevel}/5` : null,
+                        beer.saltinessLevel ? `Salt ${beer.saltinessLevel}/5` : null,
+                        beer.richnessLevel ? `Richness ${beer.richnessLevel}/5` : null
+                    ].filter(Boolean)
+                    : [
+                        beer.style,
+                        beer.country,
+                        beer.alcoholByVolume ? `${beer.alcoholByVolume}% ABV` : null
+                    ].filter(Boolean);
 
                 if (facts.length > 0) {
                     copy.append(createElement(
@@ -579,20 +593,28 @@
                     `${Number(beer.price).toLocaleString("en-US", {
                         maximumFractionDigits: 2
                     })} MKD`));
-                const menuLink = createElement("a", "", "Beer menu →");
-                menuLink.href = "/Home/Menu?section=beer";
-                const compareButton = createElement(
-                    "button",
-                    "rr-guide-compare-button",
-                    "Compare");
-                compareButton.type = "button";
-                compareButton.setAttribute("aria-pressed", "false");
-                compareButton.addEventListener("click", () => {
-                    const selected = toggleComparison(beer);
-                    compareButton.setAttribute("aria-pressed", String(selected));
-                    compareButton.textContent = selected ? "Selected" : "Compare";
-                });
-                footer.append(compareButton, menuLink);
+                const menuLink = createElement(
+                    "a",
+                    "",
+                    isFood ? "Food menu →" : "Beer menu →");
+                menuLink.href = isFood
+                    ? "/Home/Menu?section=food"
+                    : "/Home/Menu?section=beer";
+                if (!isFood) {
+                    const compareButton = createElement(
+                        "button",
+                        "rr-guide-compare-button",
+                        "Compare");
+                    compareButton.type = "button";
+                    compareButton.setAttribute("aria-pressed", "false");
+                    compareButton.addEventListener("click", () => {
+                        const selected = toggleComparison(beer);
+                        compareButton.setAttribute("aria-pressed", String(selected));
+                        compareButton.textContent = selected ? "Selected" : "Compare";
+                    });
+                    footer.append(compareButton);
+                }
+                footer.append(menuLink);
                 copy.append(footer);
 
                 card.append(media, copy);
@@ -876,7 +898,9 @@
                     preferences = data.preferences ?? {};
                     renderPreferences();
                     if ((data.beers ?? []).length > 0) {
-                        latestBeerIds = data.beers.map(beer => beer.id);
+                        latestBeerIds = data.beers
+                            .filter(item => item.itemType !== "food")
+                            .map(beer => beer.id);
                     }
                 } catch (error) {
                     thinking?.remove();

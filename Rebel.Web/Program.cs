@@ -26,6 +26,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<IBeerRecommendationService, BeerRecommendationService>();
 builder.Services.AddScoped<IBeerGuideNarrator, OpenAiBeerGuideNarrator>();
 builder.Services.AddSingleton<IBeerCatalogMatcher, BeerCatalogMatcher>();
+builder.Services.AddSingleton<IFoodCatalogMatcher, FoodCatalogMatcher>();
 builder.Services.AddSingleton<IBeerPreferenceParser, BeerPreferenceParser>();
 builder.Services.AddSingleton<IBeerConversationQueryBuilder, BeerConversationQueryBuilder>();
 builder.Services.AddSingleton<IBeerChatStateService, BeerChatStateService>();

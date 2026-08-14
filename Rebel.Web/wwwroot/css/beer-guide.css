@@ -1464,8 +1464,18 @@
     }
 
     .rr-guide-chat-form {
-        grid-template-columns: minmax(0, 1fr) 86px;
+        grid-template-columns: minmax(0, 1fr) 100px;
         padding: 0;
+    }
+
+    .rr-guide-chat-form button {
+        padding: 0 10px;
+        font-size: 1rem;
+        white-space: nowrap;
+    }
+
+    .rr-guide-chat-form button b {
+        font-size: 1.5rem;
     }
 
     .rr-guide-chat-controls {

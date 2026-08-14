@@ -11,6 +11,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
 {
     private readonly ResponsesClient? _client;
     private readonly IBeerCatalogMatcher _matcher;
+    private readonly IFoodCatalogMatcher _foodMatcher;
     private readonly IBeerConversationQueryBuilder _conversationQueryBuilder;
     private readonly IBeerNoMatchRecoveryService _noMatchRecovery;
     private readonly string _model;
@@ -21,7 +22,8 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         IBeerCatalogMatcher matcher,
         ILogger<OpenAiBeerGuideChatService> logger,
         IBeerConversationQueryBuilder? conversationQueryBuilder = null,
-        IBeerNoMatchRecoveryService? noMatchRecovery = null)
+        IBeerNoMatchRecoveryService? noMatchRecovery = null,
+        IFoodCatalogMatcher? foodMatcher = null)
     {
         var apiKey = configuration["OpenAI:ApiKey"];
 
@@ -31,6 +33,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         }
 
         _matcher = matcher;
+        _foodMatcher = foodMatcher ?? new FoodCatalogMatcher();
         _conversationQueryBuilder = conversationQueryBuilder ??
             new BeerConversationQueryBuilder(new BeerPreferenceParser());
         _noMatchRecovery = noMatchRecovery ?? new BeerNoMatchRecoveryService();
@@ -98,6 +101,12 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         if (catalogueResult != null)
         {
             return catalogueResult;
+        }
+
+        var foodResult = BuildFoodRecommendationResult(message, menuProducts ?? beers);
+        if (foodResult != null)
+        {
+            return foodResult;
         }
 
         var mentionsKnownBeer = beers.Any(beer =>
@@ -233,7 +242,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             unavailableMatch);
     }
 
-    private static BeerChatResult? BuildMenuCatalogueResult(
+    private BeerChatResult? BuildMenuCatalogueResult(
         string message,
         IReadOnlyCollection<Product> menuProducts)
     {
@@ -259,7 +268,15 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             return null;
         }
 
-        var matches = FindMenuProducts(requestedItem, message, menuProducts);
+        var exactMatches = FindExactMenuProducts(message, menuProducts);
+        if (exactMatches.Count == 0 && _foodMatcher.HasFoodPreference(requestedItem))
+        {
+            return null;
+        }
+
+        var matches = exactMatches.Count > 0
+            ? exactMatches
+            : FindMenuProducts(requestedItem, message, menuProducts);
         if (matches.Count == 0)
         {
             return new BeerChatResult(
@@ -292,6 +309,56 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             $"Yes. We have {available.Count} {requestedItem} option{(available.Count == 1 ? string.Empty : "s")} available right now: {string.Join(", ", available.Select(product => product.Name))}.",
             [],
             false);
+    }
+
+    private BeerChatResult? BuildFoodRecommendationResult(
+        string message,
+        IReadOnlyCollection<Product> menuProducts)
+    {
+        if (!IsFoodRecommendationRequest(message))
+        {
+            return null;
+        }
+
+        var requestedCount = RequestedCount(message);
+        var matches = _foodMatcher.Shortlist(
+            message,
+            menuProducts,
+            requestedCount);
+        if (matches.Count == 0)
+        {
+            return new BeerChatResult(
+                "I don't have an available dish that fits all of that right now. Try changing one taste or dietary preference.",
+                [],
+                false);
+        }
+
+        var chatMatches = matches
+            .Select(food => new BeerChatMatch(
+                food,
+                _foodMatcher.BuildEvidenceReason(food, message)))
+            .ToList();
+        var reply = matches.Count == 1
+            ? $"My food pick for that is {matches[0].Name}."
+            : $"I would put these {matches.Count} on your table. Start with {matches[0].Name}.";
+
+        return new BeerChatResult(reply, chatMatches, false);
+    }
+
+    private bool IsFoodRecommendationRequest(string message)
+    {
+        if (BeerPairingRequestPattern().IsMatch(message))
+        {
+            return false;
+        }
+
+        var explicitlyFood = ExplicitFoodRequestPattern().IsMatch(message);
+        if (ExplicitBeerRequestPattern().IsMatch(message) && !explicitlyFood)
+        {
+            return false;
+        }
+
+        return explicitlyFood || _foodMatcher.HasFoodPreference(message);
     }
 
     private static string? ExtractRequestedMenuItem(string message)
@@ -334,17 +401,6 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 product.Category?.Type is CategoryType.Beer or CategoryType.Food &&
                 !string.IsNullOrWhiteSpace(product.Name))
             .ToList();
-        var exactMatches = activeProducts
-            .Where(product => CatalogueNameAliases(product.Name).Any(alias =>
-                message.Contains(alias, StringComparison.OrdinalIgnoreCase)))
-            .OrderByDescending(product => product.Name.Length)
-            .ToList();
-
-        if (exactMatches.Count > 0)
-        {
-            return exactMatches;
-        }
-
         var requestedTerms = MenuItemTerms(requestedItem);
         if (requestedTerms.Count == 0)
         {
@@ -361,6 +417,19 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             .OrderBy(product => product.Name)
             .ToList();
     }
+
+    private static IReadOnlyList<Product> FindExactMenuProducts(
+        string message,
+        IReadOnlyCollection<Product> menuProducts) =>
+        menuProducts
+            .Where(product =>
+                !product.IsDeleted &&
+                product.Category?.Type is CategoryType.Beer or CategoryType.Food &&
+                !string.IsNullOrWhiteSpace(product.Name) &&
+                CatalogueNameAliases(product.Name).Any(alias =>
+                    message.Contains(alias, StringComparison.OrdinalIgnoreCase)))
+            .OrderByDescending(product => product.Name.Length)
+            .ToList();
 
     private static HashSet<string> MenuItemTerms(string value) =>
         Regex.Matches(value.ToLowerInvariant(), "[a-z0-9]+")
@@ -397,6 +466,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             "crisp", "malty", "sweet", "bitter", "light", "strong",
             "german", "germany", "hungarian", "hungary", "belgian", "belgium",
             "czech", "czechia", "local", "macedonian", "macedonia", "skopje",
+            "salt", "salty",
             "available", "similar", "alternative", "alternatives", "most",
             "expensive", "priciest", "cheapest", "highest", "lowest", "price",
             "priced", "strongest", "weakest", "alcohol", "abv", "fridge"
@@ -1019,6 +1089,15 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
 
     [GeneratedRegex(@"^\s*is\s+(?<item>.+?)\s+(?:available|in\s+stock|on\s+(?:the\s+)?menu)\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex AvailabilityRequestPattern();
+
+    [GeneratedRegex(@"\b(?:beer\s+pairing|pair(?:ing)?\s+(?:with|for)|beer\b.{0,45}\b(?:with|for)|(?:need|find|give|recommend)\s+(?:me\s+)?a?\s*beer)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex BeerPairingRequestPattern();
+
+    [GeneratedRegex(@"\b(?:food|dish|meal|snack|eat|hungry|burger|burgers|pizza|pizzas|wings?|fries|sausage|sausages|chicken|vegan|vegetarian|gluten[- ]?free)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex ExplicitFoodRequestPattern();
+
+    [GeneratedRegex(@"\b(?:beer|ipa|lager|pilsner|pils|stout|porter|tripel|gose|lambic|weissbier|weizen|witbier|ale)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex ExplicitBeerRequestPattern();
 
     [GeneratedRegex(@"\s+\d+(?:[.,]\d+)?\s*(?:ml|cl|l)\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex ServingSizeSuffixPattern();
