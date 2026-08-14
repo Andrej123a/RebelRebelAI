@@ -2195,45 +2195,101 @@
 }
 
 .rr-booking-button {
-    display: flex;
+    position: relative;
+    display: grid;
+    grid-template-columns: 108px minmax(0, 1fr) 42px;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    min-height: 104px;
-    padding: 24px 26px 24px 30px;
-    color: #ffffff;
-    background: #ef4428;
-    border: 2px solid #ff6948;
-    box-shadow: 12px 12px 0 #7a0c1d;
-    clip-path: polygon(0 0, 92% 0, 100% 24%, 100% 100%, 7% 100%, 0 78%);
-    font-family: "Anton", sans-serif;
-    font-size: 1.45rem;
-    font-weight: 900;
-    letter-spacing: 0;
+    gap: 0;
+    min-height: 184px;
+    padding: 0 4px 0 0;
+    color: #ece7de;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    clip-path: none;
     text-decoration: none;
     text-transform: uppercase;
-    transition: 0.24s ease;
-    transform: rotate(1.1deg);
+    transition: color 0.2s ease;
+    transform: rotate(-1deg);
 }
 
-    .rr-booking-button-arrow {
+    .rr-booking-button::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: 20px;
+        left: 72px;
+        height: 3px;
+        background: #ef4428;
+        box-shadow: 34px 8px 0 #7a0c1d;
+        transform: rotate(-1.4deg);
+        transition: 0.24s ease;
+    }
+
+    .rr-booking-bolt {
+        display: block;
+        width: 104px;
+        height: 174px;
+        background: #ef4428;
+        clip-path: polygon(45% 0, 100% 0, 65% 39%, 94% 39%, 19% 100%, 41% 57%, 0 57%);
+        filter: drop-shadow(10px 8px 0 #7a0c1d);
+        transform: rotate(5deg);
+        transition: 0.24s ease;
+    }
+
+    .rr-booking-button-label {
+        position: relative;
+        z-index: 2;
         display: grid;
-        width: 46px;
-        height: 46px;
-        flex: 0 0 46px;
-        place-items: center;
+        margin-left: -20px;
+        font-family: "Anton", sans-serif;
+        line-height: 0.78;
+        letter-spacing: 0;
+    }
+
+        .rr-booking-button-label span:first-child {
+            color: #ece7de;
+            font-size: clamp(2.6rem, 4vw, 4.1rem);
+        }
+
+        .rr-booking-button-label span:last-child {
+            color: #ef4428;
+            font-size: clamp(3rem, 4.6vw, 4.8rem);
+            text-shadow: 3px 3px 0 #7a0c1d;
+        }
+
+    .rr-booking-button-arrow {
+        position: relative;
+        z-index: 2;
+        align-self: end;
+        padding-bottom: 36px;
         color: #ef4428;
-        background: #0a0a0a;
+        background: transparent;
         font-family: "Space Mono", monospace;
-        font-size: 1rem;
+        font-size: 1.1rem;
+        transition: transform 0.24s ease;
     }
 
     .rr-booking-button:hover {
         color: #ffffff;
-        background: #c8202d;
-        border-color: #f2ebe2;
-        transform: translate(-4px, -4px) rotate(0.3deg);
-        box-shadow: 16px 16px 0 #4d0712;
+        background: transparent;
+        transform: translateY(-4px) rotate(-1deg);
+        box-shadow: none;
+    }
+
+    .rr-booking-button:hover .rr-booking-bolt {
+        background: #ff5a35;
+        filter: drop-shadow(14px 11px 0 #7a0c1d);
+        transform: translate(-3px, -5px) rotate(2deg);
+    }
+
+    .rr-booking-button:hover .rr-booking-button-arrow {
+        transform: translateX(8px);
+    }
+
+    .rr-booking-button:focus-visible {
+        outline: 2px solid #ece7de;
+        outline-offset: 8px;
     }
 
 .rr-contact-link {
@@ -2652,8 +2708,30 @@
     }
 
     .rr-booking-button {
-        min-height: 90px;
-        transform: rotate(0.6deg);
+        grid-template-columns: 86px minmax(0, 1fr) 30px;
+        min-height: 154px;
+        transform: rotate(-0.6deg);
+    }
+
+    .rr-booking-bolt {
+        width: 82px;
+        height: 140px;
+    }
+
+    .rr-booking-button-label {
+        margin-left: -13px;
+    }
+
+        .rr-booking-button-label span:first-child {
+            font-size: clamp(2.2rem, 11vw, 3rem);
+        }
+
+        .rr-booking-button-label span:last-child {
+            font-size: clamp(2.55rem, 12.7vw, 3.5rem);
+        }
+
+    .rr-booking-button-arrow {
+        padding-bottom: 29px;
     }
 }
 
