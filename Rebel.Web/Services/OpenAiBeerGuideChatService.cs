@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using OpenAI.Responses;
 using Rebel.Domain.Entities;
+using Rebel.Domain.Enums;
 using Rebel.Web.Models;
 
 namespace Rebel.Web.Services;
@@ -59,7 +60,8 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         string effectiveQuery,
         IReadOnlyCollection<Product> beers,
         IReadOnlyDictionary<Guid, double> feedbackScores,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        IReadOnlyCollection<Product>? menuProducts = null)
     {
         var fullQuery = effectiveQuery;
 
@@ -88,6 +90,14 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 .Take(3);
 
             return BuildResult(available, "popular adventurous beer", false, null);
+        }
+
+        var catalogueResult = BuildMenuCatalogueResult(
+            message,
+            menuProducts ?? beers);
+        if (catalogueResult != null)
+        {
+            return catalogueResult;
         }
 
         var mentionsKnownBeer = beers.Any(beer =>
@@ -222,6 +232,176 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             false,
             unavailableMatch);
     }
+
+    private static BeerChatResult? BuildMenuCatalogueResult(
+        string message,
+        IReadOnlyCollection<Product> menuProducts)
+    {
+        var requestedItem = ExtractRequestedMenuItem(message);
+        if (requestedItem == null)
+        {
+            return null;
+        }
+
+        var mentionsKnownBeer = menuProducts.Any(product =>
+            product.Category?.Type == CategoryType.Beer &&
+            CatalogueNameAliases(product.Name).Any(alias =>
+                message.Contains(alias, StringComparison.OrdinalIgnoreCase)));
+        if (mentionsKnownBeer &&
+            (NamedBeerIntentPattern().IsMatch(message) ||
+             SimilarPattern().IsMatch(message)))
+        {
+            return null;
+        }
+
+        if (IsGenericBeerPreference(requestedItem))
+        {
+            return null;
+        }
+
+        var matches = FindMenuProducts(requestedItem, message, menuProducts);
+        if (matches.Count == 0)
+        {
+            return new BeerChatResult(
+                $"We don't have {requestedItem} on our regular menu.",
+                [],
+                false);
+        }
+
+        var available = matches.Where(product => product.IsAvailable).ToList();
+        if (available.Count == 0)
+        {
+            var itemName = matches.Count == 1
+                ? matches[0].Name
+                : requestedItem;
+            return new BeerChatResult(
+                $"We normally have {itemName}, but it is temporarily out of stock.",
+                [],
+                false);
+        }
+
+        if (matches.Count == 1)
+        {
+            return new BeerChatResult(
+                $"Yes, {matches[0].Name} is on the menu and available right now.",
+                [],
+                false);
+        }
+
+        return new BeerChatResult(
+            $"Yes. We have {available.Count} {requestedItem} option{(available.Count == 1 ? string.Empty : "s")} available right now: {string.Join(", ", available.Select(product => product.Name))}.",
+            [],
+            false);
+    }
+
+    private static string? ExtractRequestedMenuItem(string message)
+    {
+        var match = DirectMenuRequestPattern().Match(message);
+        if (!match.Success)
+        {
+            match = AvailabilityRequestPattern().Match(message);
+        }
+
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        var item = Regex.Replace(
+                match.Groups["item"].Value,
+                @"\s+(?:please|right now|tonight)$",
+                string.Empty,
+                RegexOptions.IgnoreCase)
+            .Trim(' ', '.', ',', '?', '!');
+
+        item = Regex.Replace(
+            item,
+            @"^(?:an?|some|any|one|two|three|four|a\s+(?:bottle|can|glass)\s+of)\s+",
+            string.Empty,
+            RegexOptions.IgnoreCase);
+
+        return string.IsNullOrWhiteSpace(item) ? null : item;
+    }
+
+    private static IReadOnlyList<Product> FindMenuProducts(
+        string requestedItem,
+        string message,
+        IReadOnlyCollection<Product> menuProducts)
+    {
+        var activeProducts = menuProducts
+            .Where(product =>
+                !product.IsDeleted &&
+                product.Category?.Type is CategoryType.Beer or CategoryType.Food &&
+                !string.IsNullOrWhiteSpace(product.Name))
+            .ToList();
+        var exactMatches = activeProducts
+            .Where(product => CatalogueNameAliases(product.Name).Any(alias =>
+                message.Contains(alias, StringComparison.OrdinalIgnoreCase)))
+            .OrderByDescending(product => product.Name.Length)
+            .ToList();
+
+        if (exactMatches.Count > 0)
+        {
+            return exactMatches;
+        }
+
+        var requestedTerms = MenuItemTerms(requestedItem);
+        if (requestedTerms.Count == 0)
+        {
+            return [];
+        }
+
+        return activeProducts
+            .Where(product =>
+            {
+                var productTerms = MenuItemTerms(string.Join(' ',
+                    CatalogueNameAliases(product.Name)));
+                return requestedTerms.All(productTerms.Contains);
+            })
+            .OrderBy(product => product.Name)
+            .ToList();
+    }
+
+    private static HashSet<string> MenuItemTerms(string value) =>
+        Regex.Matches(value.ToLowerInvariant(), "[a-z0-9]+")
+            .Select(match => match.Value)
+            .Where(term => term is not "beer" and not "beers" and
+                not "food" and not "menu" and not "bottle" and
+                not "bottles" and not "can" and not "cans")
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    private static bool IsGenericBeerPreference(string requestedItem)
+    {
+        var terms = Regex.Matches(requestedItem.ToLowerInvariant(), "[a-z0-9]+")
+            .Select(match => match.Value)
+            .Where(term => !GenericRequestStopWords.Contains(term))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return terms.Count > 0 && terms.All(GenericBeerRequestTerms.Contains);
+    }
+
+    private static readonly HashSet<string> GenericRequestStopWords = new(
+        [
+            "a", "an", "and", "any", "beer", "beers", "can", "cans",
+            "bottle", "bottles", "for", "from", "in", "me", "of", "on",
+            "one", "please", "some", "the", "to", "two", "three", "four",
+            "five", "six", "with"
+        ],
+        StringComparer.OrdinalIgnoreCase);
+
+    private static readonly HashSet<string> GenericBeerRequestTerms = new(
+        [
+            "ipa", "lager", "pils", "pilsner", "stout", "porter", "ale",
+            "tripel", "sour", "gose", "lambic", "wheat", "weissbier",
+            "weizen", "witbier", "citrus", "citrussy", "citrusy",
+            "grapefruit", "hoppy", "fruity", "tropical", "dark", "roasty",
+            "crisp", "malty", "sweet", "bitter", "light", "strong",
+            "german", "germany", "hungarian", "hungary", "belgian", "belgium",
+            "czech", "czechia", "local", "macedonian", "macedonia", "skopje",
+            "available", "similar", "alternative", "alternatives", "most",
+            "expensive", "priciest", "cheapest", "highest", "lowest", "price",
+            "priced", "strongest", "weakest", "alcohol", "abv", "fridge"
+        ],
+        StringComparer.OrdinalIgnoreCase);
 
     private Product? FindUnavailableMatch(
         string query,
@@ -833,6 +1013,12 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
 
     [GeneratedRegex(@"\b(?:with|pair(?:ing)?|food|burger|pizza|wings?|chicken|sausage|fries|cheese|salad|dessert)\b", RegexOptions.IgnoreCase)]
     private static partial Regex FoodRequestPattern();
+
+    [GeneratedRegex(@"^\s*(?:do\s+(?:you|we)\s+(?:have|serve|stock)|have\s+(?:you|we)\s+got|(?:can|could)\s+i\s+(?:get|have)|i\s+want|i(?:'d|\s+would)\s+like|give\s+me|show\s+me|(?:search|look)\s+for)\s+(?<item>.+?)\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
+    private static partial Regex DirectMenuRequestPattern();
+
+    [GeneratedRegex(@"^\s*is\s+(?<item>.+?)\s+(?:available|in\s+stock|on\s+(?:the\s+)?menu)\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
+    private static partial Regex AvailabilityRequestPattern();
 
     [GeneratedRegex(@"\s+\d+(?:[.,]\d+)?\s*(?:ml|cl|l)\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex ServingSizeSuffixPattern();

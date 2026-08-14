@@ -122,17 +122,23 @@ public class BeerGuideController : Controller
         var comparisonFollowUp = BeerChatContextPolicy.RefersToPreviousResults(effectiveMessage) &&
             previousBeerIds.Count > 0;
 
-        var beers = await _context.Products
+        var menuProducts = await _context.Products
             .AsNoTracking()
             .Include(product => product.Category)
             .Where(product =>
                 !product.IsDeleted &&
-                !excludedBeerIds.Contains(product.Id) &&
-                (!comparisonFollowUp || previousBeerIds.Contains(product.Id)) &&
                 product.Category != null &&
-                product.Category.Type == CategoryType.Beer)
+                (product.Category.Type == CategoryType.Beer ||
+                 product.Category.Type == CategoryType.Food))
             .OrderBy(product => product.Name)
             .ToListAsync(cancellationToken);
+
+        var beers = menuProducts
+            .Where(product =>
+                product.Category?.Type == CategoryType.Beer &&
+                !excludedBeerIds.Contains(product.Id) &&
+                (!comparisonFollowUp || previousBeerIds.Contains(product.Id)))
+            .ToList();
 
         if (!beers.Any(beer => beer.IsAvailable) && excludedBeerIds.Count > 0)
         {
@@ -160,7 +166,8 @@ public class BeerGuideController : Controller
             fullQuery,
             beers,
             feedbackScores,
-            cancellationToken);
+            cancellationToken,
+            menuProducts);
 
         var responseId = result.Matches.Count > 0
             ? Guid.NewGuid()

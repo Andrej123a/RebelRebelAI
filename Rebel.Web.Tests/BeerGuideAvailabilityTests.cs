@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using Rebel.Domain.Entities;
+using Rebel.Domain.Enums;
 using Rebel.Web.Models;
 using Rebel.Web.Services;
 using Xunit;
@@ -46,6 +47,104 @@ public sealed class BeerGuideAvailabilityTests
         Assert.Empty(result.Matches);
         Assert.Contains("currently unavailable", result.Reply);
         Assert.Contains("do not have an available alternative", result.Reply);
+    }
+
+    [Fact]
+    public async Task Reply_DirectUnavailableBeerLookupReportsTemporaryStockState()
+    {
+        var soldOut = Beer("Sold Out Citrus IPA", false);
+        var alternative = Beer("Backup Citrus IPA", true);
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "Do you have Sold Out Citrus IPA?",
+            "Sold Out Citrus IPA",
+            [soldOut, alternative],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [soldOut, alternative]);
+
+        Assert.Empty(result.Matches);
+        Assert.Contains("temporarily out of stock", result.Reply);
+        Assert.Contains(soldOut.Name, result.Reply);
+        Assert.DoesNotContain("alternative", result.Reply, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Reply_UnknownBeerLookupSaysItIsNotOnRegularMenu()
+    {
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "Do you have Corona?",
+            "Corona",
+            [Beer("Citrus Riot", true)],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [Beer("Citrus Riot", true)]);
+
+        Assert.Empty(result.Matches);
+        Assert.Contains("don't have Corona", result.Reply);
+        Assert.Contains("regular menu", result.Reply);
+    }
+
+    [Fact]
+    public async Task Reply_UnknownFoodLookupDoesNotReturnRandomBeer()
+    {
+        var beer = Beer("Citrus Riot", true);
+        var burger = Food("Katsu Burger", true);
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "Show me sushi",
+            "sushi",
+            [beer],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [beer, burger]);
+
+        Assert.Empty(result.Matches);
+        Assert.Contains("don't have sushi", result.Reply);
+        Assert.Contains("regular menu", result.Reply);
+        Assert.DoesNotContain(beer.Name, result.Reply);
+    }
+
+    [Fact]
+    public async Task Reply_AvailableFoodLookupConfirmsCurrentAvailability()
+    {
+        var beer = Beer("Citrus Riot", true);
+        var burger = Food("Katsu Burger", true);
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "Is Katsu Burger available?",
+            "Katsu Burger",
+            [beer],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [beer, burger]);
+
+        Assert.Empty(result.Matches);
+        Assert.Contains("Katsu Burger", result.Reply);
+        Assert.Contains("available right now", result.Reply);
+    }
+
+    [Fact]
+    public async Task Reply_GenericBeerPreferenceStillUsesRecommendations()
+    {
+        var beer = Beer("Citrus Riot", true);
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "I want a citrussy IPA",
+            "citrussy IPA",
+            [beer],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [beer]);
+
+        Assert.NotEmpty(result.Matches);
+        Assert.DoesNotContain("regular menu", result.Reply);
     }
 
     [Fact]
@@ -638,7 +737,15 @@ public sealed class BeerGuideAvailabilityTests
         SweetnessLevel = 1,
         PairingTags = "burger",
         IsAvailable = isAvailable,
-        Category = new Category { Name = "Beer" }
+        Category = new Category { Name = "Beer", Type = CategoryType.Beer }
+    };
+
+    private static Product Food(string name, bool isAvailable) => new()
+    {
+        Id = Guid.NewGuid(),
+        Name = name,
+        IsAvailable = isAvailable,
+        Category = new Category { Name = "Food", Type = CategoryType.Food }
     };
 
     private static Product BeerWithProfile(string name, string style, string flavours)

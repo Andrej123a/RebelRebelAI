@@ -17,5 +17,6 @@ public interface IBeerGuideChatService
         string effectiveQuery,
         IReadOnlyCollection<Product> beers,
         IReadOnlyDictionary<Guid, double> feedbackScores,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        IReadOnlyCollection<Product>? menuProducts = null);
 }
