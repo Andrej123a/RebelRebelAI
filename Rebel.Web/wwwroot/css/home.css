@@ -2005,11 +2005,19 @@
     transform: rotate(0.6deg);
 }
 
+    .rr-gallery-two img {
+        object-position: center center;
+    }
+
 .rr-gallery-three {
     grid-column: 9 / 13;
     grid-row: 3 / 4;
     transform: rotate(-1deg);
 }
+
+    .rr-gallery-three img {
+        object-position: center center;
+    }
 
 .rr-gallery-one figcaption {
     position: absolute;
