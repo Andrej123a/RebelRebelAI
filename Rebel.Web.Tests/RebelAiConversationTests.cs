@@ -218,6 +218,23 @@ public sealed class RebelAiConversationTests
     }
 
     [Fact]
+    public async Task SuggestionClarification_UnderstandsBothAsOneOfEach()
+    {
+        var chat = Conversation();
+        var question = await chat.Turn("what would you suggest me?");
+        var answer = await chat.Turn("both");
+
+        Assert.Empty(question.Matches);
+        Assert.Equal(3, question.FollowUps?.Count);
+        Assert.Equal(2, answer.Matches.Count);
+        Assert.Single(answer.Matches, match =>
+            match.Beer.Category!.Type == CategoryType.Food);
+        Assert.Single(answer.Matches, match =>
+            match.Beer.Category!.Type == CategoryType.Beer);
+        Assert.Contains("round", answer.Reply, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task GenericBeerRecommendation_GivesACompactHousePick()
     {
         var chat = Conversation();

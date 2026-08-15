@@ -229,6 +229,21 @@ public sealed class BeerChatStateServiceTests
         Assert.Contains("refreshing", result.EffectiveQuery);
     }
 
+    [Theory]
+    [InlineData("both")]
+    [InlineData("one of each")]
+    [InlineData("beer and food")]
+    [InlineData("food and beer")]
+    public void Update_BothMenuSidesCreatesAMixedOrder(string message)
+    {
+        var result = _service.Update(message, null);
+
+        Assert.Equal("mixed", result.Preferences.ItemKind);
+        Assert.Equal(1, result.Preferences.RequestedFoodCount);
+        Assert.Equal(1, result.Preferences.RequestedBeerCount);
+        Assert.Contains("mixed order", result.EffectiveQuery);
+    }
+
     [Fact]
     public void Update_MixedStyleQuantitiesUseOneTotalBudgetNotPerItemBounds()
     {

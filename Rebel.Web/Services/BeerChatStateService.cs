@@ -271,6 +271,11 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
 
     private static string? RequestedItemKind(string message)
     {
+        if (BothMenuSidesPattern().IsMatch(message))
+        {
+            return "mixed";
+        }
+
         var food = ExplicitFoodKindPattern().IsMatch(message);
         var beer = ExplicitBeerKindPattern().IsMatch(message) ||
             ExplicitDrinkPattern().IsMatch(message);
@@ -503,6 +508,9 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
 
     [GeneratedRegex(@"\b(?:something|anything|what|one|a)?\s*(?:to\s+drink|drink)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ExplicitDrinkPattern();
+
+    [GeneratedRegex(@"^\s*(?:both|both\s+(?:beer\s+and\s+food|food\s+and\s+beer)|one\s+of\s+each|beer\s+and\s+food|food\s+and\s+beer)\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
+    private static partial Regex BothMenuSidesPattern();
 
     [GeneratedRegex(@"\b(?:food|dish|meal|snack|eat|hungry|burger|burgers|pizza|pizzas|wings?|fries|sausage|sausages|chicken|vegan|vegetarian|gluten[- ]?free)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ExplicitFoodKindPattern();
