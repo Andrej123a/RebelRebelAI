@@ -205,6 +205,13 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
             restricted = matching;
         }
 
+        if (LowAlcoholRequestPattern().IsMatch(normalizedQuery))
+        {
+            restricted = restricted
+                .Where(beer => BeerProfileQuality.AlcoholByVolume(beer) is <= 5m)
+                .ToList();
+        }
+
         if (NegativeBitterPattern().IsMatch(normalizedQuery))
         {
             var matching = restricted
@@ -673,4 +680,7 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
 
     [GeneratedRegex(@"\b(?:lowest|weakest|least\s+alcoholic|lowest[-\s]*(?:alcohol|abv)|low\s*%?\s*abv)\b", RegexOptions.IgnoreCase)]
     private static partial Regex LowestAbvPattern();
+
+    [GeneratedRegex(@"\b(?:light|low)[- ]?alcohol\b", RegexOptions.IgnoreCase)]
+    private static partial Regex LowAlcoholRequestPattern();
 }

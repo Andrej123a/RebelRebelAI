@@ -180,7 +180,7 @@ public sealed class RebelAiConversationTests
         var result = await chat.Turn(
             "hello broski, got 1000 to spend, give me a food and 2 beers. what do you recommend?");
 
-        Assert.Equal(3, result.Matches.Count);
+        Assert.True(result.Matches.Count == 3, result.Reply);
         Assert.Single(result.Matches, match =>
             match.Beer.Category!.Type == CategoryType.Food);
         Assert.Equal(2, result.Matches.Count(match =>
@@ -202,6 +202,83 @@ public sealed class RebelAiConversationTests
         Assert.True(result.Matches.Sum(match => match.Beer.Price) <= 1000m);
         Assert.Empty(first.Matches.Select(match => match.Beer.Id)
             .Intersect(result.Matches.Select(match => match.Beer.Id)));
+    }
+
+    [Fact]
+    public async Task VagueRecommendation_AsksWhichSideOfTheMenu()
+    {
+        var chat = Conversation();
+        var result = await chat.Turn("what do you recommend?");
+
+        Assert.Empty(result.Matches);
+        Assert.Contains("beer", result.Reply, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("eat", result.Reply, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(3, result.FollowUps?.Count);
+        Assert.True(result.Reply.Length < 120);
+    }
+
+    [Fact]
+    public async Task GenericBeerRecommendation_GivesACompactHousePick()
+    {
+        var chat = Conversation();
+        var result = await chat.Turn("recommend me a beer");
+
+        var match = Assert.Single(result.Matches);
+        Assert.Equal(CategoryType.Beer, match.Beer.Category!.Type);
+        Assert.True(match.Beer.Price <= 500m);
+        Assert.Contains("Leaving it to me", result.Reply);
+        Assert.True(result.Reply.Length < 220);
+    }
+
+    [Fact]
+    public async Task MixedOrder_WithDescriptiveQuantitiesReturnsTheCompleteRound()
+    {
+        var chat = Conversation();
+        var result = await chat.Turn(
+            "one spicy food and two light beers for 1000 MKD");
+
+        Assert.True(result.Matches.Count == 3, result.Reply);
+        Assert.Single(result.Matches, match =>
+            match.Beer.Category!.Type == CategoryType.Food);
+        var beers = result.Matches
+            .Where(match => match.Beer.Category!.Type == CategoryType.Beer)
+            .Select(match => match.Beer)
+            .ToList();
+        Assert.Equal(2, beers.Count);
+        Assert.All(beers, beer => Assert.True(beer.AlcoholByVolume <= 5m));
+        Assert.True(result.Matches.Sum(match => match.Beer.Price) <= 1000m);
+    }
+
+    [Theory]
+    [InlineData("no food, just recommend me a beer", CategoryType.Beer)]
+    [InlineData("no beer, just recommend me food", CategoryType.Food)]
+    public async Task NegatedMenuSide_NeverReturnsTheRejectedKind(
+        string message,
+        CategoryType expectedType)
+    {
+        var chat = Conversation();
+        var result = await chat.Turn(message);
+
+        Assert.NotEmpty(result.Matches);
+        Assert.All(result.Matches, match =>
+            Assert.Equal(expectedType, match.Beer.Category!.Type));
+    }
+
+    [Fact]
+    public async Task MixedOrder_RespectsRequestedFoodCategoryAndBeerStyle()
+    {
+        var chat = Conversation();
+        var result = await chat.Turn(
+            "pick one burger and two IPAs for no more than 1200 MKD");
+
+        Assert.True(result.Matches.Count == 3, result.Reply);
+        var food = Assert.Single(result.Matches, match =>
+            match.Beer.Category!.Type == CategoryType.Food).Beer;
+        Assert.Contains("burger", food.Name, StringComparison.OrdinalIgnoreCase);
+        Assert.All(result.Matches.Where(match =>
+            match.Beer.Category!.Type == CategoryType.Beer), match =>
+                Assert.Contains("IPA", match.Beer.BeerStyle, StringComparison.OrdinalIgnoreCase));
+        Assert.True(result.Matches.Sum(match => match.Beer.Price) <= 1200m);
     }
 
     private static ConversationHarness Conversation() =>

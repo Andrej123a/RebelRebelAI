@@ -140,6 +140,15 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             return bareKindPrompt;
         }
 
+        var genericRecommendation = BuildGenericRecommendationResult(
+            message,
+            fullQuery,
+            beers);
+        if (genericRecommendation != null)
+        {
+            return genericRecommendation;
+        }
+
         var foodResult = BuildFoodRecommendationResult(
             message,
             fullQuery,
@@ -159,9 +168,13 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             !BeerChatContextPolicy.RequestsSimilarityToPrevious(message))
         {
             return new BeerChatResult(
-                "Give me one little clue. Crisp or hoppy? Light or strong? Or tell me what you are eating.",
+                "I didn't quite catch that. Are you after a beer or something to eat?",
                 [],
-                false);
+                false,
+                [
+                    new BeerChatFollowUp { Label = "Beer", Prompt = "Help me choose a beer." },
+                    new BeerChatFollowUp { Label = "Food", Prompt = "Help me choose some food." }
+                ]);
         }
 
         var unavailableMatch = FindUnavailableMatch(
@@ -302,8 +315,29 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             out var parsedBudget)
                 ? parsedBudget
                 : (decimal?)null;
-        var plan = MixedMenuOrderPlanner.Build(
+        var constraintQuery = MixedOrderScaffoldingPattern()
+            .Replace(query, " ")
+            .Trim();
+        var availableFoods = _foodMatcher.Shortlist(
+            constraintQuery,
             products,
+            products.Count);
+        var allBeers = products
+            .Where(product => product.Category?.Type == CategoryType.Beer)
+            .ToList();
+        var beerConstraintQuery = MixedPairingSuffixPattern()
+            .Replace(constraintQuery, string.Empty)
+            .Trim();
+        var availableBeers = _matcher.Shortlist(
+            beerConstraintQuery,
+            allBeers,
+            allBeers.Count,
+            new Dictionary<Guid, double>());
+        var constrainedProducts = availableFoods
+            .Concat(availableBeers)
+            .ToList();
+        var plan = MixedMenuOrderPlanner.Build(
+            constrainedProducts,
             foodCount,
             beerCount,
             budget);
@@ -315,7 +349,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 false);
         }
 
-        if (plan.Foods.Count == 0 || plan.Beers.Count == 0)
+        if (plan.Foods.Count != foodCount || plan.Beers.Count != beerCount)
         {
             return new BeerChatResult(
                 plan.CheapestPossibleTotal.HasValue && budget.HasValue
@@ -358,6 +392,86 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                     GuestText = "Show me another combination."
                 }
             ]);
+    }
+
+    private BeerChatResult? BuildGenericRecommendationResult(
+        string message,
+        string query,
+        IReadOnlyCollection<Product> beers)
+    {
+        if (!GenericRecommendationPattern().IsMatch(message))
+        {
+            return null;
+        }
+
+        if (_matcher.HasUsefulPreference(query) ||
+            AbvSuperlativePattern().IsMatch(query) ||
+            PriceSuperlativePattern().IsMatch(query))
+        {
+            return null;
+        }
+
+        var asksFood = RememberedFoodKindPattern().IsMatch(query);
+        var asksBeer = RememberedBeerKindPattern().IsMatch(query);
+        if (!asksFood && !asksBeer)
+        {
+            return new BeerChatResult(
+                "Sure. Are you after a beer, something to eat, or one of each?",
+                [],
+                false,
+                [
+                    new BeerChatFollowUp { Label = "Beer", Prompt = "Recommend a beer." },
+                    new BeerChatFollowUp { Label = "Food", Prompt = "Recommend some food." },
+                    new BeerChatFollowUp { Label = "One of each", Prompt = "Pick one food and one beer for me." }
+                ]);
+        }
+
+        if (asksFood)
+        {
+            return null;
+        }
+
+        var count = RequestedCount(query);
+        var available = beers.Where(beer => beer.IsAvailable).ToList();
+        var typicalPrice = MedianPrice(available);
+        var matches = available
+            .Where(beer => beer.Price <= Math.Max(500m, typicalPrice * 1.25m))
+            .OrderByDescending(beer => beer.IsPopular)
+            .ThenBy(beer => Math.Abs(beer.Price - typicalPrice))
+            .ThenBy(beer => beer.Name)
+            .Take(count)
+            .Select(beer => new BeerChatMatch(
+                beer,
+                _matcher.BuildEvidenceReason(beer, query)))
+            .ToList();
+        if (matches.Count == 0)
+        {
+            return new BeerChatResult(
+                "I don't have an available beer I can honestly recommend right now.",
+                [],
+                false);
+        }
+
+        return new BeerChatResult(
+            matches.Count == 1
+                ? $"Leaving it to me? Start with {matches[0].Beer.Name}. {TasteSentence(matches[0].Beer, true)}"
+                : $"Leaving it to me? I'd open with {matches[0].Beer.Name}, then keep {JoinNaturally(matches.Skip(1).Select(match => match.Beer.Name))} behind it.",
+            matches,
+            false);
+    }
+
+    private static decimal MedianPrice(IReadOnlyCollection<Product> products)
+    {
+        if (products.Count == 0)
+        {
+            return 0;
+        }
+
+        var prices = products.Select(product => product.Price).Order().ToList();
+        var middle = prices.Count / 2;
+        return prices.Count % 2 == 1
+            ? prices[middle]
+            : (prices[middle - 1] + prices[middle]) / 2m;
     }
 
     private static int QueryQuantity(
@@ -1428,6 +1542,12 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     [GeneratedRegex(@"\bmixed\s+order\b", RegexOptions.IgnoreCase)]
     private static partial Regex MixedOrderQueryPattern();
 
+    [GeneratedRegex(@"\bmixed\s+order\b|\b[1-3]\s+food\b|\b[1-6]\s+beers?\b|\btotal\s+budget\s+[0-9]+(?:\.[0-9]+)?\s+MKD\b|\bother\s+choices\b", RegexOptions.IgnoreCase)]
+    private static partial Regex MixedOrderScaffoldingPattern();
+
+    [GeneratedRegex(@"\s+with\s+.+$", RegexOptions.IgnoreCase)]
+    private static partial Regex MixedPairingSuffixPattern();
+
     [GeneratedRegex(@"\b([1-3])\s+food\b", RegexOptions.IgnoreCase)]
     private static partial Regex FoodCountQueryPattern();
 
@@ -1436,6 +1556,9 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
 
     [GeneratedRegex(@"\btotal\s+budget\s+([0-9]+(?:\.[0-9]+)?)\s+MKD\b", RegexOptions.IgnoreCase)]
     private static partial Regex TotalBudgetQueryPattern();
+
+    [GeneratedRegex(@"\b(?:what\s+do\s+you\s+recommend|what(?:'s|\s+is)\s+good|recommend(?:\s+me)?|what\s+should\s+i\s+(?:get|have|order)|your\s+best\s+pick)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex GenericRecommendationPattern();
 
     [GeneratedRegex(@"\b(?:highest|strongest|most\s+alcoholic|highest[-\s]*(?:alcohol|abv)|high\s*%?\s*abv|lowest|weakest|least\s+alcoholic|lowest[-\s]*(?:alcohol|abv)|low\s*%?\s*abv)\b", RegexOptions.IgnoreCase)]
     private static partial Regex AbvSuperlativePattern();

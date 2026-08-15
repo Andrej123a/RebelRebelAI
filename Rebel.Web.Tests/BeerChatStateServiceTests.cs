@@ -190,4 +190,58 @@ public sealed class BeerChatStateServiceTests
         Assert.Null(beerOnly.Preferences.TotalBudget);
         Assert.DoesNotContain("total budget", beerOnly.EffectiveQuery);
     }
+
+    [Theory]
+    [InlineData("no food, just beer", "beer")]
+    [InlineData("beer, not food", "beer")]
+    [InlineData("no beer, just food", "food")]
+    [InlineData("food, not beer", "food")]
+    public void Update_ExplicitNegationWinsOverKeywordPresence(
+        string message,
+        string expectedKind)
+    {
+        var result = _service.Update(message, null);
+
+        Assert.Equal(expectedKind, result.Preferences.ItemKind);
+        Assert.DoesNotContain("mixed order", result.EffectiveQuery);
+    }
+
+    [Fact]
+    public void Update_MixedClausesDoNotApplyLightBeerToFoodRichness()
+    {
+        var result = _service.Update(
+            "one spicy food and two light beers for 1000 MKD",
+            null);
+
+        Assert.Equal("mixed", result.Preferences.ItemKind);
+        Assert.Equal("high", result.Preferences.Heat);
+        Assert.Null(result.Preferences.Richness);
+        Assert.Equal("low", result.Preferences.Strength);
+        Assert.Equal(2, result.Preferences.RequestedBeerCount);
+    }
+
+    [Fact]
+    public void Update_ExplicitDrinkLanguageChoosesBeer()
+    {
+        var result = _service.Update("something refreshing to drink", null);
+
+        Assert.Equal("beer", result.Preferences.ItemKind);
+        Assert.Contains("refreshing", result.EffectiveQuery);
+    }
+
+    [Fact]
+    public void Update_MixedStyleQuantitiesUseOneTotalBudgetNotPerItemBounds()
+    {
+        var result = _service.Update(
+            "pick one burger and two IPAs for no more than 1200 MKD",
+            null);
+
+        Assert.Equal(1, result.Preferences.RequestedFoodCount);
+        Assert.Equal(2, result.Preferences.RequestedBeerCount);
+        Assert.Equal(1200m, result.Preferences.TotalBudget);
+        Assert.Null(result.Preferences.MinimumPrice);
+        Assert.Null(result.Preferences.MaximumPrice);
+        Assert.Contains("2 beers", result.EffectiveQuery);
+        Assert.DoesNotContain("over 1200", result.EffectiveQuery);
+    }
 }
