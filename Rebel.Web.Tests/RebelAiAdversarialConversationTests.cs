@@ -195,4 +195,25 @@ public sealed class RebelAiAdversarialConversationTests
         Assert.Empty(first.Matches.Select(match => match.Beer.Id)
             .Intersect(second.Matches.Select(match => match.Beer.Id)));
     }
+
+    [Theory]
+    [InlineData("awesome, thanks")]
+    [InlineData("great, thank you")]
+    [InlineData("perfect thanks")]
+    [InlineData("thanks boss")]
+    [InlineData("cheers")]
+    [InlineData("nice, thanks broski")]
+    [InlineData("thank you, that's perfect")]
+    [InlineData("awesome, cheers")]
+    public async Task GratitudeAfterRecommendation_ClosesWithoutNewCards(
+        string message)
+    {
+        var chat = RebelAiConversationTests.Conversation();
+        await chat.Turn("one food and one beer for 800 MKD");
+        var result = await chat.Turn(message);
+
+        Assert.Empty(result.Matches);
+        Assert.Contains("Anytime", result.Reply, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("round", result.Reply, StringComparison.OrdinalIgnoreCase);
+    }
 }

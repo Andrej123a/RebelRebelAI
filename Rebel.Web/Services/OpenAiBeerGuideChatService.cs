@@ -1533,7 +1533,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     [GeneratedRegex(@"^\s*(?:hi|hey|hello|yo|good\s+(?:morning|afternoon|evening))[!.?]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex GreetingPattern();
 
-    [GeneratedRegex(@"^\s*(?:thanks|thank\s+you|cheers)[!.?]*\s*$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"^\s*(?:(?:awesome|great|perfect|nice|lovely|cool|brilliant|amazing|okay|ok|yes|yep)[\s,!.:-]+)?(?:thanks|thank\s+you|cheers)(?:[\s,!.:-]+(?:a\s+lot|very\s+much|boss|broski|man|mate|that(?:'s|\s+is)\s+(?:perfect|great|good|all\s+right)))*[!.?]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex ThanksPattern();
 
     [GeneratedRegex(@"^\s*(?:surprise\s+me|dealer'?s\s+choice|you\s+choose|pick\s+for\s+me|it'?s\s+on\s+you|your\s+(?:call|choice)|you\s+decide)[!.?]*\s*$", RegexOptions.IgnoreCase)]
