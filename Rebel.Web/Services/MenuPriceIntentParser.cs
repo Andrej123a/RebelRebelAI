@@ -124,9 +124,9 @@ public static partial class MenuPriceIntentParser
     [GeneratedRegex(@"\b(?:premium|pricey|high[- ]?end|top[- ]?shelf)\b", RegexOptions.IgnoreCase)]
     private static partial Regex PremiumPattern();
 
-    [GeneratedRegex(@"\b(?:cheapest|lowest\s+price|least\s+expensive)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:cheapest|cheaper|lowest\s+price|least\s+expensive)\b", RegexOptions.IgnoreCase)]
     private static partial Regex CheapestPattern();
 
-    [GeneratedRegex(@"\b(?:most\s+expensive|priciest|highest[- ]?price|costliest)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:most\s+expensive|more\s+expensive|priciest|highest[- ]?price|costliest)\b", RegexOptions.IgnoreCase)]
     private static partial Regex MostExpensivePattern();
 }

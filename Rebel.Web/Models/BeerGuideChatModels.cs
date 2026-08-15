@@ -23,12 +23,16 @@ public class BeerChatRequest
 
 public sealed class BeerChatPreferenceState
 {
+    public string? ItemKind { get; set; }
     public string? Style { get; set; }
     public List<string> Flavours { get; set; } = [];
     public string? Origin { get; set; }
     public string? Strength { get; set; }
     public string? Bitterness { get; set; }
     public string? Sweetness { get; set; }
+    public string? Heat { get; set; }
+    public string? Saltiness { get; set; }
+    public string? Richness { get; set; }
     public string? FoodPairing { get; set; }
     public decimal? MinimumAbv { get; set; }
     public decimal? MaximumAbv { get; set; }

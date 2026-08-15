@@ -410,7 +410,7 @@
             const history = [];
             let preferences = {};
             const rejectedBeerIds = new Set();
-            let latestBeerIds = [];
+            let latestProductIds = [];
             let activeChatRequest = null;
             let requestSequence = 0;
             const feedbackSessionKey = "rr-beer-guide-feedback-session";
@@ -780,7 +780,7 @@
                         preferences = {};
                         renderPreferences();
                         rejectedBeerIds.clear();
-                        latestBeerIds = [];
+                        latestProductIds = [];
                         finish("Nice. Fresh round whenever you are ready.");
                     } catch {
                         goodButton.disabled = false;
@@ -869,7 +869,7 @@
                             history: previousHistory,
                             preferences,
                             excludedBeerIds: Array.from(rejectedBeerIds),
-                            previousBeerIds: latestBeerIds,
+                            previousBeerIds: latestProductIds,
                             correctionReason
                         })
                     });
@@ -898,9 +898,7 @@
                     preferences = data.preferences ?? {};
                     renderPreferences();
                     if ((data.beers ?? []).length > 0) {
-                        latestBeerIds = data.beers
-                            .filter(item => item.itemType !== "food")
-                            .map(beer => beer.id);
+                        latestProductIds = data.beers.map(item => item.id);
                     }
                 } catch (error) {
                     thinking?.remove();
@@ -965,7 +963,7 @@
                 preferences = {};
                 renderPreferences();
                 rejectedBeerIds.clear();
-                latestBeerIds = [];
+                latestProductIds = [];
                 if (chatThread) {
                     chatThread.innerHTML = "";
                     appendMessage(

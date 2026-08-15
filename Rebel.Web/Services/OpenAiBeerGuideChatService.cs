@@ -95,6 +95,22 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             return BuildResult(available, "popular adventurous beer", false, null);
         }
 
+        var namedFoodResult = BuildNamedFoodProfileResult(
+            message,
+            menuProducts ?? beers);
+        if (namedFoodResult != null)
+        {
+            return namedFoodResult;
+        }
+
+        var referencedResult = BuildReferencedProductResult(
+            message,
+            menuProducts ?? beers);
+        if (referencedResult != null)
+        {
+            return referencedResult;
+        }
+
         var catalogueResult = BuildMenuCatalogueResult(
             message,
             menuProducts ?? beers);
@@ -103,10 +119,16 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             return catalogueResult;
         }
 
-        var menuKindClarification = BuildMenuKindClarification(message);
+        var menuKindClarification = BuildMenuKindClarification(message, fullQuery);
         if (menuKindClarification != null)
         {
             return menuKindClarification;
+        }
+
+        var bareKindPrompt = BuildBareItemKindPrompt(message, fullQuery);
+        if (bareKindPrompt != null)
+        {
+            return bareKindPrompt;
         }
 
         var foodResult = BuildFoodRecommendationResult(
@@ -123,7 +145,9 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             CatalogueNameAliases(beer.Name).Any(alias =>
                 message.Contains(alias, StringComparison.OrdinalIgnoreCase)));
 
-        if (!_matcher.HasUsefulPreference(fullQuery) && !mentionsKnownBeer)
+        if (!_matcher.HasUsefulPreference(fullQuery) &&
+            !mentionsKnownBeer &&
+            !BeerChatContextPolicy.RequestsSimilarityToPrevious(message))
         {
             return new BeerChatResult(
                 "Give me one little clue. Crisp or hoppy? Light or strong? Or tell me what you are eating.",
@@ -251,6 +275,84 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             unavailableMatch);
     }
 
+    private BeerChatResult? BuildNamedFoodProfileResult(
+        string message,
+        IReadOnlyCollection<Product> products)
+    {
+        if (!NamedBeerIntentPattern().IsMatch(message))
+        {
+            return null;
+        }
+
+        var food = products
+            .Where(product =>
+                product.Category?.Type == CategoryType.Food &&
+                !string.IsNullOrWhiteSpace(product.Name) &&
+                CatalogueNameAliases(product.Name).Any(alias =>
+                    message.Contains(alias, StringComparison.OrdinalIgnoreCase)))
+            .OrderByDescending(product => product.Name.Length)
+            .FirstOrDefault();
+        if (food == null)
+        {
+            return null;
+        }
+
+        return new BeerChatResult(
+            DescribeNamedFood(food) + (food.IsAvailable
+                ? string.Empty
+                : " It is currently unavailable."),
+            food.IsAvailable
+                ? [new BeerChatMatch(food, _foodMatcher.BuildEvidenceReason(food, message))]
+                : [],
+            false);
+    }
+
+    private BeerChatResult? BuildReferencedProductResult(
+        string message,
+        IReadOnlyCollection<Product> products)
+    {
+        if (!ReferencedProfilePattern().IsMatch(message))
+        {
+            return null;
+        }
+
+        var reference = OrdinalReferencePattern().Match(message);
+        if (!reference.Success)
+        {
+            return null;
+        }
+
+        var ordered = products.ToList();
+        var index = reference.Groups[1].Value.ToLowerInvariant() switch
+        {
+            "first" or "1st" => 0,
+            "second" or "2nd" => 1,
+            "third" or "3rd" => 2,
+            "last" => ordered.Count - 1,
+            _ => -1
+        };
+        if (index < 0 || index >= ordered.Count)
+        {
+            return new BeerChatResult(
+                "I cannot see that item in the last lineup. Name it for me and I'll pull up the right one.",
+                [],
+                false);
+        }
+
+        var product = ordered[index];
+        var reply = product.Category?.Type == CategoryType.Food
+            ? DescribeNamedFood(product)
+            : DescribeNamedBeer(product);
+        return new BeerChatResult(
+            reply,
+            product.IsAvailable
+                ? [new BeerChatMatch(product, product.Category?.Type == CategoryType.Food
+                    ? _foodMatcher.BuildEvidenceReason(product, message)
+                    : _matcher.BuildEvidenceReason(product, message))]
+                : [],
+            false);
+    }
+
     private BeerChatResult? BuildMenuCatalogueResult(
         string message,
         IReadOnlyCollection<Product> menuProducts)
@@ -325,7 +427,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         string query,
         IReadOnlyCollection<Product> menuProducts)
     {
-        if (!IsFoodRecommendationRequest(message))
+        if (!IsFoodRecommendationRequest(message, query))
         {
             return null;
         }
@@ -349,8 +451,10 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 _foodMatcher.BuildEvidenceReason(food, query)))
             .ToList();
         var priceIntent = MenuPriceIntentParser.Parse(query);
-        var reply = priceIntent.Target.HasValue
-            ? $"Around {priceIntent.Target:0} MKD, {matches[0].Name} at {matches[0].Price:0} MKD is my closest plate."
+        var reply = BeerChatContextPolicy.RequestsAlternatives(query)
+            ? $"Here are {matches.Count} different plates that still fit. I'd start with {matches[0].Name}."
+            : priceIntent.Target.HasValue
+                ? $"Around {priceIntent.Target:0} MKD, {matches[0].Name} at {matches[0].Price:0} MKD is my closest plate."
             : priceIntent.Cheapest
                 ? $"{matches[0].Name} is the cheapest available dish right now at {matches[0].Price:0} MKD."
                 : priceIntent.MostExpensive
@@ -364,13 +468,15 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         return new BeerChatResult(reply, chatMatches, false);
     }
 
-    private static BeerChatResult? BuildMenuKindClarification(string message)
+    private static BeerChatResult? BuildMenuKindClarification(
+        string message,
+        string query)
     {
         var refreshing = AmbiguousRefreshmentPattern().IsMatch(message);
         var price = MenuPriceIntentParser.IsPriceRequest(message);
         if ((!refreshing && !price) ||
-            ExplicitBeerRequestPattern().IsMatch(message) ||
-            ExplicitFoodRequestPattern().IsMatch(message))
+            ExplicitBeerRequestPattern().IsMatch(query) ||
+            ExplicitFoodRequestPattern().IsMatch(query))
         {
             return null;
         }
@@ -401,20 +507,72 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             ]);
     }
 
-    private bool IsFoodRecommendationRequest(string message)
+    private BeerChatResult? BuildBareItemKindPrompt(
+        string message,
+        string query)
+    {
+        var match = BareItemKindPattern().Match(message);
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        var preferenceQuery = Regex.Replace(
+            query,
+            @"\b(?:beer|food)\b",
+            string.Empty,
+            RegexOptions.IgnoreCase).Trim();
+        if (MenuPriceIntentParser.IsPriceRequest(preferenceQuery) ||
+            _matcher.HasUsefulPreference(preferenceQuery) ||
+            _foodMatcher.HasFoodPreference(preferenceQuery))
+        {
+            return null;
+        }
+
+        return match.Groups[1].Value.Equals("food", StringComparison.OrdinalIgnoreCase)
+            ? new BeerChatResult(
+                "Food it is. Are you after something spicy, light, cheesy, or properly filling?",
+                [],
+                false)
+            : new BeerChatResult(
+                "Beer it is. Crisp, hoppy, dark, fruity, or something easy-drinking?",
+                [],
+                false);
+    }
+
+    private bool IsFoodRecommendationRequest(string message, string query)
     {
         if (BeerPairingRequestPattern().IsMatch(message))
         {
             return false;
         }
 
-        var explicitlyFood = ExplicitFoodRequestPattern().IsMatch(message);
-        if (ExplicitBeerRequestPattern().IsMatch(message) && !explicitlyFood)
+        var messageRequestsFood = ExplicitFoodRequestPattern().IsMatch(message);
+        var messageRequestsBeer = ExplicitBeerRequestPattern().IsMatch(message);
+        if (messageRequestsBeer && !messageRequestsFood)
         {
             return false;
         }
 
-        return explicitlyFood || _foodMatcher.HasFoodPreference(message);
+        if (messageRequestsFood && !messageRequestsBeer)
+        {
+            return true;
+        }
+
+        // The state builder puts the selected item kind first. A remembered dish
+        // used for beer pairing must not route a later taste refinement to food.
+        if (RememberedBeerKindPattern().IsMatch(query))
+        {
+            return false;
+        }
+
+        if (RememberedFoodKindPattern().IsMatch(query))
+        {
+            return true;
+        }
+
+        return ExplicitFoodRequestPattern().IsMatch(query) ||
+            _foodMatcher.HasFoodPreference(query);
     }
 
     private static string? ExtractRequestedMenuItem(string message)
@@ -543,6 +701,13 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             .Select(candidate => candidate.Beer)
             .FirstOrDefault();
 
+        if (namedBeer == null &&
+            similarRequested &&
+            BeerChatContextPolicy.RequestsSimilarityToPrevious(message))
+        {
+            namedBeer = allBeers.FirstOrDefault();
+        }
+
         if (namedBeer == null)
         {
             return null;
@@ -660,6 +825,25 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 : " Its detailed tasting notes are not listed yet.";
 
         return $"{beer.Name} is a {style}{origin}{strength}.{tasting}";
+    }
+
+    private static string DescribeNamedFood(Product food)
+    {
+        var category = food.Category?.Name?.Trim() ?? "dish";
+        var notes = !string.IsNullOrWhiteSpace(food.FlavorNotes)
+            ? food.FlavorNotes.Trim()
+            : !string.IsNullOrWhiteSpace(food.Description)
+                ? Truncate(food.Description.Trim(), 180)
+                : "the kitchen has not added detailed tasting notes yet";
+        var traits = new List<string>();
+        if (food.HeatLevel.HasValue) traits.Add($"heat {food.HeatLevel}/5");
+        if (food.SaltinessLevel.HasValue) traits.Add($"saltiness {food.SaltinessLevel}/5");
+        if (food.RichnessLevel.HasValue) traits.Add($"richness {food.RichnessLevel}/5");
+        var profile = traits.Count == 0
+            ? string.Empty
+            : $" Its profile is {string.Join(", ", traits)}.";
+
+        return $"{food.Name} is from our {category} section at {food.Price:0} MKD. Expect {notes}.{profile}";
     }
 
     private static double SimilarityScore(Product source, Product candidate)
@@ -812,6 +996,13 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         if (matches.Count == 0)
         {
             return "I am not confident enough to throw a random beer at you. Give me one more taste or style clue.";
+        }
+
+        if (BeerChatContextPolicy.RequestsAlternatives(query))
+        {
+            return matches.Count == 1
+                ? $"Here is a different pour that still fits: {matches[0].Beer.Name}."
+                : $"Here are {matches.Count} different pours that still fit. I'd open with {matches[0].Beer.Name}.";
         }
 
         var origin = RequestedOriginLabel(query);
@@ -1113,7 +1304,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     [GeneratedRegex(@"^\s*(?:show\s+me\s+|do\s+you\s+have\s+|i(?:'d|\s+would)?\s+like\s+|some\s+|any\s+|an?\s+)?(hungarian|hungary|german|germany|belgian|belgium|czech|czechia|local|macedonian)(?:\s+beers?)?\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex BroadOriginPattern();
 
-    [GeneratedRegex(@"\b(most expensive|priciest|highest price|highest-priced|costliest|cheapest|lowest price)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(most expensive|more expensive|priciest|highest price|highest-priced|costliest|cheapest|cheaper|lowest price|least expensive)\b", RegexOptions.IgnoreCase)]
     private static partial Regex PriceSuperlativePattern();
 
     [GeneratedRegex(@"^\s*(?:hi|hey|hello|yo|good\s+(?:morning|afternoon|evening))[!.?]*\s*$", RegexOptions.IgnoreCase)]
@@ -1131,13 +1322,25 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     [GeneratedRegex(@"\b(?:similar\s+to|something\s+like|reminds?\s+me\s+of|same\s+vibe|mood|feels?\s+like|you\s+think|not\s+sure|whatever\s+goes|weird|unusual)\b", RegexOptions.IgnoreCase)]
     private static partial Regex AmbiguousLanguagePattern();
 
-    [GeneratedRegex(@"\b(?:tell\s+me\s+about|what\s+is|describe|explain(?:\s+(?:to\s+)?me)?|info(?:rmation)?\s+(?:about|on)|details?\s+(?:about|on)|taste\s+profile|flavou?r\s+profile|how\s+does|what\s+does|what\s+(?:aromas?|flavou?rs?|notes?)\b|where\s+is|aromas?\s+(?:of|in))", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:tell\s+me\s+(?:more\s+)?about|what\s+is|describe|explain(?:\s+(?:to\s+)?me)?|info(?:rmation)?\s+(?:about|on)|details?\s+(?:about|on)|taste\s+profile|flavou?r\s+profile|how\s+does|what\s+does|what\s+(?:aromas?|flavou?rs?|notes?)\b|where\s+is|aromas?\s+(?:of|in))", RegexOptions.IgnoreCase)]
     private static partial Regex NamedBeerIntentPattern();
+
+    [GeneratedRegex(@"\b(?:tell\s+me\s+(?:more\s+)?about|describe|explain|what\s+(?:is|does|are)|how\s+(?:is|does)|where\s+is)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex ReferencedProfilePattern();
+
+    [GeneratedRegex(@"\b(?:the\s+)?(first|1st|second|2nd|third|3rd|last)(?:\s+(?:one|beer|food|dish|option|pick))?\b", RegexOptions.IgnoreCase)]
+    private static partial Regex OrdinalReferencePattern();
 
     [GeneratedRegex(@"\b(?:similar|like\s+it|alternatives?|closest)\b", RegexOptions.IgnoreCase)]
     private static partial Regex SimilarPattern();
 
-    [GeneratedRegex(@"\b(?:cheapest|lowest\s+price|budget)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"^(?:show\s+me\s+\d+\s+)?beer\b", RegexOptions.IgnoreCase)]
+    private static partial Regex RememberedBeerKindPattern();
+
+    [GeneratedRegex(@"^(?:show\s+me\s+\d+\s+)?food\b", RegexOptions.IgnoreCase)]
+    private static partial Regex RememberedFoodKindPattern();
+
+    [GeneratedRegex(@"\b(?:cheapest|cheaper|lowest\s+price|least\s+expensive|budget)\b", RegexOptions.IgnoreCase)]
     private static partial Regex CheapestPattern();
 
     [GeneratedRegex(@"\b(?:lowest|weakest|least\s+alcoholic|lowest[-\s]*(?:alcohol|abv)|low\s*%?\s*abv)\b", RegexOptions.IgnoreCase)]
@@ -1152,7 +1355,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     [GeneratedRegex(@"^\s*is\s+(?<item>.+?)\s+(?:available|in\s+stock|on\s+(?:the\s+)?menu)\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex AvailabilityRequestPattern();
 
-    [GeneratedRegex(@"\b(?:beer\s+pairing|pair(?:ing)?\s+(?:with|for)|beer\b.{0,45}\b(?:with|for)|(?:need|find|give|recommend)\s+(?:me\s+)?a?\s*beer)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:beer\s+pairing|pair(?:ing)?\s+(?:with|for)|beer\b.{0,45}\b(?:with|for)|(?:need|find|give|recommend)\s+(?:me\s+)?a?\s*beer|what\s+should\s+i\s+drink\s+with|what\s+beer\s+goes\s+(?:well\s+)?with)\b", RegexOptions.IgnoreCase)]
     private static partial Regex BeerPairingRequestPattern();
 
     [GeneratedRegex(@"\b(?:food|dish|meal|snack|eat|hungry|burger|burgers|pizza|pizzas|wings?|fries|sausage|sausages|chicken|vegan|vegetarian|gluten[- ]?free)\b", RegexOptions.IgnoreCase)]
@@ -1163,6 +1366,9 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
 
     [GeneratedRegex(@"\b(?:refreshing|refreshment|refresh|summery|cool\s+me\s+down|(?:hot|warm)\s+(?:day|days|weather|outside|summer))\b", RegexOptions.IgnoreCase)]
     private static partial Regex AmbiguousRefreshmentPattern();
+
+    [GeneratedRegex(@"^\s*(?:(?:and|now|okay|ok|then)\s+)?(beer|food)(?:\s+instead)?\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
+    private static partial Regex BareItemKindPattern();
 
     [GeneratedRegex(@"\b(?:refreshing|refreshment|refresh|summery|(?:hot|warm)\s+(?:day|days|weather|outside|summer))\b", RegexOptions.IgnoreCase)]
     private static partial Regex RefreshingPattern();

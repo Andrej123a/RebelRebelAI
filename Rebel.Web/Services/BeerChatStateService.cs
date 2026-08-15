@@ -28,6 +28,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         var state = ShouldStartFresh(cleanMessage, parsed)
             ? new BeerChatPreferenceState()
             : Normalize(previous);
+        ApplyItemKind(cleanMessage, state);
 
         foreach (var style in RejectedStyles(cleanMessage))
         {
@@ -62,6 +63,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         state.Bitterness = parsed.Bitterness ?? state.Bitterness;
         state.Sweetness = parsed.Sweetness ?? state.Sweetness;
         state.FoodPairing = parsed.FoodPairing ?? state.FoodPairing;
+        ApplyFoodPreferences(cleanMessage, state);
 
         ApplyAbv(cleanMessage, state);
         ApplyPrice(cleanMessage, state);
@@ -76,6 +78,9 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
             ? new BeerChatPreferenceState()
             : new BeerChatPreferenceState
             {
+                ItemKind = input.ItemKind is "beer" or "food"
+                    ? input.ItemKind
+                    : null,
                 Style = Clean(input.Style, 30),
                 Flavours = input.Flavours
                     .Select(value => Clean(value, 30))
@@ -88,6 +93,9 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
                 Strength = Scale(input.Strength),
                 Bitterness = Scale(input.Bitterness),
                 Sweetness = Scale(input.Sweetness),
+                Heat = Scale(input.Heat),
+                Saltiness = Scale(input.Saltiness),
+                Richness = Scale(input.Richness),
                 FoodPairing = Clean(input.FoodPairing, 30),
                 MinimumAbv = Range(input.MinimumAbv, 0, 30),
                 MaximumAbv = Range(input.MaximumAbv, 0, 30),
@@ -113,6 +121,69 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
                     .Take(8)
                     .ToList()
             };
+
+    private static void ApplyItemKind(string message, BeerChatPreferenceState state)
+    {
+        var requestedKind = RequestedItemKind(message);
+        if (requestedKind == null)
+        {
+            return;
+        }
+
+        if (state.ItemKind != null && state.ItemKind != requestedKind)
+        {
+            state.Style = null;
+            state.Flavours.Clear();
+            state.Origin = null;
+            state.Strength = null;
+            state.Bitterness = null;
+            state.Sweetness = null;
+            state.Heat = null;
+            state.Saltiness = null;
+            state.Richness = null;
+            state.FoodPairing = null;
+            state.MinimumAbv = null;
+            state.MaximumAbv = null;
+            state.ExcludedStyles.Clear();
+            if (state.Sort is "highest-abv" or "lowest-abv")
+            {
+                state.Sort = null;
+            }
+        }
+
+        state.ItemKind = requestedKind;
+    }
+
+    private static void ApplyFoodPreferences(
+        string message,
+        BeerChatPreferenceState state)
+    {
+        if (state.ItemKind != "food")
+        {
+            return;
+        }
+
+        if (LowHeatPattern().IsMatch(message)) state.Heat = "low";
+        else if (HighHeatPattern().IsMatch(message)) state.Heat = "high";
+
+        if (LowSaltPattern().IsMatch(message)) state.Saltiness = "low";
+        else if (HighSaltPattern().IsMatch(message)) state.Saltiness = "high";
+
+        if (LowRichnessPattern().IsMatch(message)) state.Richness = "low";
+        else if (HighRichnessPattern().IsMatch(message)) state.Richness = "high";
+    }
+
+    private static string? RequestedItemKind(string message)
+    {
+        var food = ExplicitFoodKindPattern().IsMatch(message);
+        var beer = ExplicitBeerKindPattern().IsMatch(message);
+
+        if (NotBeerPattern().IsMatch(message) && food) return "food";
+        if (BeerPairingPattern().IsMatch(message)) return "beer";
+        if (beer && !food) return "beer";
+        if (food && !beer) return "food";
+        return null;
+    }
 
     private static bool ShouldStartFresh(
         string message,
@@ -165,6 +236,14 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         var intent = MenuPriceIntentParser.Parse(message);
         if (!intent.HasPreference) return;
 
+        if (ComparativePricePattern().IsMatch(message))
+        {
+            state.MinimumPrice = null;
+            state.MaximumPrice = null;
+            state.TargetPrice = null;
+            state.PriceTier = null;
+        }
+
         if (intent.Target.HasValue)
         {
             state.TargetPrice = intent.Target;
@@ -206,6 +285,11 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
 
     private static void ApplySort(string message, BeerChatPreferenceState state)
     {
+        if (WhichChoicePattern().IsMatch(message))
+        {
+            state.RequestedCount = 1;
+        }
+
         if (HighestAbvPattern().IsMatch(message)) state.Sort = "highest-abv";
         else if (LowestAbvPattern().IsMatch(message)) state.Sort = "lowest-abv";
         else if (HighestPricePattern().IsMatch(message)) state.Sort = "highest-price";
@@ -216,6 +300,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
     {
         var terms = new List<string>();
         if (state.RequestedCount.HasValue) terms.Add($"show me {state.RequestedCount}");
+        if (state.ItemKind != null) terms.Add(state.ItemKind);
         if (!string.IsNullOrWhiteSpace(state.Style)) terms.Add(state.Style);
         terms.AddRange(state.Flavours);
         if (!string.IsNullOrWhiteSpace(state.Origin)) terms.Add(state.Origin);
@@ -225,6 +310,12 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         if (state.Bitterness == "low") terms.Add("not bitter");
         if (state.Sweetness == "high") terms.Add("sweet");
         if (state.Sweetness == "low") terms.Add("not sweet");
+        if (state.Heat == "high") terms.Add("spicy");
+        if (state.Heat == "low") terms.Add("mild");
+        if (state.Saltiness == "high") terms.Add("salty");
+        if (state.Saltiness == "low") terms.Add("not salty");
+        if (state.Richness == "high") terms.Add("rich");
+        if (state.Richness == "low") terms.Add("light");
         if (!string.IsNullOrWhiteSpace(state.FoodPairing))
             terms.Add($"with {state.FoodPairing}");
         if (state.MinimumAbv.HasValue) terms.Add($"over {state.MinimumAbv:0.#}% ABV");
@@ -242,6 +333,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         if (state.Sort == "lowest-abv") terms.Add("lowest alcohol");
         if (state.Sort == "highest-price") terms.Add("most expensive");
         if (state.Sort == "lowest-price") terms.Add("cheapest");
+        if (BeerChatContextPolicy.RequestsAlternatives(message)) terms.Add("other choices");
 
         return terms.Count == 0 ? message : string.Join(' ', terms);
     }
@@ -265,7 +357,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
     [GeneratedRegex(@"\b(?:highest|lowest|strongest|weakest|most\s+alcoholic|least\s+alcoholic|most\s+expensive|cheapest)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ObjectivePattern();
 
-    [GeneratedRegex(@"\b(?:tell\s+me\s+about|describe|explain(?:\s+(?:to\s+)?me)?|taste\s+profile|flavou?r\s+profile|aromas?\s+(?:of|in)|where\s+is)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:tell\s+me\s+(?:more\s+)?about|describe|explain(?:\s+(?:to\s+)?me)?|taste\s+profile|flavou?r\s+profile|aromas?\s+(?:of|in)|where\s+is)\b", RegexOptions.IgnoreCase)]
     private static partial Regex NamedProfileQuestionPattern();
 
     [GeneratedRegex(@"^\s*(?:an?\s+|some\s+|any\s+|show\s+me\s+)?[a-z-]+(?:\s+beers?)?\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
@@ -283,9 +375,45 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
     [GeneratedRegex(@"\b(?:lowest|weakest|least\s+alcoholic|lowest[-\s]*(?:alcohol|abv))\b", RegexOptions.IgnoreCase)]
     private static partial Regex LowestAbvPattern();
 
-    [GeneratedRegex(@"\b(?:most\s+expensive|priciest|highest\s+price)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:most\s+expensive|more\s+expensive|priciest|highest\s+price)\b", RegexOptions.IgnoreCase)]
     private static partial Regex HighestPricePattern();
 
-    [GeneratedRegex(@"\b(?:cheapest|lowest\s+price|budget)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:cheapest|cheaper|lowest\s+price|least\s+expensive|budget)\b", RegexOptions.IgnoreCase)]
     private static partial Regex LowestPricePattern();
+
+    [GeneratedRegex(@"\b(?:cheaper|more\s+expensive)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex ComparativePricePattern();
+
+    [GeneratedRegex(@"\bwhich\s+(?:one|of\s+these|of\s+those|is|was|has)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex WhichChoicePattern();
+
+    [GeneratedRegex(@"\b(?:beers?|ipas?|lagers?|pilsners?|pils|stouts?|porters?|tripels?|goses?|lambics?|weissbiers?|weizens?|witbiers?|ales?)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex ExplicitBeerKindPattern();
+
+    [GeneratedRegex(@"\b(?:food|dish|meal|snack|eat|hungry|burger|burgers|pizza|pizzas|wings?|fries|sausage|sausages|chicken|vegan|vegetarian|gluten[- ]?free)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex ExplicitFoodKindPattern();
+
+    [GeneratedRegex(@"\b(?:not|no)\s+(?:a\s+)?beers?\b", RegexOptions.IgnoreCase)]
+    private static partial Regex NotBeerPattern();
+
+    [GeneratedRegex(@"\b(?:beer\s+pairing|pair(?:ing)?\s+(?:with|for)|beer\b.{0,45}\b(?:with|for)|(?:need|find|give|recommend)\s+(?:me\s+)?a?\s*beer|what\s+should\s+i\s+drink\s+with|what\s+beer\s+goes\s+(?:well\s+)?with)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex BeerPairingPattern();
+
+    [GeneratedRegex(@"\b(?:less\s+(?:hot|spicy)|not\s+(?:so\s+)?(?:hot|spicy)|nothing\s+(?:hot|spicy)|mild|no\s+heat)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex LowHeatPattern();
+
+    [GeneratedRegex(@"\b(?:hot|spicy|fiery|chilli|chili)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex HighHeatPattern();
+
+    [GeneratedRegex(@"\b(?:less\s+salty|not\s+(?:so\s+)?salty|low\s+salt|no\s+salt)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex LowSaltPattern();
+
+    [GeneratedRegex(@"\b(?:salty|salted|savory|savoury)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex HighSaltPattern();
+
+    [GeneratedRegex(@"\b(?:less\s+rich|not\s+(?:so\s+)?rich|light|lighter|not\s+heavy)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex LowRichnessPattern();
+
+    [GeneratedRegex(@"\b(?:rich|cheesy|creamy|indulgent|heavy|filling)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex HighRichnessPattern();
 }

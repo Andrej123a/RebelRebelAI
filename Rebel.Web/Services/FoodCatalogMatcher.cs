@@ -86,11 +86,13 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
         {
             profile.Add($"heat {food.HeatLevel}/5");
         }
-        if (SaltyPattern().IsMatch(query) && food.SaltinessLevel.HasValue)
+        if ((SaltyPattern().IsMatch(query) || NotSaltyPattern().IsMatch(query)) &&
+            food.SaltinessLevel.HasValue)
         {
             profile.Add($"saltiness {food.SaltinessLevel}/5");
         }
-        if (RichPattern().IsMatch(query) && food.RichnessLevel.HasValue)
+        if ((RichPattern().IsMatch(query) || LightFoodPattern().IsMatch(query)) &&
+            food.RichnessLevel.HasValue)
         {
             profile.Add($"richness {food.RichnessLevel}/5");
         }
@@ -199,11 +201,17 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
         {
             score += (6 - food.HeatLevel.Value) * 7;
         }
-        if (SaltyPattern().IsMatch(query) && food.SaltinessLevel.HasValue)
+        if (NotSaltyPattern().IsMatch(query) && food.SaltinessLevel.HasValue)
+        {
+            score += (6 - food.SaltinessLevel.Value) * 6;
+        }
+        else if (SaltyPattern().IsMatch(query) && food.SaltinessLevel.HasValue)
         {
             score += food.SaltinessLevel.Value * 6;
         }
-        if (RichPattern().IsMatch(query) && food.RichnessLevel.HasValue)
+        if (RichPattern().IsMatch(query) &&
+            !LightFoodPattern().IsMatch(query) &&
+            food.RichnessLevel.HasValue)
         {
             score += food.RichnessLevel.Value * 6;
         }
@@ -211,7 +219,11 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
         {
             score += (6 - food.RichnessLevel.Value) * 6;
         }
-        if (SweetFoodPattern().IsMatch(query) && food.SweetnessLevel.HasValue)
+        if (NotSweetFoodPattern().IsMatch(query) && food.SweetnessLevel.HasValue)
+        {
+            score += (6 - food.SweetnessLevel.Value) * 5;
+        }
+        else if (SweetFoodPattern().IsMatch(query) && food.SweetnessLevel.HasValue)
         {
             score += food.SweetnessLevel.Value * 5;
         }
@@ -238,6 +250,7 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
         StringComparer.OrdinalIgnoreCase);
 
     private static bool WantsHeat(string query) =>
+        !NotHotPattern().IsMatch(query) &&
         HotPattern().IsMatch(RemoveWeatherHeat(query));
 
     private static string RemoveWeatherHeat(string query) =>
@@ -258,11 +271,14 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
     [GeneratedRegex(@"\b(?:hot|warm)\s+(?:day|days|weather|outside|summer)\b", RegexOptions.IgnoreCase)]
     private static partial Regex HotWeatherPattern();
 
-    [GeneratedRegex(@"\b(?:not(?:hing)?\s+(?:hot|spicy)|mild|no\s+heat)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:less\s+(?:hot|spicy)|not(?:hing)?\s+(?:so\s+)?(?:hot|spicy)|mild|no\s+heat)\b", RegexOptions.IgnoreCase)]
     private static partial Regex NotHotPattern();
 
     [GeneratedRegex(@"\b(?:salty|salted|savory|savoury)\b", RegexOptions.IgnoreCase)]
     private static partial Regex SaltyPattern();
+
+    [GeneratedRegex(@"\b(?:less\s+salty|not\s+(?:so\s+)?salty|low\s+salt|no\s+salt)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex NotSaltyPattern();
 
     [GeneratedRegex(@"\b(?:rich|cheesy|creamy|indulgent|heavy|filling)\b", RegexOptions.IgnoreCase)]
     private static partial Regex RichPattern();
@@ -272,6 +288,9 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
 
     [GeneratedRegex(@"\b(?:sweet|honey|sweet-and-salty)\b", RegexOptions.IgnoreCase)]
     private static partial Regex SweetFoodPattern();
+
+    [GeneratedRegex(@"\b(?:less\s+sweet|not\s+(?:so\s+)?sweet|nothing\s+sweet|no\s+sugar)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex NotSweetFoodPattern();
 
     [GeneratedRegex(@"\b(?:tangy|acidic|pickled|sharp)\b", RegexOptions.IgnoreCase)]
     private static partial Regex TangyPattern();

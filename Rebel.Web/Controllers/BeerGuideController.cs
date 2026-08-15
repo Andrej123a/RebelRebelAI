@@ -123,12 +123,6 @@ public class BeerGuideController : Controller
             .Take(12)
             .ToList();
 
-        var alternativeFollowUp = BeerChatContextPolicy.RequestsAlternatives(effectiveMessage) &&
-            previousBeerIds.Count > 0;
-        var comparisonFollowUp = !alternativeFollowUp &&
-            BeerChatContextPolicy.RefersToPreviousResults(effectiveMessage) &&
-            previousBeerIds.Count > 0;
-
         var menuProducts = await _context.Products
             .AsNoTracking()
             .Include(product => product.Category)
@@ -140,12 +134,14 @@ public class BeerGuideController : Controller
             .OrderBy(product => product.Name)
             .ToListAsync(cancellationToken);
 
-        var beers = menuProducts
-            .Where(product =>
-                product.Category?.Type == CategoryType.Beer &&
-                !excludedBeerIds.Contains(product.Id) &&
-                (!comparisonFollowUp || previousBeerIds.Contains(product.Id)) &&
-                (!alternativeFollowUp || !previousBeerIds.Contains(product.Id)))
+        var candidateMenuProducts = MenuConversationCandidateSelector.Select(
+            menuProducts,
+            excludedBeerIds,
+            previousBeerIds,
+            effectiveMessage);
+
+        var beers = candidateMenuProducts
+            .Where(product => product.Category?.Type == CategoryType.Beer)
             .ToList();
 
         if (!beers.Any(beer => beer.IsAvailable) && excludedBeerIds.Count > 0)
@@ -175,7 +171,21 @@ public class BeerGuideController : Controller
             beers,
             feedbackScores,
             cancellationToken,
-            menuProducts);
+            candidateMenuProducts);
+
+        if (result.Matches.Count > 0)
+        {
+            var resultKinds = result.Matches
+                .Select(match => match.Beer.Category?.Type)
+                .Distinct()
+                .ToList();
+            if (resultKinds.Count == 1)
+            {
+                stateUpdate.Preferences.ItemKind = resultKinds[0] == CategoryType.Food
+                    ? "food"
+                    : "beer";
+            }
+        }
 
         var responseId = result.Matches.Count > 0 &&
             result.Matches.All(match => match.Beer.Category?.Type == CategoryType.Beer)
@@ -207,18 +217,13 @@ public class BeerGuideController : Controller
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        var returnedFood = result.Matches.Any(match =>
-            match.Beer.Category?.Type == CategoryType.Food);
-
         return Json(new BeerChatResponse
         {
             ResponseId = responseId,
             Reply = result.Reply,
             AiWasUsed = result.UsedAi,
             FollowUps = result.FollowUps?.ToList() ?? [],
-            Preferences = returnedFood
-                ? new BeerChatPreferenceState()
-                : stateUpdate.Preferences,
+            Preferences = stateUpdate.Preferences,
             Beers = result.Matches.Select(match => new BeerChatBeerResponse
             {
                 Id = match.Beer.Id,
