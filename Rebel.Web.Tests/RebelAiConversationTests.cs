@@ -173,6 +173,37 @@ public sealed class RebelAiConversationTests
         Assert.Contains("similar profile", similar.Reply, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public async Task MixedBudgetOrder_ReturnsOneFoodAndTwoBeersWithinTheTotal()
+    {
+        var chat = Conversation();
+        var result = await chat.Turn(
+            "hello broski, got 1000 to spend, give me a food and 2 beers. what do you recommend?");
+
+        Assert.Equal(3, result.Matches.Count);
+        Assert.Single(result.Matches, match =>
+            match.Beer.Category!.Type == CategoryType.Food);
+        Assert.Equal(2, result.Matches.Count(match =>
+            match.Beer.Category!.Type == CategoryType.Beer));
+        Assert.True(result.Matches.Sum(match => match.Beer.Price) <= 1000m);
+        Assert.Contains("round", result.Reply, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("MKD", result.Reply);
+    }
+
+    [Fact]
+    public async Task DelegatedChoice_UsesTheRememberedMixedOrderBrief()
+    {
+        var chat = Conversation();
+        var first = await chat.Turn("one food and two beers for 1000 MKD");
+        var result = await chat.Turn("it's on you");
+
+        Assert.Equal(3, result.Matches.Count);
+        Assert.Contains("my call", result.Reply, StringComparison.OrdinalIgnoreCase);
+        Assert.True(result.Matches.Sum(match => match.Beer.Price) <= 1000m);
+        Assert.Empty(first.Matches.Select(match => match.Beer.Id)
+            .Intersect(result.Matches.Select(match => match.Beer.Id)));
+    }
+
     private static ConversationHarness Conversation() =>
         new(BuildMenu());
 

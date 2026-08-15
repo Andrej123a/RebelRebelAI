@@ -84,6 +84,15 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 false);
         }
 
+        var mixedOrderResult = BuildMixedOrderResult(
+            message,
+            fullQuery,
+            menuProducts ?? beers);
+        if (mixedOrderResult != null)
+        {
+            return mixedOrderResult;
+        }
+
         if (SurprisePattern().IsMatch(message))
         {
             var available = beers
@@ -273,6 +282,106 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             fullQuery,
             false,
             unavailableMatch);
+    }
+
+    private BeerChatResult? BuildMixedOrderResult(
+        string message,
+        string query,
+        IReadOnlyCollection<Product> products)
+    {
+        if (!MixedOrderQueryPattern().IsMatch(query))
+        {
+            return null;
+        }
+
+        var foodCount = QueryQuantity(FoodCountQueryPattern(), query, 1, 3);
+        var beerCount = QueryQuantity(BeerCountQueryPattern(), query, 1, 6);
+        var budgetMatch = TotalBudgetQueryPattern().Match(query);
+        var budget = budgetMatch.Success && decimal.TryParse(
+            budgetMatch.Groups[1].Value,
+            out var parsedBudget)
+                ? parsedBudget
+                : (decimal?)null;
+        var plan = MixedMenuOrderPlanner.Build(
+            products,
+            foodCount,
+            beerCount,
+            budget);
+        if (plan == null)
+        {
+            return new BeerChatResult(
+                "I cannot build that round from the available menu right now. One of those sides of the order does not have enough choices.",
+                [],
+                false);
+        }
+
+        if (plan.Foods.Count == 0 || plan.Beers.Count == 0)
+        {
+            return new BeerChatResult(
+                plan.CheapestPossibleTotal.HasValue && budget.HasValue
+                    ? $"I can't honestly fit {foodCount} plate{(foodCount == 1 ? string.Empty : "s")} and {beerCount} beer{(beerCount == 1 ? string.Empty : "s")} into {budget:0} MKD. The cheapest available round is {plan.CheapestPossibleTotal:0} MKD."
+                    : "I cannot build that complete round from the available menu right now.",
+                [],
+                false);
+        }
+
+        var matches = plan.Foods
+            .Select(food => new BeerChatMatch(
+                food,
+                _foodMatcher.BuildEvidenceReason(food, query)))
+            .Concat(plan.Beers.Select(beer => new BeerChatMatch(
+                beer,
+                _matcher.BuildEvidenceReason(
+                    beer,
+                    $"beer with {plan.Foods[0].Name}"))))
+            .ToList();
+        var foodNames = JoinNaturally(plan.Foods.Select(food => food.Name));
+        var beerNames = JoinNaturally(plan.Beers.Select(beer => beer.Name));
+        var budgetLine = budget.HasValue
+            ? $" The round lands at {plan.Total:0} MKD, leaving {budget.Value - plan.Total:0} MKD in your pocket."
+            : $" The total is {plan.Total:0} MKD.";
+        var opening = SurprisePattern().IsMatch(message)
+            ? "Alright, my call:"
+            : BeerChatContextPolicy.RequestsAlternatives(message)
+                ? "Different round, same brief:"
+                : "I've got your round:";
+
+        return new BeerChatResult(
+            $"{opening} {foodNames}, with {beerNames}.{budgetLine}",
+            matches,
+            false,
+            [
+                new BeerChatFollowUp
+                {
+                    Label = "Another round",
+                    Prompt = "Same budget, different choices.",
+                    GuestText = "Show me another combination."
+                }
+            ]);
+    }
+
+    private static int QueryQuantity(
+        Regex pattern,
+        string query,
+        int fallback,
+        int maximum)
+    {
+        var match = pattern.Match(query);
+        return match.Success && int.TryParse(match.Groups[1].Value, out var count)
+            ? Math.Clamp(count, 1, maximum)
+            : fallback;
+    }
+
+    private static string JoinNaturally(IEnumerable<string> values)
+    {
+        var items = values.ToList();
+        return items.Count switch
+        {
+            0 => string.Empty,
+            1 => items[0],
+            2 => $"{items[0]} and {items[1]}",
+            _ => $"{string.Join(", ", items.Take(items.Count - 1))}, and {items[^1]}"
+        };
     }
 
     private BeerChatResult? BuildNamedFoodProfileResult(
@@ -1313,8 +1422,20 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     [GeneratedRegex(@"^\s*(?:thanks|thank\s+you|cheers)[!.?]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex ThanksPattern();
 
-    [GeneratedRegex(@"^\s*(?:surprise\s+me|dealer'?s\s+choice|you\s+choose|pick\s+for\s+me)[!.?]*\s*$", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"^\s*(?:surprise\s+me|dealer'?s\s+choice|you\s+choose|pick\s+for\s+me|it'?s\s+on\s+you|your\s+(?:call|choice)|you\s+decide)[!.?]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex SurprisePattern();
+
+    [GeneratedRegex(@"\bmixed\s+order\b", RegexOptions.IgnoreCase)]
+    private static partial Regex MixedOrderQueryPattern();
+
+    [GeneratedRegex(@"\b([1-3])\s+food\b", RegexOptions.IgnoreCase)]
+    private static partial Regex FoodCountQueryPattern();
+
+    [GeneratedRegex(@"\b([1-6])\s+beers?\b", RegexOptions.IgnoreCase)]
+    private static partial Regex BeerCountQueryPattern();
+
+    [GeneratedRegex(@"\btotal\s+budget\s+([0-9]+(?:\.[0-9]+)?)\s+MKD\b", RegexOptions.IgnoreCase)]
+    private static partial Regex TotalBudgetQueryPattern();
 
     [GeneratedRegex(@"\b(?:highest|strongest|most\s+alcoholic|highest[-\s]*(?:alcohol|abv)|high\s*%?\s*abv|lowest|weakest|least\s+alcoholic|lowest[-\s]*(?:alcohol|abv)|low\s*%?\s*abv)\b", RegexOptions.IgnoreCase)]
     private static partial Regex AbvSuperlativePattern();

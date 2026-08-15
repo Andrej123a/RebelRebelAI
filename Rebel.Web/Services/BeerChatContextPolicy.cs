@@ -10,7 +10,8 @@ public static partial class BeerChatContextPolicy
         WhichPattern().IsMatch(message);
 
     public static bool RequestsAlternatives(string message) =>
-        AlternativesPattern().IsMatch(message);
+        AlternativesPattern().IsMatch(message) ||
+        DelegatedChoicePattern().IsMatch(message);
 
     public static bool RequestsSimilarityToPrevious(string message) =>
         SimilarityPattern().IsMatch(message);
@@ -29,4 +30,7 @@ public static partial class BeerChatContextPolicy
 
     [GeneratedRegex(@"\b(?:similar\s+(?:beers?|ones?|options?)|something\s+similar|like\s+(?:it|that|this|those|them))\b", RegexOptions.IgnoreCase)]
     private static partial Regex SimilarityPattern();
+
+    [GeneratedRegex(@"^\s*(?:it'?s\s+on\s+you|your\s+(?:call|choice)|you\s+(?:choose|decide)|surprise\s+me|dealer'?s\s+choice)[!.?]*\s*$", RegexOptions.IgnoreCase)]
+    private static partial Regex DelegatedChoicePattern();
 }

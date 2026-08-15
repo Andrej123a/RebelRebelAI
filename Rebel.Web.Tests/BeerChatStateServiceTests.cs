@@ -148,4 +148,46 @@ public sealed class BeerChatStateServiceTests
         Assert.Null(result.Preferences.MaximumAbv);
         Assert.Equal(["sour"], result.Preferences.ExcludedStyles);
     }
+
+    [Fact]
+    public void Update_MixedOrderRemembersSeparateCountsAndTotalBudget()
+    {
+        var result = _service.Update(
+            "I've got 1000 to spend, give me a food and 2 beers",
+            null);
+
+        Assert.Equal("mixed", result.Preferences.ItemKind);
+        Assert.Equal(1, result.Preferences.RequestedFoodCount);
+        Assert.Equal(2, result.Preferences.RequestedBeerCount);
+        Assert.Equal(1000m, result.Preferences.TotalBudget);
+        Assert.Contains("mixed order 1 food 2 beers total budget 1000 MKD", result.EffectiveQuery);
+    }
+
+    [Fact]
+    public void Update_DelegatedChoiceKeepsTheMixedOrderBrief()
+    {
+        var initial = _service.Update(
+            "one food and two beers for 1000 MKD",
+            null);
+        var followUp = _service.Update("it's on you", initial.Preferences);
+
+        Assert.Equal("mixed", followUp.Preferences.ItemKind);
+        Assert.Equal(1000m, followUp.Preferences.TotalBudget);
+        Assert.Contains("mixed order", followUp.EffectiveQuery);
+    }
+
+    [Fact]
+    public void Update_SwitchingAwayFromMixedOrderClearsItsTotalBudget()
+    {
+        var initial = _service.Update(
+            "one food and two beers for 1000 MKD",
+            null);
+        var beerOnly = _service.Update("beer instead", initial.Preferences);
+
+        Assert.Equal("beer", beerOnly.Preferences.ItemKind);
+        Assert.Null(beerOnly.Preferences.RequestedFoodCount);
+        Assert.Null(beerOnly.Preferences.RequestedBeerCount);
+        Assert.Null(beerOnly.Preferences.TotalBudget);
+        Assert.DoesNotContain("total budget", beerOnly.EffectiveQuery);
+    }
 }

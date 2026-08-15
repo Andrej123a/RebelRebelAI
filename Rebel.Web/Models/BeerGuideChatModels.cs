@@ -41,6 +41,9 @@ public sealed class BeerChatPreferenceState
     public decimal? TargetPrice { get; set; }
     public string? PriceTier { get; set; }
     public int? RequestedCount { get; set; }
+    public int? RequestedBeerCount { get; set; }
+    public int? RequestedFoodCount { get; set; }
+    public decimal? TotalBudget { get; set; }
     public string? Sort { get; set; }
     public List<string> ExcludedStyles { get; set; } = [];
 }

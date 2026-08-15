@@ -29,6 +29,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
             ? new BeerChatPreferenceState()
             : Normalize(previous);
         ApplyItemKind(cleanMessage, state);
+        ApplyMixedOrder(cleanMessage, state);
 
         foreach (var style in RejectedStyles(cleanMessage))
         {
@@ -67,7 +68,10 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
 
         ApplyAbv(cleanMessage, state);
         ApplyPrice(cleanMessage, state);
-        ApplyCount(cleanMessage, state);
+        if (state.ItemKind != "mixed")
+        {
+            ApplyCount(cleanMessage, state);
+        }
         ApplySort(cleanMessage, state);
 
         return new BeerChatStateUpdate(state, BuildQuery(state, cleanMessage));
@@ -78,7 +82,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
             ? new BeerChatPreferenceState()
             : new BeerChatPreferenceState
             {
-                ItemKind = input.ItemKind is "beer" or "food"
+                ItemKind = input.ItemKind is "beer" or "food" or "mixed"
                     ? input.ItemKind
                     : null,
                 Style = Clean(input.Style, 30),
@@ -108,6 +112,13 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
                 RequestedCount = input.RequestedCount is >= 1 and <= 12
                     ? input.RequestedCount
                     : null,
+                RequestedBeerCount = input.RequestedBeerCount is >= 1 and <= 6
+                    ? input.RequestedBeerCount
+                    : null,
+                RequestedFoodCount = input.RequestedFoodCount is >= 1 and <= 3
+                    ? input.RequestedFoodCount
+                    : null,
+                TotalBudget = Range(input.TotalBudget, 50, 10000),
                 Sort = input.Sort is "highest-abv" or "lowest-abv" or
                     "highest-price" or "lowest-price"
                     ? input.Sort
@@ -152,6 +163,72 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         }
 
         state.ItemKind = requestedKind;
+        if (requestedKind != "mixed")
+        {
+            state.RequestedBeerCount = null;
+            state.RequestedFoodCount = null;
+            state.TotalBudget = null;
+        }
+    }
+
+    private static void ApplyMixedOrder(
+        string message,
+        BeerChatPreferenceState state)
+    {
+        if (state.ItemKind != "mixed")
+        {
+            return;
+        }
+
+        state.RequestedBeerCount = QuantityBefore(
+            message,
+            BeerQuantityPattern(),
+            state.RequestedBeerCount ?? 1,
+            6);
+        state.RequestedFoodCount = QuantityBefore(
+            message,
+            FoodQuantityPattern(),
+            state.RequestedFoodCount ?? 1,
+            3);
+
+        var budgets = BudgetNumberPattern().Matches(message)
+            .Select(match => decimal.TryParse(
+                match.Value,
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var amount)
+                    ? amount
+                    : 0)
+            .Where(amount => amount >= 50 && amount <= 10000)
+            .ToList();
+        if (budgets.Count > 0)
+        {
+            state.TotalBudget = budgets.Max();
+        }
+    }
+
+    private static int QuantityBefore(
+        string message,
+        Regex pattern,
+        int fallback,
+        int maximum)
+    {
+        var match = pattern.Match(message);
+        if (!match.Success || !match.Groups[1].Success)
+        {
+            return fallback;
+        }
+
+        var words = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["a"] = 1, ["an"] = 1, ["one"] = 1, ["two"] = 2,
+            ["three"] = 3, ["four"] = 4, ["five"] = 5, ["six"] = 6
+        };
+        var raw = match.Groups[1].Value;
+        var value = words.TryGetValue(raw, out var wordValue)
+            ? wordValue
+            : int.TryParse(raw, out var number) ? number : fallback;
+        return Math.Clamp(value, 1, maximum);
     }
 
     private static void ApplyFoodPreferences(
@@ -180,6 +257,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
 
         if (NotBeerPattern().IsMatch(message) && food) return "food";
         if (BeerPairingPattern().IsMatch(message)) return "beer";
+        if (beer && food) return "mixed";
         if (beer && !food) return "beer";
         if (food && !beer) return "food";
         return null;
@@ -299,8 +377,18 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
     private static string BuildQuery(BeerChatPreferenceState state, string message)
     {
         var terms = new List<string>();
+        if (state.ItemKind == "mixed")
+        {
+            terms.Add("mixed order");
+            terms.Add($"{state.RequestedFoodCount ?? 1} food");
+            terms.Add($"{state.RequestedBeerCount ?? 1} beers");
+            if (state.TotalBudget.HasValue)
+            {
+                terms.Add($"total budget {state.TotalBudget:0} MKD");
+            }
+        }
         if (state.RequestedCount.HasValue) terms.Add($"show me {state.RequestedCount}");
-        if (state.ItemKind != null) terms.Add(state.ItemKind);
+        if (state.ItemKind is "beer" or "food") terms.Add(state.ItemKind);
         if (!string.IsNullOrWhiteSpace(state.Style)) terms.Add(state.Style);
         terms.AddRange(state.Flavours);
         if (!string.IsNullOrWhiteSpace(state.Origin)) terms.Add(state.Origin);
@@ -392,6 +480,15 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
 
     [GeneratedRegex(@"\b(?:food|dish|meal|snack|eat|hungry|burger|burgers|pizza|pizzas|wings?|fries|sausage|sausages|chicken|vegan|vegetarian|gluten[- ]?free)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ExplicitFoodKindPattern();
+
+    [GeneratedRegex(@"\b(?:(a|an|one|two|three|four|five|six|[1-6])\s+)?beers?\b", RegexOptions.IgnoreCase)]
+    private static partial Regex BeerQuantityPattern();
+
+    [GeneratedRegex(@"\b(?:(a|an|one|two|three|[1-3])\s+)?(?:food|dish(?:es)?|meal(?:s)?)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex FoodQuantityPattern();
+
+    [GeneratedRegex(@"\b[0-9]{2,5}(?:\.[0-9]+)?\b")]
+    private static partial Regex BudgetNumberPattern();
 
     [GeneratedRegex(@"\b(?:not|no)\s+(?:a\s+)?beers?\b", RegexOptions.IgnoreCase)]
     private static partial Regex NotBeerPattern();
