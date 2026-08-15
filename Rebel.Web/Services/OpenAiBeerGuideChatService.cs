@@ -103,6 +103,12 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             return catalogueResult;
         }
 
+        var menuKindClarification = BuildMenuKindClarification(message);
+        if (menuKindClarification != null)
+        {
+            return menuKindClarification;
+        }
+
         var foodResult = BuildFoodRecommendationResult(message, menuProducts ?? beers);
         if (foodResult != null)
         {
@@ -343,6 +349,35 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             : $"I've got {matches.Count} good plates for that mood. I'd start with {matches[0].Name}.";
 
         return new BeerChatResult(reply, chatMatches, false);
+    }
+
+    private static BeerChatResult? BuildMenuKindClarification(string message)
+    {
+        if (!AmbiguousRefreshmentPattern().IsMatch(message) ||
+            ExplicitBeerRequestPattern().IsMatch(message) ||
+            ExplicitFoodRequestPattern().IsMatch(message))
+        {
+            return null;
+        }
+
+        return new BeerChatResult(
+            "Absolutely. Are we cooling down with a beer, or are you looking for something to eat?",
+            [],
+            false,
+            [
+                new BeerChatFollowUp
+                {
+                    Label = "A refreshing beer",
+                    GuestText = "Beer",
+                    Prompt = "Show me a refreshing beer for a hot day."
+                },
+                new BeerChatFollowUp
+                {
+                    Label = "Something to eat",
+                    GuestText = "Food",
+                    Prompt = "Show me something light to eat for a hot day."
+                }
+            ]);
     }
 
     private bool IsFoodRecommendationRequest(string message)
@@ -780,6 +815,13 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 : $"In a {style} mood? I have {CountWord(matches.Count)} worth your time. I would open with {matches[0].Beer.Name}; {TasteSentence(matches[0].Beer)}";
         }
 
+        if (RefreshingPattern().IsMatch(query))
+        {
+            return matches.Count == 1
+                ? $"For a hot day, I'd grab {matches[0].Beer.Name}. {TasteSentence(matches[0].Beer, true)}"
+                : $"For a hot day, these {matches.Count} will drink easy. I'd start with {matches[0].Beer.Name}; {TasteSentence(matches[0].Beer)}";
+        }
+
         var flavour = RequestedFlavourLabel(query);
         if (flavour != null)
         {
@@ -1074,6 +1116,12 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
 
     [GeneratedRegex(@"\b(?:beer|ipa|lager|pilsner|pils|stout|porter|tripel|gose|lambic|weissbier|weizen|witbier|ale)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ExplicitBeerRequestPattern();
+
+    [GeneratedRegex(@"\b(?:refreshing|refreshment|refresh|summery|cool\s+me\s+down|(?:hot|warm)\s+(?:day|days|weather|outside|summer))\b", RegexOptions.IgnoreCase)]
+    private static partial Regex AmbiguousRefreshmentPattern();
+
+    [GeneratedRegex(@"\b(?:refreshing|refreshment|refresh|summery|(?:hot|warm)\s+(?:day|days|weather|outside|summer))\b", RegexOptions.IgnoreCase)]
+    private static partial Regex RefreshingPattern();
 
     [GeneratedRegex(@"\s+\d+(?:[.,]\d+)?\s*(?:ml|cl|l)\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex ServingSizeSuffixPattern();

@@ -20,7 +20,7 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
 {
     public bool HasFoodPreference(string query) =>
         FoodWordPattern().IsMatch(query) ||
-        FoodSpecificTastePattern().IsMatch(query);
+        FoodSpecificTastePattern().IsMatch(RemoveWeatherHeat(query));
 
     public IReadOnlyList<Product> Shortlist(
         string query,
@@ -59,7 +59,7 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
             : food.FlavorNotes.Trim();
         var profile = new List<string>();
 
-        if (HotPattern().IsMatch(query) && food.HeatLevel.HasValue)
+        if (WantsHeat(query) && food.HeatLevel.HasValue)
         {
             profile.Add($"heat {food.HeatLevel}/5");
         }
@@ -152,7 +152,7 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
         }.Where(value => !string.IsNullOrWhiteSpace(value))));
         var score = queryTerms.Intersect(catalogueText).Count() * 5d;
 
-        if (HotPattern().IsMatch(query) && food.HeatLevel.HasValue)
+        if (WantsHeat(query) && food.HeatLevel.HasValue)
         {
             score += food.HeatLevel.Value * 7;
         }
@@ -198,6 +198,12 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
         ["and", "for", "food", "give", "have", "like", "me", "show", "some", "something", "the", "want", "with"],
         StringComparer.OrdinalIgnoreCase);
 
+    private static bool WantsHeat(string query) =>
+        HotPattern().IsMatch(RemoveWeatherHeat(query));
+
+    private static string RemoveWeatherHeat(string query) =>
+        HotWeatherPattern().Replace(query, string.Empty);
+
     [GeneratedRegex(@"\b(?:foods?|dishes|dish|meals?|snacks?|eat|hungry|burger|burgers|pizza|pizzas|wings?|fries|sausage|sausages|finger\s+food|vegan|vegetarian|gluten[- ]?free)\b", RegexOptions.IgnoreCase)]
     private static partial Regex FoodWordPattern();
 
@@ -209,6 +215,9 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
 
     [GeneratedRegex(@"\b(?:hot|spicy|fiery|chilli|chili)\b", RegexOptions.IgnoreCase)]
     private static partial Regex HotPattern();
+
+    [GeneratedRegex(@"\b(?:hot|warm)\s+(?:day|days|weather|outside|summer)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex HotWeatherPattern();
 
     [GeneratedRegex(@"\b(?:not(?:hing)?\s+(?:hot|spicy)|mild|no\s+heat)\b", RegexOptions.IgnoreCase)]
     private static partial Regex NotHotPattern();

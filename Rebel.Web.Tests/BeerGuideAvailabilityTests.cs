@@ -177,6 +177,61 @@ public sealed class BeerGuideAvailabilityTests
     }
 
     [Fact]
+    public async Task Reply_RefreshingHotDayRequestAsksBeerOrFoodBeforeChoosing()
+    {
+        var beer = BeerWithProfile(
+            "Tokyo Lemonade 0.44L",
+            "Yuzu witbier",
+            "yuzu, citrus, wheat");
+        var food = Food("Buffalo Wings", true);
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "I'd like something refreshing these hot days",
+            "refreshing hot days",
+            [beer],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [beer, food]);
+
+        Assert.Empty(result.Matches);
+        Assert.Contains("beer", result.Reply, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("something to eat", result.Reply, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(2, result.FollowUps?.Count);
+        Assert.Contains(result.FollowUps!, followUp => followUp.Label == "A refreshing beer");
+        Assert.Contains(result.FollowUps!, followUp => followUp.Label == "Something to eat");
+    }
+
+    [Fact]
+    public async Task Reply_RefreshingBeerChoosesCrispProfileInsteadOfFood()
+    {
+        var refreshing = BeerWithProfile(
+            "Tokyo Lemonade 0.44L",
+            "Yuzu witbier",
+            "yuzu, citrus, clean, crisp, wheat");
+        var heavy = BeerWithProfile(
+            "Night Shift Stout",
+            "Imperial stout",
+            "coffee, chocolate, roasted malt");
+        var food = Food("Buffalo Wings", true);
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "Show me a refreshing beer for a hot day.",
+            "refreshing beer hot day",
+            [heavy, refreshing],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [heavy, refreshing, food]);
+
+        var match = Assert.Single(result.Matches);
+        Assert.Equal(refreshing.Id, match.Beer.Id);
+        Assert.Contains("For a hot day", result.Reply);
+        Assert.DoesNotContain("Buffalo Wings", result.Reply);
+        Assert.False(result.UsedAi);
+    }
+
+    [Fact]
     public void Matcher_ExcludesUnavailableByDefault()
     {
         var matcher = new BeerCatalogMatcher();

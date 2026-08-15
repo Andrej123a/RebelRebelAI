@@ -26,6 +26,15 @@ public sealed class FoodCatalogMatcherTests
     }
 
     [Fact]
+    public void HasFoodPreference_HotWeatherIsNotSpicyFoodIntent()
+    {
+        Assert.False(_matcher.HasFoodPreference(
+            "I'd like something refreshing these hot days"));
+        Assert.True(_matcher.HasFoodPreference(
+            "I'd like something hot and spicy to eat"));
+    }
+
+    [Fact]
     public void Shortlist_MildRequestExcludesHotFood()
     {
         var mild = Food("Chicken Wings", heat: 1, saltiness: 3, richness: 3);
