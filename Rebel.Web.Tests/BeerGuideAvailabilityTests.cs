@@ -148,6 +148,35 @@ public sealed class BeerGuideAvailabilityTests
     }
 
     [Fact]
+    public async Task Reply_YuzuBeerReturnsTokyoLemonadeInsteadOfMissingMenuMessage()
+    {
+        var tokyo = BeerWithProfile(
+            "Tokyo Lemonade 0.44L",
+            "Yuzu witbier",
+            "yuzu, orange peel, coriander, wheat");
+        var citrusIpa = BeerWithProfile(
+            "Citrus Riot",
+            "IPA",
+            "grapefruit, lemon, pine");
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "I want a yuzu beer",
+            "yuzu beer",
+            [citrusIpa, tokyo],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [citrusIpa, tokyo]);
+
+        var match = Assert.Single(result.Matches);
+        Assert.Equal(tokyo.Id, match.Beer.Id);
+        Assert.Contains("Yuzu?", result.Reply);
+        Assert.Contains("Tokyo Lemonade", result.Reply);
+        Assert.DoesNotContain("regular menu", result.Reply);
+        Assert.False(result.UsedAi);
+    }
+
+    [Fact]
     public void Matcher_ExcludesUnavailableByDefault()
     {
         var matcher = new BeerCatalogMatcher();

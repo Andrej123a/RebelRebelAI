@@ -17,14 +17,14 @@
 @if (isBeer || isFood)
 {
     <fieldset class="product-recommendation-profile">
-        <legend>@(isFood ? "Food guide profile" : "Beer guide profile")</legend>
+        <legend>@(isFood ? "Food recommendation profile" : "Beer recommendation profile")</legend>
 
         <div class="beer-profile-guidance">
             <strong>Make recommendations accurate</strong>
             <span>
                 @(isFood
                     ? "Rate the dish as guests experience it. Add clear flavours and the beer styles that work with it."
-                    : "Use exact words a guest might say. Separate flavours and food pairings with commas. The guide never invents missing details.")
+                    : "Use exact words a guest might say. Separate flavours and food pairings with commas. Rebel AI never invents missing details.")
             </span>
         </div>
 

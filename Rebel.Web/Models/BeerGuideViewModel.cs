@@ -38,6 +38,8 @@ public class BeerGuideViewModel
 
     public int AvailableBeerCount { get; set; }
 
+    public int AvailableFoodCount { get; set; }
+
     public bool HasSearched { get; set; }
 
     public bool AiIsConfigured { get; set; }

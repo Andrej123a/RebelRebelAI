@@ -88,7 +88,7 @@ namespace Rebel.Web.Controllers
             {
                 "/",
                 "/Home/Menu",
-                "/BeerGuide",
+                "/RebelAI",
                 "/Events",
                 "/Reservations/Create",
                 "/Home/Contact"

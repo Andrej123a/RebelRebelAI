@@ -141,8 +141,8 @@ public sealed partial class BeerNoMatchRecoveryService : IBeerNoMatchRecoverySer
 
         var reply = style.Success &&
                     style.Value is "sour" or "gose" or "lambic"
-            ? "We do not have a sour beer available right now. I can still take you toward something bright, fruity, or citrusy."
-            : $"Nothing available matches all of that right now. The tight point is {reason}. Change one thing below and I will keep the rest of your request.";
+            ? "I'm afraid we do not have a sour beer available right now. I can still take you toward something bright, fruity, or citrusy."
+            : $"That's a very tight order, and nothing in the fridge hits every part of it tonight. The sticking point is {reason}. Loosen one thing below and I'll keep the rest.";
 
         return new BeerNoMatchRecovery(reply, followUps);
     }
@@ -168,6 +168,6 @@ public sealed partial class BeerNoMatchRecoveryService : IBeerNoMatchRecoverySer
     [GeneratedRegex(@"\b(ipa|lager|pilsner|pils|stout|porter|tripel|sour|gose|lambic|wheat|weissbier|weizen|witbier)\b", RegexOptions.IgnoreCase)]
     private static partial Regex StylePattern();
 
-    [GeneratedRegex(@"\b(grapefruit|citrus|citrussy|citrusy|lemon|lime|orange|tropical|mango|passionfruit|coffee|chocolate|caramel|berry|cherry|pine|resin)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(grapefruit|citrus|citrussy|citrusy|yuzu|lemon|lime|orange|tropical|mango|passionfruit|coffee|chocolate|caramel|berry|cherry|pine|resin)\b", RegexOptions.IgnoreCase)]
     private static partial Regex FlavourPattern();
 }

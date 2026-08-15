@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Rebel.Web.Controllers;
 
-[Route("BeerGuide")]
+[Route("RebelAI")]
 public class BeerGuideController : Controller
 {
     private readonly AppDbContext _context;
@@ -59,6 +59,10 @@ public class BeerGuideController : Controller
         return View(model);
     }
 
+    [HttpGet("/BeerGuide")]
+    public IActionResult LegacyIndex() =>
+        RedirectToActionPermanent(nameof(Index));
+
     [HttpPost("Chat")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Chat(
@@ -71,7 +75,7 @@ public class BeerGuideController : Controller
         {
             return BadRequest(new
             {
-                message = "Tell me a little more about the beer you want."
+                message = "Tell me a little more about what you are craving."
             });
         }
 
@@ -456,6 +460,7 @@ public class BeerGuideController : Controller
             Request = request,
             Foods = foods,
             AvailableBeerCount = beers.Count,
+            AvailableFoodCount = foods.Count,
             HasSearched = shouldRecommend,
             AiIsConfigured = true,
             AiWasUsed = narration.UsedAi,

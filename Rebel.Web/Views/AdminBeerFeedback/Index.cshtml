@@ -1,13 +1,13 @@
 @model Rebel.Web.Models.AdminBeerFeedbackViewModel
 
 @{
-    ViewData["Title"] = "Beer Guide feedback";
+    ViewData["Title"] = "Rebel AI feedback";
 }
 
 <div class="admin-workspace">
     <header class="admin-workspace-header">
         <div class="admin-workspace-heading">
-            <span class="admin-workspace-eyebrow">Beer Guide</span>
+            <span class="admin-workspace-eyebrow">Rebel AI</span>
             <h1 class="admin-workspace-title">Guest feedback</h1>
             <p class="admin-workspace-copy">
                 See which recommendations land and where the beer profiles need work.
@@ -24,7 +24,7 @@
         </div>
     </header>
 
-    <section class="admin-metric-bar" aria-label="Beer Guide feedback summary">
+    <section class="admin-metric-bar" aria-label="Rebel AI feedback summary">
         <div class="admin-metric"><span>Rated answers</span><strong>@Model.RatedAnswers</strong></div>
         <div class="admin-metric"><span>Good picks</span><strong>@Model.PositiveAnswers</strong></div>
         <div class="admin-metric"><span>Missed the mark</span><strong>@Model.NegativeAnswers</strong></div>
@@ -34,7 +34,7 @@
     {
         <div class="admin-empty-state">
             <strong>No ratings yet.</strong>
-            <span>Feedback will appear after guests rate Beer Guide answers.</span>
+            <span>Feedback will appear after guests rate Rebel AI answers.</span>
         </div>
     }
     else

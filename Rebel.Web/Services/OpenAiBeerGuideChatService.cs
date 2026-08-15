@@ -199,11 +199,11 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             {
                 using var timeout = CancellationTokenSource.CreateLinkedTokenSource(
                     cancellationToken);
-                timeout.CancelAfter(TimeSpan.FromSeconds(5));
+                timeout.CancelAfter(TimeSpan.FromSeconds(2));
                 var options = new CreateResponseOptions
                 {
                     Model = _model,
-                    MaxOutputTokenCount = 220,
+                    MaxOutputTokenCount = 120,
                     ReasoningOptions = new ResponseReasoningOptions
                     {
                         ReasoningEffortLevel = ResponseReasoningEffortLevel.Low
@@ -263,12 +263,12 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             return null;
         }
 
-        if (IsGenericBeerPreference(requestedItem))
+        var exactMatches = FindExactMenuProducts(message, menuProducts);
+        if (exactMatches.Count == 0 && _matcher.HasUsefulPreference(requestedItem))
         {
             return null;
         }
 
-        var exactMatches = FindExactMenuProducts(message, menuProducts);
         if (exactMatches.Count == 0 && _foodMatcher.HasFoodPreference(requestedItem))
         {
             return null;
@@ -280,7 +280,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         if (matches.Count == 0)
         {
             return new BeerChatResult(
-                $"We don't have {requestedItem} on our regular menu.",
+                $"We don't have {requestedItem} on our regular menu, I'm afraid.",
                 [],
                 false);
         }
@@ -292,7 +292,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 ? matches[0].Name
                 : requestedItem;
             return new BeerChatResult(
-                $"We normally have {itemName}, but it is temporarily out of stock.",
+                $"We normally have {itemName}, but it's temporarily out of stock tonight.",
                 [],
                 false);
         }
@@ -300,13 +300,13 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         if (matches.Count == 1)
         {
             return new BeerChatResult(
-                $"Yes, {matches[0].Name} is on the menu and available right now.",
+                $"Yep - {matches[0].Name} is on the menu and available right now.",
                 [],
                 false);
         }
 
         return new BeerChatResult(
-            $"Yes. We have {available.Count} {requestedItem} option{(available.Count == 1 ? string.Empty : "s")} available right now: {string.Join(", ", available.Select(product => product.Name))}.",
+            $"Yep. We have {available.Count} {requestedItem} option{(available.Count == 1 ? string.Empty : "s")} tonight: {string.Join(", ", available.Select(product => product.Name))}.",
             [],
             false);
     }
@@ -328,7 +328,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         if (matches.Count == 0)
         {
             return new BeerChatResult(
-                "I don't have an available dish that fits all of that right now. Try changing one taste or dietary preference.",
+                "That's a tight order tonight. I don't have a dish that hits every part of it, but change one taste or dietary preference and I'll find the closest plate.",
                 [],
                 false);
         }
@@ -339,8 +339,8 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 _foodMatcher.BuildEvidenceReason(food, message)))
             .ToList();
         var reply = matches.Count == 1
-            ? $"My food pick for that is {matches[0].Name}."
-            : $"I would put these {matches.Count} on your table. Start with {matches[0].Name}.";
+            ? $"For that, I'd send out {matches[0].Name}."
+            : $"I've got {matches.Count} good plates for that mood. I'd start with {matches[0].Name}.";
 
         return new BeerChatResult(reply, chatMatches, false);
     }
@@ -438,40 +438,6 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
                 not "food" and not "menu" and not "bottle" and
                 not "bottles" and not "can" and not "cans")
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-    private static bool IsGenericBeerPreference(string requestedItem)
-    {
-        var terms = Regex.Matches(requestedItem.ToLowerInvariant(), "[a-z0-9]+")
-            .Select(match => match.Value)
-            .Where(term => !GenericRequestStopWords.Contains(term))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-        return terms.Count > 0 && terms.All(GenericBeerRequestTerms.Contains);
-    }
-
-    private static readonly HashSet<string> GenericRequestStopWords = new(
-        [
-            "a", "an", "and", "any", "beer", "beers", "can", "cans",
-            "bottle", "bottles", "for", "from", "in", "me", "of", "on",
-            "one", "please", "some", "the", "to", "two", "three", "four",
-            "five", "six", "with"
-        ],
-        StringComparer.OrdinalIgnoreCase);
-
-    private static readonly HashSet<string> GenericBeerRequestTerms = new(
-        [
-            "ipa", "lager", "pils", "pilsner", "stout", "porter", "ale",
-            "tripel", "sour", "gose", "lambic", "wheat", "weissbier",
-            "weizen", "witbier", "citrus", "citrussy", "citrusy",
-            "grapefruit", "hoppy", "fruity", "tropical", "dark", "roasty",
-            "crisp", "malty", "sweet", "bitter", "light", "strong",
-            "german", "germany", "hungarian", "hungary", "belgian", "belgium",
-            "czech", "czechia", "local", "macedonian", "macedonia", "skopje",
-            "salt", "salty",
-            "available", "similar", "alternative", "alternatives", "most",
-            "expensive", "priciest", "cheapest", "highest", "lowest", "price",
-            "priced", "strongest", "weakest", "alcohol", "abv", "fridge"
-        ],
-        StringComparer.OrdinalIgnoreCase);
 
     private Product? FindUnavailableMatch(
         string query,
@@ -817,9 +783,10 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         var flavour = RequestedFlavourLabel(query);
         if (flavour != null)
         {
+            var displayFlavour = char.ToUpperInvariant(flavour[0]) + flavour[1..];
             return matches.Count == 1
-                ? $"For something {flavour}, {matches[0].Beer.Name} is my pick. {TasteSentence(matches[0].Beer, true)}"
-                : $"You said {flavour}, so I would put these {matches.Count} in front of you. {matches[0].Beer.Name} leads the line.";
+                ? $"{displayFlavour}? {matches[0].Beer.Name} is the one I'd reach for. {TasteSentence(matches[0].Beer, true)}"
+                : $"{displayFlavour} gives us a few good directions. I'd open {matches[0].Beer.Name} first; {TasteSentence(matches[0].Beer)}";
         }
 
         if (FoodRequestPattern().IsMatch(query))
@@ -859,7 +826,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
 
     private static string? RequestedFlavourLabel(string query)
     {
-        var match = Regex.Match(query, @"\b(citrussy|citrusy|grapefruit|hoppy|fruity|tropical|dark|roasty|crisp|malty|sweet|bitter)\b", RegexOptions.IgnoreCase);
+        var match = Regex.Match(query, @"\b(citrussy|citrusy|grapefruit|yuzu|lemon|lime|orange|hoppy|fruity|tropical|mango|passionfruit|berry|dark|roasty|coffee|chocolate|caramel|pine|resin|crisp|malty|sweet|bitter)\b", RegexOptions.IgnoreCase);
         return match.Success ? match.Value.ToLowerInvariant() : null;
     }
 
@@ -908,6 +875,11 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         if (numberMatch.Success && int.TryParse(numberMatch.Value, out var numericCount))
         {
             return Math.Clamp(numericCount, 1, 12);
+        }
+
+        if (SingularBeerPattern().IsMatch(message))
+        {
+            return 1;
         }
 
         return PriceSuperlativePattern().IsMatch(message) ? 1 : 3;
@@ -1036,14 +1008,18 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     private static string? Truncate(string? value, int length) =>
         string.IsNullOrWhiteSpace(value) || value.Length <= length ? value : value[..length];
 
-    private static bool NeedsAiInterpretation(string message) =>
+    private bool NeedsAiInterpretation(string message) =>
         AmbiguousLanguagePattern().IsMatch(message) &&
+        !_matcher.HasUsefulPreference(message) &&
         !GreetingPattern().IsMatch(message) &&
         !ThanksPattern().IsMatch(message) &&
         !SurprisePattern().IsMatch(message);
 
     [GeneratedRegex(@"\b(?:[1-9]|1[0-2])\b(?!\s*(?:%|percent|ABV))", RegexOptions.IgnoreCase)]
     private static partial Regex NumberPattern();
+
+    [GeneratedRegex(@"\bbeer\b", RegexOptions.IgnoreCase)]
+    private static partial Regex SingularBeerPattern();
 
     [GeneratedRegex(@"^\s*(?:an?\s+)?(?:ipa|lager|pilsner|pils|stout|porter|tripel|sour|gose|lambic|wheat|weissbier|weizen|witbier)(?:\s+beers?)?\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex CatalogueListingPattern();

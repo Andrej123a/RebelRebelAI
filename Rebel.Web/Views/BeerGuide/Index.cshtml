@@ -2,8 +2,8 @@
 @using System.Text.Json
 
 @{
-    ViewData["Title"] = "Beer Guide";
-    ViewData["MetaDescription"] = "Find a Rebel Rebel beer that matches your taste or tonight's food.";
+    ViewData["Title"] = "Rebel AI";
+    ViewData["MetaDescription"] = "Ask Rebel AI for food, beer, and pairing recommendations from the Rebel Rebel menu.";
 
     var request = Model.Request;
     var selectedMode = request.Mode == "food" ? "food" : "taste";
@@ -14,20 +14,20 @@
 <div class="rr-guide-page">
     <header class="rr-guide-header">
         <div class="rr-guide-header-copy">
-            <span class="rr-guide-kicker">YOUR BARTENDER, MINUS THE SHOUTING</span>
-            <h1>FIND YOUR<br /><em>POUR.</em></h1>
-            <p>Say what you are craving. We will search the food and beers actually serving.</p>
+            <span class="rr-guide-kicker">REBEL AI / BEHIND THE BAR</span>
+            <h1>WHAT ARE YOU<br /><em>CRAVING?</em></h1>
+            <p>Tell us the mood, the flavour, or what is on your plate. Rebel AI knows the food on the pass and the beers in the fridge.</p>
         </div>
 
-        <div class="rr-guide-count" aria-label="Available beer count">
-            <strong>@Model.AvailableBeerCount</strong>
-            <span>beers available<br />now</span>
+        <div class="rr-guide-count" aria-label="Available menu recommendations">
+            <strong>@(Model.AvailableBeerCount + Model.AvailableFoodCount)</strong>
+            <span>food + beer picks<br />available now</span>
         </div>
     </header>
 
     <nav class="rr-guide-tool-tabs"
          role="tablist"
-         aria-label="Choose beer guide mode">
+         aria-label="Choose Rebel AI mode">
         <button type="button"
                 role="tab"
                 data-guide-tool-button="chat"
@@ -55,13 +55,13 @@
             <header class="rr-guide-chat-heading">
                 <div>
                     <span>BEHIND THE BAR</span>
-                    <h2 id="rr-guide-chat-title">WHAT ARE YOU<br />THIRSTY FOR?</h2>
+                    <h2 id="rr-guide-chat-title">WHAT SOUNDS<br />GOOD?</h2>
                 </div>
                 <button type="button"
                         class="rr-guide-chat-reset"
                         data-chat-reset
-                        title="Start a new beer chat"
-                        aria-label="Start a new beer chat">&#8635;</button>
+                        title="Start a new Rebel AI chat"
+                        aria-label="Start a new Rebel AI chat">&#8635;</button>
             </header>
 
             <div class="rr-guide-preference-strip"
@@ -725,7 +725,7 @@
                 productIds,
                 isPositive,
                 reason = null) => {
-                const response = await fetch("/BeerGuide/Feedback", {
+                const response = await fetch("/RebelAI/Feedback", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -857,7 +857,7 @@
                     true);
 
                 try {
-                    const response = await fetch("/BeerGuide/Chat", {
+                    const response = await fetch("/RebelAI/Chat", {
                         method: "POST",
                         signal: requestController.signal,
                         headers: {

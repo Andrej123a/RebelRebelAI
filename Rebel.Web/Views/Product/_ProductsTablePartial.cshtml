@@ -74,8 +74,8 @@ else
                                     @if (isBeer)
                                     {
                                         <span class="beer-profile-status @(profilePercent >= 85 ? "is-ready" : "is-incomplete")"
-                                              title="@(missingProfileFields.Count == 0 ? "Beer guide profile complete" : $"Missing: {string.Join(", ", missingProfileFields)}")">
-                                            Beer guide: @(profilePercent >= 85 ? "ready" : $"{profilePercent}%")
+                                              title="@(missingProfileFields.Count == 0 ? "Rebel AI beer profile complete" : $"Missing: {string.Join(", ", missingProfileFields)}")">
+                                            Rebel AI: @(profilePercent >= 85 ? "ready" : $"{profilePercent}%")
                                         </span>
                                     }
                                 </div>

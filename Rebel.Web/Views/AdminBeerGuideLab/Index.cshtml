@@ -1,7 +1,7 @@
 @model Rebel.Web.Models.AdminBeerGuideLabViewModel
 
 @{
-    ViewData["Title"] = "Beer Guide test lab";
+    ViewData["Title"] = "Rebel AI test lab";
     var groups = new[]
     {
         new { Status = "fail", Title = "Failed", Copy = "Rules that are currently broken." },
@@ -14,7 +14,7 @@
     <header class="admin-workspace-header">
         <div class="admin-workspace-heading">
             <span class="admin-workspace-eyebrow">Ask Rebel / Quality</span>
-            <h1 class="admin-workspace-title">Beer Guide test lab</h1>
+            <h1 class="admin-workspace-title">Rebel AI test lab</h1>
             <p class="admin-workspace-copy">
                 The full catalogue check is free. Run OpenAI only on the individual questions you want to inspect.
             </p>
@@ -31,7 +31,7 @@
     </header>
 
     <section class="admin-metric-bar beer-lab-metrics"
-             aria-label="Beer Guide test summary">
+             aria-label="Rebel AI test summary">
         <div class="admin-metric"><span>Total tests</span><strong>@Model.Scenarios.Count</strong></div>
         <a href="#failed" class="admin-metric"><span>Failed</span><strong>@Model.Failed</strong></a>
         <a href="#warnings" class="admin-metric is-attention"><span>Catalogue gaps</span><strong>@Model.Warnings</strong></a>
