@@ -14,9 +14,9 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
             ["grapefruit"] = ["grapefruit", "citrus", "pomelo"],
             ["grapefrut"] = ["grapefruit"],
             ["yuzu"] = ["yuzu", "citrus", "lemon", "lime"],
-            ["refreshing"] = ["crisp", "light", "clean", "citrus", "lemon", "lime", "wheat", "pilsner"],
-            ["refreshment"] = ["crisp", "light", "clean", "citrus", "lemon", "lime", "wheat", "pilsner"],
-            ["refresh"] = ["crisp", "light", "clean", "citrus", "lemon", "lime", "wheat", "pilsner"],
+            ["refreshing"] = ["crisp", "light", "clean", "citrus", "yuzu", "lemon", "lime", "orange", "wheat", "pilsner", "tart"],
+            ["refreshment"] = ["crisp", "light", "clean", "citrus", "yuzu", "lemon", "lime", "orange", "wheat", "pilsner", "tart"],
+            ["refresh"] = ["crisp", "light", "clean", "citrus", "yuzu", "lemon", "lime", "orange", "wheat", "pilsner", "tart"],
             ["summery"] = ["crisp", "light", "clean", "citrus", "fruity", "wheat", "pilsner"],
             ["hoppy"] = ["hoppy", "hop", "pine", "resin", "ipa"],
             ["fruity"] = ["fruity", "fruit", "tropical", "berry", "citrus"],
@@ -111,6 +111,13 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
                     .OrderBy(item => item.Beer.Price)
                     .ThenByDescending(item => item.Score)
                     .ThenBy(item => item.Beer.Name)
+                : RefreshingPattern().IsMatch(query)
+                    ? ranked
+                        .OrderByDescending(item =>
+                            item.Score + RefreshmentProfileScore(item.Beer))
+                        .ThenBy(item =>
+                            BeerProfileQuality.AlcoholByVolume(item.Beer) ?? decimal.MaxValue)
+                        .ThenBy(item => item.Beer.Name)
                 : ranked
                     .OrderByDescending(item => item.Score)
                     .ThenByDescending(item => item.Beer.IsPopular)
@@ -120,6 +127,34 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
             .Take(Math.Max(0, limit))
             .Select(item => item.Beer)
             .ToList();
+    }
+
+    private static double RefreshmentProfileScore(Product beer)
+    {
+        var alcohol = BeerProfileQuality.AlcoholByVolume(beer);
+        var score = alcohol.HasValue
+            ? Math.Max(0, 8 - (double)alcohol.Value) * 12
+            : 0;
+
+        if (beer.BodyLevel.HasValue)
+        {
+            score += (6 - beer.BodyLevel.Value) * 6;
+        }
+
+        var profile = Normalize(string.Join(' ', new[]
+        {
+            beer.BeerStyle,
+            beer.FlavorNotes,
+            beer.Description
+        }.Where(value => !string.IsNullOrWhiteSpace(value))));
+        var refreshingCues = new[]
+        {
+            "refreshing", "crisp", "clean", "light", "citrus", "yuzu",
+            "lemon", "lime", "wheat", "witbier", "pilsner", "tart"
+        };
+
+        score += refreshingCues.Count(cue => ContainsTerm(profile, cue)) * 5;
+        return score;
     }
 
     private static IReadOnlyCollection<Product> RestrictToExplicitConstraints(
@@ -612,6 +647,9 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
 
     [GeneratedRegex(@"\b(not|no|without|less)\s+(too\s+)?sweet\b", RegexOptions.IgnoreCase)]
     private static partial Regex NegativeSweetPattern();
+
+    [GeneratedRegex(@"\b(?:refreshing|refreshment|refresh|summery|(?:hot|warm)\s+(?:day|days|weather|outside|summer))\b", RegexOptions.IgnoreCase)]
+    private static partial Regex RefreshingPattern();
 
     [GeneratedRegex(@"\b(not|no|without|less)\s+(too\s+)?bitter\b", RegexOptions.IgnoreCase)]
     private static partial Regex NegativeBitterPattern();

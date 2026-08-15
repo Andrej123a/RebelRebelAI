@@ -41,6 +41,7 @@ public class BeerPreferenceParser : IBeerPreferenceParser
             ["banana"] = ["banana"],
             ["honey"] = ["honey"],
             ["crisp"] = ["crisp", "clean"],
+            ["refreshing"] = ["refreshing", "refreshment", "refresh", "summery"],
             ["malty"] = ["malt", "malty"]
         };
 

@@ -81,6 +81,18 @@ public sealed class BeerChatStateServiceTests
     }
 
     [Fact]
+    public void Update_RefreshingRequestPreservesPreferenceForCatalogRanking()
+    {
+        var result = _service.Update(
+            "Show me three refreshing beers for a hot day.",
+            null);
+
+        Assert.Equal(3, result.Preferences.RequestedCount);
+        Assert.Contains("refreshing", result.Preferences.Flavours);
+        Assert.Contains("refreshing", result.EffectiveQuery);
+    }
+
+    [Fact]
     public void Update_NormalizesUntrustedBrowserState()
     {
         var previous = new BeerChatPreferenceState

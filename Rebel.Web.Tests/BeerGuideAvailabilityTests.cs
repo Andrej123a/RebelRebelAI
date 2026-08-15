@@ -198,7 +198,7 @@ public sealed class BeerGuideAvailabilityTests
         Assert.Contains("beer", result.Reply, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("something to eat", result.Reply, StringComparison.OrdinalIgnoreCase);
         Assert.Equal(2, result.FollowUps?.Count);
-        Assert.Contains(result.FollowUps!, followUp => followUp.Label == "A refreshing beer");
+        Assert.Contains(result.FollowUps!, followUp => followUp.Label == "Refreshing beers");
         Assert.Contains(result.FollowUps!, followUp => followUp.Label == "Something to eat");
     }
 
@@ -217,15 +217,15 @@ public sealed class BeerGuideAvailabilityTests
         var service = CreateService();
 
         var result = await service.ReplyStructuredAsync(
-            "Show me a refreshing beer for a hot day.",
-            "refreshing beer hot day",
+            "Show me three refreshing beers for a hot day.",
+            "three refreshing beers hot day",
             [heavy, refreshing],
             new Dictionary<Guid, double>(),
             CancellationToken.None,
             [heavy, refreshing, food]);
 
-        var match = Assert.Single(result.Matches);
-        Assert.Equal(refreshing.Id, match.Beer.Id);
+        Assert.Equal(2, result.Matches.Count);
+        Assert.Equal(refreshing.Id, result.Matches[0].Beer.Id);
         Assert.Contains("For a hot day", result.Reply);
         Assert.DoesNotContain("Buffalo Wings", result.Reply);
         Assert.False(result.UsedAi);

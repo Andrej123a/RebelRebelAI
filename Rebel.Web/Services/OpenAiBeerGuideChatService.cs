@@ -367,9 +367,9 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             [
                 new BeerChatFollowUp
                 {
-                    Label = "A refreshing beer",
+                    Label = "Refreshing beers",
                     GuestText = "Beer",
-                    Prompt = "Show me a refreshing beer for a hot day."
+                    Prompt = "Show me three refreshing beers for a hot day."
                 },
                 new BeerChatFollowUp
                 {
@@ -1114,7 +1114,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     [GeneratedRegex(@"\b(?:food|dish|meal|snack|eat|hungry|burger|burgers|pizza|pizzas|wings?|fries|sausage|sausages|chicken|vegan|vegetarian|gluten[- ]?free)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ExplicitFoodRequestPattern();
 
-    [GeneratedRegex(@"\b(?:beer|ipa|lager|pilsner|pils|stout|porter|tripel|gose|lambic|weissbier|weizen|witbier|ale)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:beers?|ipa|lager|pilsner|pils|stout|porter|tripel|gose|lambic|weissbier|weizen|witbier|ale)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ExplicitBeerRequestPattern();
 
     [GeneratedRegex(@"\b(?:refreshing|refreshment|refresh|summery|cool\s+me\s+down|(?:hot|warm)\s+(?:day|days|weather|outside|summer))\b", RegexOptions.IgnoreCase)]

@@ -227,6 +227,67 @@ public class BeerCatalogMatcherTests
         Assert.Equal(yuzu.Id, result[0].Id);
     }
 
+    [Fact]
+    public void Shortlist_RefreshingBeersPrioritizesLowAbvLightProfiles()
+    {
+        var redPill = Beer(
+            "The Matrix Red Pill",
+            "Fruit sour",
+            "strawberry, lime, bright citrus, refreshing tartness",
+            "Hungary",
+            3.5m,
+            1,
+            1,
+            2);
+        var tokyo = Beer(
+            "Tokyo Lemonade",
+            "Yuzu witbier",
+            "yuzu, orange peel, coriander, wheat, bright citrus",
+            "Hungary",
+            4.2m,
+            2,
+            1,
+            2);
+        var strongCitrus = Beer(
+            "Heavy Citrus Double IPA",
+            "Double IPA",
+            "crisp, clean, citrus",
+            "Hungary",
+            8m,
+            4,
+            4,
+            2);
+        var pilsner = Beer(
+            "Veltins Pilsner",
+            "German pilsner",
+            "fresh hay, herbs, light citrus, crisp finish",
+            "Germany",
+            4.8m,
+            2,
+            3,
+            1);
+        var fruitSour = Beer(
+            "Elvenberry",
+            "Fruited sour ale",
+            "strawberry, blackberry, sour cherry, tart citrus",
+            "Hungary",
+            2.5m,
+            3,
+            1,
+            3);
+
+        var result = _matcher.Shortlist(
+            "three refreshing beers for a hot day",
+            [strongCitrus, pilsner, fruitSour, tokyo, redPill],
+            3);
+
+        var leadingIds = result.Select(beer => beer.Id).ToList();
+        Assert.True(
+            leadingIds.Contains(redPill.Id) && leadingIds.Contains(tokyo.Id),
+            $"Leading refreshing picks were: {string.Join(", ", result.Select(beer => beer.Name))}");
+        Assert.DoesNotContain(strongCitrus.Id, result.Select(beer => beer.Id));
+    }
+
     [Theory]
     [InlineData("grapefruit")]
     [InlineData("not bitter")]
