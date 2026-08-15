@@ -317,6 +317,44 @@ public class BeerCatalogMatcherTests
     }
 
     [Fact]
+    public void Shortlist_AroundPriceRanksNearestAvailableBeerFirst()
+    {
+        var near = Beer("Near Lager", "Lager", "clean", "Czechia", 4.5m, 2, 2, 1);
+        near.Price = 310m;
+        var low = Beer("Low Lager", "Lager", "clean", "Czechia", 4.5m, 2, 2, 1);
+        low.Price = 240m;
+        var high = Beer("High Lager", "Lager", "clean", "Czechia", 4.5m, 2, 2, 1);
+        high.Price = 390m;
+
+        var result = _matcher.Shortlist("three beers around 300 MKD", [high, low, near], 3);
+
+        Assert.Equal(near.Id, result[0].Id);
+    }
+
+    [Fact]
+    public void Shortlist_PriceRangeAndTierExcludeOutsideBeers()
+    {
+        var budget = Beer("Budget Lager", "Lager", "clean", "Czechia", 4.5m, 2, 2, 1);
+        budget.Price = 280m;
+        var middle = Beer("Middle Lager", "Lager", "clean", "Czechia", 4.5m, 2, 2, 1);
+        middle.Price = 380m;
+        var premium = Beer("Premium Lager", "Lager", "clean", "Czechia", 4.5m, 2, 2, 1);
+        premium.Price = 520m;
+
+        var range = _matcher.Shortlist(
+            "beer between 250 and 400 MKD",
+            [premium, middle, budget],
+            3);
+        var tier = _matcher.Shortlist("$$ beer", [premium, middle, budget], 3);
+
+        Assert.Equal(2, range.Count);
+        Assert.Contains(range, beer => beer.Id == budget.Id);
+        Assert.Contains(range, beer => beer.Id == middle.Id);
+        Assert.Single(tier);
+        Assert.Equal(middle.Id, tier[0].Id);
+    }
+
+    [Fact]
     public void Shortlist_ReturnsNoBeerWhenNothingFitsBudget()
     {
         var beer = Beer("Premium IPA", "IPA", "citrus", "Belgium", 6m, 3, 3, 1);

@@ -36,17 +36,40 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
         var categoryRestricted = RestrictCategory(query, eligible);
         var dietaryRestricted = RestrictDietaryNeeds(query, categoryRestricted);
         var heatRestricted = RestrictHeat(query, dietaryRestricted);
+        var priceRestricted = RestrictPrice(query, heatRestricted);
         var queryTerms = Terms(query);
+        var priceIntent = MenuPriceIntentParser.Parse(query);
 
-        return heatRestricted
+        var ranked = priceRestricted
             .Select(food => new
             {
                 Food = food,
                 Score = Score(food, query, queryTerms)
             })
-            .OrderByDescending(item => item.Score)
-            .ThenByDescending(item => item.Food.IsPopular)
-            .ThenBy(item => item.Food.Name)
+            .ToList();
+
+        var ordered = priceIntent.MostExpensive
+            ? ranked
+                .OrderByDescending(item => item.Food.Price)
+                .ThenByDescending(item => item.Score)
+                .ThenBy(item => item.Food.Name)
+            : priceIntent.Cheapest
+                ? ranked
+                    .OrderBy(item => item.Food.Price)
+                    .ThenByDescending(item => item.Score)
+                    .ThenBy(item => item.Food.Name)
+            : priceIntent.Target.HasValue
+                ? ranked
+                    .OrderBy(item => Math.Abs(item.Food.Price - priceIntent.Target.Value))
+                    .ThenByDescending(item => item.Score)
+                    .ThenBy(item => item.Food.Price)
+                    .ThenBy(item => item.Food.Name)
+                : ranked
+                    .OrderByDescending(item => item.Score)
+                    .ThenByDescending(item => item.Food.IsPopular)
+                    .ThenBy(item => item.Food.Name);
+
+        return ordered
             .Take(Math.Max(0, limit))
             .Select(item => item.Food)
             .ToList();
@@ -136,6 +159,22 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
         }
 
         return foods;
+    }
+
+    private static IReadOnlyCollection<Product> RestrictPrice(
+        string query,
+        IReadOnlyCollection<Product> foods)
+    {
+        var intent = MenuPriceIntentParser.Parse(query);
+        var (minimum, maximum) = intent.Bounds(CategoryType.Food);
+        if (!minimum.HasValue && !maximum.HasValue)
+        {
+            return foods;
+        }
+
+        return foods.Where(food =>
+            (!minimum.HasValue || food.Price >= minimum.Value) &&
+            (!maximum.HasValue || food.Price <= maximum.Value)).ToList();
     }
 
     private static double Score(

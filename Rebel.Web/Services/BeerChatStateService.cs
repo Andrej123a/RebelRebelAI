@@ -93,6 +93,10 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
                 MaximumAbv = Range(input.MaximumAbv, 0, 30),
                 MinimumPrice = Range(input.MinimumPrice, 0, 10000),
                 MaximumPrice = Range(input.MaximumPrice, 0, 10000),
+                TargetPrice = Range(input.TargetPrice, 0, 10000),
+                PriceTier = input.PriceTier is "budget" or "mid-range" or "premium"
+                    ? input.PriceTier
+                    : null,
                 RequestedCount = input.RequestedCount is >= 1 and <= 12
                     ? input.RequestedCount
                     : null,
@@ -157,22 +161,29 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
 
     private static void ApplyPrice(string message, BeerChatPreferenceState state)
     {
-        var match = PricePattern().Match(message);
-        if (!match.Success || !decimal.TryParse(
-                match.Groups[2].Value,
-                NumberStyles.Number,
-                CultureInfo.InvariantCulture,
-                out var value)) return;
+        var intent = MenuPriceIntentParser.Parse(message);
+        if (!intent.HasPreference) return;
 
-        if (match.Groups[1].Value is "over" or "above" or "more")
+        if (intent.Target.HasValue)
         {
-            state.MinimumPrice = value;
-            state.MaximumPrice = null;
-        }
-        else
-        {
-            state.MaximumPrice = value;
+            state.TargetPrice = intent.Target;
             state.MinimumPrice = null;
+            state.MaximumPrice = null;
+            state.PriceTier = null;
+        }
+        else if (intent.Minimum.HasValue || intent.Maximum.HasValue)
+        {
+            state.MinimumPrice = intent.Minimum;
+            state.MaximumPrice = intent.Maximum;
+            state.TargetPrice = null;
+            state.PriceTier = null;
+        }
+        else if (intent.Tier != null)
+        {
+            state.PriceTier = intent.Tier;
+            state.MinimumPrice = null;
+            state.MaximumPrice = null;
+            state.TargetPrice = null;
         }
     }
 
@@ -217,8 +228,14 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
             terms.Add($"with {state.FoodPairing}");
         if (state.MinimumAbv.HasValue) terms.Add($"over {state.MinimumAbv:0.#}% ABV");
         if (state.MaximumAbv.HasValue) terms.Add($"under {state.MaximumAbv:0.#}% ABV");
-        if (state.MinimumPrice.HasValue) terms.Add($"over {state.MinimumPrice:0} MKD");
-        if (state.MaximumPrice.HasValue) terms.Add($"under {state.MaximumPrice:0} MKD");
+        if (state.MinimumPrice.HasValue && state.MaximumPrice.HasValue)
+            terms.Add($"between {state.MinimumPrice:0} and {state.MaximumPrice:0} MKD");
+        else if (state.MinimumPrice.HasValue)
+            terms.Add($"over {state.MinimumPrice:0} MKD");
+        else if (state.MaximumPrice.HasValue)
+            terms.Add($"under {state.MaximumPrice:0} MKD");
+        if (state.TargetPrice.HasValue) terms.Add($"around {state.TargetPrice:0} MKD");
+        if (state.PriceTier != null) terms.Add(state.PriceTier);
         terms.AddRange(state.ExcludedStyles.Select(style => $"not {style}"));
         if (state.Sort == "highest-abv") terms.Add("highest alcohol");
         if (state.Sort == "lowest-abv") terms.Add("lowest alcohol");
@@ -253,10 +270,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
     [GeneratedRegex(@"\b(under|below|less|over|above|more)\s+(?:than\s+)?([0-9]+(?:\.[0-9]+)?)\s*(?:%|percent|ABV)\b", RegexOptions.IgnoreCase)]
     private static partial Regex AbvPattern();
 
-    [GeneratedRegex(@"\b(under|below|less|over|above|more)\s+(?:than\s+)?([0-9]+(?:\.[0-9]+)?)\s*(?:mkd|denars?)\b", RegexOptions.IgnoreCase)]
-    private static partial Regex PricePattern();
-
-    [GeneratedRegex(@"\b(?:one|two|three|four|five|six|[1-9]|1[0-2])\b(?!\s*(?:%|percent|ABV))", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:one|two|three|four|five|six|[1-9]|1[0-2])\b(?!\s*(?:%|percent|ABV|mkd|denars?))", RegexOptions.IgnoreCase)]
     private static partial Regex CountPattern();
 
     [GeneratedRegex(@"\b(?:highest|strongest|most\s+alcoholic|highest[-\s]*(?:alcohol|abv))\b", RegexOptions.IgnoreCase)]

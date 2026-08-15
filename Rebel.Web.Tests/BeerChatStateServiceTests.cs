@@ -93,6 +93,28 @@ public sealed class BeerChatStateServiceTests
     }
 
     [Fact]
+    public void Update_PriceTargetSurvivesBeerOrFoodClarification()
+    {
+        var initial = _service.Update("something around 300 MKD", null);
+        var clarified = _service.Update("Beer", initial.Preferences);
+
+        Assert.Equal(300m, clarified.Preferences.TargetPrice);
+        Assert.Contains("around 300 MKD", clarified.EffectiveQuery);
+    }
+
+    [Fact]
+    public void Update_PriceRangeAndTierArePreserved()
+    {
+        var range = _service.Update("food between 250 and 400 MKD", null);
+        var tier = _service.Update("$$ beer", null);
+
+        Assert.Equal(250m, range.Preferences.MinimumPrice);
+        Assert.Equal(400m, range.Preferences.MaximumPrice);
+        Assert.Contains("between 250 and 400 MKD", range.EffectiveQuery);
+        Assert.Equal("mid-range", tier.Preferences.PriceTier);
+    }
+
+    [Fact]
     public void Update_NormalizesUntrustedBrowserState()
     {
         var previous = new BeerChatPreferenceState

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Rebel.Domain.Entities;
+using Rebel.Domain.Enums;
 
 namespace Rebel.Web.Services;
 
@@ -89,8 +90,25 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
                     FeedbackWeight(beer.Id, feedbackScores)
             })
             .ToList();
+        var priceIntent = MenuPriceIntentParser.Parse(query);
 
-        var ordered = HighestAbvPattern().IsMatch(query)
+        var ordered = priceIntent.MostExpensive
+            ? ranked
+                .OrderByDescending(item => item.Beer.Price)
+                .ThenByDescending(item => item.Score)
+                .ThenBy(item => item.Beer.Name)
+            : priceIntent.Cheapest
+                ? ranked
+                    .OrderBy(item => item.Beer.Price)
+                    .ThenByDescending(item => item.Score)
+                    .ThenBy(item => item.Beer.Name)
+            : priceIntent.Target.HasValue
+                ? ranked
+                    .OrderBy(item => Math.Abs(item.Beer.Price - priceIntent.Target.Value))
+                    .ThenByDescending(item => item.Score)
+                    .ThenBy(item => item.Beer.Price)
+                    .ThenBy(item => item.Beer.Name)
+            : HighestAbvPattern().IsMatch(query)
             ? ranked
                 .OrderByDescending(item => BeerProfileQuality.AlcoholByVolume(item.Beer) ?? 0)
                 .ThenByDescending(item => item.Score)
@@ -101,17 +119,7 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
                     .OrderBy(item => BeerProfileQuality.AlcoholByVolume(item.Beer))
                     .ThenByDescending(item => item.Score)
                     .ThenBy(item => item.Beer.Name)
-            : MostExpensivePattern().IsMatch(query)
-            ? ranked
-                .OrderByDescending(item => item.Beer.Price)
-                .ThenByDescending(item => item.Score)
-                .ThenBy(item => item.Beer.Name)
-            : CheapestPattern().IsMatch(query)
-                ? ranked
-                    .OrderBy(item => item.Beer.Price)
-                    .ThenByDescending(item => item.Score)
-                    .ThenBy(item => item.Beer.Name)
-                : RefreshingPattern().IsMatch(query)
+            : RefreshingPattern().IsMatch(query)
                     ? ranked
                         .OrderByDescending(item =>
                             item.Score + RefreshmentProfileScore(item.Beer))
@@ -164,9 +172,9 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
         var normalizedQuery = Normalize(query);
         var restricted = beers;
         var abvMatch = AbvLimitPattern().Match(normalizedQuery);
-        var priceMatch = PriceLimitPattern().Match(normalizedQuery);
+        var priceIntent = MenuPriceIntentParser.Parse(query);
 
-        if (!priceMatch.Success &&
+        if (!priceIntent.HasPreference &&
             abvMatch.Success &&
             decimal.TryParse(
                 abvMatch.Groups[2].Value,
@@ -186,18 +194,12 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
         }
 
 
-        if (priceMatch.Success &&
-            decimal.TryParse(
-                priceMatch.Groups[2].Value,
-                NumberStyles.Number,
-                CultureInfo.InvariantCulture,
-                out var requestedPrice))
+        var (minimumPrice, maximumPrice) = priceIntent.Bounds(CategoryType.Beer);
+        if (minimumPrice.HasValue || maximumPrice.HasValue)
         {
-            var lowerBound = priceMatch.Groups[1].Value is "over" or "above" or "more";
             var matching = restricted.Where(beer =>
-                lowerBound
-                    ? beer.Price > requestedPrice
-                    : beer.Price < requestedPrice)
+                    (!minimumPrice.HasValue || beer.Price >= minimumPrice.Value) &&
+                    (!maximumPrice.HasValue || beer.Price <= maximumPrice.Value))
                 .ToList();
 
             restricted = matching;
@@ -440,7 +442,7 @@ public partial class BeerCatalogMatcher : IBeerCatalogMatcher
         var normalized = Normalize(query);
 
         if (AbvLimitPattern().IsMatch(normalized) ||
-            PriceLimitPattern().IsMatch(normalized) ||
+            MenuPriceIntentParser.IsPriceRequest(normalized) ||
             CheapestPattern().IsMatch(normalized) ||
             MostExpensivePattern().IsMatch(normalized) ||
             HighestAbvPattern().IsMatch(normalized) ||

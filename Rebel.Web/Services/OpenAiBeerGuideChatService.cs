@@ -109,7 +109,10 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             return menuKindClarification;
         }
 
-        var foodResult = BuildFoodRecommendationResult(message, menuProducts ?? beers);
+        var foodResult = BuildFoodRecommendationResult(
+            message,
+            fullQuery,
+            menuProducts ?? beers);
         if (foodResult != null)
         {
             return foodResult;
@@ -319,6 +322,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
 
     private BeerChatResult? BuildFoodRecommendationResult(
         string message,
+        string query,
         IReadOnlyCollection<Product> menuProducts)
     {
         if (!IsFoodRecommendationRequest(message))
@@ -326,9 +330,9 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
             return null;
         }
 
-        var requestedCount = RequestedCount(message);
+        var requestedCount = RequestedCount(query);
         var matches = _foodMatcher.Shortlist(
-            message,
+            query,
             menuProducts,
             requestedCount);
         if (matches.Count == 0)
@@ -342,18 +346,29 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         var chatMatches = matches
             .Select(food => new BeerChatMatch(
                 food,
-                _foodMatcher.BuildEvidenceReason(food, message)))
+                _foodMatcher.BuildEvidenceReason(food, query)))
             .ToList();
-        var reply = matches.Count == 1
-            ? $"For that, I'd send out {matches[0].Name}."
-            : $"I've got {matches.Count} good plates for that mood. I'd start with {matches[0].Name}.";
+        var priceIntent = MenuPriceIntentParser.Parse(query);
+        var reply = priceIntent.Target.HasValue
+            ? $"Around {priceIntent.Target:0} MKD, {matches[0].Name} at {matches[0].Price:0} MKD is my closest plate."
+            : priceIntent.Cheapest
+                ? $"{matches[0].Name} is the cheapest available dish right now at {matches[0].Price:0} MKD."
+                : priceIntent.MostExpensive
+                    ? $"{matches[0].Name} is the most expensive available dish right now at {matches[0].Price:0} MKD."
+                    : priceIntent.Minimum.HasValue || priceIntent.Maximum.HasValue || priceIntent.Tier != null
+                        ? $"I've got {matches.Count} plates in that price range. I'd start with {matches[0].Name} at {matches[0].Price:0} MKD."
+                        : matches.Count == 1
+                            ? $"For that, I'd send out {matches[0].Name}."
+                            : $"I've got {matches.Count} good plates for that mood. I'd start with {matches[0].Name}.";
 
         return new BeerChatResult(reply, chatMatches, false);
     }
 
     private static BeerChatResult? BuildMenuKindClarification(string message)
     {
-        if (!AmbiguousRefreshmentPattern().IsMatch(message) ||
+        var refreshing = AmbiguousRefreshmentPattern().IsMatch(message);
+        var price = MenuPriceIntentParser.IsPriceRequest(message);
+        if ((!refreshing && !price) ||
             ExplicitBeerRequestPattern().IsMatch(message) ||
             ExplicitFoodRequestPattern().IsMatch(message))
         {
@@ -361,21 +376,27 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         }
 
         return new BeerChatResult(
-            "Absolutely. Are we cooling down with a beer, or are you looking for something to eat?",
+            price && !refreshing
+                ? "Sure. Should I spend that budget on beer or food?"
+                : "Absolutely. Are we cooling down with a beer, or are you looking for something to eat?",
             [],
             false,
             [
                 new BeerChatFollowUp
                 {
-                    Label = "Refreshing beers",
+                    Label = price && !refreshing ? "Beer" : "Refreshing beers",
                     GuestText = "Beer",
-                    Prompt = "Show me three refreshing beers for a hot day."
+                    Prompt = price && !refreshing
+                        ? "Beer"
+                        : "Show me three refreshing beers for a hot day."
                 },
                 new BeerChatFollowUp
                 {
-                    Label = "Something to eat",
+                    Label = price && !refreshing ? "Food" : "Something to eat",
                     GuestText = "Food",
-                    Prompt = "Show me something light to eat for a hot day."
+                    Prompt = price && !refreshing
+                        ? "Food"
+                        : "Show me something light to eat for a hot day."
                 }
             ]);
     }
@@ -795,6 +816,19 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         {
             var direction = CheapestPattern().IsMatch(query) ? "cheapest" : "most expensive";
             return $"{matches[0].Beer.Name} is the {direction} available beer right now at {matches[0].Beer.Price:0} MKD.";
+        }
+
+        var priceIntent = MenuPriceIntentParser.Parse(query);
+        if (priceIntent.Target.HasValue)
+        {
+            return $"Around {priceIntent.Target:0} MKD, I'd start with {matches[0].Beer.Name} at {matches[0].Beer.Price:0} MKD. These are the closest available pours.";
+        }
+
+        if (priceIntent.Minimum.HasValue || priceIntent.Maximum.HasValue || priceIntent.Tier != null)
+        {
+            return matches.Count == 1
+                ? $"I found one available beer in that price range: {matches[0].Beer.Name} at {matches[0].Beer.Price:0} MKD."
+                : $"I found {matches.Count} available beers in that price range. I'd open with {matches[0].Beer.Name} at {matches[0].Beer.Price:0} MKD.";
         }
 
         if (AbvSuperlativePattern().IsMatch(query))

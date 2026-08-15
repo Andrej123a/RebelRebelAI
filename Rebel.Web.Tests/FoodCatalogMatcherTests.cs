@@ -78,6 +78,93 @@ public sealed class FoodCatalogMatcherTests
     }
 
     [Fact]
+    public void Shortlist_AroundPriceRanksNearestFoodFirst()
+    {
+        var wings = Food("Buffalo Wings", 5, 4, 4, "Wings");
+        wings.Price = 290m;
+        var fries = Food("French Fries", 1, 5, 2, "Fries");
+        fries.Price = 190m;
+        var pizza = Food("Pepperoni Pizza", 3, 5, 5, "Pizza");
+        pizza.Price = 390m;
+
+        var result = _matcher.Shortlist(
+            "three foods around 300 MKD",
+            [pizza, fries, wings],
+            3);
+
+        Assert.Equal(wings.Id, result[0].Id);
+    }
+
+    [Fact]
+    public void Shortlist_FoodPriceRangeTierAndSuperlativeAreApplied()
+    {
+        var budget = Food("Fries", 1, 5, 2);
+        budget.Price = 190m;
+        var middle = Food("Wings", 4, 4, 4);
+        middle.Price = 290m;
+        var premium = Food("Big Plate", 2, 4, 5);
+        premium.Price = 490m;
+
+        var range = _matcher.Shortlist(
+            "food between 250 and 400 MKD",
+            [premium, budget, middle],
+            3);
+        var tier = _matcher.Shortlist("$$ food", [premium, budget, middle], 3);
+        var cheapest = _matcher.Shortlist("cheapest food", [premium, budget, middle], 1);
+
+        Assert.Single(range);
+        Assert.Equal(middle.Id, range[0].Id);
+        Assert.Single(tier);
+        Assert.Equal(middle.Id, tier[0].Id);
+        Assert.Equal(budget.Id, cheapest[0].Id);
+    }
+
+    [Fact]
+    public async Task Chat_AmbiguousPriceAsksBeerOrFood()
+    {
+        var beer = Beer("Citrus Riot");
+        beer.Price = 320m;
+        var food = Food("Buffalo Wings", 5, 4, 4, "Wings");
+        food.Price = 290m;
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "something around 300 MKD",
+            "around 300 MKD",
+            [beer],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [beer, food]);
+
+        Assert.Empty(result.Matches);
+        Assert.Contains("beer or food", result.Reply, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(2, result.FollowUps?.Count);
+    }
+
+    [Fact]
+    public async Task Chat_ExplicitFoodAroundPriceReturnsNearestDishAndPrice()
+    {
+        var beer = Beer("Citrus Riot");
+        var wings = Food("Buffalo Wings", 5, 4, 4, "Wings");
+        wings.Price = 290m;
+        var pizza = Food("Pepperoni Pizza", 3, 5, 5, "Pizza");
+        pizza.Price = 390m;
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "food around 300 MKD",
+            "food around 300 MKD",
+            [beer],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [beer, pizza, wings]);
+
+        Assert.Equal(wings.Id, result.Matches[0].Beer.Id);
+        Assert.Contains("300 MKD", result.Reply);
+        Assert.Contains("290 MKD", result.Reply);
+    }
+
+    [Fact]
     public async Task Chat_HotAndSaltyRequestReturnsFoodInsteadOfBeer()
     {
         var beer = Beer("Citrus Riot");

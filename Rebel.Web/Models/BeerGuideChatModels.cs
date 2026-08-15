@@ -34,6 +34,8 @@ public sealed class BeerChatPreferenceState
     public decimal? MaximumAbv { get; set; }
     public decimal? MinimumPrice { get; set; }
     public decimal? MaximumPrice { get; set; }
+    public decimal? TargetPrice { get; set; }
+    public string? PriceTier { get; set; }
     public int? RequestedCount { get; set; }
     public string? Sort { get; set; }
     public List<string> ExcludedStyles { get; set; } = [];
