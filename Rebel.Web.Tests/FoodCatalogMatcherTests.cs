@@ -165,6 +165,31 @@ public sealed class FoodCatalogMatcherTests
     }
 
     [Fact]
+    public async Task Chat_PluralBeerStyleWithBudgetSkipsKindClarification()
+    {
+        var matchingIpa = Beer("Citrus Riot");
+        matchingIpa.Price = 390m;
+        var expensiveIpa = Beer("Premium Riot");
+        expensiveIpa.Price = 450m;
+        var lager = Beer("Easy Lager");
+        lager.BeerStyle = "Lager";
+        lager.Price = 280m;
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "give me IPAs below 400 MKD",
+            "ipas under 400 MKD",
+            [lager, expensiveIpa, matchingIpa],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None,
+            [lager, expensiveIpa, matchingIpa]);
+
+        var match = Assert.Single(result.Matches);
+        Assert.Equal(matchingIpa.Id, match.Beer.Id);
+        Assert.DoesNotContain("beer or food", result.Reply, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task Chat_HotAndSaltyRequestReturnsFoodInsteadOfBeer()
     {
         var beer = Beer("Citrus Riot");

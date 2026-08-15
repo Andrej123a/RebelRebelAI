@@ -1148,7 +1148,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     [GeneratedRegex(@"\b(?:food|dish|meal|snack|eat|hungry|burger|burgers|pizza|pizzas|wings?|fries|sausage|sausages|chicken|vegan|vegetarian|gluten[- ]?free)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ExplicitFoodRequestPattern();
 
-    [GeneratedRegex(@"\b(?:beers?|ipa|lager|pilsner|pils|stout|porter|tripel|gose|lambic|weissbier|weizen|witbier|ale)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:beers?|ipas?|lagers?|pilsners?|pils|stouts?|porters?|tripels?|goses?|lambics?|weissbiers?|weizens?|witbiers?|ales?)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ExplicitBeerRequestPattern();
 
     [GeneratedRegex(@"\b(?:refreshing|refreshment|refresh|summery|cool\s+me\s+down|(?:hot|warm)\s+(?:day|days|weather|outside|summer))\b", RegexOptions.IgnoreCase)]
