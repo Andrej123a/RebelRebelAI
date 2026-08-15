@@ -298,7 +298,7 @@ public sealed class RebelAiConversationTests
         Assert.True(result.Matches.Sum(match => match.Beer.Price) <= 1200m);
     }
 
-    private static ConversationHarness Conversation() =>
+    internal static ConversationHarness Conversation() =>
         new(BuildMenu());
 
     private static IReadOnlyList<Product> BuildMenu() =>
@@ -364,7 +364,7 @@ public sealed class RebelAiConversationTests
         Category = new Category { Name = category, Type = CategoryType.Food }
     };
 
-    private sealed class ConversationHarness
+    internal sealed class ConversationHarness
     {
         private readonly IReadOnlyList<Product> _menu;
         private readonly BeerChatStateService _state = new(new BeerPreferenceParser());

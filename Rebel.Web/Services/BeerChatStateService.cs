@@ -69,6 +69,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
             state.Strength = "low";
         }
         ApplyFoodPreferences(cleanMessage, state);
+        ApplyDietaryNeeds(cleanMessage, state);
 
         ApplyAbv(cleanMessage, state);
         if (state.ItemKind != "mixed")
@@ -93,7 +94,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
                     ? input.ItemKind
                     : null,
                 Style = Clean(input.Style, 30),
-                Flavours = input.Flavours
+                Flavours = (input.Flavours ?? [])
                     .Select(value => Clean(value, 30))
                     .Where(value => value != null)
                     .Cast<string>()
@@ -107,6 +108,11 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
                 Heat = Scale(input.Heat),
                 Saltiness = Scale(input.Saltiness),
                 Richness = Scale(input.Richness),
+                DietaryNeeds = (input.DietaryNeeds ?? [])
+                    .Where(value => value is "vegan" or "vegetarian" or "gluten-free")
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Take(3)
+                    .ToList(),
                 FoodPairing = Clean(input.FoodPairing, 30),
                 MinimumAbv = Range(input.MinimumAbv, 0, 30),
                 MaximumAbv = Range(input.MaximumAbv, 0, 30),
@@ -130,7 +136,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
                     "highest-price" or "lowest-price"
                     ? input.Sort
                     : null,
-                ExcludedStyles = input.ExcludedStyles
+                ExcludedStyles = (input.ExcludedStyles ?? [])
                     .Select(value => Clean(value, 30))
                     .Where(value => value != null)
                     .Cast<string>()
@@ -159,6 +165,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
             state.Heat = null;
             state.Saltiness = null;
             state.Richness = null;
+            state.DietaryNeeds.Clear();
             state.FoodPairing = null;
             state.MinimumAbv = null;
             state.MaximumAbv = null;
@@ -269,9 +276,48 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         return clauses.Count == 0 ? message : string.Join(' ', clauses);
     }
 
+    private static void ApplyDietaryNeeds(
+        string message,
+        BeerChatPreferenceState state)
+    {
+        if (state.ItemKind is not ("food" or "mixed"))
+        {
+            return;
+        }
+
+        var preferenceMessage = state.ItemKind == "mixed"
+            ? FoodClauses(message)
+            : message;
+        if (VeganPattern().IsMatch(preferenceMessage))
+        {
+            state.DietaryNeeds.RemoveAll(value => value == "vegetarian");
+            AddDietaryNeed(state, "vegan");
+        }
+        else if (VegetarianPattern().IsMatch(preferenceMessage))
+        {
+            AddDietaryNeed(state, "vegetarian");
+        }
+
+        if (GlutenFreePattern().IsMatch(preferenceMessage))
+        {
+            AddDietaryNeed(state, "gluten-free");
+        }
+    }
+
+    private static void AddDietaryNeed(
+        BeerChatPreferenceState state,
+        string value)
+    {
+        if (!state.DietaryNeeds.Contains(value, StringComparer.OrdinalIgnoreCase))
+        {
+            state.DietaryNeeds.Add(value);
+        }
+    }
+
     private static string? RequestedItemKind(string message)
     {
-        if (BothMenuSidesPattern().IsMatch(message))
+        if (BothMenuSidesPattern().IsMatch(message) ||
+            ExplicitMixedQuantityPattern().IsMatch(message))
         {
             return "mixed";
         }
@@ -295,7 +341,8 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         string message,
         BeerPreferenceFingerprint parsed) =>
         NewDirectionPattern().IsMatch(message) ||
-        ObjectivePattern().IsMatch(message) ||
+        (ObjectivePattern().IsMatch(message) &&
+         !BeerChatContextPolicy.RefersToPreviousResults(message)) ||
         NamedProfileQuestionPattern().IsMatch(message) ||
         (StandalonePreferencePattern().IsMatch(message) &&
          (!string.IsNullOrWhiteSpace(parsed.Style) ||
@@ -398,8 +445,24 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
 
         if (HighestAbvPattern().IsMatch(message)) state.Sort = "highest-abv";
         else if (LowestAbvPattern().IsMatch(message)) state.Sort = "lowest-abv";
-        else if (HighestPricePattern().IsMatch(message)) state.Sort = "highest-price";
-        else if (LowestPricePattern().IsMatch(message)) state.Sort = "lowest-price";
+        else if (HighestPricePattern().IsMatch(message))
+        {
+            state.Sort = "highest-price";
+            ClearPricePreference(state);
+        }
+        else if (LowestPricePattern().IsMatch(message))
+        {
+            state.Sort = "lowest-price";
+            ClearPricePreference(state);
+        }
+    }
+
+    private static void ClearPricePreference(BeerChatPreferenceState state)
+    {
+        state.MinimumPrice = null;
+        state.MaximumPrice = null;
+        state.TargetPrice = null;
+        state.PriceTier = null;
     }
 
     private static string BuildQuery(BeerChatPreferenceState state, string message)
@@ -432,6 +495,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         if (state.Saltiness == "low") terms.Add("not salty");
         if (state.Richness == "high") terms.Add("rich");
         if (state.Richness == "low") terms.Add("light");
+        terms.AddRange(state.DietaryNeeds);
         if (!string.IsNullOrWhiteSpace(state.FoodPairing))
             terms.Add($"with {state.FoodPairing}");
         if (state.MinimumAbv.HasValue) terms.Add($"over {state.MinimumAbv:0.#}% ABV");
@@ -512,8 +576,20 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
     [GeneratedRegex(@"^\s*(?:both|both\s+(?:beer\s+and\s+food|food\s+and\s+beer)|one\s+of\s+each|beer\s+and\s+food|food\s+and\s+beer)\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex BothMenuSidesPattern();
 
+    [GeneratedRegex(@"^(?=.*\b(?:a|an|one|two|three|[1-3])\s+(?:food|dishes?|meals?|burgers?|pizzas?|wings?|sausages?)\b)(?=.*\b(?:a|an|one|two|three|four|five|six|[1-6])\s+(?:beers?|ipas?|lagers?|pilsners?|stouts?|porters?|sours?|ales?)\b).*$", RegexOptions.IgnoreCase)]
+    private static partial Regex ExplicitMixedQuantityPattern();
+
     [GeneratedRegex(@"\b(?:food|dish|meal|snack|eat|hungry|burger|burgers|pizza|pizzas|wings?|fries|sausage|sausages|chicken|vegan|vegetarian|gluten[- ]?free)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ExplicitFoodKindPattern();
+
+    [GeneratedRegex(@"\bvegan\b", RegexOptions.IgnoreCase)]
+    private static partial Regex VeganPattern();
+
+    [GeneratedRegex(@"\bvegetarian\b", RegexOptions.IgnoreCase)]
+    private static partial Regex VegetarianPattern();
+
+    [GeneratedRegex(@"\bgluten[- ]?free\b", RegexOptions.IgnoreCase)]
+    private static partial Regex GlutenFreePattern();
 
     [GeneratedRegex(@"\b(?:(a|an|one|two|three|four|five|six|[1-6])\s+)?(?:(?:light|strong|dark|crisp|refreshing|hoppy|fruity|local|imported|cold|low[- ]?alcohol)\s+){0,2}(?:beers?|ipas?|lagers?|pilsners?|stouts?|porters?|sours?|ales?)\b", RegexOptions.IgnoreCase)]
     private static partial Regex BeerQuantityPattern();

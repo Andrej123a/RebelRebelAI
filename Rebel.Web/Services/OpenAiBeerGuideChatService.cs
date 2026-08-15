@@ -1557,7 +1557,7 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
     [GeneratedRegex(@"\btotal\s+budget\s+([0-9]+(?:\.[0-9]+)?)\s+MKD\b", RegexOptions.IgnoreCase)]
     private static partial Regex TotalBudgetQueryPattern();
 
-    [GeneratedRegex(@"\b(?:what\s+(?:do|would)\s+you\s+(?:recommend|suggest)(?:\s+me)?|what(?:'s|\s+is)\s+good|(?:recommend|suggest)(?:\s+me)?|what\s+should\s+i\s+(?:get|have|order)|your\s+best\s+pick)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\b(?:recommend(?:ation)?s?|suggest(?:ion)?s?|what\s+should\s+i\s+(?:get|have|order)|your\s+best\s+pick|help\s+me\s+(?:choose|pick)|what(?:'s|\s+is)\s+good)\b", RegexOptions.IgnoreCase)]
     private static partial Regex GenericRecommendationPattern();
 
     [GeneratedRegex(@"\b(?:highest|strongest|most\s+alcoholic|highest[-\s]*(?:alcohol|abv)|high\s*%?\s*abv|lowest|weakest|least\s+alcoholic|lowest[-\s]*(?:alcohol|abv)|low\s*%?\s*abv)\b", RegexOptions.IgnoreCase)]

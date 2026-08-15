@@ -33,6 +33,7 @@ public sealed class BeerChatPreferenceState
     public string? Heat { get; set; }
     public string? Saltiness { get; set; }
     public string? Richness { get; set; }
+    public List<string> DietaryNeeds { get; set; } = [];
     public string? FoodPairing { get; set; }
     public decimal? MinimumAbv { get; set; }
     public decimal? MaximumAbv { get; set; }

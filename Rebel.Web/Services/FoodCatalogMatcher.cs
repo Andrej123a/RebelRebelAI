@@ -135,20 +135,23 @@ public partial class FoodCatalogMatcher : IFoodCatalogMatcher
         string query,
         IReadOnlyCollection<Product> foods)
     {
+        var restricted = foods;
         if (Regex.IsMatch(query, @"\bvegan\b", RegexOptions.IgnoreCase))
         {
-            return foods.Where(food => food.IsVegan).ToList();
+            restricted = restricted.Where(food => food.IsVegan).ToList();
         }
-        if (Regex.IsMatch(query, @"\bvegetarian\b", RegexOptions.IgnoreCase))
+        else if (Regex.IsMatch(query, @"\bvegetarian\b", RegexOptions.IgnoreCase))
         {
-            return foods.Where(food => food.IsVegetarian || food.IsVegan).ToList();
+            restricted = restricted
+                .Where(food => food.IsVegetarian || food.IsVegan)
+                .ToList();
         }
         if (Regex.IsMatch(query, @"\bgluten[- ]?free\b", RegexOptions.IgnoreCase))
         {
-            return foods.Where(food => food.IsGlutenFree).ToList();
+            restricted = restricted.Where(food => food.IsGlutenFree).ToList();
         }
 
-        return foods;
+        return restricted;
     }
 
     private static IReadOnlyCollection<Product> RestrictHeat(

@@ -66,12 +66,14 @@ public class BeerGuideController : Controller
     [HttpPost("Chat")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Chat(
-        [FromBody] BeerChatRequest request,
+        [FromBody] BeerChatRequest? request,
         CancellationToken cancellationToken)
     {
-        var message = request.Message?.Trim();
+        var message = request?.Message?.Trim();
 
-        if (string.IsNullOrWhiteSpace(message) || message.Length is < 2 or > 500)
+        if (request == null ||
+            string.IsNullOrWhiteSpace(message) ||
+            message.Length is < 2 or > 500)
         {
             return BadRequest(new
             {
@@ -79,7 +81,7 @@ public class BeerGuideController : Controller
             });
         }
 
-        var history = request.History
+        var history = (request.History ?? [])
             .Where(turn => turn.Role is "user" or "assistant")
             .Where(turn => !string.IsNullOrWhiteSpace(turn.Text))
             .TakeLast(8)
@@ -111,13 +113,13 @@ public class BeerGuideController : Controller
         var fullQuery = stateUpdate.EffectiveQuery;
         var preference = _preferenceParser.Parse(fullQuery, correctionReason);
 
-        var excludedBeerIds = request.ExcludedBeerIds
+        var excludedBeerIds = (request.ExcludedBeerIds ?? [])
             .Where(id => id != Guid.Empty)
             .Distinct()
             .Take(20)
             .ToList();
 
-        var previousBeerIds = request.PreviousBeerIds
+        var previousBeerIds = (request.PreviousBeerIds ?? [])
             .Where(id => id != Guid.Empty)
             .Distinct()
             .Take(12)

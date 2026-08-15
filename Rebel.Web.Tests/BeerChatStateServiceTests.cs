@@ -259,4 +259,35 @@ public sealed class BeerChatStateServiceTests
         Assert.Contains("2 beers", result.EffectiveQuery);
         Assert.DoesNotContain("over 1200", result.EffectiveQuery);
     }
+
+    [Fact]
+    public void Update_AnotherRoundKeepsTheMixedOrderBrief()
+    {
+        var initial = _service.Update("one food and one beer for 800 MKD", null);
+        var alternative = _service.Update("show me another round", initial.Preferences);
+
+        Assert.Equal("mixed", alternative.Preferences.ItemKind);
+        Assert.Equal(1, alternative.Preferences.RequestedFoodCount);
+        Assert.Equal(1, alternative.Preferences.RequestedBeerCount);
+        Assert.Equal(800m, alternative.Preferences.TotalBudget);
+        Assert.Contains("mixed order", alternative.EffectiveQuery);
+        Assert.Contains("other choices", alternative.EffectiveQuery);
+    }
+
+    [Fact]
+    public void Update_NullBrowserCollectionsAreNormalizedSafely()
+    {
+        var previous = new BeerChatPreferenceState
+        {
+            Flavours = null!,
+            DietaryNeeds = null!,
+            ExcludedStyles = null!
+        };
+
+        var result = _service.Update("beer", previous);
+
+        Assert.Empty(result.Preferences.Flavours);
+        Assert.Empty(result.Preferences.DietaryNeeds);
+        Assert.Empty(result.Preferences.ExcludedStyles);
+    }
 }
