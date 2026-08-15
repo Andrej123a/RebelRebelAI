@@ -123,7 +123,10 @@ public class BeerGuideController : Controller
             .Take(12)
             .ToList();
 
-        var comparisonFollowUp = BeerChatContextPolicy.RefersToPreviousResults(effectiveMessage) &&
+        var alternativeFollowUp = BeerChatContextPolicy.RequestsAlternatives(effectiveMessage) &&
+            previousBeerIds.Count > 0;
+        var comparisonFollowUp = !alternativeFollowUp &&
+            BeerChatContextPolicy.RefersToPreviousResults(effectiveMessage) &&
             previousBeerIds.Count > 0;
 
         var menuProducts = await _context.Products
@@ -141,7 +144,8 @@ public class BeerGuideController : Controller
             .Where(product =>
                 product.Category?.Type == CategoryType.Beer &&
                 !excludedBeerIds.Contains(product.Id) &&
-                (!comparisonFollowUp || previousBeerIds.Contains(product.Id)))
+                (!comparisonFollowUp || previousBeerIds.Contains(product.Id)) &&
+                (!alternativeFollowUp || !previousBeerIds.Contains(product.Id)))
             .ToList();
 
         if (!beers.Any(beer => beer.IsAvailable) && excludedBeerIds.Count > 0)

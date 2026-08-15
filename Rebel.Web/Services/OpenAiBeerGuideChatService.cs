@@ -698,6 +698,16 @@ public partial class OpenAiBeerGuideChatService : IBeerGuideChatService
         {
             yield return withoutServingSize;
         }
+
+        var ampersandIndex = withoutServingSize.IndexOf('&');
+        if (ampersandIndex >= 5)
+        {
+            var leadingName = withoutServingSize[..ampersandIndex].Trim();
+            if (leadingName.Length >= 5)
+            {
+                yield return leadingName;
+            }
+        }
     }
 
     private static double LevelSimilarity(int? source, int? candidate)

@@ -24,4 +24,20 @@ public sealed class BeerChatContextPolicyTests
     [InlineData("what is the cheapest lager?")]
     public void RefersToPreviousResults_RejectsGlobalOrRefinementRequests(string message) =>
         Assert.False(BeerChatContextPolicy.RefersToPreviousResults(message));
+
+    [Theory]
+    [InlineData("other choices?")]
+    [InlineData("show me different beers")]
+    [InlineData("anything else?")]
+    [InlineData("more options please")]
+    [InlineData("show me the others")]
+    public void RequestsAlternatives_AcceptsNaturalAlternativeRequests(string message) =>
+        Assert.True(BeerChatContextPolicy.RequestsAlternatives(message));
+
+    [Theory]
+    [InlineData("compare these")]
+    [InlineData("which one is cheaper?")]
+    [InlineData("tell me about Abasar")]
+    public void RequestsAlternatives_RejectsComparisonAndProfileQuestions(string message) =>
+        Assert.False(BeerChatContextPolicy.RequestsAlternatives(message));
 }

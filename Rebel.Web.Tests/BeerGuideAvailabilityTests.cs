@@ -413,6 +413,34 @@ public sealed class BeerGuideAvailabilityTests
     }
 
     [Fact]
+    public async Task Reply_ShortAmpersandBeerNameOverridesOldPriceRequest()
+    {
+        var abasar = BeerWithProfile(
+            "Abasar & Funk 0,75L",
+            "Barrel-aged grape wild ale",
+            "grape must, wine, oak, tart citrus, wild funk");
+        abasar.Price = 1500m;
+        var other = BeerWithProfile(
+            "Raspberry & Funk 0.75L",
+            "Barrel-aged raspberry wild ale",
+            "raspberry, oak, tart citrus");
+        other.Price = 1500m;
+        var service = CreateService();
+
+        var result = await service.ReplyStructuredAsync(
+            "explain me the flavor of abasar",
+            "over 400 MKD",
+            [other, abasar],
+            new Dictionary<Guid, double>(),
+            CancellationToken.None);
+
+        var match = Assert.Single(result.Matches);
+        Assert.Equal(abasar.Id, match.Beer.Id);
+        Assert.Contains("grape must", result.Reply);
+        Assert.DoesNotContain("price range", result.Reply, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task Reply_UnavailableNamedBeerIsExplainedButNotRecommended()
     {
         var soldOut = BeerWithProfile(

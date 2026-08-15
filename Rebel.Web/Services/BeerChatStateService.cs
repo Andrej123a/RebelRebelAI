@@ -119,6 +119,7 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
         BeerPreferenceFingerprint parsed) =>
         NewDirectionPattern().IsMatch(message) ||
         ObjectivePattern().IsMatch(message) ||
+        NamedProfileQuestionPattern().IsMatch(message) ||
         (StandalonePreferencePattern().IsMatch(message) &&
          (!string.IsNullOrWhiteSpace(parsed.Style) ||
           !string.IsNullOrWhiteSpace(parsed.Origin) ||
@@ -263,6 +264,9 @@ public sealed partial class BeerChatStateService : IBeerChatStateService
 
     [GeneratedRegex(@"\b(?:highest|lowest|strongest|weakest|most\s+alcoholic|least\s+alcoholic|most\s+expensive|cheapest)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ObjectivePattern();
+
+    [GeneratedRegex(@"\b(?:tell\s+me\s+about|describe|explain(?:\s+(?:to\s+)?me)?|taste\s+profile|flavou?r\s+profile|aromas?\s+(?:of|in)|where\s+is)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex NamedProfileQuestionPattern();
 
     [GeneratedRegex(@"^\s*(?:an?\s+|some\s+|any\s+|show\s+me\s+)?[a-z-]+(?:\s+beers?)?\s*[?!.]*\s*$", RegexOptions.IgnoreCase)]
     private static partial Regex StandalonePreferencePattern();

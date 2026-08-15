@@ -115,6 +115,22 @@ public sealed class BeerChatStateServiceTests
     }
 
     [Fact]
+    public void Update_NamedProfileQuestionClearsOldPriceDirection()
+    {
+        var previous = new BeerChatPreferenceState
+        {
+            MinimumPrice = 400m,
+            Sort = "highest-price"
+        };
+
+        var result = _service.Update("explain me the flavor of Abasar", previous);
+
+        Assert.Null(result.Preferences.MinimumPrice);
+        Assert.Null(result.Preferences.Sort);
+        Assert.Equal("explain me the flavor of Abasar", result.EffectiveQuery);
+    }
+
+    [Fact]
     public void Update_NormalizesUntrustedBrowserState()
     {
         var previous = new BeerChatPreferenceState
