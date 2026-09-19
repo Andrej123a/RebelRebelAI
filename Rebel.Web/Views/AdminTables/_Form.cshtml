@@ -1,24 +1,24 @@
-@model Rebel.Domain.Entities.PubTable
+@model Rebel.Web.Models.AdminTableEditorViewModel
 
 <div asp-validation-summary="ModelOnly"
      class="alert alert-danger"></div>
 
 <div class="table-simple-fields">
     <div class="table-form-field">
-        <label asp-for="Label" class="table-form-label">
+        <label asp-for="Table.Label" class="table-form-label">
             Table name
         </label>
-        <input asp-for="Label"
+        <input asp-for="Table.Label"
                class="form-control"
                placeholder="T1" />
-        <span asp-validation-for="Label" class="text-danger small"></span>
+        <span asp-validation-for="Table.Label" class="text-danger small"></span>
     </div>
 
     <div class="table-form-field">
-        <label asp-for="Area" class="table-form-label">
+        <label asp-for="Table.Area" class="table-form-label">
             Area
         </label>
-        <input asp-for="Area"
+        <input asp-for="Table.Area"
                class="form-control"
                list="tableAreaSuggestions"
                placeholder="Main floor" />
@@ -29,30 +29,77 @@
             <option value="Booths"></option>
             <option value="Terrace"></option>
         </datalist>
-        <span asp-validation-for="Area" class="text-danger small"></span>
+        <span asp-validation-for="Table.Area" class="text-danger small"></span>
     </div>
 
     <div class="table-form-field">
-        <label asp-for="Capacity" class="table-form-label">
+        <label asp-for="Table.Capacity" class="table-form-label">
             Number of seats
         </label>
-        <input asp-for="Capacity"
+        <input asp-for="Table.Capacity"
                type="number"
                min="1"
                max="30"
                class="form-control" />
-        <span asp-validation-for="Capacity" class="text-danger small"></span>
+        <span asp-validation-for="Table.Capacity" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="Table.FloorRoomId" class="table-form-label">
+            Room
+        </label>
+        <select asp-for="Table.FloorRoomId" class="form-control">
+            @foreach (var room in Model.Rooms)
+            {
+                <option value="@room.Id">@room.Name</option>
+            }
+        </select>
+        <span asp-validation-for="Table.FloorRoomId" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="Table.TableType" class="table-form-label">
+            Table type
+        </label>
+        <select asp-for="Table.TableType" class="form-control">
+            <option value="Classic">Classic low table</option>
+            <option value="HighTop">High table / stools</option>
+            <option value="BarCounter">Bar counter seats</option>
+            <option value="Lounge">Lounge / sofa</option>
+            <option value="Outdoor">Outdoor table</option>
+        </select>
+        <span asp-validation-for="Table.TableType" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="Table.Shape" class="table-form-label">
+            Shape
+        </label>
+        <select asp-for="Table.Shape" class="form-control">
+            <option value="Square">Square</option>
+            <option value="Round">Round</option>
+            <option value="Rectangle">Rectangle</option>
+            <option value="Counter">Counter line</option>
+            <option value="Lounge">Lounge block</option>
+        </select>
+        <span asp-validation-for="Table.Shape" class="text-danger small"></span>
     </div>
 </div>
 
-<details class="table-advanced-settings" @(!Model.IsActive ? "open" : null)>
+<input asp-for="Table.LayoutX" type="hidden" />
+<input asp-for="Table.LayoutY" type="hidden" />
+<input asp-for="Table.LayoutWidth" type="hidden" />
+<input asp-for="Table.LayoutHeight" type="hidden" />
+<input asp-for="Table.Rotation" type="hidden" />
+
+<details class="table-advanced-settings" @(!Model.Table.IsActive ? "open" : null)>
     <summary>
         <span>Availability</span>
-        <span>@(Model.IsActive ? "Available" : "Unavailable")</span>
+        <span>@(Model.Table.IsActive ? "Available" : "Unavailable")</span>
     </summary>
 
     <label class="table-active-toggle">
-        <input asp-for="IsActive" />
+        <input asp-for="Table.IsActive" />
         <span aria-hidden="true"></span>
         <strong>Allow bookings to use this table</strong>
     </label>

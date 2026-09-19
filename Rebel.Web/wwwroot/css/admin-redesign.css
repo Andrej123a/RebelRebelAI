@@ -1,0 +1,2130 @@
+/* Rebel Admin 2026 — flat operational interface
+   Loaded after the legacy styles so every admin screen shares one quiet system. */
+
+body.admin-shell-body {
+    --admin-redesign-bg: #10110f;
+    --admin-redesign-rail: #0b0c0a;
+    --admin-redesign-surface: #151613;
+    --admin-redesign-line: rgba(239, 235, 225, .13);
+    --admin-redesign-line-soft: rgba(239, 235, 225, .075);
+    --admin-redesign-text: #efebe2;
+    --admin-redesign-muted: #8e8c84;
+    --admin-redesign-accent: #f04a24;
+    color: var(--admin-redesign-text);
+    background: var(--admin-redesign-bg);
+}
+
+body.admin-shell-body .admin-rail {
+    width: 210px;
+    padding: 18px 12px;
+    border-right: 1px solid var(--admin-redesign-line);
+    background: var(--admin-redesign-rail);
+}
+
+body.admin-shell-body .admin-stage {
+    width: calc(100% - 210px);
+    margin-left: 210px;
+    padding: 0 30px 50px;
+    box-sizing: border-box;
+}
+
+body.admin-shell-body .admin-brand {
+    min-height: 44px;
+    padding: 0 6px;
+}
+
+body.admin-shell-body .admin-brand-logo {
+    width: 30px;
+    height: 30px;
+    border: 0;
+}
+
+body.admin-shell-body .admin-brand-name {
+    font-size: 1.45rem;
+    letter-spacing: .3px;
+}
+
+body.admin-shell-body .admin-brand-kicker,
+body.admin-shell-body .admin-user-label,
+body.admin-shell-body .admin-workspace-copy,
+body.admin-shell-body .admin-editor-help,
+body.admin-shell-body .admin-editor-note-list,
+body.admin-shell-body .staff-account-role-guide {
+    display: none;
+}
+
+body.admin-shell-body .admin-navigation { gap: 1px; margin-top: 20px; }
+
+body.admin-shell-body .admin-nav-section {
+    display: block;
+    margin: 15px 9px 5px;
+    color: #5f5d56;
+    font-size: .54rem;
+    font-weight: 700;
+    letter-spacing: 1.35px;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .admin-navigation > .admin-nav-section:first-child {
+    margin-top: 0;
+}
+
+body.admin-shell-body .admin-nav-link,
+body.admin-shell-body .admin-subnav .admin-nav-link {
+    min-height: 39px;
+    padding: 0 9px;
+    gap: 9px;
+    border: 0;
+    border-radius: 4px;
+    color: #929088;
+    font-size: .73rem;
+}
+
+body.admin-shell-body .admin-nav-link:hover,
+body.admin-shell-body .admin-subnav .admin-nav-link:hover {
+    color: var(--admin-redesign-text);
+    border: 0;
+    background: rgba(255,255,255,.04);
+}
+
+body.admin-shell-body .admin-nav-link.active,
+body.admin-shell-body .admin-subnav .admin-nav-link.active {
+    color: var(--admin-redesign-text);
+    border: 0;
+    background: #1c1b17;
+    box-shadow: none;
+}
+
+body.admin-shell-body .admin-nav-link.active::after {
+    width: 4px;
+    height: 16px;
+    border-radius: 2px;
+}
+
+body.admin-shell-body .admin-nav-symbol {
+    width: 20px;
+    height: 20px;
+    flex-basis: 20px;
+    border: 0;
+    opacity: .72;
+    transform: scale(.82);
+}
+
+body.admin-shell-body .admin-rail-footer {
+    margin-top: 20px;
+    padding-top: 10px;
+}
+
+body.admin-shell-body .admin-user-block {
+    margin: 0 0 6px;
+    padding: 7px 9px;
+    background: transparent;
+    font-size: .68rem;
+}
+
+body.admin-shell-body .admin-view-site,
+body.admin-shell-body .admin-logout-button {
+    min-height: 34px;
+    padding: 0 9px;
+}
+
+body.admin-shell-body .admin-page-frame,
+body.admin-shell-body .admin-workspace,
+body.admin-shell-body .tonight-workspace,
+body.admin-shell-body .planner-page,
+body.admin-shell-body .table-admin-page,
+body.admin-shell-body .admin-editor-page,
+body.admin-shell-body .admin-archive-page,
+body.admin-shell-body .booking-planner,
+body.admin-shell-body .floor-map-page {
+    width: 100%;
+    max-width: none;
+    margin-right: 0;
+    margin-left: 0;
+    box-sizing: border-box;
+}
+
+body.admin-shell-body .admin-page-frame { padding-top: 0; }
+
+body.admin-shell-body .admin-workspace,
+body.admin-shell-body .tonight-workspace,
+body.admin-shell-body .planner-page,
+body.admin-shell-body .table-admin-page,
+body.admin-shell-body .admin-editor-page,
+body.admin-shell-body .admin-archive-page,
+body.admin-shell-body .booking-planner,
+body.admin-shell-body .floor-map-page {
+    padding-top: 24px;
+}
+
+body.admin-shell-body .admin-workspace-header,
+body.admin-shell-body .tonight-workspace-header,
+body.admin-shell-body .admin-editor-hero,
+body.admin-shell-body .admin-archive-hero,
+body.admin-shell-body .booking-planner-header,
+body.admin-shell-body .floor-map-header {
+    min-height: 72px;
+    margin: 0 0 22px;
+    padding: 0;
+    border: 0;
+    align-items: center;
+}
+
+body.admin-shell-body .admin-workspace-title,
+body.admin-shell-body .tonight-workspace-header h1,
+body.admin-shell-body .admin-editor-hero h1,
+body.admin-shell-body .admin-archive-title,
+body.admin-shell-body .table-admin-page h1,
+body.admin-shell-body .booking-planner-header h1,
+body.admin-shell-body .floor-map-header h1 {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -.045em;
+    text-transform: none;
+}
+
+body.admin-shell-body .admin-workspace-eyebrow,
+body.admin-shell-body .tonight-eyebrow,
+body.admin-shell-body .admin-editor-hero small,
+body.admin-shell-body .admin-archive-hero small,
+body.admin-shell-body .table-admin-kicker {
+    margin-bottom: 5px;
+    color: var(--admin-redesign-muted);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: .63rem;
+    letter-spacing: .02em;
+    text-transform: none;
+}
+
+body.admin-shell-body .admin-primary-button,
+body.admin-shell-body .admin-secondary-button,
+body.admin-shell-body .admin-tool-button,
+body.admin-shell-body .tonight-primary-action,
+body.admin-shell-body .tonight-secondary-link,
+body.admin-shell-body .table-admin-button,
+body.admin-shell-body .table-form-cancel,
+body.admin-shell-body .btn.btn-warning,
+body.admin-shell-body .btn.btn-outline-light,
+body.admin-shell-body .btn.btn-danger,
+body.admin-shell-body .btn.btn-outline-danger {
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 4px;
+    font-size: .68rem;
+}
+
+body.admin-shell-body .admin-dashboard-command-search {
+    display: flex;
+    min-width: 290px;
+    align-items: stretch;
+    border: 1px solid var(--admin-redesign-line);
+    border-radius: 4px;
+    background: #11120f;
+    overflow: hidden;
+}
+
+body.admin-shell-body .admin-dashboard-command-search input {
+    min-width: 0;
+    min-height: 36px;
+    flex: 1;
+    padding: 0 11px;
+    color: var(--admin-redesign-text);
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: 500 .68rem "Space Grotesk", sans-serif;
+}
+
+body.admin-shell-body .admin-dashboard-command-search input::placeholder {
+    color: #6f6d66;
+}
+
+body.admin-shell-body .admin-dashboard-command-search:focus-within {
+    border-color: rgba(240, 74, 36, .7);
+}
+
+body.admin-shell-body .admin-dashboard-command-search button {
+    min-width: 62px;
+    padding: 0 11px;
+    color: var(--admin-redesign-text);
+    border: 0;
+    border-left: 1px solid var(--admin-redesign-line);
+    background: #1b1b17;
+    font: 700 .6rem "Space Grotesk", sans-serif;
+    cursor: pointer;
+}
+
+body.admin-shell-body .admin-dashboard-command-search button:hover {
+    background: var(--admin-redesign-accent);
+}
+
+/* Counts are information, not cards. */
+body.admin-shell-body .admin-metric-bar,
+body.admin-shell-body .tonight-service-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    margin: 0 0 26px;
+    padding: 0 0 18px;
+    overflow: visible;
+    border: 0;
+    border-bottom: 1px solid var(--admin-redesign-line);
+    border-radius: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .admin-metric,
+body.admin-shell-body .tonight-summary-item {
+    display: flex;
+    min-width: 120px;
+    min-height: 0;
+    padding: 0;
+    align-items: baseline;
+    align-content: initial;
+    gap: 8px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.admin-shell-body .admin-metric:hover,
+body.admin-shell-body .admin-metric.active,
+body.admin-shell-body .admin-metric.is-attention,
+body.admin-shell-body .tonight-summary-item.is-new {
+    background: transparent;
+}
+
+body.admin-shell-body .admin-metric.active::after { display: none; }
+
+body.admin-shell-body .admin-metric span,
+body.admin-shell-body .tonight-summary-item > span {
+    order: 2;
+    color: var(--admin-redesign-muted);
+    font-size: .66rem;
+}
+
+body.admin-shell-body .admin-metric strong,
+body.admin-shell-body .tonight-summary-item > strong {
+    order: 1;
+    color: var(--admin-redesign-text);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 1.45rem;
+    font-weight: 600;
+    letter-spacing: -.04em;
+}
+
+body.admin-shell-body .tonight-summary-item > strong small {
+    display: inline;
+    margin-left: 4px;
+    color: var(--admin-redesign-muted);
+    font: 400 .6rem "Space Grotesk", sans-serif;
+}
+
+/* All collections are flat rows separated by a line. */
+body.admin-shell-body .admin-list,
+body.admin-shell-body .tonight-queue,
+body.admin-shell-body .staff-account-list,
+body.admin-shell-body .staff-shift-list,
+body.admin-shell-body .reservation-detail-list {
+    border: 0;
+    border-top: 1px solid var(--admin-redesign-line);
+    border-radius: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .admin-list-row,
+body.admin-shell-body .tonight-booking,
+body.admin-shell-body .staff-account-row,
+body.admin-shell-body .staff-shift-card {
+    min-height: 58px;
+    padding: 10px 4px;
+    border: 0;
+    border-bottom: 1px solid var(--admin-redesign-line-soft);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+}
+
+body.admin-shell-body .admin-list-row:hover,
+body.admin-shell-body .tonight-booking:hover,
+body.admin-shell-body .staff-account-row:hover,
+body.admin-shell-body .staff-shift-card:hover {
+    background: rgba(255,255,255,.022);
+    transform: none;
+}
+
+body.admin-shell-body .admin-row-data {
+    min-width: 64px;
+    padding: 0 10px 0 0;
+    border: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .admin-row-data strong,
+body.admin-shell-body .tonight-booking-time strong {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: .95rem;
+    font-weight: 600;
+}
+
+body.admin-shell-body .admin-row-copy strong { font-size: .78rem; }
+body.admin-shell-body .admin-row-copy span { color: var(--admin-redesign-muted); font-size: .65rem; }
+
+body.admin-shell-body .admin-state,
+body.admin-shell-body .tonight-booking-state {
+    min-height: 25px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 3px;
+    background: rgba(255,255,255,.05);
+    font-size: .56rem;
+}
+
+/* Sections and forms use whitespace and headings instead of containers. */
+body.admin-shell-body .admin-section { margin-bottom: 34px; }
+
+body.admin-shell-body .admin-section-heading,
+body.admin-shell-body .tonight-queue-heading {
+    min-height: 40px;
+    margin-bottom: 6px;
+    padding: 0;
+    align-items: center;
+}
+
+body.admin-shell-body .admin-section-heading h2,
+body.admin-shell-body .tonight-queue-heading h2 {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    text-transform: none;
+}
+
+body.admin-shell-body .admin-section-count,
+body.admin-shell-body .tonight-queue-heading > span {
+    min-width: 0;
+    height: auto;
+    padding: 0;
+    color: var(--admin-redesign-muted);
+    border: 0;
+    background: transparent;
+    font: 600 .68rem "Space Grotesk", sans-serif;
+}
+
+body.admin-shell-body .admin-content-disclosure,
+body.admin-shell-body .admin-filter-disclosure,
+body.admin-shell-body .tonight-cover-load,
+body.admin-shell-body .tonight-completed,
+body.admin-shell-body .staff-team-disclosure,
+body.admin-shell-body .table-zone-disclosure {
+    margin-bottom: 24px;
+    border: 0;
+    border-top: 1px solid var(--admin-redesign-line);
+    border-bottom: 1px solid var(--admin-redesign-line);
+    border-radius: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .admin-filter-disclosure > summary,
+body.admin-shell-body .admin-content-disclosure > summary,
+body.admin-shell-body .tonight-cover-load > summary,
+body.admin-shell-body .tonight-completed > summary,
+body.admin-shell-body .staff-team-disclosure > summary,
+body.admin-shell-body .table-zone-disclosure > summary {
+    min-height: 46px;
+    padding: 0 3px;
+}
+
+body.admin-shell-body .admin-filter-panel,
+body.admin-shell-body .admin-form-surface,
+body.admin-shell-body .admin-editor-panel,
+body.admin-shell-body .admin-archive-panel,
+body.admin-shell-body .table-simple-form,
+body.admin-shell-body .table-advanced-settings,
+body.admin-shell-body .reservation-focus-alert,
+body.admin-shell-body .reservation-context-alert,
+body.admin-shell-body .reservation-reference-grid,
+body.admin-shell-body .reservation-danger-zone,
+body.admin-shell-body .reservation-reject-zone,
+body.admin-shell-body .reservation-focus-log {
+    padding: 18px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.admin-shell-body .admin-editor-grid,
+body.admin-shell-body .admin-archive-grid {
+    gap: 30px;
+}
+
+body.admin-shell-body .admin-editor-panel {
+    border-top: 1px solid var(--admin-redesign-line);
+}
+
+body.admin-shell-body .reservation-detail-list,
+body.admin-shell-body .reservation-focus-log,
+body.admin-shell-body .table-simple-form {
+    border-top: 1px solid var(--admin-redesign-line);
+}
+
+body.admin-shell-body .admin-more-panel {
+    border: 1px solid var(--admin-redesign-line);
+    border-radius: 4px;
+    background: #171714;
+    box-shadow: 0 14px 40px rgba(0,0,0,.35);
+}
+
+body.admin-shell-body .admin-empty-state,
+body.admin-shell-body .tonight-empty-state,
+body.admin-shell-body .dashboard-clear-state,
+body.admin-shell-body .events-empty-state,
+body.admin-shell-body .booking-planner-empty {
+    min-height: 90px;
+    padding: 22px 3px;
+    border: 0;
+    border-top: 1px dashed var(--admin-redesign-line);
+    border-bottom: 1px dashed var(--admin-redesign-line);
+    border-radius: 0;
+    background: transparent;
+}
+
+/* Tonight is one service sheet, not a dashboard of boxes. */
+body.admin-shell-body .tonight-command-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    margin: 0 0 26px;
+    padding: 0 0 18px;
+    border: 0;
+    border-bottom: 1px solid var(--admin-redesign-line);
+    background: transparent;
+}
+
+body.admin-shell-body .tonight-command-item {
+    display: grid;
+    min-width: 170px;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .tonight-command-item:hover { background: transparent; }
+body.admin-shell-body .tonight-command-item > span,
+body.admin-shell-body .tonight-event-copy > span { color: var(--admin-redesign-muted); font-size: .56rem; }
+body.admin-shell-body .tonight-command-item strong,
+body.admin-shell-body .tonight-event-copy strong { font-size: .72rem; }
+body.admin-shell-body .tonight-command-item small,
+body.admin-shell-body .tonight-event-copy small { color: var(--admin-redesign-muted); font-size: .58rem; }
+body.admin-shell-body .tonight-event-image { display: none; }
+
+body.admin-shell-body .tonight-warning-board {
+    display: block;
+    margin: 0 0 28px;
+    padding: 0;
+    border: 0;
+    border-top: 1px solid rgba(240,74,36,.35);
+    border-bottom: 1px solid var(--admin-redesign-line);
+    background: transparent;
+}
+
+body.admin-shell-body .tonight-warning-board > header {
+    min-height: 44px;
+    padding: 10px 3px;
+    border: 0;
+}
+
+body.admin-shell-body .tonight-warning-board > header span { display: none; }
+body.admin-shell-body .tonight-warning-board > header h2 { margin: 0; font: 600 .76rem "Space Grotesk", sans-serif; text-transform: none; }
+body.admin-shell-body .tonight-warning {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 3px;
+    align-items: center;
+    gap: 16px;
+    border: 0;
+    border-top: 1px solid var(--admin-redesign-line-soft);
+    background: transparent;
+}
+body.admin-shell-body .tonight-warning > span:first-child { display: none; }
+body.admin-shell-body .tonight-warning > span:nth-child(2) { min-width: 0; }
+body.admin-shell-body .tonight-warning > span:last-child {
+    justify-self: end;
+    white-space: nowrap;
+}
+body.admin-shell-body .tonight-warning small { display: none; }
+
+/* Planner: day tabs and reservation rows, no floating cards. */
+body.admin-shell-body .booking-day-strip {
+    gap: 0;
+    overflow: visible;
+    border: 0;
+    border-bottom: 1px solid var(--admin-redesign-line);
+    border-radius: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .booking-day {
+    min-height: 84px;
+    padding: 10px 12px 14px;
+    border: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .booking-day:hover,
+body.admin-shell-body .booking-day.is-selected {
+    background: transparent;
+    box-shadow: inset 0 -2px 0 var(--admin-redesign-accent);
+}
+
+body.admin-shell-body .booking-day > strong { font-family: "Space Grotesk", sans-serif; font-size: 1.3rem; font-weight: 600; }
+body.admin-shell-body .booking-day > i { height: 2px; background: transparent; }
+
+body.admin-shell-body .booking-action-strip {
+    padding: 8px 0;
+    border: 0;
+    border-bottom: 1px solid rgba(229,184,62,.3);
+    border-radius: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .booking-timeline { border: 0; border-top: 1px solid var(--admin-redesign-line); border-radius: 0; background: transparent; }
+body.admin-shell-body .booking-time-row { border-color: var(--admin-redesign-line-soft); }
+body.admin-shell-body .booking-time { border-color: var(--admin-redesign-line); background: transparent; }
+body.admin-shell-body .booking-time > strong { font-family: "Space Grotesk", sans-serif; font-size: 1rem; font-weight: 600; }
+body.admin-shell-body .booking-time-reservations { display: flex; flex-direction: column; gap: 0; padding: 0 0 0 14px; }
+body.admin-shell-body .booking-card {
+    min-height: 54px;
+    padding: 7px 34px 7px 10px;
+    border: 0;
+    border-bottom: 1px solid var(--admin-redesign-line-soft);
+    border-left: 2px solid var(--planner-green);
+    border-radius: 0;
+    background: transparent;
+}
+body.admin-shell-body .booking-card:hover,
+body.admin-shell-body .booking-card.is-pending,
+body.admin-shell-body .booking-card.is-unassigned,
+body.admin-shell-body .booking-card.is-arrived { background: rgba(255,255,255,.018); }
+
+/* Staff planning: columns remain functional, every shift becomes a simple line. */
+body.admin-shell-body .staff-week-board,
+body.admin-shell-body .staff-day-card,
+body.admin-shell-body .staff-day-section,
+body.admin-shell-body .staff-person-week,
+body.admin-shell-body .staff-person-day,
+body.admin-shell-body .staff-cover-dialog,
+body.admin-shell-body .admin-quick-panel-shell {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.admin-shell-body .staff-week-board,
+body.admin-shell-body .staff-person-week { border: 0; border-top: 1px solid var(--admin-redesign-line); }
+body.admin-shell-body .staff-day-card,
+body.admin-shell-body .staff-person-day { border: 0; border-right: 1px solid var(--admin-redesign-line-soft); }
+body.admin-shell-body .staff-day-section { border: 0; border-top: 1px solid var(--admin-redesign-line-soft); }
+body.admin-shell-body .staff-person-shift,
+body.admin-shell-body .staff-person-free,
+body.admin-shell-body .staff-cover-option { border-radius: 3px; background: rgba(255,255,255,.025); box-shadow: none; }
+
+/* Floor editing remains spatial, while surrounding controls are flattened. */
+body.admin-shell-body .floor-map-summary,
+body.admin-shell-body .floor-map-live-tools,
+body.admin-shell-body .floor-map-edit-tools,
+body.admin-shell-body .floor-inactive-drawer {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+body.admin-shell-body .floor-map-summary { border: 0; }
+body.admin-shell-body .floor-map-tools { position: static; }
+body.admin-shell-body .floor-map-live-tools,
+body.admin-shell-body .floor-map-edit-tools { border: 0; border-top: 1px solid var(--admin-redesign-line); border-bottom: 1px solid var(--admin-redesign-line); }
+
+body.admin-shell-body .floor-studio-shell { gap: 18px; }
+body.admin-shell-body .floor-studio-header { min-height: 68px; align-items: center; }
+body.admin-shell-body .floor-studio-header h1 {
+    margin: 2px 0 0;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 600;
+    letter-spacing: -.045em;
+    text-transform: none;
+}
+body.admin-shell-body .floor-studio-status {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--admin-redesign-muted);
+}
+body.admin-shell-body .floor-studio-status::before { width: 7px; height: 7px; box-shadow: none; }
+body.admin-shell-body .floor-studio-stats {
+    display: flex;
+    gap: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--admin-redesign-line);
+}
+body.admin-shell-body .floor-studio-stat {
+    display: flex;
+    padding: 0;
+    align-items: baseline;
+    gap: 7px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+body.admin-shell-body .floor-studio-stat span { order: 2; margin: 0; font-size: .62rem; letter-spacing: 0; text-transform: none; }
+body.admin-shell-body .floor-studio-stat strong { order: 1; font: 600 1.35rem "Space Grotesk", sans-serif; }
+body.admin-shell-body .floor-stage-wrap { border-radius: 4px; background: #0d0e0c; box-shadow: none; }
+body.admin-shell-body .floor-stage-bar { min-height: 56px; padding: 9px 14px; }
+body.admin-shell-body .floor-stage-bar strong { font-size: .78rem; letter-spacing: 0; text-transform: none; }
+body.admin-shell-body .floor-stage-scroll { padding: 10px; }
+body.admin-shell-body .floor-stage { border-radius: 2px; }
+body.admin-shell-body .floor-room { border-radius: 7px; box-shadow: none; }
+body.admin-shell-body .floor-room-header { padding: 10px 12px; }
+body.admin-shell-body .floor-room-badge { border-radius: 3px; }
+body.admin-shell-body .floor-selection-note { display: none; }
+
+body.admin-shell-body .floor-canvas-palette {
+    position: sticky;
+    top: 14px;
+    left: 14px;
+    z-index: 30;
+    display: inline-flex;
+    width: max-content;
+    max-width: calc(100vw - 270px);
+    min-height: 42px;
+    padding: 5px;
+    align-items: center;
+    gap: 3px;
+    border: 1px solid rgba(239,235,225,.16);
+    border-radius: 5px;
+    background: rgba(13,14,12,.94);
+    box-shadow: 0 8px 26px rgba(0,0,0,.28);
+    backdrop-filter: blur(10px);
+}
+body.admin-shell-body .floor-canvas-palette-title {
+    padding: 0 8px;
+    color: var(--admin-redesign-muted);
+    font-size: .58rem;
+}
+body.admin-shell-body .floor-canvas-palette button {
+    display: inline-flex;
+    min-height: 30px;
+    padding: 0 8px;
+    align-items: center;
+    gap: 6px;
+    color: var(--admin-redesign-text);
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    font-size: .62rem;
+}
+body.admin-shell-body .floor-canvas-palette button:hover { background: rgba(255,255,255,.07); }
+body.admin-shell-body .floor-canvas-palette i {
+    display: block;
+    width: 13px;
+    height: 13px;
+    border: 1px solid currentColor;
+    opacity: .72;
+}
+body.admin-shell-body .floor-canvas-palette i.is-door { width: 9px; border-radius: 7px 0 0 0; border-bottom: 0; }
+body.admin-shell-body .floor-canvas-palette i.is-toilet { border-radius: 50% 50% 3px 3px; }
+body.admin-shell-body .floor-canvas-palette i.is-entrance { width: 15px; height: 9px; border-width: 0 2px 2px; }
+body.admin-shell-body .floor-canvas-palette i.is-bar { width: 16px; height: 7px; border-radius: 2px; }
+body.admin-shell-body .floor-canvas-palette i.is-terrace { border-style: dashed; }
+
+body.admin-shell-body .floor-carousel {
+    position: sticky;
+    top: 14px;
+    left: 520px;
+    z-index: 30;
+    display: inline-flex;
+    width: max-content;
+    min-height: 42px;
+    margin-left: 8px;
+    padding: 5px;
+    align-items: center;
+    gap: 5px;
+    border: 1px solid rgba(239,235,225,.16);
+    border-radius: 5px;
+    background: rgba(13,14,12,.94);
+    box-shadow: 0 8px 26px rgba(0,0,0,.28);
+    backdrop-filter: blur(10px);
+}
+body.admin-shell-body .floor-carousel button {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    place-items: center;
+    color: var(--admin-redesign-text);
+    border: 0;
+    border-radius: 3px;
+    background: rgba(255,255,255,.04);
+}
+body.admin-shell-body .floor-carousel button:hover { background: rgba(255,255,255,.09); }
+body.admin-shell-body .floor-carousel strong {
+    min-width: 110px;
+    color: var(--admin-redesign-text);
+    font-size: .67rem;
+    text-align: center;
+}
+body.admin-shell-body .floor-carousel span { color: var(--admin-redesign-muted); font-size: .56rem; }
+body.admin-shell-body .floor-room:not(.is-carousel-active),
+body.admin-shell-body .floor-editable-fixture.is-carousel-hidden { display: none !important; }
+
+body.admin-shell-body .floor-selection-dock {
+    position: sticky;
+    top: 62px;
+    left: 14px;
+    z-index: 29;
+    display: flex;
+    width: max-content;
+    max-width: calc(100vw - 270px);
+    min-height: 38px;
+    margin: 6px 0 0 14px;
+    padding: 4px 5px 4px 11px;
+    gap: 3px;
+    border: 1px solid rgba(239,235,225,.13);
+    border-radius: 5px;
+    background: rgba(13,14,12,.94);
+    box-shadow: 0 8px 26px rgba(0,0,0,.24);
+    backdrop-filter: blur(10px);
+}
+body.admin-shell-body .floor-selection-label {
+    margin-right: 7px;
+    color: var(--admin-redesign-muted);
+    font-size: .58rem;
+    letter-spacing: .04em;
+}
+body.admin-shell-body .floor-selection-action {
+    min-height: 28px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    font-size: .58rem;
+    letter-spacing: 0;
+    text-transform: none;
+}
+body.admin-shell-body .floor-selection-action:hover { background: rgba(255,255,255,.07); }
+body.admin-shell-body .floor-selection-action[hidden] { display: none !important; }
+
+body.admin-shell-body .floor-editable-fixture {
+    position: absolute;
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    padding: 4px;
+    color: #d8d3c9;
+    border: 1px solid rgba(239,235,225,.28);
+    border-radius: 3px;
+    background: #24231f;
+    font: 700 .58rem "Space Mono", monospace;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    cursor: move;
+    touch-action: none;
+}
+body.admin-shell-body .floor-editable-fixture.is-toilet { background: #263038; }
+body.admin-shell-body .floor-editable-fixture.is-entrance,
+body.admin-shell-body .floor-editable-fixture.is-door { background: #4a4032; }
+body.admin-shell-body .floor-editable-fixture.is-bar { background: #49261d; }
+body.admin-shell-body .floor-editable-fixture.is-terrace { border-style: dashed; background: rgba(79,103,74,.34); }
+body.admin-shell-body .floor-editable-fixture.is-selected { outline: 2px solid var(--admin-redesign-accent); outline-offset: 2px; }
+
+body.admin-shell-body .floor-transform-handle {
+    position: absolute;
+    z-index: 40;
+    display: block;
+    width: 13px;
+    height: 13px;
+    padding: 0;
+    border: 2px solid #0d0e0c;
+    border-radius: 2px;
+    background: #f3eee4;
+    box-shadow: 0 0 0 1px var(--admin-redesign-accent);
+    touch-action: none;
+    pointer-events: auto !important;
+}
+
+body.admin-shell-body .floor-transform-handle.is-resize {
+    left: 7px;
+    bottom: 7px;
+    cursor: nwse-resize;
+}
+
+body.admin-shell-body .floor-transform-handle.is-rotate {
+    top: 7px;
+    right: 7px;
+    border-radius: 50%;
+    cursor: grab;
+}
+
+body.admin-shell-body .floor-transform-handle.is-rotate::after {
+    display: none;
+}
+
+body.admin-shell-body .floor-transform-handle.is-rotate:active { cursor: grabbing; }
+
+/* One integrated canvas rail and a quiet drawing surface. */
+body.admin-shell-body .floor-stage {
+    overflow: visible;
+    border: 1px solid #2b2c28;
+    background: #151613;
+    background-image: none;
+}
+
+body.admin-shell-body .floor-canvas-toolbar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    display: flex;
+    width: min(calc(100vw - 285px), 1080px);
+    min-height: 54px;
+    padding: 7px 9px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #30312c;
+    background: rgba(18,19,17,.97);
+    box-shadow: none;
+    backdrop-filter: blur(10px);
+}
+
+body.admin-shell-body .floor-canvas-palette,
+body.admin-shell-body .floor-carousel {
+    position: static;
+    display: flex;
+    width: auto;
+    min-height: 38px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+}
+
+body.admin-shell-body .floor-canvas-palette { flex-wrap: wrap; }
+body.admin-shell-body .floor-canvas-palette-title { padding-left: 4px; }
+body.admin-shell-body .floor-carousel { margin-left: auto; }
+body.admin-shell-body .floor-carousel strong { min-width: 92px; }
+
+body.admin-shell-body .floor-room {
+    border: 1px solid #383933;
+    background: #20211d;
+    box-shadow: 0 10px 28px rgba(0,0,0,.2);
+    touch-action: none;
+}
+
+body.admin-shell-body .floor-room::before { opacity: .18; }
+body.admin-shell-body .floor-room-header {
+    border-bottom: 1px solid #35362f;
+    background: #242520;
+}
+
+body.admin-shell-body .floor-room-body {
+    border: 0;
+    background: #1b1c19;
+    background-image: none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.025);
+}
+
+body.admin-shell-body .floor-room-body::before,
+body.admin-shell-body .floor-room-body::after { display: none; }
+
+body.admin-shell-body .floor-table-node,
+body.admin-shell-body .floor-table-node.is-free,
+body.admin-shell-body .floor-table-node.is-reserved,
+body.admin-shell-body .floor-table-node.is-occupied,
+body.admin-shell-body .floor-table-node[data-shape="Counter"],
+body.admin-shell-body .floor-table-node[data-shape="Lounge"] {
+    color: #11120f;
+    border: 1px solid rgba(255,255,255,.34);
+    border-radius: 6px;
+    background: #d8d4ca;
+    box-shadow: 0 4px 12px rgba(0,0,0,.22);
+    touch-action: none;
+    overflow: visible;
+}
+
+body.admin-shell-body .floor-table-node.is-free { box-shadow: inset 0 -3px 0 #65ae72, 0 4px 12px rgba(0,0,0,.22); }
+body.admin-shell-body .floor-table-node.is-reserved { box-shadow: inset 0 -3px 0 #d3a944, 0 4px 12px rgba(0,0,0,.22); }
+body.admin-shell-body .floor-table-node.is-occupied { box-shadow: inset 0 -3px 0 #c75a52, 0 4px 12px rgba(0,0,0,.22); }
+body.admin-shell-body .floor-table-node.is-selected { outline: 2px solid var(--admin-redesign-accent); outline-offset: 3px; }
+body.admin-shell-body .floor-table-node::before,
+body.admin-shell-body .floor-table-node::after { display: none !important; }
+body.admin-shell-body .floor-table-node[data-shape="Round"] { border-radius: 50%; }
+body.admin-shell-body .floor-table-node[data-shape="Rectangle"],
+body.admin-shell-body .floor-table-node[data-shape="Counter"] { border-radius: 3px; }
+
+@media (max-width: 991.98px) {
+    body.admin-shell-body .floor-canvas-toolbar { width: min(calc(100vw - 54px), 1080px); }
+}
+
+/* AI administration follows the same flat, scan-first language. */
+body.admin-shell-body .beer-quality-list,
+body.admin-shell-body .beer-lab-list,
+body.admin-shell-body .beer-lab-results,
+body.admin-shell-body .beer-quality-issues,
+body.admin-shell-body .beer-lab-issues {
+    border: 0;
+    border-top: 1px solid var(--admin-redesign-line);
+    border-radius: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .beer-quality-item,
+body.admin-shell-body .beer-quality-row,
+body.admin-shell-body .beer-quality-test,
+body.admin-shell-body .beer-quality-test-row,
+body.admin-shell-body .beer-lab-scenario,
+body.admin-shell-body .beer-lab-issue,
+body.admin-shell-body .beer-lab-rule,
+body.admin-shell-body .beer-lab-ai-result {
+    margin: 0;
+    padding: 12px 3px;
+    border: 0;
+    border-bottom: 1px solid var(--admin-redesign-line-soft);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.admin-shell-body .beer-quality-suggestion-preview,
+body.admin-shell-body .beer-lab-ai-form,
+body.admin-shell-body .beer-lab-question,
+body.admin-shell-body .beer-lab-reply {
+    border-radius: 3px;
+    background: rgba(255,255,255,.025);
+    box-shadow: none;
+}
+
+body.admin-shell-body .beer-quality-progress {
+    height: 3px;
+    border-radius: 0;
+    background: rgba(255,255,255,.08);
+}
+
+@media (max-width: 991.98px) {
+    body.admin-shell-body .admin-rail { width: 100%; padding: 10px 12px; }
+    body.admin-shell-body .admin-stage { width: 100%; margin-left: 0; padding: 0 16px 42px; }
+    body.admin-shell-body .admin-navigation { margin-top: 10px; }
+    body.admin-shell-body .admin-page-frame { padding-top: 0; }
+}
+
+@media (max-width: 650px) {
+    body.admin-shell-body .admin-workspace-header,
+    body.admin-shell-body .tonight-workspace-header,
+    body.admin-shell-body .admin-editor-hero,
+    body.admin-shell-body .admin-archive-hero,
+    body.admin-shell-body .booking-planner-header,
+    body.admin-shell-body .floor-map-header { align-items: flex-start; flex-direction: column; }
+
+    body.admin-shell-body .admin-metric-bar,
+    body.admin-shell-body .tonight-service-summary { gap: 10px 22px; }
+    body.admin-shell-body .admin-workspace-actions { width: 100%; }
+    body.admin-shell-body .admin-dashboard-command-search { width: 100%; min-width: 0; }
+    body.admin-shell-body .admin-metric,
+    body.admin-shell-body .tonight-summary-item { min-width: calc(50% - 12px); }
+    body.admin-shell-body .tonight-command-strip { display: grid; grid-template-columns: 1fr 1fr; }
+    body.admin-shell-body .tonight-command-item { min-width: 0; }
+    body.admin-shell-body .booking-time-reservations { padding-left: 8px; }
+}
+
+/* Rebel service board: sharp, editorial, and operational. */
+body.admin-shell-body {
+    --admin-board-red: #c8202d;
+    --admin-board-yellow: #f4c400;
+    --admin-board-paper: #eee8dc;
+    background-color: #0d0e0c;
+    background-image:
+        repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,.012) 4px),
+        url("../images/rebel-paper-texture.jpg");
+    background-size: auto, 680px 680px;
+    background-blend-mode: normal, soft-light;
+}
+
+body.admin-shell-body .admin-stage {
+    padding: 28px 34px 64px;
+}
+
+body.admin-shell-body .admin-page-frame,
+body.admin-shell-body .admin-workspace,
+body.admin-shell-body .tonight-workspace,
+body.admin-shell-body .planner-page,
+body.admin-shell-body .table-admin-page,
+body.admin-shell-body .admin-editor-page,
+body.admin-shell-body .admin-archive-page,
+body.admin-shell-body .booking-planner,
+body.admin-shell-body .floor-map-page {
+    width: min(100%, 1480px);
+    max-width: 1480px;
+    margin: 0;
+    padding-top: 0;
+}
+
+body.admin-shell-body .admin-workspace-header,
+body.admin-shell-body .tonight-workspace-header,
+body.admin-shell-body .admin-editor-hero,
+body.admin-shell-body .admin-archive-hero,
+body.admin-shell-body .booking-planner-header,
+body.admin-shell-body .floor-map-header {
+    position: relative;
+    min-height: 124px;
+    margin: 0 0 24px;
+    padding: 20px 210px 20px 24px;
+    overflow: hidden;
+    border: 0;
+    border-left: 6px solid var(--admin-board-red);
+    border-bottom: 2px solid rgba(238,232,220,.2);
+    background: transparent;
+}
+
+body.admin-shell-body .admin-workspace-header::after,
+body.admin-shell-body .tonight-workspace-header::after,
+body.admin-shell-body .admin-editor-hero::after,
+body.admin-shell-body .admin-archive-hero::after,
+body.admin-shell-body .booking-planner-header::after,
+body.admin-shell-body .floor-map-header::after {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    color: transparent;
+    content: "CONTROL";
+    font-family: "Anton", sans-serif;
+    font-size: clamp(3.6rem, 7vw, 7rem);
+    line-height: 1;
+    letter-spacing: -.03em;
+    -webkit-text-stroke: 1px rgba(238,232,220,.085);
+    transform: translateY(-50%) skewX(-7deg);
+    pointer-events: none;
+}
+
+body.admin-shell-body .admin-workspace-heading,
+body.admin-shell-body .tonight-workspace-header > div,
+body.admin-shell-body .admin-workspace-actions {
+    position: relative;
+    z-index: 1;
+}
+
+body.admin-shell-body .admin-workspace-title,
+body.admin-shell-body .tonight-workspace-header h1,
+body.admin-shell-body .admin-editor-hero h1,
+body.admin-shell-body .admin-archive-title,
+body.admin-shell-body .table-admin-page h1,
+body.admin-shell-body .booking-planner-header h1,
+body.admin-shell-body .floor-map-header h1 {
+    font-family: "Anton", sans-serif;
+    font-size: clamp(2.8rem, 4.6vw, 5rem);
+    font-weight: 400;
+    line-height: .92;
+    letter-spacing: -.02em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .admin-workspace-eyebrow,
+body.admin-shell-body .tonight-eyebrow,
+body.admin-shell-body .admin-editor-hero small,
+body.admin-shell-body .admin-archive-hero small,
+body.admin-shell-body .table-admin-kicker {
+    display: inline-block;
+    margin: 0 0 9px;
+    padding: 4px 7px 3px;
+    color: #111;
+    background: var(--admin-board-yellow);
+    font-family: "Space Mono", monospace;
+    font-size: .58rem;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    transform: rotate(-.7deg);
+}
+
+body.admin-shell-body .admin-primary-button,
+body.admin-shell-body .admin-secondary-button,
+body.admin-shell-body .admin-tool-button,
+body.admin-shell-body .tonight-primary-action,
+body.admin-shell-body .tonight-secondary-link,
+body.admin-shell-body .table-admin-button,
+body.admin-shell-body .table-form-cancel {
+    min-height: 38px;
+    border-radius: 0;
+    font-family: "Space Mono", monospace;
+    font-weight: 700;
+    letter-spacing: .02em;
+}
+
+body.admin-shell-body .admin-primary-button {
+    color: #fff;
+    border-color: var(--admin-board-red);
+    background: var(--admin-board-red);
+    box-shadow: 4px 4px 0 rgba(238,232,220,.13);
+}
+
+body.admin-shell-body .admin-primary-button:hover {
+    color: #111;
+    border-color: var(--admin-board-yellow);
+    background: var(--admin-board-yellow);
+    box-shadow: 6px 6px 0 var(--admin-board-red);
+    transform: translate(-2px, -2px);
+}
+
+body.admin-shell-body .admin-metric-bar,
+body.admin-shell-body .tonight-service-summary {
+    display: grid;
+    grid-template-columns: 1.12fr 1fr 1fr;
+    gap: 10px;
+    margin: 0 0 22px;
+    padding: 0;
+    border: 0;
+}
+
+body.admin-shell-body .admin-metric,
+body.admin-shell-body .tonight-summary-item {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    min-height: 112px;
+    padding: 17px 18px;
+    align-content: space-between;
+    border: 2px solid rgba(238,232,220,.17);
+    border-radius: 0;
+    background: #151613;
+    box-shadow: none;
+}
+
+body.admin-shell-body .admin-metric:first-child,
+body.admin-shell-body .tonight-summary-item:first-child {
+    border-color: var(--admin-board-red);
+    background: var(--admin-board-red);
+    box-shadow: 6px 6px 0 rgba(238,232,220,.12);
+    transform: translateY(-3px) rotate(-.15deg);
+}
+
+body.admin-shell-body .admin-metric:hover,
+body.admin-shell-body .admin-metric.active,
+body.admin-shell-body .admin-metric.is-attention,
+body.admin-shell-body .tonight-summary-item.is-new {
+    border-color: var(--admin-board-red);
+    background: #191a16;
+}
+
+body.admin-shell-body .admin-metric:first-child:hover,
+body.admin-shell-body .admin-metric:first-child.is-attention,
+body.admin-shell-body .tonight-summary-item:first-child.is-new {
+    background: var(--admin-board-red);
+}
+
+body.admin-shell-body .admin-metric span,
+body.admin-shell-body .tonight-summary-item > span {
+    order: 1;
+    color: #aaa69d;
+    font-family: "Space Mono", monospace;
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .admin-metric strong,
+body.admin-shell-body .tonight-summary-item > strong {
+    order: 2;
+    color: var(--admin-board-paper);
+    font-family: "Anton", sans-serif;
+    font-size: clamp(1.75rem, 2.4vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0;
+}
+
+body.admin-shell-body .admin-metric:first-child span,
+body.admin-shell-body .admin-metric:first-child strong,
+body.admin-shell-body .tonight-summary-item:first-child > span,
+body.admin-shell-body .tonight-summary-item:first-child > strong,
+body.admin-shell-body .tonight-summary-item:first-child > strong small {
+    color: #fff;
+}
+
+body.admin-shell-body .tonight-command-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 24px;
+    padding: 0;
+    border: 0;
+}
+
+body.admin-shell-body .tonight-command-item {
+    position: relative;
+    display: grid;
+    min-width: 0;
+    min-height: 104px;
+    padding: 15px 16px 14px;
+    align-content: space-between;
+    border: 1px solid rgba(238,232,220,.16);
+    border-top: 4px solid #44443f;
+    border-radius: 0;
+    background: #121310;
+}
+
+body.admin-shell-body .tonight-command-item:hover {
+    border-color: var(--admin-board-yellow);
+    border-top-color: var(--admin-board-yellow);
+    background: #171815;
+    transform: translateY(-2px);
+}
+
+body.admin-shell-body .tonight-command-item.needs-attention {
+    border-top-color: var(--admin-board-red);
+}
+
+body.admin-shell-body .tonight-command-item > span,
+body.admin-shell-body .tonight-event-copy > span {
+    color: var(--admin-board-yellow);
+    font-family: "Space Mono", monospace;
+    font-size: .55rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .tonight-command-item strong,
+body.admin-shell-body .tonight-event-copy strong {
+    font-size: .79rem;
+}
+
+body.admin-shell-body .admin-section,
+body.admin-shell-body .tonight-queue-section,
+body.admin-shell-body .tonight-warning-board {
+    position: relative;
+    margin: 0 0 20px;
+    padding: 18px 20px 20px;
+    border: 0;
+    border-top: 5px solid var(--admin-board-red);
+    border-radius: 0;
+    background: #141512;
+    box-shadow: 7px 7px 0 rgba(0,0,0,.3);
+}
+
+body.admin-shell-body .admin-section:nth-of-type(even),
+body.admin-shell-body .tonight-queue-section:nth-of-type(even) {
+    border-top-color: var(--admin-board-yellow);
+}
+
+body.admin-shell-body .admin-section-heading,
+body.admin-shell-body .tonight-queue-heading,
+body.admin-shell-body .tonight-warning-board > header {
+    min-height: 44px;
+    margin: 0 0 14px;
+    padding: 0 0 11px;
+    border-bottom: 1px dashed rgba(238,232,220,.18);
+}
+
+body.admin-shell-body .admin-section-heading h2,
+body.admin-shell-body .tonight-queue-heading h2,
+body.admin-shell-body .tonight-warning-board h2 {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.45rem;
+    font-weight: 400;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .admin-list,
+body.admin-shell-body .tonight-queue,
+body.admin-shell-body .staff-account-list,
+body.admin-shell-body .staff-shift-list {
+    display: grid;
+    gap: 7px;
+    border: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .admin-list-row,
+body.admin-shell-body .tonight-booking,
+body.admin-shell-body .staff-account-row,
+body.admin-shell-body .staff-shift-card,
+body.admin-shell-body .tonight-warning {
+    min-height: 66px;
+    padding: 13px 14px;
+    border: 1px solid rgba(238,232,220,.1);
+    border-left: 3px solid #3c3c37;
+    border-radius: 0;
+    background: #0f100e;
+}
+
+body.admin-shell-body .admin-list-row:hover,
+body.admin-shell-body .tonight-booking:hover,
+body.admin-shell-body .staff-account-row:hover,
+body.admin-shell-body .staff-shift-card:hover,
+body.admin-shell-body .tonight-warning:hover {
+    border-color: rgba(238,232,220,.26);
+    border-left-color: var(--admin-board-yellow);
+    background: #181916;
+    transform: translateX(3px);
+}
+
+body.admin-shell-body .admin-list-row.is-attention,
+body.admin-shell-body .tonight-warning.is-warning,
+body.admin-shell-body .tonight-warning.is-danger {
+    border-left-color: var(--admin-board-red);
+}
+
+body.admin-shell-body .admin-empty-state,
+body.admin-shell-body .tonight-empty-state,
+body.admin-shell-body .dashboard-clear-state,
+body.admin-shell-body .events-empty-state,
+body.admin-shell-body .booking-planner-empty {
+    display: grid;
+    min-height: 112px;
+    padding: 24px;
+    place-content: center;
+    gap: 5px;
+    border: 1px dashed rgba(238,232,220,.2);
+    border-radius: 0;
+    background: #0f100e;
+    text-align: center;
+}
+
+body.admin-shell-body .admin-empty-state strong,
+body.admin-shell-body .tonight-empty-state strong,
+body.admin-shell-body .dashboard-clear-state strong {
+    color: var(--admin-board-paper);
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .admin-content-disclosure,
+body.admin-shell-body .admin-filter-disclosure,
+body.admin-shell-body .tonight-cover-load,
+body.admin-shell-body .tonight-completed,
+body.admin-shell-body .staff-team-disclosure,
+body.admin-shell-body .table-zone-disclosure {
+    border: 1px solid rgba(238,232,220,.14);
+    border-left: 4px solid var(--admin-board-red);
+    border-radius: 0;
+    background: #121310;
+}
+
+body.admin-shell-body .admin-filter-panel,
+body.admin-shell-body .admin-form-surface,
+body.admin-shell-body .admin-editor-panel,
+body.admin-shell-body .admin-archive-panel,
+body.admin-shell-body .table-simple-form,
+body.admin-shell-body .table-advanced-settings,
+body.admin-shell-body .reservation-focus-alert,
+body.admin-shell-body .reservation-context-alert,
+body.admin-shell-body .reservation-reference-grid,
+body.admin-shell-body .reservation-danger-zone,
+body.admin-shell-body .reservation-reject-zone,
+body.admin-shell-body .reservation-focus-log {
+    padding: 20px;
+    border: 1px solid rgba(238,232,220,.13);
+    border-radius: 0;
+    background: #131411;
+}
+
+@media (max-width: 1100px) {
+    body.admin-shell-body .tonight-command-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 991.98px) {
+    body.admin-shell-body .admin-stage {
+        width: 100%;
+        margin-left: 0;
+        padding: 20px 16px 50px;
+    }
+}
+
+@media (max-width: 650px) {
+    body.admin-shell-body .admin-workspace-header,
+    body.admin-shell-body .tonight-workspace-header,
+    body.admin-shell-body .admin-editor-hero,
+    body.admin-shell-body .admin-archive-hero,
+    body.admin-shell-body .booking-planner-header,
+    body.admin-shell-body .floor-map-header {
+        min-height: 0;
+        padding: 18px 16px;
+    }
+
+    body.admin-shell-body .admin-workspace-header::after,
+    body.admin-shell-body .tonight-workspace-header::after,
+    body.admin-shell-body .admin-editor-hero::after,
+    body.admin-shell-body .admin-archive-hero::after,
+    body.admin-shell-body .booking-planner-header::after,
+    body.admin-shell-body .floor-map-header::after {
+        display: none;
+    }
+
+    body.admin-shell-body .admin-metric-bar,
+    body.admin-shell-body .tonight-service-summary,
+    body.admin-shell-body .tonight-command-strip {
+        grid-template-columns: 1fr;
+    }
+
+    body.admin-shell-body .admin-metric,
+    body.admin-shell-body .tonight-summary-item {
+        min-height: 88px;
+    }
+
+    body.admin-shell-body .admin-section,
+    body.admin-shell-body .tonight-queue-section,
+    body.admin-shell-body .tonight-warning-board {
+        padding: 14px;
+        box-shadow: 4px 4px 0 rgba(0,0,0,.3);
+    }
+}
+
+/* Floor studio modes: precise plan editing plus a realistic spatial preview. */
+body.admin-shell-body .floor-view-switch {
+    display: inline-flex;
+    padding: 3px;
+    border: 1px solid rgba(238,232,220,.2);
+    background: #0b0c0a;
+}
+
+body.admin-shell-body .floor-view-switch button {
+    min-height: 34px;
+    padding: 0 13px;
+    color: #8f8d86;
+    border: 0;
+    background: transparent;
+    font: 700 .62rem "Space Mono", monospace;
+    letter-spacing: .02em;
+    cursor: pointer;
+}
+
+body.admin-shell-body .floor-view-switch button:hover {
+    color: #f1ece2;
+}
+
+body.admin-shell-body .floor-view-switch button.is-active {
+    color: #111;
+    background: var(--admin-board-yellow, #f4c400);
+}
+
+body.admin-shell-body .floor-stage-bar p {
+    margin: 5px 0 0;
+    color: #77756e;
+    font: 600 .58rem "Space Mono", monospace;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-stage-wrap {
+    border: 1px solid #3a3027;
+    background: #080908;
+    box-shadow: 10px 10px 0 rgba(0,0,0,.38);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-stage-bar {
+    border-bottom: 4px solid var(--admin-board-red, #c8202d);
+    background: #121310;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-stage-scroll {
+    padding: 28px 30px 92px;
+    background:
+        radial-gradient(circle at 50% 0, rgba(226,185,112,.08), transparent 34rem),
+        #080908;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-stage {
+    overflow: visible;
+    border: 1px solid #332b23;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+        repeating-linear-gradient(90deg, #17130f 0, #17130f 22px, #1b1611 23px, #1b1611 45px);
+    background-size: 60px 60px, 60px 60px, auto;
+    box-shadow:
+        0 22px 0 #070807,
+        0 38px 58px rgba(0,0,0,.6),
+        inset 0 0 90px rgba(0,0,0,.42);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-canvas-palette,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-selection-dock,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-transform-handle,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-resize,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-shape-handle {
+    display: none !important;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-canvas-toolbar {
+    width: min(calc(100vw - 310px), 1120px);
+    min-height: 48px;
+    justify-content: flex-end;
+    border-bottom-color: rgba(238,232,220,.1);
+    background: rgba(12,13,11,.93);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-carousel {
+    margin-left: auto;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room {
+    padding: 14px;
+    border: 8px solid #32251c;
+    border-radius: 3px;
+    background: #17120e;
+    box-shadow:
+        0 13px 0 #140e0a,
+        0 24px 34px rgba(0,0,0,.48),
+        inset 0 0 0 1px rgba(238,215,187,.12);
+    cursor: default;
+    touch-action: auto;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room::before {
+    inset: 5px;
+    opacity: 1;
+    border: 1px solid rgba(238,215,187,.2);
+    border-radius: 0;
+    box-shadow: inset 0 0 22px rgba(0,0,0,.38);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room[data-shape="Patio"] {
+    border-color: #4b5040;
+    box-shadow:
+        0 10px 0 #24291f,
+        0 22px 34px rgba(0,0,0,.42);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-header {
+    min-height: 45px;
+    margin: -5px -5px 10px;
+    padding: 7px 10px;
+    border: 0;
+    border-bottom: 2px solid rgba(238,215,187,.16);
+    background: #1d1712;
+    cursor: default;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-title strong {
+    color: #f1e8da;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 400;
+    letter-spacing: .08em;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-title span,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-badge {
+    color: #8f8276;
+    font-family: "Space Mono", monospace;
+    font-size: .52rem;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-badge {
+    padding: 4px 6px;
+    border: 1px solid rgba(238,215,187,.13);
+    border-radius: 0;
+    background: #110e0b;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-body {
+    height: calc(100% - 52px);
+    min-height: 120px;
+    overflow: visible;
+    border: 1px solid #59422f;
+    background:
+        repeating-linear-gradient(90deg, transparent 0, transparent 20px, rgba(45,24,12,.22) 21px, transparent 22px),
+        repeating-linear-gradient(0deg, #8a6847 0, #8a6847 10px, #7b593c 11px, #7b593c 20px);
+    box-shadow:
+        inset 0 0 0 4px rgba(37,22,13,.32),
+        inset 0 18px 35px rgba(255,238,202,.055);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room[data-shape="Patio"] .floor-room-body {
+    border-color: #5a5d50;
+    background:
+        linear-gradient(45deg, rgba(255,255,255,.035) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.035) 75%),
+        #4b4d43;
+    background-size: 30px 30px;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-body::before,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-room-body::after {
+    display: none;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node.is-free,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node.is-reserved,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node.is-occupied,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-shape="Counter"],
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-shape="Lounge"] {
+    --table-status: #65ae72;
+    z-index: 5;
+    overflow: visible;
+    padding: 7px;
+    color: #f3ecdf;
+    border: 2px solid #382316;
+    border-radius: 3px;
+    background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) 7px, transparent 8px, transparent 15px),
+        #81502e;
+    box-shadow:
+        0 7px 0 #4b2b18,
+        0 13px 16px rgba(0,0,0,.45),
+        0 0 0 3px color-mix(in srgb, var(--table-status) 55%, transparent);
+    cursor: default;
+    pointer-events: none;
+    touch-action: auto;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node.is-reserved {
+    --table-status: #e4b23f;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node.is-occupied {
+    --table-status: #cf504a;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-shape="Round"],
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-type="HighTop"] {
+    border-radius: 50%;
+    background: radial-gradient(circle at 36% 30%, #a16a3d, #684026 70%);
+    box-shadow:
+        0 10px 0 #352116,
+        0 17px 18px rgba(0,0,0,.5),
+        0 0 0 3px color-mix(in srgb, var(--table-status) 55%, transparent);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-type="HighTop"] {
+    border-color: #16181a;
+    background: radial-gradient(circle at 38% 30%, #55595c, #202326 72%);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-type="BarCounter"],
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-shape="Counter"] {
+    border-radius: 2px;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,.08), transparent 18%, rgba(255,255,255,.04) 50%, transparent 82%),
+        #60361f;
+    box-shadow:
+        0 9px 0 #29170e,
+        0 16px 18px rgba(0,0,0,.5),
+        0 0 0 3px color-mix(in srgb, var(--table-status) 55%, transparent);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-type="Lounge"],
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-shape="Lounge"] {
+    color: #fff3ec;
+    border-color: #421a20;
+    border-radius: 7px;
+    background:
+        linear-gradient(90deg, transparent 48%, rgba(255,255,255,.12) 49%, rgba(255,255,255,.12) 51%, transparent 52%),
+        #792d38;
+    box-shadow:
+        inset 0 5px 0 rgba(255,255,255,.08),
+        0 10px 0 #35151a,
+        0 17px 20px rgba(0,0,0,.5),
+        0 0 0 3px color-mix(in srgb, var(--table-status) 55%, transparent);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node::before,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node::after {
+    display: none !important;
+}
+
+body.admin-shell-body .floor-table-seat {
+    display: none;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-seat {
+    position: absolute;
+    z-index: -1;
+    display: block;
+    width: clamp(9px, 17%, 18px);
+    height: clamp(7px, 13%, 13px);
+    border: 1px solid #26191a;
+    border-radius: 3px 3px 6px 6px;
+    background: #6d2c35;
+    box-shadow: 0 4px 0 #30161a, 0 7px 7px rgba(0,0,0,.42);
+    pointer-events: none;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-type="HighTop"] .floor-table-seat,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-type="BarCounter"] .floor-table-seat {
+    border-radius: 50%;
+    background: #24272a;
+    box-shadow: 0 5px 0 #0d0f10, 0 8px 7px rgba(0,0,0,.48);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-type="Lounge"] .floor-table-seat,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node[data-shape="Lounge"] .floor-table-seat {
+    display: none;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-label {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1rem;
+    letter-spacing: .04em;
+    text-shadow: 0 1px 2px rgba(0,0,0,.65);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node strong {
+    color: #e8d8c5;
+    font: 700 .56rem "Space Mono", monospace;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-table-node small {
+    position: absolute;
+    right: -5px;
+    bottom: -8px;
+    padding: 3px 5px;
+    color: #10110f;
+    background: var(--table-status);
+    font: 900 .45rem "Space Mono", monospace;
+    letter-spacing: .02em;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-editable-fixture {
+    z-index: 6;
+    color: #eee5d7;
+    border: 2px solid #32251c;
+    border-radius: 2px;
+    background: #5f3a22;
+    box-shadow: 0 8px 0 #28170e, 0 15px 18px rgba(0,0,0,.45);
+    cursor: default;
+    pointer-events: none;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-editable-fixture.is-bar {
+    background:
+        repeating-linear-gradient(90deg, #6f4225 0, #6f4225 18px, #5c351e 19px, #5c351e 36px);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-editable-fixture.is-toilet {
+    color: #21303a;
+    border-color: #8797a0;
+    background:
+        linear-gradient(45deg, rgba(255,255,255,.22) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.22) 75%),
+        #b8c2c7;
+    background-size: 22px 22px;
+    box-shadow: 0 7px 0 #67757c, 0 14px 18px rgba(0,0,0,.4);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-editable-fixture.is-entrance,
+body.admin-shell-body .floor-studio.is-preview-mode .floor-editable-fixture.is-door {
+    color: #25180e;
+    border-color: #a77e42;
+    background: #d2ad68;
+    box-shadow: 0 6px 0 #74552c, 0 12px 15px rgba(0,0,0,.4);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode .floor-editable-fixture.is-terrace {
+    color: #e3ead9;
+    border: 3px dashed #657857;
+    background: rgba(63,83,54,.68);
+    box-shadow: inset 0 0 0 5px rgba(22,35,18,.24), 0 12px 22px rgba(0,0,0,.36);
+}
+
+@media (max-width: 991.98px) {
+    body.admin-shell-body .floor-studio.is-preview-mode .floor-canvas-toolbar {
+        width: min(calc(100vw - 82px), 1120px);
+    }
+}
+
+@media (max-width: 700px) {
+    body.admin-shell-body .floor-stage-bar {
+        align-items: stretch;
+    }
+
+    body.admin-shell-body .floor-view-switch {
+        width: 100%;
+    }
+
+    body.admin-shell-body .floor-view-switch button {
+        flex: 1;
+    }
+
+    body.admin-shell-body .floor-studio.is-preview-mode .floor-stage-scroll {
+        padding: 16px 16px 70px;
+    }
+}
+
+body.admin-shell-body .floor-stage-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+body.admin-shell-body .floor-room-command {
+    display: inline-flex;
+    min-height: 40px;
+    padding: 0 12px;
+    align-items: center;
+    justify-content: center;
+    color: #d9d4ca;
+    border: 1px solid rgba(238,232,220,.2);
+    background: #0b0c0a;
+    font: 700 .6rem "Space Mono", monospace;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+body.admin-shell-body .floor-room-command.is-add:hover {
+    color: #111;
+    border-color: var(--admin-board-yellow, #f4c400);
+    background: var(--admin-board-yellow, #f4c400);
+}
+
+body.admin-shell-body .floor-room-command.is-delete {
+    color: #e9968f;
+    border-color: rgba(200,32,45,.48);
+}
+
+body.admin-shell-body .floor-room-command.is-delete:hover {
+    color: #fff;
+    background: var(--admin-board-red, #c8202d);
+}
+
+body.admin-shell-body .floor-room-command:disabled {
+    opacity: .35;
+    cursor: not-allowed;
+}
+
+/* Edit mode keeps the spatial rendering and only reveals editing affordances. */
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette {
+    display: flex !important;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-selection-dock:not([hidden]) {
+    display: flex !important;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-transform-handle,
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-room-resize,
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-room-shape-handle {
+    display: block !important;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-table-node,
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-editable-fixture {
+    cursor: grab;
+    pointer-events: auto;
+    touch-action: none;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-table-node:active,
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-editable-fixture:active {
+    cursor: grabbing;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-room-header {
+    cursor: grab;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-room-header:active {
+    cursor: grabbing;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-toolbar {
+    min-height: 76px;
+    justify-content: space-between;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette {
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 5px;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette-title {
+    display: grid;
+    min-width: 42px;
+    place-items: center;
+    color: #8f8b82;
+    font: 700 .52rem "Space Mono", monospace;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette button {
+    display: grid;
+    width: 68px;
+    min-height: 62px;
+    padding: 5px 4px 4px;
+    place-items: center;
+    gap: 2px;
+    color: #d8d2c7;
+    border: 1px solid rgba(238,232,220,.11);
+    background: #151613;
+    font: 600 .49rem "Space Mono", monospace;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette button:hover {
+    color: #111;
+    border-color: var(--admin-board-yellow, #f4c400);
+    background: var(--admin-board-yellow, #f4c400);
+    transform: translateY(-2px);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i {
+    position: relative;
+    display: block;
+    width: 46px;
+    height: 32px;
+    overflow: hidden;
+    border: 1px solid #41382f;
+    border-radius: 0;
+    background:
+        repeating-linear-gradient(90deg, #79583a 0, #79583a 7px, #68482f 8px, #68482f 15px);
+    box-shadow: 0 4px 0 #261a12, 0 7px 8px rgba(0,0,0,.45);
+    opacity: 1;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i::before,
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i::after {
+    position: absolute;
+    content: "";
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-door::before {
+    inset: 4px 12px 0;
+    border: 2px solid #c99b5a;
+    border-bottom: 0;
+    background: #5b331d;
+    box-shadow: inset -4px 0 0 rgba(0,0,0,.22);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-door::after {
+    top: 16px;
+    right: 15px;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #f4c400;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-toilet {
+    background:
+        linear-gradient(45deg, rgba(255,255,255,.22) 25%, transparent 25%, transparent 75%, rgba(255,255,255,.22) 75%),
+        #73838b;
+    background-size: 12px 12px;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-toilet::before {
+    top: 5px;
+    left: 17px;
+    width: 12px;
+    height: 17px;
+    border: 3px solid #eef1ee;
+    border-radius: 50% 50% 7px 7px;
+    background: #b9c4c7;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-toilet::after {
+    top: 3px;
+    left: 16px;
+    width: 14px;
+    height: 7px;
+    border: 2px solid #eef1ee;
+    background: #a8b5b9;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-entrance::before {
+    inset: 5px 8px 0;
+    border: 3px solid #d2ad68;
+    border-bottom: 0;
+    border-radius: 16px 16px 0 0;
+    background: #17130f;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-entrance::after {
+    right: 7px;
+    bottom: 3px;
+    left: 7px;
+    height: 3px;
+    background: var(--admin-board-red, #c8202d);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-bar::before {
+    right: 5px;
+    bottom: 7px;
+    left: 5px;
+    height: 11px;
+    border: 2px solid #2b170d;
+    background: #7d4827;
+    box-shadow: 0 5px 0 #321b0f;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-bar::after {
+    top: 4px;
+    left: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #24272a;
+    box-shadow: 11px 0 0 #24272a, 22px 0 0 #24272a;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-terrace {
+    border: 2px dashed #778b68;
+    background: #3f5438;
+    box-shadow: 0 4px 0 #1f2c1b, 0 7px 8px rgba(0,0,0,.45);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-terrace::before {
+    top: 6px;
+    left: 7px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #94ad72;
+    box-shadow: 22px 10px 0 #94ad72;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-terrace::after {
+    right: 14px;
+    bottom: 5px;
+    width: 14px;
+    height: 8px;
+    border: 2px solid #d1b176;
+    background: #725033;
+}
+
+@media (max-width: 760px) {
+    body.admin-shell-body .floor-stage-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    body.admin-shell-body .floor-room-command,
+    body.admin-shell-body .floor-view-switch {
+        flex: 1;
+    }
+
+    body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette {
+        overflow-x: auto;
+    }
+}

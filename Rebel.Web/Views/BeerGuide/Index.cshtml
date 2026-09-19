@@ -7,56 +7,25 @@
 
     var request = Model.Request;
     var selectedMode = request.Mode == "food" ? "food" : "taste";
-    var activeTool = Model.HasSearched ? "quick" : "chat";
     var initialChatPrompt = JsonSerializer.Serialize(Model.InitialChatPrompt);
 }
 
 <div class="rr-guide-page">
-    <header class="rr-guide-header">
-        <div class="rr-guide-header-copy">
-            <span class="rr-guide-kicker">REBEL AI / BEHIND THE BAR</span>
-            <h1>WHAT ARE YOU<br /><em>CRAVING?</em></h1>
-            <p>Tell us the mood, the flavour, or what is on your plate. Rebel AI knows the food on the pass and the beers in the fridge.</p>
-        </div>
-
-        <div class="rr-guide-count" aria-label="Available menu recommendations">
-            <strong>@(Model.AvailableBeerCount + Model.AvailableFoodCount)</strong>
-            <span>food + beer picks<br />available now</span>
-        </div>
-    </header>
-
-    <nav class="rr-guide-tool-tabs"
-         role="tablist"
-         aria-label="Choose Rebel AI mode">
-        <button type="button"
-                role="tab"
-                data-guide-tool-button="chat"
-                aria-controls="rr-guide-chat"
-                aria-selected="@(activeTool == "chat" ? "true" : "false")">
-            <span>Chat with the bartender</span>
-            <small>Say it your way</small>
-        </button>
-        <button type="button"
-                role="tab"
-                data-guide-tool-button="quick"
-                aria-controls="rr-guide-quick"
-                aria-selected="@(activeTool == "quick" ? "true" : "false")">
-            <span>Quick picker</span>
-            <small>Tap through it</small>
-        </button>
-    </nav>
-
-    <main class="rr-guide-workspace" data-active-tool="@activeTool">
+    <main class="rr-guide-workspace rr-guide-workspace-chat-only"
+          data-active-tool="chat">
         <section id="rr-guide-chat"
-                 class="rr-guide-chat"
+                 class="rr-guide-chat rr-guide-ai-stage"
                  data-guide-tool-panel="chat"
-                 role="tabpanel"
                  aria-labelledby="rr-guide-chat-title">
-            <header class="rr-guide-chat-heading">
-                <div>
-                    <span>BEHIND THE BAR</span>
-                    <h2 id="rr-guide-chat-title">WHAT SOUNDS<br />GOOD?</h2>
+            <header class="rr-guide-ai-stage-head">
+                <div class="rr-guide-ai-stage-copy">
+                    <span>REBEL AI / BEHIND THE BAR</span>
+                    <h2 id="rr-guide-chat-title">WHAT ARE YOU CRAVING?</h2>
+                    <p>
+                        Ask for food, beer, or a pairing in your own words.
+                    </p>
                 </div>
+
                 <button type="button"
                         class="rr-guide-chat-reset"
                         data-chat-reset
@@ -84,27 +53,12 @@
                             <img src="~/images/hero.jpg" alt="" aria-hidden="true" />
                         </span>
                         <div class="rr-guide-message-content">
-                            <p>What are you in the mood for? Give me a taste, a style, or what is on your plate.</p>
+                            <p>Tell me what kind of night this is. I will find the food, the beer, or the pairing.</p>
                         </div>
                     </article>
                 </div>
 
                 <div class="rr-guide-chat-controls">
-                    <div class="rr-guide-chat-prompts" aria-label="Example questions">
-                        <button type="button" data-chat-prompt="I want one citrussy IPA with grapefruit aroma.">
-                            Grapefruit IPA
-                        </button>
-                        <button type="button" data-chat-prompt="I want something dark and roasty, but not too sweet.">
-                            Dark / roasty / not sweet
-                        </button>
-                        <button type="button" data-chat-prompt="What beer should I have with a Rebel Burger? Give me two options.">
-                            Pair with Rebel Burger
-                        </button>
-                        <button type="button" data-chat-prompt="I want something hot and salty to eat. Give me three options.">
-                            Hot / salty food
-                        </button>
-                    </div>
-
                     <form class="rr-guide-chat-form" data-chat-form>
                         @Html.AntiForgeryToken()
                         <label for="rr-guide-chat-input" class="visually-hidden">
@@ -114,7 +68,7 @@
                                   data-chat-input
                                   maxlength="500"
                                   rows="2"
-                                  placeholder="Try: something hot and salty, or two crisp beers..."></textarea>
+                                  placeholder="Spicy food and a cold beer under 250 MKD..."></textarea>
                         <button type="submit" data-chat-submit>
                             <span>Shout it</span>
                             <b aria-hidden="true">&rarr;</b>
@@ -384,7 +338,7 @@
                 });
             });
 
-            setActiveTool("@activeTool");
+            setActiveTool("chat");
 
             const updateMode = () => {
                 const mode = modeInputs.find(input => input.checked)?.value ?? "taste";

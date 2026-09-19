@@ -154,7 +154,10 @@
         <div class="admin-quick-panel-body">
             <section class="admin-quick-contact">
                 <a href="tel:@Model.PhoneNumber">Call @Model.PhoneNumber</a>
-                <a href="mailto:@Model.Email">Email guest</a>
+                @if (!string.IsNullOrWhiteSpace(Model.Email))
+                {
+                    <a href="mailto:@Model.Email">Email guest</a>
+                }
             </section>
 
             @if (isPending)

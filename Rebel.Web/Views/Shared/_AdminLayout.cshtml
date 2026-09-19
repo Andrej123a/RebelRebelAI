@@ -1,8 +1,12 @@
 ﻿@using Microsoft.EntityFrameworkCore
 @using Rebel.Web.Authorization
 @inject Rebel.Infrastructure.Data.AppDbContext DbContext
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
+    var hideAiFeatures = Configuration.GetValue<bool>(
+        "Presentation:HideAiFeatures");
+
     var currentController =
         ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
 
@@ -110,6 +114,10 @@
           href="~/css/admin-refresh.css"
           asp-append-version="true" />
 
+    <link rel="stylesheet"
+          href="~/css/admin-redesign.css"
+          asp-append-version="true" />
+
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
           rel="stylesheet" />
 </head>
@@ -131,8 +139,8 @@
                     </span>
 
                     <span class="admin-brand-copy">
-                        <span class="admin-brand-name">Rebel Admin</span>
-                        <span class="admin-brand-kicker">Staff control room</span>
+                        <span class="admin-brand-name">Rebel</span>
+                        <span class="admin-brand-kicker">Admin</span>
                     </span>
                 </a>
 
@@ -156,7 +164,7 @@
                 <nav class="admin-navigation">
 
                     <span class="admin-nav-section">
-                        Daily work
+                        Today
                     </span>
 
                     <a asp-controller="Admin"
@@ -177,13 +185,17 @@
                         <span>Tonight</span>
                     </a>
 
+                    <span class="admin-nav-section">
+                        Reservations
+                    </span>
+
                     <a asp-controller="AdminReservations"
                        asp-action="Index"
                        class="admin-nav-link @GetReservationsActiveClass()"
                        aria-current="@(GetReservationsActiveClass() == "active" ? "page" : null)">
 
                         <span class="admin-nav-symbol is-bookings" aria-hidden="true"></span>
-                        <span>All bookings</span>
+                        <span>Bookings</span>
 
                         <span id="reservationNavBadge"
                               class="admin-nav-alert @(unreadNotificationsCount > 0 ? string.Empty : "d-none")"
@@ -198,9 +210,13 @@
                            asp-action="Planner"
                            class="admin-nav-link @GetCommandActiveClass("AdminReservations", "Planner")">
                             <span class="admin-nav-symbol is-planner" aria-hidden="true"></span>
-                            Week planner
+                            Planner
                         </a>
                     </div>
+
+                    <span class="admin-nav-section">
+                        Operations
+                    </span>
 
                     <a asp-controller="AdminTables"
                        asp-action="Index"
@@ -218,7 +234,7 @@
                            class="admin-nav-link @GetActiveClass("AdminStaffSchedule")"
                            aria-current="@(GetActiveClass("AdminStaffSchedule") == "active" ? "page" : null)">
                             <span class="admin-nav-symbol is-staff" aria-hidden="true"></span>
-                            <span>Staff schedule</span>
+                            <span>Staff</span>
                         </a>
                     }
                     else
@@ -235,7 +251,7 @@
                     @if (isManager)
                     {
                         <span class="admin-nav-section">
-                            Setup
+                            Content
                         </span>
 
                     <a asp-controller="AdminEvents"
@@ -256,36 +272,47 @@
                         <span>Menu</span>
                     </a>
 
-                    <a asp-controller="AdminBeerCatalog"
-                       asp-action="Index"
-                       class="admin-nav-link @GetActiveClass("AdminBeerCatalog")"
-                       aria-current="@(GetActiveClass("AdminBeerCatalog") == "active" ? "page" : null)">
-                        <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
-                        <span>Beer catalogue</span>
-                    </a>
+                    @if (!hideAiFeatures)
+                    {
+                        <span class="admin-nav-section">
+                            Rebel AI
+                        </span>
 
-                    <a asp-controller="AdminBeerFeedback"
-                       asp-action="Index"
-                       class="admin-nav-link @GetActiveClass("AdminBeerFeedback")"
-                       aria-current="@(GetActiveClass("AdminBeerFeedback") == "active" ? "page" : null)">
-                        <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
-                        <span>Beer feedback</span>
-                    </a>
+                        <a asp-controller="AdminBeerCatalog"
+                           asp-action="Index"
+                           class="admin-nav-link @GetActiveClass("AdminBeerCatalog")"
+                           aria-current="@(GetActiveClass("AdminBeerCatalog") == "active" ? "page" : null)">
+                            <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
+                            <span>Beer catalogue</span>
+                        </a>
 
-                    <a asp-controller="AdminBeerGuideLab"
-                       asp-action="Index"
-                       class="admin-nav-link @GetActiveClass("AdminBeerGuideLab")"
-                       aria-current="@(GetActiveClass("AdminBeerGuideLab") == "active" ? "page" : null)">
-                        <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
-                        <span>AI test lab</span>
-                    </a>
+                        <a asp-controller="AdminBeerFeedback"
+                           asp-action="Index"
+                           class="admin-nav-link @GetActiveClass("AdminBeerFeedback")"
+                           aria-current="@(GetActiveClass("AdminBeerFeedback") == "active" ? "page" : null)">
+                            <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
+                            <span>Beer feedback</span>
+                        </a>
+
+                        <a asp-controller="AdminBeerGuideLab"
+                           asp-action="Index"
+                           class="admin-nav-link @GetActiveClass("AdminBeerGuideLab")"
+                           aria-current="@(GetActiveClass("AdminBeerGuideLab") == "active" ? "page" : null)">
+                            <span class="admin-nav-symbol is-menu" aria-hidden="true"></span>
+                            <span>AI test lab</span>
+                        </a>
+                    }
+
+                        <span class="admin-nav-section">
+                            Team
+                        </span>
 
                         <a asp-controller="AdminStaffAccounts"
                            asp-action="Index"
                            class="admin-nav-link @GetActiveClass("AdminStaffAccounts")"
                            aria-current="@(GetActiveClass("AdminStaffAccounts") == "active" ? "page" : null)">
                             <span class="admin-nav-symbol is-accounts" aria-hidden="true"></span>
-                            <span>Staff accounts</span>
+                            <span>Accounts</span>
                         </a>
                     }
 
@@ -344,14 +371,10 @@
 
         <main class="admin-stage">
 
-            <div class="admin-stage-topline">
-                <span class="admin-topline-location">
-                    <strong>Control room</strong>
-                    <span>/</span>
-                    @ViewData["Title"]
-                </span>
-
-                <div class="admin-topline-actions">
+            @if (unreadNotificationsCount > 0)
+            {
+                <div class="admin-stage-topline">
+                    <div class="admin-topline-actions">
 
                     <a id="reservationSignal"
                        asp-controller="AdminReservations"
@@ -404,11 +427,10 @@
 
                         </span>
 
-                    </a>
-
+                        </a>
+                    </div>
                 </div>
-
-            </div>
+            }
 
             @if (TempData["SuccessMessage"] != null ||
                  TempData["ErrorMessage"] != null)

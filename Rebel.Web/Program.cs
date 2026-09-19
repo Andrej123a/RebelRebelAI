@@ -7,6 +7,9 @@ using Rebel.Web.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var hideAiFeatures = builder.Configuration.GetValue<bool>(
+    "Presentation:HideAiFeatures");
+
 var defaultConnection =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
@@ -84,6 +87,29 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+if (hideAiFeatures)
+{
+    app.Use(async (context, next) =>
+    {
+        var path = context.Request.Path;
+        var isPublicAiRoute =
+            path.StartsWithSegments("/RebelAI", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/BeerGuide", StringComparison.OrdinalIgnoreCase);
+        var isAdminAiRoute =
+            path.StartsWithSegments("/AdminBeerCatalog", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/AdminBeerFeedback", StringComparison.OrdinalIgnoreCase) ||
+            path.StartsWithSegments("/AdminBeerGuideLab", StringComparison.OrdinalIgnoreCase);
+
+        if (isPublicAiRoute || isAdminAiRoute)
+        {
+            context.Response.Redirect(isAdminAiRoute ? "/Admin" : "/Home/Menu");
+            return;
+        }
+
+        await next();
+    });
+}
 
 app.UseRouting();
 
@@ -375,5 +401,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 app.MapHub<NotificationHub>("/notificationHub");
+
 
 app.Run();

@@ -1,7 +1,7 @@
-@model Rebel.Web.Models.AdminTableEditorViewModel
+@model Rebel.Domain.Entities.FloorRoom
 
 @{
-    ViewData["Title"] = $"Table {Model.Table.Label}";
+    ViewData["Title"] = $"Room {Model.Name}";
 }
 
 <section class="admin-workspace table-simple-page">
@@ -12,19 +12,19 @@
                class="admin-workspace-eyebrow">
                 Back to floor
             </a>
-            <h1 class="admin-workspace-title">Table @Model.Table.Label</h1>
+            <h1 class="admin-workspace-title">Room @Model.Name</h1>
         </div>
     </header>
 
     <form asp-controller="AdminTables"
-          asp-action="Edit"
-          asp-route-id="@Model.Table.Id"
+          asp-action="EditRoom"
+          asp-route-id="@Model.Id"
           method="post"
           class="table-simple-form">
         @Html.AntiForgeryToken()
-        <input asp-for="Table.Id" type="hidden" />
+        <input asp-for="Id" type="hidden" />
 
-        <partial name="_Form" model="Model" />
+        <partial name="_RoomForm" model="Model" />
 
         <div class="table-form-actions">
             <button type="submit" class="admin-primary-button">

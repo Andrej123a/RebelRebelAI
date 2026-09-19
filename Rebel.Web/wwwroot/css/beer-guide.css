@@ -790,6 +790,195 @@
     font-size: 0.72rem;
 }
 
+/* Single-mode Rebel AI bar */
+.rr-guide-workspace-chat-only {
+    display: block;
+    padding: clamp(34px, 6vw, 68px) 0 80px;
+}
+
+.rr-guide-ai-stage {
+    position: relative;
+    overflow: hidden;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: clamp(18px, 3vw, 32px);
+    border: 1px solid rgba(243, 238, 228, 0.2);
+    background:
+        linear-gradient(112deg, rgba(255, 74, 47, 0.09), transparent 34%),
+        rgba(7, 7, 7, 0.76);
+    box-shadow: 7px 7px 0 rgba(143, 16, 32, 0.62);
+}
+
+.rr-guide-ai-stage::before {
+    position: absolute;
+    top: 0;
+    right: 8%;
+    width: 90px;
+    height: 5px;
+    background: #ffca28;
+    content: "";
+    transform: rotate(-1deg);
+}
+
+.rr-guide-ai-stage-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px;
+    gap: 20px;
+    align-items: start;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(243, 238, 228, 0.15);
+}
+
+.rr-guide-ai-portrait {
+    position: relative;
+    width: 126px;
+    height: 150px;
+    overflow: hidden;
+    border: 3px solid #ff4a2f;
+    box-shadow: 8px 8px 0 #8f1020, -4px -4px 0 #ffca28;
+    transform: rotate(-1.5deg);
+}
+
+.rr-guide-ai-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 12% center;
+    filter: saturate(0.9) contrast(1.12);
+}
+
+.rr-guide-ai-stage-copy > span,
+.rr-guide-chat-input-heading span {
+    color: #ff4a2f;
+    font: 700 0.65rem "Space Mono", monospace;
+    text-transform: uppercase;
+}
+
+.rr-guide-ai-stage-copy h2 {
+    margin: 6px 0 8px;
+    font: 400 clamp(2.7rem, 5vw, 4.5rem)/0.92 "Anton", sans-serif;
+    text-transform: uppercase;
+}
+
+.rr-guide-ai-stage-copy h2 em {
+    color: #ff4a2f;
+    font-style: normal;
+    text-shadow: 5px 5px 0 #8f1020;
+}
+
+.rr-guide-ai-stage-copy p {
+    max-width: 650px;
+    margin: 0;
+    color: #aaa298;
+    font: 0.96rem/1.5 "Special Elite", serif;
+}
+
+.rr-guide-ai-stage .rr-guide-chat-shell {
+    padding-top: 6px;
+}
+
+.rr-guide-ai-stage .rr-guide-chat-shell::before {
+    display: none;
+}
+
+.rr-guide-ai-stage .rr-guide-chat-thread {
+    max-height: 640px;
+    padding: 18px 6px 20px;
+}
+
+.rr-guide-ai-stage .rr-guide-chat-controls {
+    margin: 0;
+    padding: 13px;
+    border: 1px solid rgba(255, 74, 47, 0.52);
+    border-top: 6px solid #ff4a2f;
+    background: #0a0a09;
+    box-shadow: 4px 4px 0 #8f1020;
+    transform: none;
+}
+
+.rr-guide-ai-stage .rr-guide-chat-controls::before {
+    display: none;
+}
+
+.rr-guide-chat-input-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding-bottom: 12px;
+}
+
+.rr-guide-chat-input-heading strong {
+    color: #f3eee4;
+    font: 400 1.45rem "Bebas Neue", sans-serif;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+}
+
+.rr-guide-ai-stage .rr-guide-chat-form textarea {
+    min-height: 68px;
+    border: 1px solid rgba(243, 238, 228, 0.24);
+    border-left: 4px solid #ff4a2f;
+    border-bottom: 3px solid #f3eee4;
+    background: #050505;
+}
+
+.rr-guide-ai-stage .rr-guide-chat-form button {
+    min-height: 68px;
+    color: #080808;
+    background: #ff4a2f;
+    box-shadow: 6px 6px 0 #ffca28;
+    transform: none;
+}
+
+.rr-guide-ai-stage .rr-guide-chat-form button b {
+    color: #080808;
+}
+
+@media (max-width: 700px) {
+    .rr-guide-ai-stage-head {
+        grid-template-columns: minmax(0, 1fr) 40px;
+        gap: 12px;
+        align-items: start;
+    }
+
+    .rr-guide-ai-portrait {
+        width: 76px;
+        height: 96px;
+        border-width: 2px;
+        box-shadow: 5px 5px 0 #8f1020, -2px -2px 0 #ffca28;
+    }
+
+    .rr-guide-ai-stage-copy h2 {
+        font-size: clamp(2.35rem, 10vw, 3.4rem);
+    }
+
+    .rr-guide-ai-stage-copy p {
+        grid-column: 1 / -1;
+        font-size: 0.9rem;
+    }
+
+    .rr-guide-ai-stage .rr-guide-chat-reset {
+        width: 40px;
+        height: 40px;
+        flex-basis: 40px;
+    }
+
+    .rr-guide-chat-input-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .rr-guide-ai-stage .rr-guide-chat-form {
+        grid-template-columns: 1fr;
+    }
+
+    .rr-guide-ai-stage .rr-guide-chat-form button {
+        min-height: 52px;
+    }
+}
+
 .rr-guide-recovery-actions {
     display: grid;
     margin-top: 14px;

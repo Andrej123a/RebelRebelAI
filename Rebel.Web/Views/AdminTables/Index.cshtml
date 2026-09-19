@@ -1,5 +1,6 @@
 @model Rebel.Web.Models.AdminFloorPlanViewModel
 @using Rebel.Web.Authorization
+@using System.Globalization
 
 @{
     ViewData["Title"] = "Floor";
@@ -12,320 +13,1977 @@
         .Where(item => item.Table.IsActive)
         .ToList();
 
-    var inactiveItems = Model.Tables
-        .Where(item => !item.Table.IsActive)
+    var activeRooms = Model.Rooms
+        .Where(item => item.Room.IsActive || item.Tables.Count > 0)
+        .OrderBy(item => item.Room.PositionY)
+        .ThenBy(item => item.Room.PositionX)
         .ToList();
 
     var occupiedCount = activeItems.Count(item => item.IsOccupied);
-    var freeNowCount = activeItems.Count - occupiedCount;
+    var reservedCount = activeItems.Count(item =>
+        !item.IsOccupied &&
+        item.OperationalReservation?.ReservationDate == Model.CurrentLocalDate);
+    var freeNowCount = Math.Max(0, activeItems.Count - occupiedCount - reservedCount);
     var activeCapacity = activeItems.Sum(item => item.Table.Capacity);
 
-    var tableGroups = activeItems
-        .GroupBy(item =>
-            string.IsNullOrWhiteSpace(item.Table.Area)
-                ? "Main floor"
-                : item.Table.Area!)
-        .OrderBy(group => group.Key)
-        .ToList();
+    var stageWidth = Math.Max(
+        1100,
+        Math.Max(
+            activeRooms.Count == 0 ? 0 : activeRooms.Max(item => item.Room.PositionX + item.Room.Width),
+            Model.Fixtures.Count == 0 ? 0 : Model.Fixtures.Max(item => item.PositionX + item.Width)) + 320);
+    var stageHeight = Math.Max(
+        720,
+        Math.Max(
+            activeRooms.Count == 0 ? 0 : activeRooms.Max(item => item.Room.PositionY + item.Room.Height),
+            Model.Fixtures.Count == 0 ? 0 : Model.Fixtures.Max(item => item.PositionY + item.Height)) + 320);
+
+    string CssNumber(decimal value) =>
+        value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    string TableStateClass(AdminFloorTableViewModel item)
+    {
+        var isReservedToday =
+            !item.IsOccupied &&
+            item.OperationalReservation?.ReservationDate == Model.CurrentLocalDate;
+
+        return item.IsOccupied
+            ? "is-occupied"
+            : isReservedToday
+                ? "is-reserved"
+                : "is-free";
+    }
+
+    string TableStateLabel(AdminFloorTableViewModel item)
+    {
+        var isReservedToday =
+            !item.IsOccupied &&
+            item.OperationalReservation?.ReservationDate == Model.CurrentLocalDate;
+
+        return item.IsOccupied
+            ? "Seated"
+            : isReservedToday
+                ? "Booked"
+                : "Free";
+    }
 }
 
-<div class="admin-workspace floor-workspace">
-
-    <header class="admin-workspace-header">
-        <div class="admin-workspace-heading">
-            <span class="admin-workspace-eyebrow">Today</span>
-            <h1 class="admin-workspace-title">Floor</h1>
-            <p class="admin-workspace-copy">
-                @Model.CurrentLocalDate.ToString("dddd, dd MMMM yyyy")
-            </p>
-        </div>
-
-        <div class="admin-workspace-actions">
-            @if (canManage)
-            {
-                <a asp-controller="AdminTables"
-                   asp-action="Create"
-                   class="admin-primary-button">
-                    Add a table
-                </a>
-            }
-
-            <a asp-controller="AdminReservations"
-               asp-action="Tonight"
-               class="admin-secondary-button">
-                Open tonight
-            </a>
-        </div>
-    </header>
-
-    <section class="floor-status-bar" aria-label="Floor status">
-        <div class="floor-status-item is-free">
-            <span>Free now</span>
-            <strong>@freeNowCount</strong>
-        </div>
-
-        <div class="floor-status-item is-busy">
-            <span>In use</span>
-            <strong>@occupiedCount</strong>
-        </div>
-
-        <div class="floor-status-item">
-            <span>Total seats</span>
-            <strong>@activeCapacity</strong>
-        </div>
-    </section>
-
-    @if (activeItems.Count == 0)
-    {
-        <div class="admin-empty-state floor-empty-state">
-            <strong>No active tables.</strong>
-            <span>Add the first table to begin assigning bookings.</span>
-            @if (canManage)
-            {
-                <a asp-controller="AdminTables"
-                   asp-action="Create"
-                   class="admin-primary-button">
-                    Add a table
-                </a>
-            }
-        </div>
+<style>
+    .floor-studio {
+        --floor-panel: rgba(17, 20, 20, 0.95);
+        --floor-border: rgba(255, 255, 255, 0.08);
+        --floor-copy: rgba(245, 240, 233, 0.96);
+        --floor-muted: rgba(213, 198, 179, 0.72);
+        --floor-accent: #ff5a2f;
+        --floor-gold: #f1b94a;
+        --floor-green: #4ed083;
+        --floor-red: #ff6b6b;
+        color: var(--floor-copy);
     }
-    else
-    {
-        <div class="floor-zones">
-            @foreach (var group in tableGroups)
-            {
-                var zoneCapacity = group.Sum(item => item.Table.Capacity);
 
-                <section class="floor-zone">
-                    <header class="floor-zone-header">
-                        <div>
-                            <span>Area</span>
-                            <h2>@group.Key</h2>
-                        </div>
+    .floor-studio,
+    .floor-studio * {
+        box-sizing: border-box;
+    }
 
-                        <p>
-                            @group.Count() tables / @zoneCapacity seats
-                        </p>
-                    </header>
+    .floor-studio-shell {
+        display: grid;
+        gap: 24px;
+    }
 
-                    <div class="floor-table-grid">
-                        @foreach (var item in group.OrderBy(item => item.Table.Label))
+    .floor-studio-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .floor-studio-header h1 {
+        margin: 6px 0 0;
+        font-size: clamp(2.5rem, 4vw, 4.6rem);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #f6efe7;
+    }
+
+    .floor-studio-header p,
+    .floor-studio-header span {
+        margin: 0;
+        color: var(--floor-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.72rem;
+    }
+
+    .floor-studio-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border: 1px solid var(--floor-border);
+        border-radius: 999px;
+        background:
+            radial-gradient(circle at left, rgba(255, 90, 47, 0.18), transparent 45%),
+            rgba(18, 20, 20, 0.92);
+        font-size: 0.82rem;
+        color: var(--floor-muted);
+    }
+
+    .floor-studio-status::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--floor-green);
+        box-shadow: 0 0 0 6px rgba(78, 208, 131, 0.12);
+    }
+
+    .floor-studio-status.is-error::before {
+        background: var(--floor-red);
+        box-shadow: 0 0 0 6px rgba(255, 107, 107, 0.12);
+    }
+
+    .floor-studio-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .floor-studio-stat {
+        padding: 18px 20px;
+        border-radius: 24px;
+        border: 1px solid var(--floor-border);
+        background:
+            linear-gradient(145deg, rgba(29, 32, 32, 0.96), rgba(13, 15, 15, 0.94));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .floor-studio-stat span {
+        display: block;
+        margin-bottom: 12px;
+        color: var(--floor-muted);
+        font-size: 0.72rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    .floor-studio-stat strong {
+        font-size: 2rem;
+        line-height: 1;
+    }
+
+    .floor-stage-wrap {
+        overflow: hidden;
+        border-radius: 34px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background:
+            radial-gradient(circle at top left, rgba(255, 90, 47, 0.16), transparent 24%),
+            radial-gradient(circle at bottom right, rgba(241, 185, 74, 0.12), transparent 22%),
+            linear-gradient(180deg, rgba(16, 18, 18, 0.98), rgba(7, 8, 8, 0.98));
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    .floor-stage-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .floor-stage-bar strong {
+        display: block;
+        font-size: 1.25rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .floor-stage-bar p {
+        margin: 6px 0 0;
+        color: var(--floor-muted);
+    }
+
+    .floor-stage-hint {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .floor-stage-chip {
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--floor-muted);
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .floor-stage-scroll {
+        overflow: auto;
+        padding: 24px;
+    }
+
+    .floor-stage {
+        position: relative;
+        min-width: 100%;
+        border-radius: 28px;
+        background:
+            radial-gradient(circle at top right, rgba(255, 90, 47, 0.12), transparent 24%),
+            linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(125, 86, 51, 0.16) 0, rgba(125, 86, 51, 0.16) 2px, transparent 2px, transparent 22px),
+            linear-gradient(180deg, #15100d, #090909 20%, #0c0d0d 100%);
+        background-size: 100% 100%, 48px 48px, 48px 48px, 24px 24px, 100% 100%;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .floor-stage-fixture {
+        position: absolute;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(245, 240, 233, 0.72);
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.62rem;
+        pointer-events: none;
+    }
+
+    .floor-stage-fixture.is-bar {
+        top: 54px;
+        right: 74px;
+        width: 280px;
+        height: 56px;
+        display: grid;
+        place-items: center;
+        border-radius: 20px;
+        background:
+            linear-gradient(180deg, rgba(51, 28, 19, 0.94), rgba(29, 17, 12, 0.98));
+        box-shadow: 0 18px 26px rgba(0, 0, 0, 0.25);
+    }
+
+    .floor-stage-fixture.is-entry {
+        left: 40px;
+        bottom: 52px;
+        width: 74px;
+        height: 160px;
+        display: grid;
+        place-items: center;
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        border-radius: 0 20px 20px 0;
+        background:
+            linear-gradient(180deg, rgba(233, 225, 217, 0.92), rgba(184, 173, 161, 0.92));
+        color: rgba(40, 27, 18, 0.78);
+    }
+
+    .floor-stage-fixture.is-service {
+        left: 58px;
+        top: 108px;
+        width: 82px;
+        height: 260px;
+        border-radius: 20px;
+        background:
+            radial-gradient(circle at 50% 14px, rgba(18, 28, 36, 0.65) 0, rgba(18, 28, 36, 0.65) 6px, transparent 7px) 50% 12px / 34px 34px repeat-y,
+            linear-gradient(180deg, rgba(185, 194, 199, 0.98), rgba(143, 154, 160, 0.98));
+        box-shadow: inset 0 0 0 2px rgba(22, 42, 56, 0.8);
+    }
+
+    .floor-stage-fixture.is-service::after {
+        content: "Service";
+        position: absolute;
+        left: 50%;
+        bottom: 14px;
+        transform: translateX(-50%);
+        letter-spacing: 0.12em;
+        color: rgba(18, 28, 36, 0.9);
+    }
+
+    .floor-room {
+        position: absolute;
+        padding: 18px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+            linear-gradient(160deg, rgba(35, 26, 22, 0.92), rgba(16, 16, 16, 0.95));
+        box-shadow:
+            0 28px 48px rgba(0, 0, 0, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .floor-room::before {
+        content: "";
+        position: absolute;
+        inset: 12px;
+        border-radius: 22px;
+        border: 1px dashed rgba(255, 255, 255, 0.07);
+        pointer-events: none;
+    }
+
+    .floor-room.is-selected {
+        border-color: rgba(255, 90, 47, 0.56);
+        box-shadow:
+            0 36px 60px rgba(0, 0, 0, 0.36),
+            0 0 0 1px rgba(255, 90, 47, 0.28),
+            0 0 0 8px rgba(255, 90, 47, 0.08);
+        transform: translateY(-3px);
+    }
+
+    .floor-room[data-shape="Square"] {
+        border-radius: 38px;
+    }
+
+    .floor-room[data-shape="LShape"] {
+        clip-path: polygon(0 0, 100% 0, 100% 66%, 64% 66%, 64% 100%, 0 100%);
+    }
+
+    .floor-room[data-shape="Patio"]::before {
+        border-style: solid;
+        border-color: rgba(78, 208, 131, 0.18);
+    }
+
+    .floor-room-header {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+        cursor: grab;
+    }
+
+    .floor-room-header:active {
+        cursor: grabbing;
+    }
+
+    .floor-room-title strong,
+    .floor-room-title span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .floor-room-title strong {
+        font-size: 1.15rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .floor-room-title span {
+        margin-top: 4px;
+        color: var(--floor-muted);
+        font-size: 0.76rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+
+    .floor-room-badges {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .floor-room-badge {
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--floor-muted);
+        font-size: 0.68rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .floor-room-body {
+        position: relative;
+        height: calc(100% - 68px);
+        min-height: 120px;
+        border-radius: 18px;
+        background:
+            linear-gradient(90deg, rgba(94, 63, 37, 0.14) 0, rgba(94, 63, 37, 0.14) 2px, transparent 2px, transparent 18px),
+            linear-gradient(180deg, rgba(255, 248, 239, 0.05), rgba(255, 255, 255, 0.01)),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.016) 1px, transparent 1px),
+            linear-gradient(rgba(255, 255, 255, 0.016) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(54, 37, 26, 0.78), rgba(33, 26, 20, 0.9));
+        background-size: 20px 20px, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
+        overflow: hidden;
+    }
+
+    .floor-room-body::before {
+        content: "";
+        position: absolute;
+        inset: 14px auto auto 14px;
+        width: 84px;
+        height: 22px;
+        border-radius: 999px;
+        background:
+            linear-gradient(180deg, rgba(233, 219, 202, 0.32), rgba(165, 136, 109, 0.16));
+        opacity: 0.35;
+        pointer-events: none;
+    }
+
+    .floor-room-body::after {
+        content: "Double-click empty space to drop a table";
+        position: absolute;
+        inset: auto 16px 14px auto;
+        color: rgba(255, 255, 255, 0.2);
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        pointer-events: none;
+    }
+
+    .floor-table-node {
+        position: absolute;
+        display: grid;
+        place-items: center;
+        gap: 2px;
+        padding: 6px;
+        border: none;
+        color: #0c1110;
+        background: linear-gradient(180deg, #f8d87d, #e8ae42);
+        box-shadow:
+            inset 0 -3px 0 rgba(0, 0, 0, 0.12),
+            0 14px 24px rgba(0, 0, 0, 0.26);
+        cursor: grab;
+        user-select: none;
+    }
+
+    .floor-table-node::before,
+    .floor-table-node::after {
+        content: "";
+        position: absolute;
+        inset: auto;
+        background: rgba(86, 100, 174, 0.88);
+        pointer-events: none;
+        opacity: 0.92;
+    }
+
+    .floor-table-node::before {
+        top: 50%;
+        left: -11%;
+        width: 10%;
+        height: 28%;
+        transform: translateY(-50%);
+        border-radius: 16px 0 0 16px;
+        box-shadow: calc(100% + 102%) 0 0 rgba(86, 100, 174, 0.88);
+    }
+
+    .floor-table-node::after {
+        left: 50%;
+        top: -11%;
+        width: 28%;
+        height: 10%;
+        transform: translateX(-50%);
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 calc(100% + 102%) 0 rgba(86, 100, 174, 0.88);
+    }
+
+    .floor-table-node:active {
+        cursor: grabbing;
+    }
+
+    .floor-table-node span,
+    .floor-table-node strong,
+    .floor-table-node small {
+        display: block;
+        line-height: 1;
+        pointer-events: none;
+    }
+
+    .floor-table-node span {
+        font-size: 0.98rem;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+    }
+
+    .floor-table-node strong {
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .floor-table-node small {
+        font-size: 0.58rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        opacity: 0.78;
+    }
+
+    .floor-table-node.is-selected {
+        box-shadow:
+            inset 0 -3px 0 rgba(0, 0, 0, 0.12),
+            0 0 0 3px rgba(255, 90, 47, 0.48),
+            0 16px 28px rgba(0, 0, 0, 0.32);
+    }
+
+    .floor-table-node.is-free {
+        background: linear-gradient(180deg, #7af18a, #37be62);
+    }
+
+    .floor-table-node.is-reserved {
+        background: linear-gradient(180deg, #ffd36f, #f0b241);
+    }
+
+    .floor-table-node.is-occupied {
+        background: linear-gradient(180deg, #ff8f8f, #ea5050);
+    }
+
+    .floor-table-node[data-shape="Round"] {
+        border-radius: 999px;
+    }
+
+    .floor-table-node[data-shape="Rectangle"],
+    .floor-table-node[data-shape="Counter"] {
+        border-radius: 18px;
+    }
+
+    .floor-table-node[data-shape="Counter"]::before,
+    .floor-table-node[data-shape="Counter"]::after {
+        display: none;
+    }
+
+    .floor-table-node[data-shape="Counter"] {
+        background: linear-gradient(180deg, #efe2c6, #b68f63);
+        color: #26170f;
+    }
+
+    .floor-table-node[data-shape="Lounge"] {
+        border-radius: 24px;
+        background: linear-gradient(180deg, rgba(112, 146, 255, 0.98), rgba(74, 98, 210, 0.98));
+        color: #f6f7ff;
+    }
+
+    .floor-table-node[data-shape="Lounge"]::before,
+    .floor-table-node[data-shape="Lounge"]::after {
+        inset: auto;
+        width: 18%;
+        height: 18%;
+        border-radius: 999px;
+        background: rgba(202, 217, 255, 0.76);
+    }
+
+    .floor-table-node[data-shape="Lounge"]::before {
+        left: 8%;
+        bottom: 10%;
+        box-shadow: calc(100% + 245%) 0 0 rgba(202, 217, 255, 0.76);
+    }
+
+    .floor-table-node[data-shape="Lounge"]::after {
+        left: 50%;
+        top: 10%;
+        transform: translateX(-50%);
+    }
+
+    .floor-room-resize,
+    .floor-room-shape-handle {
+        position: absolute;
+        z-index: 3;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(9, 10, 10, 0.82);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+    }
+
+    .floor-room-resize {
+        right: 14px;
+        bottom: 14px;
+        background: var(--floor-accent);
+        cursor: nwse-resize;
+    }
+
+    .floor-room-shape-handle {
+        right: 14px;
+        top: 18px;
+        background: var(--floor-gold);
+        cursor: ew-resize;
+    }
+
+    .floor-selection-dock {
+        position: sticky;
+        left: 24px;
+        bottom: 24px;
+        z-index: 5;
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        max-width: calc(100% - 48px);
+        margin-top: 20px;
+        padding: 14px 16px;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(14, 16, 16, 0.88);
+        backdrop-filter: blur(12px);
+    }
+
+    .floor-selection-dock[hidden] {
+        display: none;
+    }
+
+    .floor-selection-label {
+        color: #f7f2ec;
+        font-size: 0.82rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+    .floor-selection-action {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--floor-copy);
+        padding: 9px 12px;
+        cursor: pointer;
+        font-size: 0.76rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .floor-selection-action:hover {
+        border-color: rgba(255, 90, 47, 0.34);
+        background: rgba(255, 90, 47, 0.12);
+    }
+
+    .floor-selection-note {
+        color: var(--floor-muted);
+        font-size: 0.74rem;
+    }
+
+    .floor-booking-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+    }
+
+    .floor-booking-card {
+        padding: 18px 20px;
+        border-radius: 22px;
+        border: 1px solid var(--floor-border);
+        background: var(--floor-panel);
+    }
+
+    .floor-booking-card span,
+    .floor-booking-card small {
+        display: block;
+        color: var(--floor-muted);
+    }
+
+    .floor-booking-card strong {
+        display: block;
+        margin: 8px 0 4px;
+        font-size: 1rem;
+    }
+
+    @@media (max-width: 1100px) {
+        .floor-studio-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .floor-studio-header,
+        .floor-stage-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    @@media (max-width: 700px) {
+        .floor-studio-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="admin-workspace floor-studio is-preview-mode"
+     data-floor-studio
+     data-save-url="@Url.Action("SaveLayout", "AdminTables")"
+     data-delete-room-url="@Url.Action("DeleteRoom", "AdminTables")"
+     data-can-manage="@canManage.ToString().ToLowerInvariant()">
+    <form id="floorLayoutTokenForm">@Html.AntiForgeryToken()</form>
+
+    <div class="floor-studio-shell">
+        <header class="floor-studio-header">
+            <div>
+                <span>Layout</span>
+                <h1>Floor</h1>
+            </div>
+
+            <div class="floor-studio-status" data-floor-status>
+                Saved
+            </div>
+        </header>
+
+        <section class="floor-studio-stats" aria-label="Floor summary">
+            <article class="floor-studio-stat">
+                <span>Rooms</span>
+                <strong>@activeRooms.Count</strong>
+            </article>
+            <article class="floor-studio-stat">
+                <span>Free now</span>
+                <strong>@freeNowCount</strong>
+            </article>
+            <article class="floor-studio-stat">
+                <span>Booked or seated</span>
+                <strong>@(reservedCount + occupiedCount)</strong>
+            </article>
+            <article class="floor-studio-stat">
+                <span>Total seats</span>
+                <strong>@activeCapacity</strong>
+            </article>
+        </section>
+
+        <section class="floor-stage-wrap" aria-labelledby="floor-canvas-title">
+            <div class="floor-stage-bar">
+                <div>
+                    <strong id="floor-canvas-title">Floor canvas</strong>
+                    <p data-floor-mode-copy>Spatial preview / read-only</p>
+                </div>
+
+                <div class="floor-stage-actions">
+                    @if (canManage)
+                    {
+                        <a asp-controller="AdminTables"
+                           asp-action="CreateRoom"
+                           class="floor-room-command is-add">
+                            + Floor
+                        </a>
+                        <button type="button"
+                                class="floor-room-command is-delete"
+                                data-delete-floor
+                                @(activeRooms.Count == 0 ? "disabled" : null)>
+                            Delete floor
+                        </button>
+                    }
+
+                    <div class="floor-view-switch" role="group" aria-label="Floor view mode">
+                        @if (canManage)
                         {
-                            var table = item.Table;
-                            var reservation = item.OperationalReservation;
-                            var isToday = reservation?.ReservationDate == Model.CurrentLocalDate;
-                            var isTomorrow = reservation?.ReservationDate == Model.CurrentLocalDate.AddDays(1);
-
-                            var reservationDateLabel =
-                                isToday ? "Today" :
-                                isTomorrow ? "Tomorrow" :
-                                reservation?.ReservationDate.ToString("ddd, dd MMM");
-
-                            var reservationTimeLabel =
-                                reservation?.ReservationTime.ToString(@"hh\:mm");
-
-                            var stateClass = item.IsOccupied
-                                ? "is-occupied"
-                                : isToday
-                                    ? "is-reserved"
-                                    : "is-free";
-
-                            var stateLabel = item.IsOccupied
-                                ? "In use"
-                                : isToday
-                                    ? "Reserved later"
-                                    : "Free now";
-
-                            var compatibleBookings = Model.UnassignedReservations
-                                .Where(booking => booking.NumberOfGuests <= table.Capacity)
-                                .ToList();
-
-                            var assignPanelId = $"assign-table-{table.Id:N}";
-
-                            <article class="floor-table-card @stateClass">
-                                <header>
-                                    <div>
-                                        <span>Table</span>
-                                        <h3>@table.Label</h3>
-                                    </div>
-
-                                    <span class="floor-table-state">
-                                        <i aria-hidden="true"></i>
-                                        @stateLabel
-                                    </span>
-                                </header>
-
-                                <div class="floor-table-capacity">
-                                    <span class="floor-seat-mark" aria-hidden="true"></span>
-                                    <strong>@table.Capacity seats</strong>
-                                </div>
-
-                                <div class="floor-table-booking">
-                                    @if (reservation == null)
-                                    {
-                                        <span>Next booking</span>
-                                        <strong>Nothing scheduled</strong>
-                                    }
-                                    else
-                                    {
-                                        <span>@(item.IsOccupied ? "At the table now" : "Next booking")</span>
-                                        <strong>
-                                            @(item.IsOccupied
-                                                ? reservation.FullName
-                                                : $"{reservationDateLabel} at {reservationTimeLabel}")
-                                        </strong>
-                                        <small>
-                                            @reservation.FullName / @reservation.NumberOfGuests
-                                            @(reservation.NumberOfGuests == 1 ? "guest" : "guests")
-                                        </small>
-                                    }
-                                </div>
-
-                                <footer>
-                                    @if (item.IsOccupied && reservation != null)
-                                    {
-                                        <a asp-controller="AdminReservations"
-                                           asp-action="Details"
-                                           asp-route-id="@reservation.Id"
-                                           class="admin-primary-button">
-                                            Open booking
-                                        </a>
-
-                                        <form asp-controller="AdminReservations"
-                                              asp-action="UpdateFloorDetails"
-                                              method="post"
-                                              onsubmit="return confirm('Release @table.Label from this booking?');">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@reservation.Id" />
-                                            <input type="hidden" name="tableLabel" value="" />
-                                            <input type="hidden" name="internalNote" value="@reservation.InternalNote" />
-                                            <input type="hidden" name="returnUrl" value="/AdminTables" />
-                                            <button type="submit" class="admin-secondary-button">
-                                                Release
-                                            </button>
-                                        </form>
-                                    }
-                                    else if (reservation != null)
-                                    {
-                                        <a asp-controller="AdminReservations"
-                                           asp-action="Details"
-                                           asp-route-id="@reservation.Id"
-                                           class="admin-primary-button">
-                                            Open booking
-                                        </a>
-                                    }
-                                    else if (compatibleBookings.Count > 0)
-                                    {
-                                        <button type="button"
-                                                class="admin-primary-button"
-                                                data-admin-panel-open="@assignPanelId">
-                                            Assign booking
-                                        </button>
-                                    }
-
-                                    @if (canManage)
-                                    {
-                                        <a asp-controller="AdminTables"
-                                           asp-action="Edit"
-                                           asp-route-id="@table.Id"
-                                           class="admin-secondary-button">
-                                            Table settings
-                                        </a>
-                                    }
-                                </footer>
-                            </article>
-
-                            @if (!item.IsOccupied && reservation == null && compatibleBookings.Count > 0)
-                            {
-                                <dialog class="admin-quick-panel"
-                                        id="@assignPanelId"
-                                        aria-labelledby="@($"{assignPanelId}-title")">
-                                    <div class="admin-quick-panel-shell">
-                                        <header class="admin-quick-panel-header">
-                                            <div>
-                                                <span>Assign a booking</span>
-                                                <h2 id="@($"{assignPanelId}-title")">@table.Label</h2>
-                                                <p>@table.Capacity seats / @(string.IsNullOrWhiteSpace(table.Area) ? "Main floor" : table.Area)</p>
-                                            </div>
-                                            <button type="button"
-                                                    data-admin-panel-close
-                                                    aria-label="Close table assignment">&times;</button>
-                                        </header>
-
-                                        <div class="admin-quick-panel-body admin-quick-choice-list">
-                                            @foreach (var booking in compatibleBookings)
-                                            {
-                                                <form asp-controller="AdminReservations"
-                                                      asp-action="UpdateFloorDetails"
-                                                      method="post">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="id" value="@booking.Id" />
-                                                    <input type="hidden" name="tableLabel" value="@table.Label" />
-                                                    <input type="hidden" name="internalNote" value="@booking.InternalNote" />
-                                                    <input type="hidden" name="returnUrl" value="/AdminTables" />
-                                                    <button type="submit">
-                                                        <time>@booking.ReservationTime.ToString(@"hh\:mm")</time>
-                                                        <span>
-                                                            <strong>@booking.FullName</strong>
-                                                            <small>@booking.NumberOfGuests guests</small>
-                                                        </span>
-                                                        <span aria-hidden="true">&rarr;</span>
-                                                    </button>
-                                                </form>
-                                            }
-                                        </div>
-                                    </div>
-                                </dialog>
-                            }
+                            <button type="button"
+                                    data-floor-mode="edit"
+                                    aria-pressed="false">
+                                Edit plan
+                            </button>
                         }
+                        <button type="button"
+                                class="is-active"
+                                data-floor-mode="preview"
+                                aria-pressed="true">
+                            Preview space
+                        </button>
                     </div>
-                </section>
-            }
-        </div>
-    }
+                </div>
+            </div>
 
-    @if (canManage && inactiveItems.Count > 0)
-    {
-        <details class="admin-content-disclosure floor-inactive">
-            <summary>
-                <span>Unavailable tables</span>
-                <span>@inactiveItems.Count</span>
-            </summary>
+            <div class="floor-stage-scroll">
+                <div class="floor-stage"
+                     data-floor-stage
+                     style="width:@(stageWidth)px; height:@(stageHeight)px;">
+                    <div class="floor-canvas-toolbar">
+                        @if (canManage)
+                        {
+                            <aside class="floor-canvas-palette"
+                                   aria-label="Add an element to the floor">
+                                <span class="floor-canvas-palette-title">Add</span>
+                                <button type="button" data-add-fixture="door"><i class="is-door" aria-hidden="true"></i><span>Door</span></button>
+                                <button type="button" data-add-fixture="toilet"><i class="is-toilet" aria-hidden="true"></i><span>Toilet</span></button>
+                                <button type="button" data-add-fixture="entrance"><i class="is-entrance" aria-hidden="true"></i><span>Entrance</span></button>
+                                <button type="button" data-add-fixture="bar"><i class="is-bar" aria-hidden="true"></i><span>Bar</span></button>
+                                <button type="button" data-add-fixture="terrace"><i class="is-terrace" aria-hidden="true"></i><span>Terrace</span></button>
+                            </aside>
+                        }
 
-            <div class="floor-table-grid">
-                @foreach (var item in inactiveItems.OrderBy(item => item.Table.Area).ThenBy(item => item.Table.Label))
-                {
-                    <article class="floor-table-card is-inactive">
-                        <header>
-                            <div>
-                                <span>@(string.IsNullOrWhiteSpace(item.Table.Area) ? "Main floor" : item.Table.Area)</span>
-                                <h3>@item.Table.Label</h3>
+                        <nav class="floor-carousel" aria-label="Choose floor">
+                            <button type="button" data-floor-carousel="previous" aria-label="Previous floor">←</button>
+                            <strong data-floor-carousel-label>@(activeRooms.Count > 0 ? activeRooms[0].Room.Name : "Floor")</strong>
+                            <span data-floor-carousel-count>@(activeRooms.Count == 0 ? "0 / 0" : $"1 / {activeRooms.Count}")</span>
+                            <button type="button" data-floor-carousel="next" aria-label="Next floor">→</button>
+                        </nav>
+                    </div>
+
+                    @foreach (var fixture in Model.Fixtures)
+                    {
+                        <button type="button"
+                                class="floor-editable-fixture is-@fixture.Kind"
+                                data-floor-fixture
+                                data-id="@fixture.Id"
+                                data-client-id=""
+                                data-kind="@fixture.Kind"
+                                data-label="@fixture.Label"
+                                data-room-id="@fixture.FloorRoomId"
+                                data-x="@fixture.PositionX"
+                                data-y="@fixture.PositionY"
+                                data-width="@fixture.Width"
+                                data-height="@fixture.Height"
+                                data-rotation="@fixture.Rotation"
+                                style="left:@(fixture.PositionX)px; top:@(fixture.PositionY)px; width:@(fixture.Width)px; height:@(fixture.Height)px; transform:rotate(@(fixture.Rotation)deg);">
+                            <span data-fixture-label>@fixture.Label</span>
+                        </button>
+                    }
+
+                    @for (var roomIndex = 0; roomIndex < activeRooms.Count; roomIndex++)
+                    {
+                        var roomItem = activeRooms[roomIndex];
+                        var room = roomItem.Room;
+                        var roomTables = roomItem.Tables
+                            .Where(item => item.Table.IsActive)
+                            .OrderBy(item => item.Table.Label)
+                            .ToList();
+
+                        <article class="floor-room @(roomIndex == 0 ? "is-carousel-active" : "")"
+                                 data-floor-room
+                                 data-floor-index="@roomIndex"
+                                 data-room-id="@room.Id"
+                                 data-room-name="@room.Name"
+                                 data-room-shape="@room.Shape"
+                                 data-room-active="@room.IsActive.ToString().ToLowerInvariant()"
+                                 data-room-x="@room.PositionX"
+                                 data-room-y="@room.PositionY"
+                                 data-room-width="@room.Width"
+                                 data-room-height="@room.Height"
+                                 data-room-rotation="@room.Rotation"
+                                 data-rotation="@room.Rotation"
+                                 data-shape="@room.Shape"
+                                 style="left:@(room.PositionX)px; top:@(room.PositionY)px; width:@(room.Width)px; height:@(room.Height)px; transform:rotate(@(room.Rotation)deg);">
+                            <div class="floor-room-header" data-room-drag-handle>
+                                <div class="floor-room-title">
+                                    <strong>@room.Name</strong>
+                                    <span data-room-meta>@room.Shape / @roomTables.Count tables</span>
+                                </div>
+
+                                <div class="floor-room-badges">
+                                    <span class="floor-room-badge">@room.Shape</span>
+                                    <span class="floor-room-badge">@roomTables.Sum(item => item.Table.Capacity) seats</span>
+                                </div>
                             </div>
 
-                            <span class="floor-table-state">
-                                <i aria-hidden="true"></i>
-                                Unavailable
-                            </span>
-                        </header>
+                            <div class="floor-room-body" data-room-body>
+                                @foreach (var item in roomTables)
+                                {
+                                    var table = item.Table;
 
-                        <div class="floor-table-capacity">
-                            <span class="floor-seat-mark" aria-hidden="true"></span>
-                            <strong>@item.Table.Capacity seats</strong>
-                        </div>
+                                    <button type="button"
+                                            class="floor-table-node @TableStateClass(item)"
+                                            data-floor-table
+                                            data-id="@table.Id"
+                                            data-room-id="@room.Id"
+                                            data-label="@table.Label"
+                                            data-area="@(string.IsNullOrWhiteSpace(table.Area) ? room.Name : table.Area)"
+                                            data-capacity="@table.Capacity"
+                                            data-type="@table.TableType"
+                                            data-shape="@table.Shape"
+                                            data-x="@CssNumber(table.LayoutX)"
+                                            data-y="@CssNumber(table.LayoutY)"
+                                            data-width="@CssNumber(table.LayoutWidth)"
+                                            data-height="@CssNumber(table.LayoutHeight)"
+                                            data-rotation="@table.Rotation"
+                                            data-active="@table.IsActive.ToString().ToLowerInvariant()"
+                                            data-state-label="@TableStateLabel(item)">
+                                        <span class="floor-table-label">@table.Label</span>
+                                        <strong>x@table.Capacity</strong>
+                                        <small>@TableStateLabel(item)</small>
+                                    </button>
+                                }
+                            </div>
 
-                        <footer>
-                            <a asp-controller="AdminTables"
-                               asp-action="Edit"
-                               asp-route-id="@item.Table.Id"
-                               class="admin-secondary-button">
-                                Table settings
-                            </a>
-                        </footer>
+                        </article>
+                    }
+
+                    <div class="floor-selection-dock"
+                         data-floor-selection
+                         hidden>
+                            <span class="floor-selection-label" data-selection-label></span>
+                        <button type="button"
+                                class="floor-selection-action"
+                                data-selection-action="capacity-down">
+                            − Seat
+                        </button>
+                        <button type="button"
+                                class="floor-selection-action"
+                                data-selection-action="capacity-up">
+                            + Seat
+                        </button>
+                        <button type="button"
+                                class="floor-selection-action"
+                                data-selection-action="shape-cycle">
+                            Shape
+                        </button>
+                        <button type="button"
+                                class="floor-selection-action"
+                                data-selection-action="rotate">
+                            ↻ Rotate
+                        </button>
+                        <button type="button"
+                                class="floor-selection-action"
+                                data-selection-action="remove">
+                            × Remove
+                        </button>
+                        <span class="floor-selection-note">
+                            The canvas auto-saves after each move.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @if (Model.UnassignedReservations.Count > 0)
+        {
+            <section class="floor-booking-strip" aria-label="Unassigned reservations">
+                @foreach (var booking in Model.UnassignedReservations.Take(4))
+                {
+                    <article class="floor-booking-card">
+                        <span>@booking.ReservationTime.ToString(@"hh\:mm")</span>
+                        <strong>@booking.FullName</strong>
+                        <small>@booking.NumberOfGuests guests waiting for a table</small>
                     </article>
                 }
-            </div>
-        </details>
-    }
-
+            </section>
+        }
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        (() => {
+            const studio = document.querySelector("[data-floor-studio]");
+
+            if (!studio) {
+                return;
+            }
+
+            const canManage = studio.dataset.canManage === "true";
+            const deleteRoomUrl = studio.dataset.deleteRoomUrl || "";
+            const stage = studio.querySelector("[data-floor-stage]");
+            const stageScroll = studio.querySelector(".floor-stage-scroll");
+            const status = studio.querySelector("[data-floor-status]");
+            const selectionDock = studio.querySelector("[data-floor-selection]");
+            const selectionLabel = studio.querySelector("[data-selection-label]");
+            const token = document.querySelector("#floorLayoutTokenForm input[name='__RequestVerificationToken']")?.value ?? "";
+            const roomShapes = ["Rectangle", "Square", "LShape", "Patio"];
+            const tableShapes = ["Square", "Round", "Rectangle", "Lounge", "Counter"];
+            let selected = null;
+            let dragState = null;
+            let saveTimer = null;
+            let saveRequestId = 0;
+            let tableCounter = [...studio.querySelectorAll("[data-floor-table]")].length + 1;
+            let fixtureCounter = 0;
+            const removedFixtureIds = [];
+            const carouselRooms = [...studio.querySelectorAll("[data-floor-room]")];
+            const carouselLabel = studio.querySelector("[data-floor-carousel-label]");
+            const carouselCount = studio.querySelector("[data-floor-carousel-count]");
+            const modeButtons = [...studio.querySelectorAll("[data-floor-mode]")];
+            const modeCopy = studio.querySelector("[data-floor-mode-copy]");
+            const deleteFloorButton = studio.querySelector("[data-delete-floor]");
+            let activeRoomIndex = Math.max(
+                0,
+                carouselRooms.findIndex((room) => room.classList.contains("is-carousel-active")));
+            const canvasTopInset = 72;
+
+            const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+            const format = (value) => Number.parseFloat(value).toFixed(2).replace(/\.?0+$/, "");
+
+            const setStatus = (message, isError = false) => {
+                if (!status) {
+                    return;
+                }
+
+                status.textContent = message;
+                status.classList.toggle("is-error", isError);
+            };
+
+            const roomBody = (room) => room?.querySelector("[data-room-body]");
+
+            const renderTableSeats = (table) => {
+                table.querySelectorAll(".floor-table-seat").forEach((seat) => seat.remove());
+
+                const capacity = clamp(
+                    Number.parseInt(table.dataset.capacity || "2", 10),
+                    1,
+                    8);
+                const isCounter = table.dataset.type === "BarCounter" || table.dataset.shape === "Counter";
+                const positions = isCounter
+                    ? [
+                        [14, 112, 0], [38, 112, 0], [62, 112, 0], [86, 112, 0],
+                        [26, -12, 180], [50, -12, 180], [74, -12, 180], [92, -12, 180]
+                    ]
+                    : [
+                        [50, -14, 180], [50, 114, 0], [-12, 50, 90], [112, 50, -90],
+                        [16, -10, 180], [84, -10, 180], [16, 110, 0], [84, 110, 0]
+                    ];
+
+                positions.slice(0, capacity).forEach(([left, top, rotation]) => {
+                    const seat = document.createElement("i");
+                    seat.className = "floor-table-seat";
+                    seat.setAttribute("aria-hidden", "true");
+                    seat.style.left = `${left}%`;
+                    seat.style.top = `${top}%`;
+                    seat.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+                    table.appendChild(seat);
+                });
+            };
+
+            const tableText = (table) => {
+                const label = table.querySelector(".floor-table-label") || table.querySelector("span");
+                if (label) {
+                    label.textContent = table.dataset.label || "T?";
+                    label.classList.add("floor-table-label");
+                }
+                table.querySelector("strong").textContent = `x${table.dataset.capacity || "2"}`;
+                table.querySelector("small").textContent = table.dataset.stateLabel || "Free";
+                renderTableSeats(table);
+            };
+
+            const applyRoomMeta = (room) => {
+                const tables = room.querySelectorAll("[data-floor-table]");
+                const seats = [...tables].reduce((total, table) =>
+                    total + Number.parseInt(table.dataset.capacity || "0", 10), 0);
+                const meta = room.querySelector("[data-room-meta]");
+                const badges = room.querySelectorAll(".floor-room-badge");
+                const shape = room.dataset.roomShape || "Rectangle";
+
+                if (meta) {
+                    meta.textContent = `${shape} / ${tables.length} table${tables.length === 1 ? "" : "s"}`;
+                }
+
+                if (badges[0]) {
+                    badges[0].textContent = shape;
+                }
+
+                if (badges[1]) {
+                    badges[1].textContent = `${seats} seats`;
+                }
+            };
+
+            const applyRoomStyle = (room) => {
+                const x = Number.parseInt(room.dataset.roomX || "0", 10);
+                const y = Number.parseInt(room.dataset.roomY || "0", 10);
+                const width = Number.parseInt(room.dataset.roomWidth || "360", 10);
+                const height = Number.parseInt(room.dataset.roomHeight || "280", 10);
+                const shape = room.dataset.roomShape || "Rectangle";
+
+                room.style.left = `${x}px`;
+                room.style.top = `${y + canvasTopInset}px`;
+                room.style.width = `${width}px`;
+                room.style.height = `${height}px`;
+                room.style.transform = `rotate(${room.dataset.rotation || room.dataset.roomRotation || "0"}deg)`;
+                room.dataset.shape = shape;
+                applyRoomMeta(room);
+            };
+
+            const applyTableStyle = (table) => {
+                table.style.left = `${format(table.dataset.x || "0")}%`;
+                table.style.top = `${format(table.dataset.y || "0")}%`;
+                table.style.width = `${format(table.dataset.width || "16")}%`;
+                table.style.height = `${format(table.dataset.height || "16")}%`;
+                table.style.transform = `rotate(${table.dataset.rotation || "0"}deg)`;
+                table.dataset.shape = table.dataset.shape || "Square";
+                tableText(table);
+            };
+
+            const applyFixtureStyle = (fixture) => {
+                fixture.style.left = `${fixture.dataset.x || "0"}px`;
+                fixture.style.top = `${Number.parseInt(fixture.dataset.y || "0", 10) + canvasTopInset}px`;
+                fixture.style.width = `${fixture.dataset.width || "100"}px`;
+                fixture.style.height = `${fixture.dataset.height || "50"}px`;
+                fixture.style.transform = `rotate(${fixture.dataset.rotation || "0"}deg)`;
+                const label = fixture.querySelector("[data-fixture-label]");
+                if (label) {
+                    label.textContent = fixture.dataset.label || "Fixture";
+                }
+            };
+
+            const applySpatialPresentation = () => {
+                carouselRooms.forEach((room) => {
+                    room.style.removeProperty("translate");
+                    room.style.removeProperty("scale");
+                    room.style.removeProperty("transform-origin");
+                });
+                studio.querySelectorAll("[data-floor-fixture]").forEach((fixture) => {
+                    fixture.style.removeProperty("translate");
+                    fixture.style.removeProperty("scale");
+                    fixture.style.removeProperty("transform-origin");
+                });
+
+                const activeRoom = carouselRooms[activeRoomIndex];
+                if (!activeRoom || !stage || !stageScroll) {
+                    return;
+                }
+
+                if (!isPreviewMode()) {
+                    stageScroll.scrollTo({
+                        left: Math.max(0, activeRoom.offsetLeft -
+                            ((stageScroll.clientWidth - activeRoom.offsetWidth) / 2)),
+                        top: Math.max(0, activeRoom.offsetTop - 74),
+                        behavior: "smooth"
+                    });
+                    return;
+                }
+
+                const scale = clamp(
+                    Math.min((stageScroll.clientWidth - 96) / activeRoom.offsetWidth, 1.16),
+                    1.06,
+                    1.16);
+                const targetLeft = Math.max(
+                    48,
+                    (stage.offsetWidth - (activeRoom.offsetWidth * scale)) / 2);
+                const targetTop = Math.max(
+                    canvasTopInset + 34,
+                    (stage.offsetHeight - (activeRoom.offsetHeight * scale)) / 2);
+                const roomDeltaX = targetLeft - activeRoom.offsetLeft;
+                const roomDeltaY = targetTop - activeRoom.offsetTop;
+                const activeRoomId = activeRoom.dataset.roomId || "";
+
+                activeRoom.style.transformOrigin = "top left";
+                activeRoom.style.translate = `${roomDeltaX}px ${roomDeltaY}px`;
+                activeRoom.style.scale = String(scale);
+
+                studio.querySelectorAll("[data-floor-fixture]").forEach((fixture) => {
+                    if ((fixture.dataset.roomId || activeRoomId) !== activeRoomId) {
+                        return;
+                    }
+
+                    const targetFixtureLeft = targetLeft +
+                        ((fixture.offsetLeft - activeRoom.offsetLeft) * scale);
+                    const targetFixtureTop = targetTop +
+                        ((fixture.offsetTop - activeRoom.offsetTop) * scale);
+
+                    fixture.style.transformOrigin = "top left";
+                    fixture.style.translate =
+                        `${targetFixtureLeft - fixture.offsetLeft}px ${targetFixtureTop - fixture.offsetTop}px`;
+                    fixture.style.scale = String(scale);
+                });
+
+                stageScroll.scrollTo({
+                    left: Math.max(0,
+                        targetLeft + ((activeRoom.offsetWidth * scale) / 2) -
+                        (stageScroll.clientWidth / 2)),
+                    top: Math.max(0,
+                        targetTop + ((activeRoom.offsetHeight * scale) / 2) -
+                        (stageScroll.clientHeight / 2)),
+                    behavior: "smooth"
+                });
+            };
+
+            const removeTransformHandles = () => {
+                studio.querySelectorAll("[data-transform-handle]").forEach((handle) => handle.remove());
+            };
+
+            const addTransformHandles = (entity) => {
+                removeTransformHandles();
+
+                if (!canManage || !entity) {
+                    return;
+                }
+
+                const rotate = document.createElement("span");
+                rotate.className = "floor-transform-handle is-rotate";
+                rotate.dataset.transformHandle = "rotate";
+                rotate.title = "Drag to rotate";
+
+                const resize = document.createElement("span");
+                resize.className = "floor-transform-handle is-resize";
+                resize.dataset.transformHandle = "resize";
+                resize.title = "Drag to resize";
+
+                entity.element.append(rotate, resize);
+            };
+
+            const selectEntity = (entity) => {
+                removeTransformHandles();
+
+                if (selected?.kind === "room") {
+                    selected.element.classList.remove("is-selected");
+                }
+
+                if (selected?.kind === "table") {
+                    selected.element.classList.remove("is-selected");
+                }
+
+                if (selected?.kind === "fixture") {
+                    selected.element.classList.remove("is-selected");
+                }
+
+                selected = entity;
+
+                if (!entity) {
+                    selectionDock?.setAttribute("hidden", "hidden");
+                    return;
+                }
+
+                entity.element.classList.add("is-selected");
+                addTransformHandles(entity);
+
+                if (!selectionDock || !selectionLabel) {
+                    return;
+                }
+
+                selectionDock.removeAttribute("hidden");
+
+                selectionDock.querySelectorAll("[data-selection-action]").forEach((button) => {
+                    const action = button.dataset.selectionAction;
+                    const isVisible =
+                        action === "remove" ||
+                        action === "rotate" ||
+                        (action === "shape-cycle" && entity.kind !== "fixture") ||
+                        ((action === "capacity-down" || action === "capacity-up") && entity.kind === "table");
+                    button.hidden = !isVisible;
+                });
+
+                if (entity.kind === "room") {
+                    selectionLabel.textContent = `${entity.element.dataset.roomName} selected`;
+                } else if (entity.kind === "fixture") {
+                    selectionLabel.textContent = `${entity.element.dataset.label} selected`;
+                } else {
+                    selectionLabel.textContent =
+                        `${entity.element.dataset.label} / ${entity.element.dataset.capacity} seats`;
+                }
+            };
+
+            const cycleTableShape = (table) => {
+                const currentIndex = tableShapes.indexOf(table.dataset.shape || "Square");
+                const nextShape = tableShapes[(currentIndex + 1) % tableShapes.length];
+                table.dataset.shape = nextShape;
+
+                if (nextShape === "Counter") {
+                    table.dataset.width = "24";
+                    table.dataset.height = "10";
+                } else if (nextShape === "Round") {
+                    table.dataset.width = "16";
+                    table.dataset.height = "16";
+                }
+
+                applyTableStyle(table);
+            };
+
+            const scheduleSave = (message = "Layout updated.") => {
+                if (!canManage) {
+                    return;
+                }
+
+                window.clearTimeout(saveTimer);
+                setStatus(`${message} Saving...`);
+                saveTimer = window.setTimeout(() => saveLayout(message), 450);
+            };
+
+            const saveLayout = async (message) => {
+                const requestId = ++saveRequestId;
+                const rooms = [...studio.querySelectorAll("[data-floor-room]")].map((room) => ({
+                    id: room.dataset.roomId,
+                    name: room.dataset.roomName || "Room",
+                    shape: room.dataset.roomShape || "Rectangle",
+                    positionX: Number.parseInt(room.dataset.roomX || "0", 10),
+                    positionY: Number.parseInt(room.dataset.roomY || "0", 10),
+                    width: Number.parseInt(room.dataset.roomWidth || "360", 10),
+                    height: Number.parseInt(room.dataset.roomHeight || "260", 10),
+                    rotation: Number.parseInt(room.dataset.rotation || room.dataset.roomRotation || "0", 10),
+                    isActive: room.dataset.roomActive !== "false"
+                }));
+
+                const tables = [...studio.querySelectorAll("[data-floor-table]")].map((table) => ({
+                    id: table.dataset.id || null,
+                    label: table.dataset.label || "",
+                    area: table.dataset.area || table.closest("[data-floor-room]")?.dataset.roomName || "Main floor",
+                    capacity: Number.parseInt(table.dataset.capacity || "2", 10),
+                    tableType: table.dataset.type || "Classic",
+                    shape: table.dataset.shape || "Square",
+                    layoutX: Number.parseFloat(table.dataset.x || "0"),
+                    layoutY: Number.parseFloat(table.dataset.y || "0"),
+                    layoutWidth: Number.parseFloat(table.dataset.width || "16"),
+                    layoutHeight: Number.parseFloat(table.dataset.height || "16"),
+                    rotation: Number.parseInt(table.dataset.rotation || "0", 10),
+                    floorRoomId: table.dataset.roomId || null,
+                    isActive: table.dataset.active !== "false"
+                }));
+
+                const fixtures = [...studio.querySelectorAll("[data-floor-fixture]")].map((fixture) => ({
+                    id: fixture.dataset.id || null,
+                    clientId: fixture.dataset.clientId || "",
+                    kind: fixture.dataset.kind || "door",
+                    label: fixture.dataset.label || "Fixture",
+                    floorRoomId: fixture.dataset.roomId || null,
+                    positionX: Number.parseInt(fixture.dataset.x || "0", 10),
+                    positionY: Number.parseInt(fixture.dataset.y || "0", 10),
+                    width: Number.parseInt(fixture.dataset.width || "100", 10),
+                    height: Number.parseInt(fixture.dataset.height || "50", 10),
+                    rotation: Number.parseInt(fixture.dataset.rotation || "0", 10)
+                }));
+
+                if (tables.length === 0) {
+                    setStatus("At least one table needs to stay on the floor.", true);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(studio.dataset.saveUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "RequestVerificationToken": token
+                        },
+                        body: JSON.stringify({ rooms, tables, fixtures, removedFixtureIds })
+                    });
+
+                    const result = await response.json().catch(() => ({}));
+
+                    if (!response.ok) {
+                        throw new Error(result.message || "Could not save the floor layout.");
+                    }
+
+                    if (requestId === saveRequestId) {
+                        (result.createdFixtures || []).forEach((created) => {
+                            const fixture = studio.querySelector(`[data-client-id="${created.clientId}"]`);
+                            if (fixture) {
+                                fixture.dataset.id = created.id;
+                                fixture.dataset.clientId = "";
+                            }
+                        });
+                        removedFixtureIds.length = 0;
+                        setStatus(result.message || message || "Floor layout saved.");
+                    }
+                } catch (error) {
+                    if (requestId === saveRequestId) {
+                        setStatus(error.message || "Could not save the floor layout.", true);
+                    }
+                }
+            };
+
+            const createTable = (room, xPercent, yPercent) => {
+                const table = document.createElement("button");
+                table.type = "button";
+                table.className = "floor-table-node is-free";
+                table.dataset.floorTable = "true";
+                table.dataset.id = "";
+                table.dataset.roomId = room.dataset.roomId || "";
+                table.dataset.label = `T${tableCounter++}`;
+                table.dataset.area = room.dataset.roomName || "Main floor";
+                table.dataset.capacity = "2";
+                table.dataset.type = "Classic";
+                table.dataset.shape = "Square";
+                table.dataset.x = format(clamp(xPercent - 8, 2, 82));
+                table.dataset.y = format(clamp(yPercent - 8, 2, 82));
+                table.dataset.width = "16";
+                table.dataset.height = "16";
+                table.dataset.rotation = "0";
+                table.dataset.active = "true";
+                table.dataset.stateLabel = "Free";
+                table.innerHTML = '<span class="floor-table-label"></span><strong></strong><small></small>';
+                roomBody(room)?.appendChild(table);
+                applyTableStyle(table);
+                applyRoomMeta(room);
+                selectEntity({ kind: "table", element: table });
+                scheduleSave(`${table.dataset.label} added.`);
+            };
+
+            const createFixture = (kind) => {
+                const labels = { door: "Door", toilet: "Toilet", entrance: "Entrance", bar: "Bar", terrace: "Terrace" };
+                const sizes = {
+                    door: [90, 34], toilet: [120, 90], entrance: [140, 48], bar: [260, 72], terrace: [360, 240]
+                };
+                const fixture = document.createElement("button");
+                const clientId = `fixture-${Date.now()}-${fixtureCounter++}`;
+                const [width, height] = sizes[kind] || sizes.door;
+                fixture.type = "button";
+                fixture.className = `floor-editable-fixture is-${kind}`;
+                fixture.dataset.floorFixture = "true";
+                fixture.dataset.id = "";
+                fixture.dataset.clientId = clientId;
+                fixture.dataset.kind = kind;
+                fixture.dataset.label = labels[kind] || "Fixture";
+                fixture.dataset.roomId = carouselRooms[activeRoomIndex]?.dataset.roomId || "";
+                const activeRoom = carouselRooms[activeRoomIndex];
+                fixture.dataset.x = String(Number.parseInt(activeRoom?.dataset.roomX || "80", 10) + 80);
+                fixture.dataset.y = String(Number.parseInt(activeRoom?.dataset.roomY || "80", 10) + 110);
+                fixture.dataset.width = String(width);
+                fixture.dataset.height = String(height);
+                fixture.dataset.rotation = "0";
+                fixture.innerHTML = '<span data-fixture-label></span>';
+                stage.appendChild(fixture);
+                applyFixtureStyle(fixture);
+                selectEntity({ kind: "fixture", element: fixture });
+                scheduleSave(`${fixture.dataset.label} added.`);
+            };
+
+            const deleteSelected = () => {
+                if (!selected || !canManage) {
+                    return;
+                }
+
+                if (selected.kind === "table") {
+                    const room = selected.element.closest("[data-floor-room]");
+                    selected.element.remove();
+                    applyRoomMeta(room);
+                    selectEntity(null);
+                    scheduleSave("Table removed.");
+                    return;
+                }
+
+                if (selected.kind === "fixture") {
+                    if (selected.element.dataset.id) {
+                        removedFixtureIds.push(selected.element.dataset.id);
+                    }
+                    selected.element.remove();
+                    selectEntity(null);
+                    scheduleSave("Floor element removed.");
+                    return;
+                }
+
+                if (selected.kind === "room") {
+                    const room = selected.element;
+
+                    if (room.querySelector("[data-floor-table]")) {
+                        setStatus("Move or remove the room tables first.", true);
+                        return;
+                    }
+
+                    room.dataset.roomActive = "false";
+                    room.style.display = "none";
+                    selectEntity(null);
+                    scheduleSave("Room hidden.");
+                }
+            };
+
+            const isPreviewMode = () => studio.dataset.floorMode !== "edit";
+
+            const setFloorMode = (mode) => {
+                const preview = mode !== "edit" || !canManage;
+                studio.classList.add("is-preview-mode");
+                studio.classList.toggle("is-edit-mode", !preview);
+                studio.dataset.floorMode = preview ? "preview" : "edit";
+                dragState = null;
+                selectEntity(null);
+
+                modeButtons.forEach((button) => {
+                    const active = button.dataset.floorMode === (preview ? "preview" : "edit");
+                    button.classList.toggle("is-active", active);
+                    button.setAttribute("aria-pressed", String(active));
+                });
+
+                if (modeCopy) {
+                    modeCopy.textContent = preview
+                        ? "Spatial preview / read-only"
+                        : "Spatial editor / auto-save";
+                }
+
+                setStatus(preview ? "Preview mode" : "Saved");
+                window.localStorage.setItem("rebel-floor-mode", preview ? "preview" : "edit");
+                window.requestAnimationFrame(applySpatialPresentation);
+            };
+
+            modeButtons.forEach((button) => {
+                button.addEventListener("click", () =>
+                    setFloorMode(button.dataset.floorMode || "preview"));
+            });
+
+            deleteFloorButton?.addEventListener("click", async () => {
+                const room = carouselRooms[activeRoomIndex];
+
+                if (!room || !deleteRoomUrl) {
+                    return;
+                }
+
+                const roomName = room.dataset.roomName || "This floor";
+                const confirmed = window.confirm(
+                    `Delete ${roomName}? Its tables will be deactivated and its floor elements removed.`);
+
+                if (!confirmed) {
+                    return;
+                }
+
+                deleteFloorButton.disabled = true;
+                setStatus(`Removing ${roomName}...`);
+
+                try {
+                    const response = await fetch(
+                        `${deleteRoomUrl}?id=${encodeURIComponent(room.dataset.roomId || "")}`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "RequestVerificationToken": token,
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        });
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || "Could not delete this floor.");
+                    }
+
+                    setStatus(result.message || `${roomName} removed.`);
+                    window.location.reload();
+                } catch (error) {
+                    deleteFloorButton.disabled = false;
+                    setStatus(error.message || "Could not delete this floor.", true);
+                }
+            });
+
+            [...studio.querySelectorAll("[data-floor-room]")].forEach((room) => {
+                applyRoomStyle(room);
+                room.querySelectorAll("[data-floor-table]").forEach((table) => applyTableStyle(table));
+            });
+            [...studio.querySelectorAll("[data-floor-fixture]")].forEach(applyFixtureStyle);
+
+            setFloorMode(window.localStorage.getItem("rebel-floor-mode") || "preview");
+
+            const activateRoom = (nextIndex) => {
+                if (carouselRooms.length === 0) {
+                    return;
+                }
+
+                activeRoomIndex = (nextIndex + carouselRooms.length) % carouselRooms.length;
+                const activeRoom = carouselRooms[activeRoomIndex];
+                const activeRoomId = activeRoom.dataset.roomId || "";
+
+                carouselRooms.forEach((room, index) =>
+                    room.classList.toggle("is-carousel-active", index === activeRoomIndex));
+                studio.querySelectorAll("[data-floor-fixture]").forEach((fixture) =>
+                    fixture.classList.toggle(
+                        "is-carousel-hidden",
+                        (fixture.dataset.roomId || activeRoomId) !== activeRoomId));
+
+                if (carouselLabel) {
+                    carouselLabel.textContent = activeRoom.dataset.roomName || "Floor";
+                }
+                if (carouselCount) {
+                    carouselCount.textContent = `${activeRoomIndex + 1} / ${carouselRooms.length}`;
+                }
+
+                window.requestAnimationFrame(applySpatialPresentation);
+
+                selectEntity(null);
+            };
+
+            studio.querySelectorAll("[data-floor-carousel]").forEach((button) => {
+                button.addEventListener("click", () => activateRoom(
+                    activeRoomIndex + (button.dataset.floorCarousel === "next" ? 1 : -1)));
+            });
+            activateRoom(activeRoomIndex);
+            window.addEventListener("resize", () =>
+                window.requestAnimationFrame(applySpatialPresentation));
+
+            if (!canManage) {
+                return;
+            }
+
+            studio.addEventListener("click", (event) => {
+                if (isPreviewMode()) {
+                    return;
+                }
+
+                const action = event.target.closest("[data-selection-action]");
+                const addFixture = event.target.closest("[data-add-fixture]");
+                const fixture = event.target.closest("[data-floor-fixture]");
+                const table = event.target.closest("[data-floor-table]");
+                const room = event.target.closest("[data-floor-room]");
+
+                if (addFixture) {
+                    createFixture(addFixture.dataset.addFixture || "door");
+                    return;
+                }
+
+                if (action && selected) {
+                    event.preventDefault();
+
+                    if (action.dataset.selectionAction === "remove") {
+                        deleteSelected();
+                        return;
+                    }
+
+                    if (selected.kind === "table") {
+                        if (action.dataset.selectionAction === "capacity-down") {
+                            selected.element.dataset.capacity = String(
+                                clamp(Number.parseInt(selected.element.dataset.capacity || "2", 10) - 1, 1, 30));
+                        } else if (action.dataset.selectionAction === "capacity-up") {
+                            selected.element.dataset.capacity = String(
+                                clamp(Number.parseInt(selected.element.dataset.capacity || "2", 10) + 1, 1, 30));
+                        } else if (action.dataset.selectionAction === "shape-cycle") {
+                            cycleTableShape(selected.element);
+                        } else if (action.dataset.selectionAction === "rotate") {
+                            selected.element.dataset.rotation = String(
+                                (Number.parseInt(selected.element.dataset.rotation || "0", 10) + 15) % 360);
+                        }
+
+                        applyTableStyle(selected.element);
+                        applyRoomMeta(selected.element.closest("[data-floor-room]"));
+                        selectEntity(selected);
+                        scheduleSave(`${selected.element.dataset.label} updated.`);
+                        return;
+                    }
+
+                    if (selected.kind === "fixture") {
+                        if (action.dataset.selectionAction === "rotate") {
+                            selected.element.dataset.rotation = String(
+                                (Number.parseInt(selected.element.dataset.rotation || "0", 10) + 15) % 360);
+                            applyFixtureStyle(selected.element);
+                            scheduleSave(`${selected.element.dataset.label} rotated.`);
+                        }
+                        return;
+                    }
+
+                    if (selected.kind === "room" && action.dataset.selectionAction === "shape-cycle") {
+                        const currentIndex = roomShapes.indexOf(selected.element.dataset.roomShape || "Rectangle");
+                        selected.element.dataset.roomShape = roomShapes[(currentIndex + 1) % roomShapes.length];
+                        applyRoomStyle(selected.element);
+                        selectEntity(selected);
+                        scheduleSave(`${selected.element.dataset.roomName} reshaped.`);
+                    }
+
+                    if (selected.kind === "room" && action.dataset.selectionAction === "rotate") {
+                        selected.element.dataset.rotation = String(
+                            (Number.parseInt(selected.element.dataset.rotation || "0", 10) + 15) % 360);
+                        selected.element.dataset.roomRotation = selected.element.dataset.rotation;
+                        applyRoomStyle(selected.element);
+                        scheduleSave(`${selected.element.dataset.roomName} rotated.`);
+                    }
+
+                    return;
+                }
+
+                if (table) {
+                    selectEntity({ kind: "table", element: table });
+                    return;
+                }
+
+                if (fixture) {
+                    event.preventDefault();
+                    selectEntity({ kind: "fixture", element: fixture });
+                    return;
+                }
+
+                if (room) {
+                    selectEntity({ kind: "room", element: room });
+                    return;
+                }
+
+                selectEntity(null);
+            });
+
+            studio.addEventListener("dblclick", (event) => {
+                if (isPreviewMode()) {
+                    return;
+                }
+
+                const body = event.target.closest("[data-room-body]");
+
+                if (!body || event.target.closest("[data-floor-table]")) {
+                    return;
+                }
+
+                const room = body.closest("[data-floor-room]");
+                const rect = body.getBoundingClientRect();
+                const xPercent = ((event.clientX - rect.left) / rect.width) * 100;
+                const yPercent = ((event.clientY - rect.top) / rect.height) * 100;
+                createTable(room, xPercent, yPercent);
+            });
+
+            studio.addEventListener("wheel", (event) => {
+                if (isPreviewMode()) {
+                    return;
+                }
+
+                const table = event.target.closest("[data-floor-table]");
+
+                if (!table) {
+                    return;
+                }
+
+                event.preventDefault();
+                const direction = event.deltaY > 0 ? -1 : 1;
+
+                if (event.shiftKey) {
+                    table.dataset.rotation = String(
+                        Number.parseInt(table.dataset.rotation || "0", 10) + (direction * 15));
+                } else if (event.altKey) {
+                    cycleTableShape(table);
+                } else {
+                    table.dataset.capacity = String(
+                        clamp(Number.parseInt(table.dataset.capacity || "2", 10) + direction, 1, 30));
+                }
+
+                applyTableStyle(table);
+                applyRoomMeta(table.closest("[data-floor-room]"));
+                selectEntity({ kind: "table", element: table });
+                scheduleSave(`${table.dataset.label} updated.`);
+            }, { passive: false });
+
+            studio.addEventListener("pointerdown", (event) => {
+                if (isPreviewMode()) {
+                    return;
+                }
+
+                const transformHandle = event.target.closest("[data-transform-handle]");
+                const fixture = event.target.closest("[data-floor-fixture]");
+                const shapeHandle = event.target.closest("[data-room-shape-handle]");
+                const resizeHandle = event.target.closest("[data-room-resize-handle]");
+                const table = event.target.closest("[data-floor-table]");
+                const dragHandle = event.target.closest("[data-room-drag-handle]");
+                const roomSurface = event.target.closest("[data-floor-room]");
+
+                if (transformHandle && selected) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const rect = selected.element.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const mode = transformHandle.dataset.transformHandle;
+
+                    dragState = {
+                        mode: `${selected.kind}-${mode}`,
+                        entity: selected,
+                        handle: transformHandle,
+                        startX: event.clientX,
+                        startY: event.clientY,
+                        centerX,
+                        centerY,
+                        startAngle: Math.atan2(event.clientY - centerY, event.clientX - centerX) * 180 / Math.PI,
+                        rotation: Number.parseInt(selected.element.dataset.rotation || selected.element.dataset.roomRotation || "0", 10),
+                        width: Number.parseFloat(
+                            selected.kind === "room"
+                                ? selected.element.dataset.roomWidth || "360"
+                                : selected.element.dataset.width || (selected.kind === "table" ? "16" : "100")),
+                        height: Number.parseFloat(
+                            selected.kind === "room"
+                                ? selected.element.dataset.roomHeight || "260"
+                                : selected.element.dataset.height || (selected.kind === "table" ? "16" : "50")),
+                        room: selected.kind === "room" ? selected.element : null,
+                        body: selected.kind === "table"
+                            ? roomBody(selected.element.closest("[data-floor-room]"))
+                            : stage
+                    };
+                    transformHandle.setPointerCapture(event.pointerId);
+                    return;
+                }
+
+                if (fixture) {
+                    selectEntity({ kind: "fixture", element: fixture });
+                    dragState = {
+                        mode: "fixture-move",
+                        fixture,
+                        startX: event.clientX,
+                        startY: event.clientY,
+                        x: Number.parseInt(fixture.dataset.x || "0", 10),
+                        y: Number.parseInt(fixture.dataset.y || "0", 10)
+                    };
+                    fixture.setPointerCapture(event.pointerId);
+                    return;
+                }
+
+                if (shapeHandle) {
+                    const room = shapeHandle.closest("[data-floor-room]");
+                    selectEntity({ kind: "room", element: room });
+                    dragState = {
+                        mode: "room-shape",
+                        room,
+                        pointerId: event.pointerId,
+                        startX: event.clientX
+                    };
+                    shapeHandle.setPointerCapture(event.pointerId);
+                    return;
+                }
+
+                if (resizeHandle) {
+                    const room = resizeHandle.closest("[data-floor-room]");
+                    selectEntity({ kind: "room", element: room });
+                    dragState = {
+                        mode: "room-resize",
+                        room,
+                        pointerId: event.pointerId,
+                        startX: event.clientX,
+                        startY: event.clientY,
+                        width: Number.parseInt(room.dataset.roomWidth || "360", 10),
+                        height: Number.parseInt(room.dataset.roomHeight || "260", 10)
+                    };
+                    resizeHandle.setPointerCapture(event.pointerId);
+                    return;
+                }
+
+                if (table) {
+                    event.preventDefault();
+                    const room = table.closest("[data-floor-room]");
+                    const body = roomBody(room);
+
+                    if (!body) {
+                        return;
+                    }
+
+                    selectEntity({ kind: "table", element: table });
+                    dragState = {
+                        mode: "table-move",
+                        table,
+                        room,
+                        body,
+                        pointerId: event.pointerId,
+                        startX: event.clientX,
+                        startY: event.clientY,
+                        x: Number.parseFloat(table.dataset.x || "0"),
+                        y: Number.parseFloat(table.dataset.y || "0")
+                    };
+                    table.setPointerCapture(event.pointerId);
+                    return;
+                }
+
+                if (dragHandle || roomSurface) {
+                    event.preventDefault();
+                    const room = roomSurface;
+                    selectEntity({ kind: "room", element: room });
+                    dragState = {
+                        mode: "room-move",
+                        room,
+                        pointerId: event.pointerId,
+                        startX: event.clientX,
+                        startY: event.clientY,
+                        x: Number.parseInt(room.dataset.roomX || "0", 10),
+                        y: Number.parseInt(room.dataset.roomY || "0", 10)
+                    };
+                    room.setPointerCapture(event.pointerId);
+                }
+            });
+
+            studio.addEventListener("pointermove", (event) => {
+                if (!dragState) {
+                    return;
+                }
+
+                if (dragState.mode === "room-move") {
+                    const maxX = stage.clientWidth - Number.parseInt(dragState.room.dataset.roomWidth || "360", 10);
+                    const maxY = stage.clientHeight - Number.parseInt(dragState.room.dataset.roomHeight || "260", 10);
+                    dragState.room.dataset.roomX = String(clamp(
+                        dragState.x + (event.clientX - dragState.startX),
+                        0,
+                        Math.max(0, maxX)));
+                    dragState.room.dataset.roomY = String(clamp(
+                        dragState.y + (event.clientY - dragState.startY),
+                        0,
+                        Math.max(0, maxY)));
+                    applyRoomStyle(dragState.room);
+                    return;
+                }
+
+                if (dragState.mode === "fixture-move") {
+                    dragState.fixture.dataset.x = String(clamp(
+                        dragState.x + event.clientX - dragState.startX, 0, stage.clientWidth - 36));
+                    dragState.fixture.dataset.y = String(clamp(
+                        dragState.y + event.clientY - dragState.startY, 0, stage.clientHeight - 24));
+                    applyFixtureStyle(dragState.fixture);
+                    return;
+                }
+
+                if (dragState.mode === "fixture-resize") {
+                    dragState.entity.element.dataset.width = String(clamp(
+                        dragState.width + event.clientX - dragState.startX, 36, 1200));
+                    dragState.entity.element.dataset.height = String(clamp(
+                        dragState.height + event.clientY - dragState.startY, 24, 1200));
+                    applyFixtureStyle(dragState.entity.element);
+                    return;
+                }
+
+                if (dragState.mode === "table-resize") {
+                    const bodyRect = dragState.body?.getBoundingClientRect();
+                    if (!bodyRect) {
+                        return;
+                    }
+                    const widthDelta = ((event.clientX - dragState.startX) / bodyRect.width) * 100;
+                    const heightDelta = ((event.clientY - dragState.startY) / bodyRect.height) * 100;
+                    dragState.entity.element.dataset.width = format(clamp(dragState.width + widthDelta, 6, 60));
+                    dragState.entity.element.dataset.height = format(clamp(dragState.height + heightDelta, 6, 60));
+                    applyTableStyle(dragState.entity.element);
+                    return;
+                }
+
+                if (dragState.mode === "fixture-rotate" ||
+                    dragState.mode === "table-rotate" ||
+                    dragState.mode === "room-rotate") {
+                    const currentAngle = Math.atan2(
+                        event.clientY - dragState.centerY,
+                        event.clientX - dragState.centerX) * 180 / Math.PI;
+                    const rotation = Math.round((dragState.rotation + currentAngle - dragState.startAngle) / 5) * 5;
+                    dragState.entity.element.dataset.rotation = String(rotation);
+
+                    if (dragState.entity.kind === "fixture") {
+                        applyFixtureStyle(dragState.entity.element);
+                    } else if (dragState.entity.kind === "room") {
+                        dragState.entity.element.dataset.roomRotation = String(rotation);
+                        applyRoomStyle(dragState.entity.element);
+                    } else {
+                        applyTableStyle(dragState.entity.element);
+                    }
+                    return;
+                }
+
+                if (dragState.mode === "room-resize") {
+                    dragState.room.dataset.roomWidth = String(clamp(
+                        dragState.width + (event.clientX - dragState.startX),
+                        240,
+                        2200));
+                    dragState.room.dataset.roomHeight = String(clamp(
+                        dragState.height + (event.clientY - dragState.startY),
+                        180,
+                        1600));
+                    applyRoomStyle(dragState.room);
+                    return;
+                }
+
+                if (dragState.mode === "room-shape") {
+                    const delta = event.clientX - dragState.startX;
+                    let shape = "Rectangle";
+
+                    if (delta < -60) {
+                        shape = "Patio";
+                    } else if (delta > 100) {
+                        shape = "LShape";
+                    } else if (delta > 35) {
+                        shape = "Square";
+                    }
+
+                    dragState.room.dataset.roomShape = shape;
+                    applyRoomStyle(dragState.room);
+                    return;
+                }
+
+                if (dragState.mode === "table-move") {
+                    const bodyRect = dragState.body.getBoundingClientRect();
+                    const width = Number.parseFloat(dragState.table.dataset.width || "16");
+                    const height = Number.parseFloat(dragState.table.dataset.height || "16");
+                    const nextX = dragState.x + (((event.clientX - dragState.startX) / bodyRect.width) * 100);
+                    const nextY = dragState.y + (((event.clientY - dragState.startY) / bodyRect.height) * 100);
+                    dragState.table.dataset.x = format(clamp(nextX, 0, 100 - width));
+                    dragState.table.dataset.y = format(clamp(nextY, 0, 100 - height));
+                    applyTableStyle(dragState.table);
+                }
+            });
+
+            studio.addEventListener("pointerup", () => {
+                if (!dragState) {
+                    return;
+                }
+
+                if (dragState.mode === "room-move") {
+                    scheduleSave(`${dragState.room.dataset.roomName} moved.`);
+                } else if (dragState.mode === "room-resize") {
+                    scheduleSave(`${dragState.room.dataset.roomName} resized.`);
+                } else if (dragState.mode === "room-shape") {
+                    scheduleSave(`${dragState.room.dataset.roomName} reshaped.`);
+                } else if (dragState.mode === "table-move") {
+                    scheduleSave(`${dragState.table.dataset.label} moved.`);
+                } else if (dragState.mode === "fixture-move") {
+                    scheduleSave(`${dragState.fixture.dataset.label} moved.`);
+                } else if (dragState.mode.endsWith("-resize")) {
+                    scheduleSave(`${dragState.entity.element.dataset.label || dragState.entity.element.dataset.roomName} resized.`);
+                } else if (dragState.mode.endsWith("-rotate")) {
+                    scheduleSave(`${dragState.entity.element.dataset.label || dragState.entity.element.dataset.roomName} rotated.`);
+                }
+
+                dragState = null;
+            });
+
+            window.addEventListener("keydown", (event) => {
+                if (!isPreviewMode() && (event.key === "Delete" || event.key === "Backspace")) {
+                    deleteSelected();
+                }
+            });
+        })();
+    </script>
+}

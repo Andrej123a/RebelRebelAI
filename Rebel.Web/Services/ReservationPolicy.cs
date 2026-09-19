@@ -34,5 +34,11 @@ namespace Rebel.Web.Services
         {
             return GetOnlineSlots().Contains(reservationTime);
         }
+
+        public static bool IsWithinOnlineHours(TimeSpan reservationTime)
+        {
+            return reservationTime >= FirstOnlineSlot &&
+                   reservationTime <= LastOnlineSlot;
+        }
     }
 }

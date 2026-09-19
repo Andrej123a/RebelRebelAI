@@ -256,7 +256,15 @@
         @if (expectedReservations.Count == 0)
         {
             <div class="tonight-empty-state">
-                No approved guests are waiting to arrive.
+                @if (Model.Reservations.Count == 0)
+                {
+                    <strong>No reservations for tonight yet.</strong>
+                    <span>New requests will appear here automatically.</span>
+                }
+                else
+                {
+                    <strong>No approved arrivals are waiting.</strong>
+                }
             </div>
         }
         else
@@ -292,14 +300,6 @@
                 }
             </div>
         </details>
-    }
-
-    @if (Model.Reservations.Count == 0)
-    {
-        <div class="tonight-empty-state is-page-empty">
-            <strong>No reservations for tonight.</strong>
-            <span>New requests will appear here automatically.</span>
-        </div>
     }
 
 </div>

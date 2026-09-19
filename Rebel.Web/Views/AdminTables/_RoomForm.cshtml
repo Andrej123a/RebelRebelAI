@@ -1,0 +1,90 @@
+@model Rebel.Domain.Entities.FloorRoom
+
+<div asp-validation-summary="ModelOnly"
+     class="alert alert-danger"></div>
+
+<div class="table-simple-fields">
+    <div class="table-form-field">
+        <label asp-for="Name" class="table-form-label">
+            Room name
+        </label>
+        <input asp-for="Name"
+               class="form-control"
+               placeholder="Main floor" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="Shape" class="table-form-label">
+            Room shape
+        </label>
+        <select asp-for="Shape" class="form-control">
+            <option value="Rectangle">Rectangle</option>
+            <option value="Square">Square</option>
+            <option value="LShape">L shape</option>
+            <option value="Patio">Patio</option>
+        </select>
+        <span asp-validation-for="Shape" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="Width" class="table-form-label">
+            Width
+        </label>
+        <input asp-for="Width"
+               type="number"
+               min="240"
+               max="2200"
+               class="form-control" />
+        <span asp-validation-for="Width" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="Height" class="table-form-label">
+            Height
+        </label>
+        <input asp-for="Height"
+               type="number"
+               min="180"
+               max="1600"
+               class="form-control" />
+        <span asp-validation-for="Height" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="PositionX" class="table-form-label">
+            Start X
+        </label>
+        <input asp-for="PositionX"
+               type="number"
+               min="0"
+               max="5000"
+               class="form-control" />
+        <span asp-validation-for="PositionX" class="text-danger small"></span>
+    </div>
+
+    <div class="table-form-field">
+        <label asp-for="PositionY" class="table-form-label">
+            Start Y
+        </label>
+        <input asp-for="PositionY"
+               type="number"
+               min="0"
+               max="5000"
+               class="form-control" />
+        <span asp-validation-for="PositionY" class="text-danger small"></span>
+    </div>
+</div>
+
+<details class="table-advanced-settings" @(!Model.IsActive ? "open" : null)>
+    <summary>
+        <span>Availability</span>
+        <span>@(Model.IsActive ? "Visible" : "Hidden")</span>
+    </summary>
+
+    <label class="table-active-toggle">
+        <input asp-for="IsActive" />
+        <span aria-hidden="true"></span>
+        <strong>Show this room on the floor board</strong>
+    </label>
+</details>

@@ -45,7 +45,11 @@
         Model.Status == ReservationStatus.Pending ||
         Model.Status == ReservationStatus.Approved;
 
+    var hasGuestEmail =
+        !string.IsNullOrWhiteSpace(Model.Email);
+
     var emailFailed =
+        hasGuestEmail &&
         Model.EmailStatus?.Contains(
             "Failed",
             StringComparison.OrdinalIgnoreCase) == true;
@@ -81,6 +85,7 @@
         "ApprovedEmailFailed" => "Approval email failed",
         "RejectedEmailFailed" => "Rejection email failed",
         "CancelledEmailFailed" => "Cancellation email failed",
+        "CodeOnly" => "Code-based booking",
         _ => "Email pending"
     };
 }
@@ -114,10 +119,13 @@
                 Call guest
             </a>
 
-            <a href="mailto:@Model.Email"
-               class="admin-secondary-button">
-                Email guest
-            </a>
+            @if (hasGuestEmail)
+            {
+                <a href="mailto:@Model.Email"
+                   class="admin-secondary-button">
+                    Email guest
+                </a>
+            }
         </div>
     </header>
 
@@ -418,10 +426,13 @@
                     <a href="tel:@Model.PhoneNumber">@Model.PhoneNumber</a>
                 </div>
 
-                <div>
-                    <span>Email</span>
-                    <a href="mailto:@Model.Email">@Model.Email</a>
-                </div>
+                @if (hasGuestEmail)
+                {
+                    <div>
+                        <span>Email</span>
+                        <a href="mailto:@Model.Email">@Model.Email</a>
+                    </div>
+                }
 
                 <div>
                     <span>Submitted</span>
@@ -429,7 +440,7 @@
                 </div>
 
                 <div>
-                    <span>Email status</span>
+                    <span>Guest updates</span>
                     <strong>@emailStatusLabel</strong>
                 </div>
 

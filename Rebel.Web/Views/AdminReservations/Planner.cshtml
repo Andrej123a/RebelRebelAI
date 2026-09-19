@@ -2,11 +2,12 @@
 @using Rebel.Domain.Enums
 
 @{
-    ViewData["Title"] = "Week Planner";
+    ViewData["Title"] = "Planner";
 
     var today = (DateTime)(ViewBag.Today ?? DateTime.Today);
-    var startDate = (DateTime)(ViewBag.StartDate ?? DateTime.Today);
+    var startDate = (DateTime)(ViewBag.StartDate ?? today);
     var endDate = (DateTime)(ViewBag.EndDate ?? startDate.AddDays(6));
+    var selectedDate = (DateTime)(ViewBag.SelectedDate ?? today);
     var previousWeek = (DateTime)(ViewBag.PreviousWeek ?? startDate.AddDays(-7));
     var nextWeek = (DateTime)(ViewBag.NextWeek ?? startDate.AddDays(7));
     var slotCapacity = (int)(ViewBag.SlotCapacity ?? 40);
@@ -14,8 +15,7 @@
         ViewBag.ReservationSlots as IReadOnlyList<TimeSpan>
         ?? Array.Empty<TimeSpan>();
 
-    var dates = Enumerable
-        .Range(0, (endDate.Date - startDate.Date).Days + 1)
+    var dates = Enumerable.Range(0, 7)
         .Select(offset => startDate.Date.AddDays(offset))
         .ToList();
 
@@ -26,301 +26,191 @@
             reservation.Status != ReservationStatus.Rejected)
         .ToList();
 
-    var reservationsBySlot = Model
-        .GroupBy(reservation => new
-        {
-            Date = reservation.ReservationDate.Date,
-            reservation.ReservationTime
-        })
-        .ToDictionary(
-            group => (group.Key.Date, group.Key.ReservationTime),
-            group => group.ToList());
+    var selectedReservations = activeReservations
+        .Where(reservation => reservation.ReservationDate.Date == selectedDate.Date)
+        .OrderBy(reservation => reservation.ReservationTime)
+        .ThenBy(reservation => reservation.FullName)
+        .ToList();
 
-    var weekGuests = activeReservations.Sum(reservation =>
-        reservation.NumberOfGuests);
-
-    var weekPending = activeReservations.Count(reservation =>
-        reservation.Status == ReservationStatus.Pending);
-
-    var weekWithoutTable = activeReservations.Count(reservation =>
+    var selectedGuests = selectedReservations.Sum(reservation => reservation.NumberOfGuests);
+    var selectedPending = selectedReservations.Count(reservation => reservation.Status == ReservationStatus.Pending);
+    var selectedWithoutTable = selectedReservations.Count(reservation =>
         reservation.Status == ReservationStatus.Approved &&
         string.IsNullOrWhiteSpace(reservation.TableLabel));
+    var selectedIssues = selectedPending + selectedWithoutTable;
 
-    var isCurrentWeek = today.Date >= startDate.Date &&
-                        today.Date <= endDate.Date;
+    var timelineSlots = reservationSlots
+        .Concat(selectedReservations.Select(reservation => reservation.ReservationTime))
+        .Distinct()
+        .OrderBy(slot => slot)
+        .ToList();
+
+    var isCurrentWeek = today >= startDate && today <= endDate;
 }
 
-<div class="admin-workspace planner-page">
+<link rel="stylesheet" href="~/css/admin-planner.css" asp-append-version="true" />
 
-    <header class="admin-workspace-header planner-header">
-        <div class="admin-workspace-heading">
-            <span class="admin-workspace-eyebrow">
-                Weekly bookings
-            </span>
-
-            <h1 class="admin-workspace-title">
-                Week planner
-            </h1>
-
-            <p class="admin-workspace-copy">
-                @startDate.ToString("dd MMM") - @endDate.ToString("dd MMM yyyy")
-            </p>
+<div class="booking-planner">
+    <header class="booking-planner-header">
+        <div>
+            <span class="admin-workspace-eyebrow">@startDate.ToString("dd MMM") — @endDate.ToString("dd MMM yyyy")</span>
+            <h1>Planner</h1>
         </div>
 
-        <nav class="planner-week-nav" aria-label="Choose week">
-            <a asp-controller="AdminReservations"
-               asp-action="Planner"
+        <nav class="booking-week-nav" aria-label="Choose week">
+            <a asp-action="Planner"
                asp-route-startDate="@previousWeek.ToString("yyyy-MM-dd")"
-               class="admin-secondary-button"
-               aria-label="Previous week">
-                <span aria-hidden="true">&larr;</span>
-                Previous
-            </a>
-
-            <a asp-controller="AdminReservations"
-               asp-action="Planner"
+               asp-route-date="@previousWeek.ToString("yyyy-MM-dd")"
+               aria-label="Previous week">←</a>
+            <a asp-action="Planner"
                asp-route-startDate="@today.ToString("yyyy-MM-dd")"
-               class="@(isCurrentWeek ? "admin-secondary-button is-current" : "admin-primary-button")">
-                This week
-            </a>
-
-            <a asp-controller="AdminReservations"
-               asp-action="Planner"
+               asp-route-date="@today.ToString("yyyy-MM-dd")"
+               class="@(isCurrentWeek ? "is-current" : "")">Today</a>
+            <a asp-action="Planner"
                asp-route-startDate="@nextWeek.ToString("yyyy-MM-dd")"
-               class="admin-secondary-button"
-               aria-label="Next week">
-                Next
-                <span aria-hidden="true">&rarr;</span>
-            </a>
+               asp-route-date="@nextWeek.ToString("yyyy-MM-dd")"
+               aria-label="Next week">→</a>
         </nav>
     </header>
 
-    <section class="admin-metric-bar planner-metrics"
-             style="--metric-columns: 4;"
-             aria-label="Week summary">
-        <div class="admin-metric">
-            <span>Bookings</span>
-            <strong>@activeReservations.Count</strong>
-        </div>
-
-        <div class="admin-metric">
-            <span>Expected guests</span>
-            <strong>@weekGuests</strong>
-        </div>
-
-        <a asp-controller="AdminReservations"
-           asp-action="Index"
-           asp-route-status="Pending"
-           class="admin-metric @(weekPending > 0 ? "is-attention" : "")">
-            <span>Need review</span>
-            <strong>@weekPending</strong>
-        </a>
-
-        <a asp-controller="AdminReservations"
-           asp-action="Index"
-           asp-route-needsTable="true"
-           class="admin-metric @(weekWithoutTable > 0 ? "is-attention" : "")">
-            <span>Need table</span>
-            <strong>@weekWithoutTable</strong>
-        </a>
-    </section>
-
-    <section class="planner-days" aria-label="Daily booking summary">
+    <section class="booking-day-strip" aria-label="Choose a day">
         @foreach (var date in dates)
         {
             var dayReservations = activeReservations
-                .Where(reservation =>
-                    reservation.ReservationDate.Date == date)
+                .Where(reservation => reservation.ReservationDate.Date == date)
                 .ToList();
-
-            var dayGuests = dayReservations.Sum(reservation =>
-                reservation.NumberOfGuests);
-
-            var dayPending = dayReservations.Count(reservation =>
-                reservation.Status == ReservationStatus.Pending);
-
-            var dayPeakGuests = dayReservations
+            var dayGuests = dayReservations.Sum(reservation => reservation.NumberOfGuests);
+            var dayIssues = dayReservations.Count(reservation =>
+                reservation.Status == ReservationStatus.Pending ||
+                (reservation.Status == ReservationStatus.Approved && string.IsNullOrWhiteSpace(reservation.TableLabel)));
+            var peakGuests = dayReservations
                 .GroupBy(reservation => reservation.ReservationTime)
-                .Select(group => group.Sum(reservation =>
-                    reservation.NumberOfGuests))
+                .Select(group => group.Sum(reservation => reservation.NumberOfGuests))
                 .DefaultIfEmpty(0)
                 .Max();
+            var load = slotCapacity <= 0 ? 0 : Math.Min(100, (int)Math.Round(peakGuests * 100m / slotCapacity));
 
-            var dayPeakPercent = slotCapacity == 0
-                ? 0
-                : Math.Min(100, (int)Math.Round(
-                    dayPeakGuests * 100m / slotCapacity));
-
-            <a asp-controller="AdminReservations"
-               asp-action="Index"
+            <a asp-action="Planner"
+               asp-route-startDate="@startDate.ToString("yyyy-MM-dd")"
                asp-route-date="@date.ToString("yyyy-MM-dd")"
-               class="planner-day-card @(date == today.Date ? "is-today" : "") @(date < today.Date ? "is-past" : "")">
-                <span class="planner-day-name">
-                    @date.ToString("ddd")
-                </span>
-
-                <strong>@date.ToString("dd MMM")</strong>
-
-                <span class="planner-day-total">
-                    @dayReservations.Count bookings / @dayGuests guests
-                </span>
-
-                <span class="planner-day-meter" aria-hidden="true">
-                    <i style="--day-load: @dayPeakPercent%;"></i>
-                </span>
-
-                <small>
-                    @if (dayPending > 0)
-                    {
-                        <span>@dayPending need review</span>
-                    }
-                    else if (dayReservations.Count == 0)
-                    {
-                        <span>No bookings</span>
-                    }
-                    else
-                    {
-                        <span>Peak: @dayPeakGuests / @slotCapacity</span>
-                    }
-                </small>
+               class="booking-day @(date == selectedDate ? "is-selected" : "") @(date == today ? "is-today" : "")">
+                <span>@date.ToString("ddd")</span>
+                <strong>@date.ToString("dd")</strong>
+                <small>@dayGuests guests</small>
+                @if (dayIssues > 0)
+                {
+                    <em>@dayIssues</em>
+                }
+                <i style="--day-load: @load%" aria-hidden="true"></i>
             </a>
         }
     </section>
 
-    <div class="planner-toolbar">
-        <form asp-controller="AdminReservations"
-              asp-action="Planner"
-              method="get"
-              class="planner-jump-form">
-            <label for="plannerStartDate">Jump to week</label>
-            <input id="plannerStartDate"
-                   name="startDate"
-                   type="date"
-                   value="@startDate.ToString("yyyy-MM-dd")" />
-            <button type="submit" class="admin-secondary-button">
-                Go
-            </button>
-        </form>
-
-        <div class="planner-legend" aria-label="Planner legend">
-            <span><i class="legend-capacity"></i>Capacity</span>
-            <span><i class="legend-pending"></i>Needs review</span>
-            <span><i class="legend-gap"></i>No table</span>
-            <span><i class="legend-event"></i>Event</span>
+    <section class="booking-day-head">
+        <div>
+            <span>@(selectedDate == today ? "Today" : selectedDate.ToString("dddd"))</span>
+            <h2>@selectedDate.ToString("dd MMMM")</h2>
         </div>
-    </div>
 
-    <section class="planner-board-shell">
-        <header class="planner-board-heading">
-            <div>
-                <span class="admin-workspace-eyebrow">Arrival load</span>
-                <h2>Covers by time</h2>
-            </div>
-
-            <span>@slotCapacity guests per slot</span>
-        </header>
-
-        <div class="planner-grid-wrap">
-            <div class="planner-grid" aria-label="Reservation capacity by day and time">
-                <div class="planner-time-heading">Time</div>
-
-                @foreach (var date in dates)
-                {
-                    <div class="planner-day-heading @(date == today.Date ? "is-today" : "") @(date < today.Date ? "is-past" : "")">
-                        <strong>@date.ToString("ddd")</strong>
-                        <span>@date.ToString("dd MMM")</span>
-                    </div>
-                }
-
-                @foreach (var slot in reservationSlots)
-                {
-                    <div class="planner-time-cell">
-                        @slot.ToString(@"hh\:mm")
-                    </div>
-
-                    @foreach (var date in dates)
-                    {
-                        var slotReservations = reservationsBySlot.TryGetValue(
-                            (date, slot),
-                            out var reservations)
-                            ? reservations
-                            : new List<Rebel.Domain.Entities.Reservation>();
-
-                        var activeSlotReservations = slotReservations
-                            .Where(reservation =>
-                                reservation.Status != ReservationStatus.NoShow &&
-                                reservation.Status != ReservationStatus.Cancelled &&
-                                reservation.Status != ReservationStatus.Rejected)
-                            .ToList();
-
-                        var guests = activeSlotReservations.Sum(reservation =>
-                            reservation.NumberOfGuests);
-
-                        var loadPercent = slotCapacity == 0
-                            ? 0
-                            : Math.Min(100, (int)Math.Round(
-                                guests * 100m / slotCapacity));
-
-                        var pending = activeSlotReservations.Count(reservation =>
-                            reservation.Status == ReservationStatus.Pending);
-
-                        var unassigned = activeSlotReservations.Count(reservation =>
-                            reservation.Status == ReservationStatus.Approved &&
-                            string.IsNullOrWhiteSpace(reservation.TableLabel));
-
-                        var hasEvent = activeSlotReservations.Any(reservation =>
-                            reservation.EventId.HasValue);
-
-                        var slotNotes = new List<string>();
-
-                        if (pending > 0)
-                        {
-                            slotNotes.Add($"{pending} review");
-                        }
-
-                        if (unassigned > 0)
-                        {
-                            slotNotes.Add($"{unassigned} no table");
-                        }
-
-                        if (hasEvent)
-                        {
-                            slotNotes.Add("event");
-                        }
-
-                        <a asp-controller="AdminReservations"
-                           asp-action="Index"
-                           asp-route-date="@date.ToString("yyyy-MM-dd")"
-                           asp-route-time="@slot.ToString(@"hh\:mm")"
-                           aria-label="@date.ToString("dddd dd MMMM") at @slot.ToString(@"hh\:mm"): @activeSlotReservations.Count bookings, @guests guests"
-                           class="planner-slot @(guests >= slotCapacity ? "is-full" : "") @(pending > 0 ? "has-pending" : "") @(unassigned > 0 ? "has-gap" : "") @(hasEvent ? "has-event" : "") @(activeSlotReservations.Count == 0 ? "is-empty" : "") @(date < today.Date ? "is-past" : "")">
-                            <span class="planner-slot-load"
-                                  style="--slot-load: @loadPercent%;">
-                            </span>
-
-                            @if (activeSlotReservations.Count == 0)
-                            {
-                                <strong>Open</strong>
-                                <span>No bookings</span>
-                            }
-                            else
-                            {
-                                <strong>@guests / @slotCapacity</strong>
-                                <span>
-                                    @activeSlotReservations.Count
-                                    @(activeSlotReservations.Count == 1 ? "booking" : "bookings")
-                                </span>
-                            }
-
-                            @if (slotNotes.Count > 0)
-                            {
-                                <em>@string.Join(" / ", slotNotes)</em>
-                            }
-                        </a>
-                    }
-                }
-            </div>
+        <div class="booking-day-totals">
+            <span><strong>@selectedReservations.Count</strong> bookings</span>
+            <span><strong>@selectedGuests</strong> guests</span>
+            @if (selectedIssues > 0)
+            {
+                <span class="has-issues"><strong>@selectedIssues</strong> need action</span>
+            }
         </div>
     </section>
 
+    @if (selectedIssues > 0)
+    {
+        <section class="booking-action-strip" aria-label="Reservations needing action">
+            <strong>Needs action</strong>
+            @if (selectedPending > 0)
+            {
+                <a asp-action="Index"
+                   asp-route-date="@selectedDate.ToString("yyyy-MM-dd")"
+                   asp-route-status="Pending">@selectedPending pending</a>
+            }
+            @if (selectedWithoutTable > 0)
+            {
+                <a asp-action="Index"
+                   asp-route-date="@selectedDate.ToString("yyyy-MM-dd")"
+                   asp-route-needsTable="true">@selectedWithoutTable without table</a>
+            }
+        </section>
+    }
+
+    <section class="booking-timeline" aria-label="Reservations for @selectedDate.ToString("dddd dd MMMM")">
+        @foreach (var slot in timelineSlots)
+        {
+            var slotReservations = selectedReservations
+                .Where(reservation => reservation.ReservationTime == slot)
+                .ToList();
+            var slotGuests = slotReservations.Sum(reservation => reservation.NumberOfGuests);
+            var slotLoad = slotCapacity <= 0 ? 0 : Math.Min(100, (int)Math.Round(slotGuests * 100m / slotCapacity));
+
+            <article class="booking-time-row @(slotReservations.Count == 0 ? "is-empty" : "") @(slotGuests >= slotCapacity ? "is-full" : "")">
+                <header class="booking-time">
+                    <strong>@slot.ToString(@"hh\:mm")</strong>
+                    <span>@slotGuests / @slotCapacity</span>
+                    <i><b style="--slot-load: @slotLoad%"></b></i>
+                </header>
+
+                <div class="booking-time-reservations">
+                    @if (slotReservations.Count == 0)
+                    {
+                        <span class="booking-open-slot">Open</span>
+                    }
+                    else
+                    {
+                        @foreach (var reservation in slotReservations)
+                        {
+                            var needsTable =
+                                reservation.Status == ReservationStatus.Approved &&
+                                string.IsNullOrWhiteSpace(reservation.TableLabel);
+                            var statusClass = reservation.Status switch
+                            {
+                                ReservationStatus.Pending => "is-pending",
+                                ReservationStatus.Arrived => "is-arrived",
+                                _ when needsTable => "is-unassigned",
+                                _ => "is-ready"
+                            };
+                            var statusLabel = reservation.Status switch
+                            {
+                                ReservationStatus.Pending => "Review",
+                                ReservationStatus.Arrived => "Seated",
+                                _ when needsTable => "No table",
+                                _ => "Ready"
+                            };
+
+                            <a asp-action="Details"
+                               asp-route-id="@reservation.Id"
+                               class="booking-card @statusClass">
+                                <span class="booking-card-status">@statusLabel</span>
+                                <strong>@reservation.FullName</strong>
+                                <span class="booking-card-guests">@reservation.NumberOfGuests @(reservation.NumberOfGuests == 1 ? "guest" : "guests")</span>
+                                <span class="booking-card-table">
+                                    @(string.IsNullOrWhiteSpace(reservation.TableLabel) ? "—" : reservation.TableLabel)
+                                </span>
+                                @if (reservation.EventId.HasValue)
+                                {
+                                    <span class="booking-card-event">Event</span>
+                                }
+                                <span class="booking-card-arrow" aria-hidden="true">→</span>
+                            </a>
+                        }
+                    }
+                </div>
+            </article>
+        }
+
+        @if (timelineSlots.Count == 0)
+        {
+            <div class="booking-planner-empty">
+                <strong>No reservation slots</strong>
+                <span>There is nothing scheduled for this day.</span>
+            </div>
+        }
+    </section>
 </div>

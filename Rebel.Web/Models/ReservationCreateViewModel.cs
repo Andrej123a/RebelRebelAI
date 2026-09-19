@@ -9,11 +9,6 @@ namespace Rebel.Web.Models
         [Display(Name = "Full name")]
         public string FullName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Please enter your email address.")]
-        [EmailAddress(ErrorMessage = "Please enter a valid email address.")]
-        [StringLength(150)]
-        public string Email { get; set; } = string.Empty;
-
         [Required(ErrorMessage = "Please enter your phone number.")]
         [Phone(ErrorMessage = "Please enter a valid phone number.")]
         [StringLength(30)]

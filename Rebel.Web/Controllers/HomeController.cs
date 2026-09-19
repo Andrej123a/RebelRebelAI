@@ -11,16 +11,19 @@ namespace Rebel.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
         private static readonly TimeZoneInfo SkopjeTimeZone =
             TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje");
 
         public HomeController(
             ILogger<HomeController> logger,
-            AppDbContext context)
+            AppDbContext context,
+            IConfiguration configuration)
         {
             _logger = logger;
             _context = context;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -84,15 +87,19 @@ namespace Rebel.Web.Controllers
             var baseUrl =
                 $"{Request.Scheme}://{Request.Host}";
 
-            var paths = new[]
+            var paths = new List<string>
             {
                 "/",
                 "/Home/Menu",
-                "/RebelAI",
                 "/Events",
                 "/Reservations/Create",
                 "/Home/Contact"
             };
+
+            if (!_configuration.GetValue<bool>("Presentation:HideAiFeatures"))
+            {
+                paths.Insert(2, "/RebelAI");
+            }
 
             var sitemap = new StringBuilder();
 

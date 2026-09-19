@@ -147,6 +147,7 @@ namespace Rebel.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Planner(
             DateTime? startDate,
+            DateTime? date,
             CancellationToken cancellationToken)
         {
             var nowInSkopje = TimeZoneInfo.ConvertTimeFromUtc(
@@ -158,10 +159,15 @@ namespace Rebel.Web.Controllers
             var weekStart = requestedStart.AddDays(
                 -((int)requestedStart.DayOfWeek + 6) % 7);
             var endDate = weekStart.AddDays(7);
+            var selectedDate = date?.Date ?? today;
+
+            if (selectedDate < weekStart || selectedDate >= endDate)
+            {
+                selectedDate = weekStart;
+            }
 
             var reservations = await _context.Reservations
                 .AsNoTracking()
-                .Include(r => r.Event)
                 .Include(r => r.Event)
                 .Where(r =>
                     r.ReservationDate >= weekStart &&
@@ -178,6 +184,7 @@ namespace Rebel.Web.Controllers
             ViewBag.EndDate = endDate.AddDays(-1);
             ViewBag.PreviousWeek = weekStart.AddDays(-7);
             ViewBag.NextWeek = weekStart.AddDays(7);
+            ViewBag.SelectedDate = selectedDate;
             ViewBag.SlotCapacity =
                 ReservationPolicy.MaxOnlineCoversPerSlot;
             ViewBag.ReservationSlots =
@@ -480,6 +487,21 @@ namespace Rebel.Web.Controllers
 
             await _context.SaveChangesAsync(cancellationToken);
 
+            if (string.IsNullOrWhiteSpace(reservation.Email))
+            {
+                reservation.EmailStatus = "CodeOnly";
+                reservation.LastEmailError = null;
+                await _context.SaveChangesAsync(cancellationToken);
+
+                TempData["SuccessMessage"] =
+                    $"{reservation.FullName}'s reservation has been cancelled.";
+
+                return RedirectToAction(nameof(Index), new
+                {
+                    status = ReservationStatus.Cancelled
+                });
+            }
+
             try
             {
                 var htmlBody = ReservationEmailTemplate.BuildCancelled(
@@ -580,6 +602,16 @@ namespace Rebel.Web.Controllers
             if (reservation == null)
             {
                 return NotFound();
+            }
+
+            if (string.IsNullOrWhiteSpace(reservation.Email))
+            {
+                TempData["ErrorMessage"] =
+                    "This is a code-based reservation and has no guest email address.";
+
+                return RedirectToAction(
+                    nameof(Details),
+                    new { id });
             }
 
             var email = BuildReservationEmail(reservation);
@@ -805,6 +837,22 @@ namespace Rebel.Web.Controllers
             {
                 TempData["ErrorMessage"] =
                     "That table was just assigned to another reservation at the same time. Choose another table.";
+
+                return RedirectAfterReservationDecision(id, returnUrl);
+            }
+
+            if (string.IsNullOrWhiteSpace(reservation.Email))
+            {
+                var isApproved =
+                    newStatus == ReservationStatus.Approved;
+
+                reservation.EmailStatus = "CodeOnly";
+                reservation.LastEmailError = null;
+                await _context.SaveChangesAsync(cancellationToken);
+
+                TempData["SuccessMessage"] = isApproved
+                    ? "Reservation approved. The guest can see the update with their code."
+                    : "Reservation rejected. The guest can see the update with their code.";
 
                 return RedirectAfterReservationDecision(id, returnUrl);
             }

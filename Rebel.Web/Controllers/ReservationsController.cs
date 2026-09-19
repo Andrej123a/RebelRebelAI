@@ -14,22 +14,16 @@ namespace Rebel.Web.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IHubContext<NotificationHub> _notificationHub;
-        private readonly IEmailService _emailService;
-        private readonly ILogger<ReservationsController> _logger;
 
         private static readonly TimeZoneInfo SkopjeTimeZone =
             TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje");
 
         public ReservationsController(
             AppDbContext context,
-            IHubContext<NotificationHub> notificationHub,
-            IEmailService emailService,
-            ILogger<ReservationsController> logger)
+            IHubContext<NotificationHub> notificationHub)
         {
             _context = context;
             _notificationHub = notificationHub;
-            _emailService = emailService;
-            _logger = logger;
         }
 
         // CREATE GET
@@ -37,14 +31,13 @@ namespace Rebel.Web.Controllers
         public async Task<IActionResult> Create(Guid? eventId)
         {
             var nowInSkopje = GetCurrentSkopjeTime();
+            var suggestedArrival =
+                GetSuggestedArrival(nowInSkopje);
 
             var model = new ReservationCreateViewModel
             {
-                ReservationDate = nowInSkopje.Date,
-                ReservationTime = await GetFirstAvailableSlot(
-                    nowInSkopje.Date,
-                    eventId,
-                    nowInSkopje) ?? ReservationPolicy.FirstOnlineSlot,
+                ReservationDate = suggestedArrival.Date,
+                ReservationTime = suggestedArrival.TimeOfDay,
                 NumberOfGuests = 2
             };
 
@@ -68,7 +61,7 @@ namespace Rebel.Web.Controllers
                 model.ReservationDate = selectedEvent.Date.Date;
 
                 if (selectedEvent.StartTime.HasValue &&
-                    ReservationPolicy.IsOnlineSlot(
+                    ReservationPolicy.IsWithinOnlineHours(
                         selectedEvent.StartTime.Value) &&
                     selectedEvent.Date.Date
                         .Add(selectedEvent.StartTime.Value) >
@@ -81,18 +74,13 @@ namespace Rebel.Web.Controllers
                 else
                 {
                     model.ReservationTime =
-                        await GetFirstAvailableSlot(
+                        GetSuggestedTimeForDate(
                             model.ReservationDate,
-                            eventId,
-                            nowInSkopje) ??
-                        ReservationPolicy.FirstOnlineSlot;
+                            nowInSkopje);
                 }
             }
 
-            await PrepareForm(
-                nowInSkopje,
-                model.ReservationDate,
-                eventId);
+            PrepareForm(nowInSkopje);
 
             return View(model);
         }
@@ -146,10 +134,7 @@ namespace Rebel.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                await PrepareForm(
-                    nowInSkopje,
-                    model.ReservationDate,
-                    model.EventId);
+                PrepareForm(nowInSkopje);
 
                 return View(model);
             }
@@ -160,7 +145,9 @@ namespace Rebel.Web.Controllers
                 ReservationCode = await GenerateReservationCode(),
 
                 FullName = model.FullName.Trim(),
-                Email = model.Email.Trim(),
+                // The column stays populated for compatibility with older reservations.
+                Email = string.Empty,
+                EmailStatus = "CodeOnly",
                 PhoneNumber = model.PhoneNumber.Trim(),
 
                 ReservationDate = model.ReservationDate.Date,
@@ -236,62 +223,6 @@ namespace Rebel.Web.Controllers
                 HttpContext.RequestAborted
             );
 
-            try
-            {
-                var receivedEmail = ReservationEmailTemplate.BuildReceived(
-                    reservation.FullName,
-                    reservation.ReservationDate,
-                    reservation.ReservationTime,
-                    reservation.NumberOfGuests,
-                    reservation.ReservationCode,
-                    "cid:rebel-logo",
-                    model.EventTitle);
-
-                await _emailService.SendEmailAsync(
-                    reservation.Email,
-                    "We got your reservation request | Rebel Rebel by Fat Kitchen",
-                    receivedEmail,
-                    HttpContext.RequestAborted);
-
-                reservation.EmailStatus = "RequestSent";
-                reservation.LastEmailSentAtUtc = DateTime.UtcNow;
-                reservation.LastEmailError = null;
-
-                _context.ReservationActivities.Add(new ReservationActivity
-                {
-                    ReservationId = reservation.Id,
-                    Title = "Request email sent",
-                    Description =
-                        $"Request confirmation was sent to {reservation.Email}.",
-                    Actor = "System",
-                    CreatedAtUtc = DateTime.UtcNow
-                });
-
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                reservation.EmailStatus = "RequestEmailFailed";
-                reservation.LastEmailError = TruncateEmailError(ex);
-
-                _context.ReservationActivities.Add(new ReservationActivity
-                {
-                    ReservationId = reservation.Id,
-                    Title = "Request email failed",
-                    Description =
-                        $"Request confirmation could not be sent to {reservation.Email}.",
-                    Actor = "System",
-                    CreatedAtUtc = DateTime.UtcNow
-                });
-
-                await _context.SaveChangesAsync();
-
-                _logger.LogError(
-                    ex,
-                    "Reservation {ReservationId} was created, but the request received email could not be sent.",
-                    reservation.Id);
-            }
-
             TempData["ReservationSubmitted"] = true;
             TempData["ReservationName"] =
                 reservation.FullName;
@@ -359,75 +290,6 @@ namespace Rebel.Web.Controllers
             }
 
             return View(model);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> AvailableSlots(
-            DateTime date,
-            Guid? eventId,
-            CancellationToken cancellationToken)
-        {
-            if (date == default)
-            {
-                return BadRequest();
-            }
-
-            var nowInSkopje =
-                GetCurrentSkopjeTime();
-
-            var unavailableSlots =
-                await GetUnavailableSlots(
-                    date.Date,
-                    eventId,
-                    nowInSkopje);
-
-            var slotLoads =
-                await GetSlotLoads(
-                    date.Date);
-
-            var slots = ReservationPolicy
-                .GetOnlineSlots()
-                .Select(slot =>
-                {
-                    var bookedGuests =
-                        slotLoads.TryGetValue(slot, out var load)
-                            ? load
-                            : 0;
-
-                    var remainingSeats =
-                        Math.Max(
-                            0,
-                            ReservationPolicy.MaxOnlineCoversPerSlot -
-                            bookedGuests);
-
-                    var isTooSoon =
-                        date.Date == nowInSkopje.Date &&
-                        date.Date.Add(slot) <=
-                        nowInSkopje.Add(
-                            ReservationPolicy.MinimumLeadTime);
-
-                    var isFull =
-                        remainingSeats <= 0;
-
-                    return new
-                    {
-                        value = slot.ToString(@"hh\:mm"),
-                        label = slot.ToString(@"hh\:mm"),
-                        bookedGuests,
-                        remainingSeats,
-                        maxGuests = ReservationPolicy.MaxOnlineCoversPerSlot,
-                        unavailableReason = isTooSoon
-                            ? "tooSoon"
-                            : isFull
-                                ? "full"
-                                : null,
-                        isUnavailable =
-                            unavailableSlots.Contains(slot) ||
-                            isFull
-                    };
-                });
-
-            return Json(slots);
         }
 
         [HttpPost]
@@ -607,17 +469,6 @@ namespace Rebel.Web.Controllers
                 .ToUpperInvariant();
         }
 
-        private static string TruncateEmailError(Exception exception)
-        {
-            var message = string.IsNullOrWhiteSpace(exception.Message)
-                ? exception.GetType().Name
-                : exception.Message;
-
-            return message.Length <= 500
-                ? message
-                : message[..500];
-        }
-
         private async Task<string> GenerateReservationCode()
         {
             for (var attempt = 0; attempt < 10; attempt++)
@@ -676,12 +527,12 @@ namespace Rebel.Web.Controllers
                 );
             }
 
-            if (!ReservationPolicy.IsOnlineSlot(
+            if (!ReservationPolicy.IsWithinOnlineHours(
                     model.ReservationTime))
             {
                 ModelState.AddModelError(
                     nameof(model.ReservationTime),
-                    "Please choose one of the available reservation times."
+                    "Please choose an arrival time between 10:00 and 22:00."
                 );
             }
 
@@ -690,14 +541,19 @@ namespace Rebel.Web.Controllers
                 return;
             }
 
+            var capacityWindowStart =
+                model.ReservationTime.Subtract(TimeSpan.FromMinutes(30));
+            var capacityWindowEnd =
+                model.ReservationTime.Add(TimeSpan.FromMinutes(30));
+
             var reservedCoversForSlot =
                 await _context.Reservations
                     .AsNoTracking()
                     .Where(reservation =>
                         reservation.ReservationDate ==
                             model.ReservationDate.Date &&
-                        reservation.ReservationTime ==
-                            model.ReservationTime &&
+                        reservation.ReservationTime >= capacityWindowStart &&
+                        reservation.ReservationTime < capacityWindowEnd &&
                         reservation.Status !=
                             ReservationStatus.Rejected &&
                         reservation.Status !=
@@ -713,7 +569,7 @@ namespace Rebel.Web.Controllers
             {
                 ModelState.AddModelError(
                     nameof(model.ReservationTime),
-                    "That time is fully booked. Please choose another slot."
+                    "We are full around that arrival time. Please choose another time."
                 );
             }
         }
@@ -782,162 +638,54 @@ namespace Rebel.Web.Controllers
             }
         }
 
-        private async Task PrepareForm(
-            DateTime nowInSkopje,
-            DateTime selectedDate,
-            Guid? eventId)
+        private void PrepareForm(DateTime nowInSkopje)
         {
             ViewBag.MinimumReservationDate =
                 nowInSkopje.ToString("yyyy-MM-dd");
+        }
 
-            ViewBag.LatestAllowedBookingTime =
+        private static DateTime GetSuggestedArrival(
+            DateTime nowInSkopje)
+        {
+            var earliestArrival =
                 nowInSkopje.Add(
                     ReservationPolicy.MinimumLeadTime);
 
-            ViewBag.ReservationSlots =
-                ReservationPolicy.GetOnlineSlots();
+            if (earliestArrival.TimeOfDay >
+                ReservationPolicy.LastOnlineSlot)
+            {
+                return earliestArrival.Date
+                    .AddDays(1)
+                    .Add(ReservationPolicy.FirstOnlineSlot);
+            }
 
-            ViewBag.UnavailableSlots =
-                await GetUnavailableSlots(
-                    selectedDate.Date,
-                    eventId,
-                    nowInSkopje);
+            if (earliestArrival.TimeOfDay <
+                ReservationPolicy.FirstOnlineSlot)
+            {
+                return earliestArrival.Date
+                    .Add(ReservationPolicy.FirstOnlineSlot);
+            }
 
-            ViewBag.SlotLoads =
-                await GetSlotLoads(
-                    selectedDate.Date);
+            var intervalTicks =
+                TimeSpan.FromMinutes(15).Ticks;
+            var roundedTicks =
+                ((earliestArrival.TimeOfDay.Ticks + intervalTicks - 1) /
+                 intervalTicks) * intervalTicks;
+
+            return earliestArrival.Date
+                .Add(TimeSpan.FromTicks(roundedTicks));
         }
 
-        private async Task<HashSet<TimeSpan>> GetUnavailableSlots(
+        private static TimeSpan GetSuggestedTimeForDate(
             DateTime selectedDate,
-            Guid? eventId,
             DateTime nowInSkopje)
         {
-            var unavailableSlots = await _context.Reservations
-                .AsNoTracking()
-                .Where(reservation =>
-                    reservation.ReservationDate == selectedDate.Date &&
-                    reservation.Status != ReservationStatus.Rejected &&
-                    reservation.Status != ReservationStatus.NoShow &&
-                    reservation.Status != ReservationStatus.Cancelled)
-                .GroupBy(reservation =>
-                    reservation.ReservationTime)
-                .Where(group =>
-                    group.Sum(reservation =>
-                        reservation.NumberOfGuests) >=
-                    ReservationPolicy.MaxOnlineCoversPerSlot)
-                .Select(group => group.Key)
-                .ToListAsync();
+            var suggestedArrival =
+                GetSuggestedArrival(nowInSkopje);
 
-            var unavailableSet =
-                unavailableSlots.ToHashSet();
-
-            var latestAllowedBookingTime =
-                nowInSkopje.Add(
-                    ReservationPolicy.MinimumLeadTime);
-
-            if (selectedDate.Date == nowInSkopje.Date)
-            {
-                foreach (var slot in ReservationPolicy.GetOnlineSlots())
-                {
-                    var slotDateTime =
-                        selectedDate.Date.Add(slot);
-
-                    if (slotDateTime <= latestAllowedBookingTime)
-                    {
-                        unavailableSet.Add(slot);
-                    }
-                }
-            }
-
-            if (eventId.HasValue)
-            {
-                var selectedEvent = await _context.Events
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(e =>
-                        e.Id == eventId.Value &&
-                        e.IsActive);
-
-                if (selectedEvent != null &&
-                    await IsEventFullyBooked(selectedEvent))
-                {
-                    foreach (var slot in ReservationPolicy.GetOnlineSlots())
-                    {
-                        unavailableSet.Add(slot);
-                    }
-                }
-            }
-
-            return unavailableSet;
-        }
-
-        private async Task<TimeSpan?> GetFirstAvailableSlot(
-            DateTime selectedDate,
-            Guid? eventId,
-            DateTime nowInSkopje)
-        {
-            var unavailableSlots =
-                await GetUnavailableSlots(
-                    selectedDate,
-                    eventId,
-                    nowInSkopje);
-
-            return ReservationPolicy
-                .GetOnlineSlots()
-                .Cast<TimeSpan?>()
-                .FirstOrDefault(slot =>
-                    slot.HasValue &&
-                    !unavailableSlots.Contains(slot.Value));
-        }
-
-        private async Task<Dictionary<TimeSpan, int>> GetSlotLoads(
-            DateTime selectedDate)
-        {
-            return await _context.Reservations
-                .AsNoTracking()
-                .Where(reservation =>
-                    reservation.ReservationDate == selectedDate.Date &&
-                    reservation.Status != ReservationStatus.Rejected &&
-                    reservation.Status != ReservationStatus.NoShow &&
-                    reservation.Status != ReservationStatus.Cancelled)
-                .GroupBy(reservation =>
-                    reservation.ReservationTime)
-                .ToDictionaryAsync(
-                    group => group.Key,
-                    group => group.Sum(reservation =>
-                        reservation.NumberOfGuests));
-        }
-
-        private async Task<bool> IsEventFullyBooked(
-            Event selectedEvent)
-        {
-            if (!selectedEvent.MaxReservations.HasValue &&
-                !selectedEvent.MaxGuests.HasValue)
-            {
-                return false;
-            }
-
-            var eventReservations = await _context.Reservations
-                .AsNoTracking()
-                .Where(reservation =>
-                    reservation.EventId == selectedEvent.Id &&
-                    reservation.Status != ReservationStatus.Rejected &&
-                    reservation.Status != ReservationStatus.NoShow &&
-                    reservation.Status != ReservationStatus.Cancelled)
-                .Select(reservation => new
-                {
-                    reservation.NumberOfGuests
-                })
-                .ToListAsync();
-
-            return
-                selectedEvent.MaxReservations.HasValue &&
-                eventReservations.Count >=
-                    selectedEvent.MaxReservations.Value ||
-                selectedEvent.MaxGuests.HasValue &&
-                eventReservations.Sum(reservation =>
-                    reservation.NumberOfGuests) >=
-                    selectedEvent.MaxGuests.Value;
+            return suggestedArrival.Date == selectedDate.Date
+                ? suggestedArrival.TimeOfDay
+                : new TimeSpan(19, 0, 0);
         }
     }
 }

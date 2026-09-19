@@ -2,8 +2,12 @@
 @using Rebel.Domain.Entities
 @using Rebel.Domain.Enums
 @using Rebel.Web.Models
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
+    var hideAiFeatures = Configuration.GetValue<bool>(
+        "Presentation:HideAiFeatures");
+
     var suggestions = ViewBag.BeerProfileSuggestions as IReadOnlyList<BeerProfileSuggestionViewModel>
         ?? [];
     var categories = ViewBag.Categories as IReadOnlyCollection<Category>
@@ -14,7 +18,7 @@
     var isFood = categoryType == CategoryType.Food;
 }
 
-@if (isBeer || isFood)
+@if (!hideAiFeatures && (isBeer || isFood))
 {
     <fieldset class="product-recommendation-profile">
         <legend>@(isFood ? "Food recommendation profile" : "Beer recommendation profile")</legend>

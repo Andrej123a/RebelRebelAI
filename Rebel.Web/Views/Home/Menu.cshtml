@@ -1,8 +1,12 @@
 ﻿@using Rebel.Domain.Enums
 @model List<Rebel.Domain.Entities.Product>
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
     ViewData["Title"] = "Menu";
+
+    var hideAiFeatures = Configuration.GetValue<bool>(
+        "Presentation:HideAiFeatures");
 
     var selectedSection = (ViewBag.Section as string ?? "food").ToLower();
 
@@ -99,7 +103,7 @@
 
     <main class="rr-menu-content">
 
-        @if (selectedSection == "beer")
+        @if (selectedSection == "beer" && !hideAiFeatures)
         {
             <aside class="rr-menu-guide-callout">
                 <div>
@@ -379,7 +383,7 @@
                                             @product.Description
                                         </p>
 
-                                        @if (!string.IsNullOrWhiteSpace(rebelPrompt))
+                                        @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
                                         {
                                             <a asp-controller="BeerGuide"
                                                asp-action="Index"

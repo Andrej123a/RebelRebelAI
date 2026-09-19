@@ -1,7 +1,11 @@
 @model IEnumerable<Rebel.Domain.Entities.Product>
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
     ViewData["Title"] = "Menu";
+
+    var hideAiFeatures = Configuration.GetValue<bool>(
+        "Presentation:HideAiFeatures");
 
     var products = Model?.ToList()
         ?? new List<Rebel.Domain.Entities.Product>();
@@ -70,7 +74,7 @@
             <strong>@unavailableCount</strong>
         </a>
 
-        @if (beerProducts.Count > 0)
+        @if (!hideAiFeatures && beerProducts.Count > 0)
         {
             <a asp-controller="AdminBeerCatalog"
                asp-action="Index"

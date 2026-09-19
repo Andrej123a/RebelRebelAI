@@ -1,4 +1,11 @@
 ﻿@{
+    var configuration =
+        Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions
+            .GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>(Context.RequestServices);
+    var hideAiFeatures = bool.TryParse(
+        configuration["Presentation:HideAiFeatures"],
+        out var hideAi) && hideAi;
+
     var pageTitle = ViewData["Title"]?.ToString();
     var metaTitle = string.IsNullOrWhiteSpace(pageTitle)
         ? "Rebel Rebel by Fat Kitchen"
@@ -181,18 +188,21 @@
 
                         </a>
 
-                        <a asp-controller="BeerGuide"
-                           asp-action="Index"
-                           class="rr-nav-link @IsActive("BeerGuide")"
-                           aria-label="Open Rebel AI">
-                            <span class="rr-nav-mark rr-nav-mark-guide" aria-hidden="true">
-                                <i></i>
-                            </span>
+                        @if (!hideAiFeatures)
+                        {
+                            <a asp-controller="BeerGuide"
+                               asp-action="Index"
+                               class="rr-nav-link @IsActive("BeerGuide")"
+                               aria-label="Open Rebel AI">
+                                <span class="rr-nav-mark rr-nav-mark-guide" aria-hidden="true">
+                                    <i></i>
+                                </span>
 
-                            <span class="rr-nav-name">
-                                Rebel AI
-                            </span>
-                        </a>
+                                <span class="rr-nav-name">
+                                    Rebel AI
+                                </span>
+                            </a>
+                        }
 
                         <a asp-controller="Events"
                            asp-action="Index"

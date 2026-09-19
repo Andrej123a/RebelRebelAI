@@ -1,6 +1,10 @@
 @model IEnumerable<Rebel.Domain.Entities.Product>
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
+    var hideAiFeatures = Configuration.GetValue<bool>(
+        "Presentation:HideAiFeatures");
+
     var products = Model?.ToList()
         ?? new List<Rebel.Domain.Entities.Product>();
 
@@ -71,7 +75,7 @@ else
                                             ? group.Key
                                             : string.Join(" / ", tagNames))
                                     </span>
-                                    @if (isBeer)
+                                    @if (isBeer && !hideAiFeatures)
                                     {
                                         <span class="beer-profile-status @(profilePercent >= 85 ? "is-ready" : "is-incomplete")"
                                               title="@(missingProfileFields.Count == 0 ? "Rebel AI beer profile complete" : $"Missing: {string.Join(", ", missingProfileFields)}")">

@@ -16,8 +16,7 @@
 
     var actionCount =
         Model.TonightPendingReservationsCount +
-        Model.TonightUnassignedTablesCount +
-        Model.EmailFailuresCount;
+        Model.TonightUnassignedTablesCount;
 }
 
 <div class="admin-workspace dashboard-simple">
@@ -29,6 +28,19 @@
         </div>
 
         <div class="admin-workspace-actions">
+            <form asp-controller="Admin"
+                  asp-action="Index"
+                  method="get"
+                  class="admin-dashboard-command-search">
+                <label class="visually-hidden" for="dashboardSearch">Search reservations</label>
+                <input id="dashboardSearch"
+                       type="search"
+                       name="q"
+                       value="@Model.SearchQuery"
+                       placeholder="Guest or booking code"
+                       autocomplete="off" />
+                <button type="submit">Search</button>
+            </form>
             <a asp-controller="AdminReservations"
                asp-action="Tonight"
                class="admin-primary-button">
@@ -123,23 +135,6 @@
                     </article>
                 }
 
-                @if (Model.EmailFailuresCount > 0)
-                {
-                    <article class="admin-list-row is-danger">
-                        <div class="admin-row-copy">
-                            <strong>Guest emails failed</strong>
-                            <span>@Model.EmailFailuresCount failed</span>
-                        </div>
-                        <span class="admin-state is-danger">Check</span>
-                        <div class="admin-row-actions">
-                            <a asp-controller="AdminReservations"
-                               asp-action="Index"
-                               class="admin-secondary-button">
-                                Open bookings
-                            </a>
-                        </div>
-                    </article>
-                }
             </div>
         }
     </section>
@@ -199,36 +194,19 @@
         }
     </section>
 
-    <details class="admin-filter-disclosure"
-             open="@(!string.IsNullOrWhiteSpace(Model.SearchQuery) ? "open" : null)">
-        <summary>
-            <span>Search everything</span>
-            <span>Guest, booking, event or menu item</span>
-        </summary>
-
-        <form asp-controller="Admin"
-              asp-action="Index"
-              method="get"
-              class="admin-filter-panel admin-dashboard-search">
-            <label>
-                Search
-                <input type="search"
-                       name="q"
-                       value="@Model.SearchQuery"
-                       placeholder="Name or reservation code"
-                       autocomplete="off" />
-            </label>
-            <button type="submit" class="admin-primary-button">Search</button>
-            @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
-            {
+    @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
+    {
+        <section class="admin-section dashboard-search-results">
+            <header class="admin-section-heading">
+                <div>
+                    <span class="admin-workspace-eyebrow">Search</span>
+                    <h2>Results for “@Model.SearchQuery”</h2>
+                </div>
                 <a asp-controller="Admin"
                    asp-action="Index"
                    class="admin-secondary-button">Clear</a>
-            }
-        </form>
+            </header>
 
-        @if (!string.IsNullOrWhiteSpace(Model.SearchQuery))
-        {
             @if (visibleSearchResults.Count == 0)
             {
                 <div class="admin-empty-state"><strong>No results found.</strong></div>
@@ -251,43 +229,7 @@
                     }
                 </div>
             }
-        }
-    </details>
-
-    @if (canManageSetup && Model.UpcomingEvents.Count > 0)
-    {
-        <details class="admin-content-disclosure">
-            <summary>
-                <span>Upcoming events</span>
-                <span>@Model.UpcomingEvents.Count</span>
-            </summary>
-            <div class="admin-list">
-                @foreach (var eventItem in Model.UpcomingEvents)
-                {
-                    <article class="admin-list-row">
-                        <div class="admin-row-main">
-                            @if (!string.IsNullOrWhiteSpace(eventItem.ImageUrl))
-                            {
-                                <img src="@Url.Content(eventItem.ImageUrl)"
-                                     alt=""
-                                     loading="lazy"
-                                     class="admin-row-thumbnail" />
-                            }
-                            <div class="admin-row-copy">
-                                <strong>@eventItem.Title</strong>
-                                <span>@eventItem.Date.ToString("dd MMM yyyy")</span>
-                            </div>
-                        </div>
-                        <div class="admin-row-actions">
-                            <a asp-controller="AdminEvents"
-                               asp-action="Edit"
-                               asp-route-id="@eventItem.Id"
-                               class="admin-secondary-button">Open</a>
-                        </div>
-                    </article>
-                }
-            </div>
-        </details>
+        </section>
     }
 
 </div>

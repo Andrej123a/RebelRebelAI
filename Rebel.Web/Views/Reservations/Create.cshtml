@@ -3,515 +3,127 @@
 @{
     ViewData["Title"] = "Book a Table";
 
-    var reservationSlots =
-        ViewBag.ReservationSlots as IReadOnlyList<TimeSpan>
-        ?? Array.Empty<TimeSpan>();
-
-    var unavailableSlots =
-        ViewBag.UnavailableSlots as HashSet<TimeSpan>
-        ?? new HashSet<TimeSpan>();
-
-    var slotLoads =
-        ViewBag.SlotLoads as Dictionary<TimeSpan, int>
-        ?? new Dictionary<TimeSpan, int>();
-
-    var latestAllowedBookingTime =
-        ViewBag.LatestAllowedBookingTime is DateTime latestAllowed
-            ? latestAllowed
-            : DateTime.MinValue;
-
-    var initialSlotAvailability = reservationSlots
-        .Select(slot =>
-        {
-            var bookedGuests =
-                slotLoads.TryGetValue(slot, out var load)
-                    ? load
-                    : 0;
-
-            var remainingSeats =
-                Math.Max(
-                    0,
-                    Rebel.Web.Services.ReservationPolicy.MaxOnlineCoversPerSlot -
-                    bookedGuests);
-
-            var isTooSoon =
-                Model.ReservationDate.Date == latestAllowedBookingTime.Date &&
-                Model.ReservationDate.Date.Add(slot) <= latestAllowedBookingTime;
-
-            var isFull =
-                remainingSeats <= 0;
-
-            return new
-            {
-                value = slot.ToString(@"hh\:mm"),
-                label = slot.ToString(@"hh\:mm"),
-                bookedGuests,
-                remainingSeats,
-                maxGuests = Rebel.Web.Services.ReservationPolicy.MaxOnlineCoversPerSlot,
-                unavailableReason = isTooSoon
-                    ? "tooSoon"
-                    : isFull
-                        ? "full"
-                        : null,
-                isUnavailable =
-                    unavailableSlots.Contains(slot) ||
-                    isFull
-            };
-        })
-        .ToList();
+    var showNote =
+        !string.IsNullOrWhiteSpace(Model.Note) ||
+        ViewData.ModelState[nameof(Model.Note)]?.Errors.Count > 0;
 }
 
-<section class="rr-booking-page">
+<section class="rr-reservation-simple-page">
     <div class="container">
+        <div class="rr-reservation-ticket">
+            <aside class="rr-reservation-art" aria-label="Rebel Rebel">
+                <img class="rr-reservation-art-photo"
+                     src="~/images/rebel-bowie-logo-room.webp"
+                     alt="Bowie artwork inside Rebel Rebel" />
 
-        <div class="rr-booking-header">
-            <p>Rebel Rebel by Fat Kitchen</p>
+                <div class="rr-reservation-art-shade"></div>
 
-            <h1>Book a Table</h1>
-
-            <p>
-                Choose a time, leave your details, and keep the code we give you. Staff confirm every request after checking the floor.
-            </p>
-        </div>
-
-        <div class="rr-booking-card rr-booking-card-upgraded">
-
-            <aside class="rr-booking-note">
-                <span>Before you book</span>
-                <strong>Fast request. Human confirmation.</strong>
-                <p>
-                    Online requests are open from 10:00 to 22:00 and need at least two hours notice. Your table is confirmed only after the team checks the night.
-                </p>
-
-                <div class="rr-booking-trust-list">
-                    <div>
-                        <strong>01</strong>
-                        <span>Pick an available date and time.</span>
-                    </div>
-
-                    <div>
-                        <strong>02</strong>
-                        <span>Tell us who is coming.</span>
-                    </div>
-
-                    <div>
-                        <strong>03</strong>
-                        <span>Use your code to track or cancel.</span>
-                    </div>
+                <div class="rr-reservation-art-copy">
+                    <img src="~/images/logo.jpg"
+                         alt="Rebel Rebel by Fat Kitchen"
+                         class="rr-reservation-logo" />
+                    <span>Skopje / Table reservations</span>
+                    <strong>Come as you are.</strong>
                 </div>
             </aside>
 
             <form asp-controller="Reservations"
                   asp-action="Create"
-                  class="rr-booking-form rr-classic-booking-form"
-                  method="post">
+                  method="post"
+                  class="rr-reservation-simple-form">
+                <input asp-for="EventId" type="hidden" />
 
-                <input asp-for="EventId"
-                       type="hidden" />
+                <header>
+                    <span>Book a table</span>
+                    <h1>Pick your arrival.</h1>
+                    <p>
+                        Choose the exact date and time. We will give you a code to track the request.
+                    </p>
+                </header>
 
                 <div asp-validation-summary="ModelOnly"
-                     class="alert alert-danger">
-                </div>
+                     class="rr-reservation-errors"></div>
 
                 @if (!string.IsNullOrWhiteSpace(Model.EventTitle))
                 {
-                    <div class="rr-booking-event-context">
-                        <span>Event booking</span>
+                    <div class="rr-reservation-event">
+                        <span>Event</span>
                         <strong>@Model.EventTitle</strong>
-                        <p>
-                            This request is attached to the event. The date is set from the event schedule.
-                        </p>
                     </div>
                 }
 
-                <div class="rr-booking-step">
-                    <div class="rr-booking-step-header">
-                        <span>1</span>
-                        <div>
-                            <h2>When are you coming?</h2>
-                            <p>Availability updates when you change the date.</p>
-                        </div>
-                    </div>
+                <div class="rr-reservation-datetime">
+                    <label>
+                        <span>Date</span>
+                        <input asp-for="ReservationDate"
+                               type="date"
+                               min="@ViewBag.MinimumReservationDate" />
+                        <small asp-validation-for="ReservationDate"></small>
+                    </label>
 
-                    <div class="rr-booking-fields two">
-                        <label>
-                            <span>Date</span>
-                            <input asp-for="ReservationDate"
-                                   id="reservationDateInput"
-                                   type="date"
-                                   min="@ViewBag.MinimumReservationDate" />
-                            <small asp-validation-for="ReservationDate"></small>
-                        </label>
-
-                        <label>
-                            <span>Time</span>
-                            <select asp-for="ReservationTime"
-                                    id="reservationTimeSelect"
-                                    data-slots-url="@Url.Action("AvailableSlots", "Reservations")"
-                                    data-event-id="@Model.EventId">
-                                @foreach (var slot in reservationSlots)
-                                {
-                                    var isUnavailable =
-                                        unavailableSlots.Contains(slot);
-
-                                    var bookedGuests =
-                                        slotLoads.TryGetValue(slot, out var load)
-                                            ? load
-                                            : 0;
-
-                                    var remainingSeats =
-                                        Math.Max(
-                                            0,
-                                            Rebel.Web.Services.ReservationPolicy.MaxOnlineCoversPerSlot -
-                                            bookedGuests);
-
-                                    var isTooSoon =
-                                        Model.ReservationDate.Date == latestAllowedBookingTime.Date &&
-                                        Model.ReservationDate.Date.Add(slot) <= latestAllowedBookingTime;
-
-                                    var slotText =
-                                        slot.ToString(@"hh\:mm");
-
-                                    if (isUnavailable)
-                                    {
-                                        <option value="@slotText"
-                                                disabled>
-                                            @(isTooSoon
-                                                ? $"{slotText} / Too soon today"
-                                                : $"{slotText} / Fully booked")
-                                        </option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@slotText">
-                                            @(remainingSeats <= 20
-                                                ? $"{slotText} / Almost sold out"
-                                                : slotText)
-                                        </option>
-                                    }
-                                }
-                            </select>
-                            <small asp-validation-for="ReservationTime"></small>
-                        </label>
-
-                        <label>
-                            <span>Guests</span>
-                            <input asp-for="NumberOfGuests"
-                                   id="guestCountInput"
-                                   type="number"
-                                   min="1"
-                                   max="20" />
-                            <small asp-validation-for="NumberOfGuests"></small>
-                            <small id="largePartyMessage"
-                                   class="rr-party-message"></small>
-                        </label>
-
-                        <div class="rr-live-availability-panel">
-                            <span>Live availability</span>
-                            <strong id="reservationAvailabilityHeadline">Checking the floor</strong>
-                            <p id="reservationSlotInsight"
-                               class="rr-slot-insight">
-                                Select a date and time to see current availability.
-                            </p>
-                            <small id="reservationAvailabilityMessage"
-                                   class="rr-availability-message"></small>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="rr-booking-step">
-                    <div class="rr-booking-step-header">
-                        <span>2</span>
-                        <div>
-                            <h2>Who should we expect?</h2>
-                            <p>We only use this to confirm the request and reach you if plans change.</p>
-                        </div>
-                    </div>
-
-                    <div class="rr-booking-fields two">
-                        <label>
-                            <span>Full name</span>
-                            <input asp-for="FullName"
-                                   placeholder="Your full name"
-                                   autocomplete="name" />
-                            <small asp-validation-for="FullName"></small>
-                        </label>
-
-                        <label>
-                            <span>Email</span>
-                            <input asp-for="Email"
-                                   placeholder="you@example.com"
-                                   autocomplete="email" />
-                            <small asp-validation-for="Email"></small>
-                        </label>
-
-                        <label>
-                            <span>Phone</span>
-                            <input asp-for="PhoneNumber"
-                                   placeholder="+389..."
-                                   autocomplete="tel" />
-                            <small asp-validation-for="PhoneNumber"></small>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="rr-booking-step">
-                    <div class="rr-booking-step-header">
-                        <span>3</span>
-                        <div>
-                            <h2>Anything the crew should know?</h2>
-                            <p>Optional for most bookings. Required for groups of 13 or more.</p>
-                        </div>
-                    </div>
-
-                    <label class="rr-booking-note-field">
-                        <span>Note</span>
-                        <textarea asp-for="Note"
-                                  id="reservationNoteInput"
-                                  rows="4"
-                                  placeholder="Birthday, preferred table, allergies or anything else we should know..."></textarea>
-                        <small asp-validation-for="Note"></small>
+                    <label>
+                        <span>Arrival time</span>
+                        <input asp-for="ReservationTime"
+                               type="time"
+                               min="10:00"
+                               max="22:00"
+                               step="60" />
+                        <small asp-validation-for="ReservationTime"></small>
                     </label>
                 </div>
 
-                <div class="rr-booking-submit-row">
-                    <p>
-                        You will get a reservation code immediately. Keep it safe for status lookup or cancellation.
-                    </p>
+                <p class="rr-reservation-hours">
+                    Reservations from 10:00 to 22:00 / at least 2 hours ahead
+                </p>
 
-                    <button type="submit"
-                            class="rr-booking-submit">
-                        Send Reservation Request
-                    </button>
+                <div class="rr-reservation-fields">
+                    <label>
+                        <span>Guests</span>
+                        <input asp-for="NumberOfGuests"
+                               type="number"
+                               inputmode="numeric"
+                               min="1"
+                               max="20" />
+                        <small asp-validation-for="NumberOfGuests"></small>
+                    </label>
+
+                    <label>
+                        <span>Full name</span>
+                        <input asp-for="FullName"
+                               placeholder="Your name"
+                               autocomplete="name" />
+                        <small asp-validation-for="FullName"></small>
+                    </label>
+
+                    <label>
+                        <span>Phone</span>
+                        <input asp-for="PhoneNumber"
+                               placeholder="+389..."
+                               autocomplete="tel" />
+                        <small asp-validation-for="PhoneNumber"></small>
+                    </label>
                 </div>
 
+                <details class="rr-reservation-note" open="@showNote">
+                    <summary>Add a note <span>optional</span></summary>
+                    <label>
+                        <span>For the crew</span>
+                        <textarea asp-for="Note"
+                                  rows="3"
+                                  placeholder="Birthday, accessibility, seating..."></textarea>
+                        <small asp-validation-for="Note"></small>
+                    </label>
+                </details>
+
+                <div class="rr-reservation-submit">
+                    <button type="submit">Request the table</button>
+                    <p>No email needed. Keep the code shown after submitting.</p>
+                </div>
             </form>
-
         </div>
-
     </div>
 </section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
-    <script>
-        (() => {
-            const dateInput =
-                document.getElementById("reservationDateInput");
-            const timeSelect =
-                document.getElementById("reservationTimeSelect");
-            const message =
-                document.getElementById("reservationAvailabilityMessage");
-            const guestCountInput =
-                document.getElementById("guestCountInput");
-            const largePartyMessage =
-                document.getElementById("largePartyMessage");
-            const noteInput =
-                document.getElementById("reservationNoteInput");
-            const slotInsight =
-                document.getElementById("reservationSlotInsight");
-            const availabilityHeadline =
-                document.getElementById("reservationAvailabilityHeadline");
-
-            let currentSlots =
-                @Html.Raw(System.Text.Json.JsonSerializer.Serialize(initialSlotAvailability));
-
-            if (!dateInput || !timeSelect) {
-                return;
-            }
-
-            const setMessage = (text, isError = false) => {
-                if (!message) {
-                    return;
-                }
-
-                message.textContent = text;
-                message.classList.toggle("error", isError);
-            };
-
-            const setSlotInsight = (slot) => {
-                if (!slotInsight) {
-                    return;
-                }
-
-                slotInsight.classList.remove("open", "low", "full");
-
-                if (!slot) {
-                    slotInsight.textContent =
-                        "Select a date and time to see current availability.";
-                    if (availabilityHeadline) {
-                        availabilityHeadline.textContent = "Checking the floor";
-                    }
-                    return;
-                }
-
-                if (slot.isUnavailable) {
-                    slotInsight.textContent = slot.unavailableReason === "tooSoon"
-                        ? `${slot.label} is no longer available for today. Please choose a later time.`
-                        : `${slot.label} is fully booked. Please choose another time.`;
-                    if (availabilityHeadline) {
-                        availabilityHeadline.textContent = "Choose another slot";
-                    }
-                    slotInsight.classList.add("full");
-                    return;
-                }
-
-                if (slot.remainingSeats <= 20) {
-                    slotInsight.textContent =
-                        `Almost sold out at ${slot.label}. A few tables are still possible.`;
-                    if (availabilityHeadline) {
-                        availabilityHeadline.textContent = "Almost sold out";
-                    }
-                    slotInsight.classList.add("low");
-                    return;
-                }
-
-                slotInsight.textContent =
-                    `${slot.label} is currently available.`;
-                if (availabilityHeadline) {
-                    availabilityHeadline.textContent = "Good time to book";
-                }
-                slotInsight.classList.add("open");
-            };
-
-            const updateSelectedSlotInsight = () => {
-                const selectedSlot = currentSlots.find(
-                    (slot) => slot.value === timeSelect.value);
-
-                setSlotInsight(selectedSlot);
-            };
-
-            const refreshSlots = async () => {
-                const selectedDate = dateInput.value;
-
-                if (!selectedDate) {
-                    return;
-                }
-
-                const previousValue = timeSelect.value;
-                const url = new URL(
-                    timeSelect.dataset.slotsUrl,
-                    window.location.origin);
-
-                url.searchParams.set("date", selectedDate);
-
-                if (timeSelect.dataset.eventId) {
-                    url.searchParams.set(
-                        "eventId",
-                        timeSelect.dataset.eventId);
-                }
-
-                timeSelect.disabled = true;
-                setMessage("Checking availability...");
-
-                try {
-                    const response = await fetch(url, {
-                        headers: {
-                            "Accept": "application/json"
-                        }
-                    });
-
-                    if (!response.ok) {
-                        throw new Error("Could not load availability.");
-                    }
-
-                    const slots = await response.json();
-                    currentSlots = slots;
-                    timeSelect.innerHTML = "";
-
-                    let firstAvailableValue = "";
-                    let previousStillAvailable = false;
-
-                    slots.forEach((slot) => {
-                        const option = document.createElement("option");
-                        option.value = slot.value;
-                        option.textContent = slot.isUnavailable
-                            ? slot.unavailableReason === "tooSoon"
-                                ? `${slot.label} / Too soon today`
-                                : `${slot.label} / Fully booked`
-                            : slot.remainingSeats <= 20
-                                ? `${slot.label} / Almost sold out`
-                                : slot.label;
-                        option.disabled = slot.isUnavailable;
-
-                        if (!slot.isUnavailable && !firstAvailableValue) {
-                            firstAvailableValue = slot.value;
-                        }
-
-                        if (!slot.isUnavailable &&
-                            slot.value === previousValue) {
-                            previousStillAvailable = true;
-                        }
-
-                        timeSelect.appendChild(option);
-                    });
-
-                    if (previousStillAvailable) {
-                        timeSelect.value = previousValue;
-                    } else if (firstAvailableValue) {
-                        timeSelect.value = firstAvailableValue;
-                    }
-
-                    timeSelect.disabled = false;
-
-                    setMessage(
-                        firstAvailableValue
-                            ? "Availability updated for this date."
-                            : "No available slots for this date.",
-                        !firstAvailableValue);
-                    updateSelectedSlotInsight();
-                } catch {
-                    timeSelect.disabled = false;
-                    currentSlots = [];
-                    setSlotInsight(null);
-                    setMessage(
-                        "Could not refresh availability. Please try again.",
-                        true);
-                }
-            };
-
-            dateInput.addEventListener("change", refreshSlots);
-            timeSelect.addEventListener(
-                "change",
-                updateSelectedSlotInsight);
-            updateSelectedSlotInsight();
-
-            const updateLargePartyMessage = () => {
-                if (!guestCountInput || !largePartyMessage) {
-                    return;
-                }
-
-                const guests =
-                    Number.parseInt(guestCountInput.value, 10);
-
-                if (Number.isNaN(guests) || guests < 9) {
-                    largePartyMessage.textContent = "";
-                    largePartyMessage.classList.remove("warning", "strong");
-                    return;
-                }
-
-                if (guests >= 13) {
-                    largePartyMessage.textContent =
-                        "Large group: please add a note so we can arrange seating.";
-                    largePartyMessage.classList.add("strong");
-                    largePartyMessage.classList.remove("warning");
-                    noteInput?.setAttribute(
-                        "placeholder",
-                        "Large group details, preferred area, occasion, prams, accessibility needs...");
-                    return;
-                }
-
-                largePartyMessage.textContent =
-                    "Large party: confirmation may depend on table layout.";
-                largePartyMessage.classList.add("warning");
-                largePartyMessage.classList.remove("strong");
-            };
-
-            guestCountInput?.addEventListener(
-                "input",
-                updateLargePartyMessage);
-            updateLargePartyMessage();
-        })();
-    </script>
 }

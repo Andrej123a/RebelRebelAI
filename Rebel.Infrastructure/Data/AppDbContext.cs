@@ -19,6 +19,8 @@ namespace Rebel.Infrastructure.Data
         public DbSet<ReservationActivity> ReservationActivities { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<PubTable> PubTables { get; set; }
+        public DbSet<FloorRoom> FloorRooms { get; set; }
+        public DbSet<FloorFixture> FloorFixtures { get; set; }
         public DbSet<StaffMember> StaffMembers { get; set; }
         public DbSet<StaffShift> StaffShifts { get; set; }
         public DbSet<BeerGuideFeedback> BeerGuideFeedbacks { get; set; }
@@ -27,6 +29,35 @@ namespace Rebel.Infrastructure.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<FloorRoom>(entity =>
+            {
+                entity.Property(room => room.Name)
+                    .IsRequired()
+                    .HasMaxLength(80);
+
+                entity.Property(room => room.Shape)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.HasIndex(room => room.Name)
+                    .IsUnique();
+            });
+
+            builder.Entity<FloorFixture>(entity =>
+            {
+                entity.Property(fixture => fixture.Kind)
+                    .IsRequired()
+                    .HasMaxLength(24);
+                entity.Property(fixture => fixture.Label)
+                    .IsRequired()
+                    .HasMaxLength(40);
+
+                entity.HasOne(fixture => fixture.FloorRoom)
+                    .WithMany(room => room.Fixtures)
+                    .HasForeignKey(fixture => fixture.FloorRoomId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             builder.Entity<PubTable>(entity =>
             {
@@ -37,8 +68,33 @@ namespace Rebel.Infrastructure.Data
                 entity.Property(table => table.Area)
                     .HasMaxLength(80);
 
+                entity.Property(table => table.TableType)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.Property(table => table.Shape)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.Property(table => table.LayoutX)
+                    .HasPrecision(6, 2);
+
+                entity.Property(table => table.LayoutY)
+                    .HasPrecision(6, 2);
+
+                entity.Property(table => table.LayoutWidth)
+                    .HasPrecision(6, 2);
+
+                entity.Property(table => table.LayoutHeight)
+                    .HasPrecision(6, 2);
+
                 entity.HasIndex(table => table.Label)
                     .IsUnique();
+
+                entity.HasOne(table => table.FloorRoom)
+                    .WithMany(room => room.Tables)
+                    .HasForeignKey(table => table.FloorRoomId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             builder.Entity<Category>(entity =>
