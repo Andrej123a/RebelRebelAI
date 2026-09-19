@@ -22,7 +22,6 @@ namespace Rebel.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(
             DateTime? startDate,
-            Guid? staffMemberId,
             CancellationToken cancellationToken)
         {
             if (!IsManager())
@@ -32,7 +31,12 @@ namespace Rebel.Web.Controllers
                     new { startDate });
             }
 
-            var weekStart = GetWeekStart(startDate ?? DateTime.Today);
+            var today = DateTime.Today;
+            var scheduleDate = startDate ??
+                (today.DayOfWeek == DayOfWeek.Sunday
+                    ? today.AddDays(1)
+                    : today);
+            var weekStart = GetWeekStart(scheduleDate);
             var weekEnd = weekStart.AddDays(6);
             var eventWeekStart =
                 DateTime.SpecifyKind(weekStart, DateTimeKind.Utc);
@@ -70,16 +74,6 @@ namespace Rebel.Web.Controllers
                 EndDate = weekEnd,
                 PreviousWeek = weekStart.AddDays(-7),
                 NextWeek = weekStart.AddDays(7),
-                NewShift = new StaffShiftInputModel
-                {
-                    StaffMemberId = staffMemberId ?? Guid.Empty,
-                    ShiftDate = DateTime.Today.Date >= weekStart &&
-                                DateTime.Today.Date <= weekEnd
-                        ? DateTime.Today.Date
-                        : weekStart,
-                    StartsAt = new TimeSpan(10, 0, 0),
-                    EndsAt = new TimeSpan(16, 0, 0)
-                },
                 StaffMembers = await _context.StaffMembers
                     .AsNoTracking()
                     .OrderByDescending(staff => staff.IsActive)
@@ -312,6 +306,16 @@ namespace Rebel.Web.Controllers
             DateTime startDate,
             CancellationToken cancellationToken)
         {
+            if (input.ShiftDate.Date < DateTime.Today)
+            {
+                TempData["ErrorMessage"] =
+                    "Past dates are locked. Schedule staff from today onward.";
+
+                return RedirectToAction(
+                    nameof(Index),
+                    new { startDate = startDate.ToString("yyyy-MM-dd") });
+            }
+
             if (!ModelState.IsValid ||
                 input.EndsAt == input.StartsAt)
             {
@@ -434,6 +438,16 @@ namespace Rebel.Web.Controllers
                 return NotFound();
             }
 
+            if (shift.ShiftDate.Date < DateTime.Today)
+            {
+                TempData["ErrorMessage"] =
+                    "Past shifts are locked and cannot be removed.";
+
+                return RedirectToAction(
+                    nameof(Index),
+                    new { startDate = startDate.ToString("yyyy-MM-dd") });
+            }
+
             var staffName =
                 shift.StaffMember?.FullName ?? "Shift";
 
@@ -465,6 +479,17 @@ namespace Rebel.Web.Controllers
             if (shift == null)
             {
                 return NotFound();
+            }
+
+            if (shift.ShiftDate.Date < DateTime.Today ||
+                input.ShiftDate.Date < DateTime.Today)
+            {
+                TempData["ErrorMessage"] =
+                    "Past shifts are locked. Schedule staff from today onward.";
+
+                return RedirectToAction(
+                    nameof(Index),
+                    new { startDate = startDate.ToString("yyyy-MM-dd") });
             }
 
             if (!ModelState.IsValid || input.StartsAt == input.EndsAt)
@@ -549,6 +574,17 @@ namespace Rebel.Web.Controllers
             var weekEnd = weekStart.AddDays(6);
             var sourceStart = weekStart.AddDays(-7);
             var sourceEnd = sourceStart.AddDays(6);
+            var today = DateTime.Today;
+
+            if (weekEnd < today)
+            {
+                TempData["ErrorMessage"] =
+                    "Past weeks are locked and cannot be changed.";
+
+                return RedirectToAction(
+                    nameof(Index),
+                    new { startDate = weekStart.ToString("yyyy-MM-dd") });
+            }
 
             var sourceShifts = await _context.StaffShifts
                 .AsNoTracking()
@@ -580,6 +616,12 @@ namespace Rebel.Web.Controllers
             foreach (var source in sourceShifts)
             {
                 var targetDate = source.ShiftDate.AddDays(7);
+
+                if (targetDate < today)
+                {
+                    continue;
+                }
+
                 var alreadyExists = existingShifts.Any(existing =>
                     existing.StaffMemberId == source.StaffMemberId &&
                     existing.ShiftDate == targetDate &&

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Rebel.Infrastructure.Migrations
 {
+    [Microsoft.EntityFrameworkCore.Infrastructure.DbContext(typeof(global::Rebel.Infrastructure.Data.AppDbContext))]
     [Migration("20260722110000_AddReservationCode")]
     public partial class AddReservationCode : Migration
     {

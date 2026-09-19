@@ -788,6 +788,11 @@
                             <aside class="floor-canvas-palette"
                                    aria-label="Add an element to the floor">
                                 <span class="floor-canvas-palette-title">Add</span>
+                                <button type="button"
+                                        data-add-table
+                                        title="Add a 4-seat table to the active floor">
+                                    <i class="is-table" aria-hidden="true"></i><span>Table x4</span>
+                                </button>
                                 <button type="button" data-add-fixture="door"><i class="is-door" aria-hidden="true"></i><span>Door</span></button>
                                 <button type="button" data-add-fixture="toilet"><i class="is-toilet" aria-hidden="true"></i><span>Toilet</span></button>
                                 <button type="button" data-add-fixture="entrance"><i class="is-entrance" aria-hidden="true"></i><span>Entrance</span></button>
@@ -1028,7 +1033,7 @@
             const tableText = (table) => {
                 const label = table.querySelector(".floor-table-label") || table.querySelector("span");
                 if (label) {
-                    label.textContent = table.dataset.label || "T?";
+                    label.textContent = table.dataset.label || "New";
                     label.classList.add("floor-table-label");
                 }
                 table.querySelector("strong").textContent = `x${table.dataset.capacity || "2"}`;
@@ -1238,7 +1243,7 @@
                     selectionLabel.textContent = `${entity.element.dataset.label} selected`;
                 } else {
                     selectionLabel.textContent =
-                        `${entity.element.dataset.label} / ${entity.element.dataset.capacity} seats`;
+                        `${entity.element.dataset.label || "New table"} / ${entity.element.dataset.capacity} seats`;
                 }
             };
 
@@ -1284,6 +1289,7 @@
 
                 const tables = [...studio.querySelectorAll("[data-floor-table]")].map((table) => ({
                     id: table.dataset.id || null,
+                    clientId: table.dataset.clientId || "",
                     label: table.dataset.label || "",
                     area: table.dataset.area || table.closest("[data-floor-room]")?.dataset.roomName || "Main floor",
                     capacity: Number.parseInt(table.dataset.capacity || "2", 10),
@@ -1333,6 +1339,15 @@
                     }
 
                     if (requestId === saveRequestId) {
+                        (result.createdTables || []).forEach((created) => {
+                            const table = studio.querySelector(`[data-client-id="${created.clientId}"]`);
+                            if (table) {
+                                table.dataset.id = created.id;
+                                table.dataset.clientId = "";
+                                table.dataset.label = created.label;
+                                tableText(table);
+                            }
+                        });
                         (result.createdFixtures || []).forEach((created) => {
                             const fixture = studio.querySelector(`[data-client-id="${created.clientId}"]`);
                             if (fixture) {
@@ -1352,14 +1367,16 @@
 
             const createTable = (room, xPercent, yPercent) => {
                 const table = document.createElement("button");
+                const clientId = `table-${Date.now()}-${tableCounter++}`;
                 table.type = "button";
                 table.className = "floor-table-node is-free";
                 table.dataset.floorTable = "true";
                 table.dataset.id = "";
+                table.dataset.clientId = clientId;
                 table.dataset.roomId = room.dataset.roomId || "";
-                table.dataset.label = `T${tableCounter++}`;
+                table.dataset.label = "";
                 table.dataset.area = room.dataset.roomName || "Main floor";
-                table.dataset.capacity = "2";
+                table.dataset.capacity = "4";
                 table.dataset.type = "Classic";
                 table.dataset.shape = "Square";
                 table.dataset.x = format(clamp(xPercent - 8, 2, 82));
@@ -1374,7 +1391,7 @@
                 applyTableStyle(table);
                 applyRoomMeta(room);
                 selectEntity({ kind: "table", element: table });
-                scheduleSave(`${table.dataset.label} added.`);
+                scheduleSave("New table added.");
             };
 
             const createFixture = (kind) => {
@@ -1573,10 +1590,26 @@
                 }
 
                 const action = event.target.closest("[data-selection-action]");
+                const addTable = event.target.closest("[data-add-table]");
                 const addFixture = event.target.closest("[data-add-fixture]");
                 const fixture = event.target.closest("[data-floor-fixture]");
                 const table = event.target.closest("[data-floor-table]");
                 const room = event.target.closest("[data-floor-room]");
+
+                if (addTable) {
+                    const activeRoom = carouselRooms[activeRoomIndex];
+
+                    if (!activeRoom) {
+                        setStatus("Create a floor before adding a table.", true);
+                        return;
+                    }
+
+                    const tableCount = activeRoom.querySelectorAll("[data-floor-table]").length;
+                    const column = tableCount % 3;
+                    const row = Math.floor(tableCount / 3) % 3;
+                    createTable(activeRoom, 30 + (column * 20), 30 + (row * 20));
+                    return;
+                }
 
                 if (addFixture) {
                     createFixture(addFixture.dataset.addFixture || "door");

@@ -1,22 +1,14 @@
 @model Rebel.Domain.Entities.Reservation
 @using Rebel.Domain.Enums
-@using Rebel.Domain.Entities
 
 @{
     var currentTime =
         (TimeSpan)(ViewBag.CurrentTime ?? DateTime.Now.TimeOfDay);
 
-    var isPending =
-        Model.Status == ReservationStatus.Pending;
-
-    var isApproved =
-        Model.Status == ReservationStatus.Approved;
-
-    var isArrived =
-        Model.Status == ReservationStatus.Arrived;
-
-    var isNoShow =
-        Model.Status == ReservationStatus.NoShow;
+    var isPending = Model.Status == ReservationStatus.Pending;
+    var isApproved = Model.Status == ReservationStatus.Approved;
+    var isArrived = Model.Status == ReservationStatus.Arrived;
+    var isNoShow = Model.Status == ReservationStatus.NoShow;
 
     var rowClass =
         isPending ? "is-pending" :
@@ -41,30 +33,9 @@
         !string.IsNullOrWhiteSpace(Model.Note) ||
         !string.IsNullOrWhiteSpace(Model.AdminNote) ||
         !string.IsNullOrWhiteSpace(Model.InternalNote);
-
-    var activeTables =
-        ViewBag.ActiveTables as List<PubTable>
-        ?? new List<PubTable>();
-
-    var tonightReservations =
-        ViewBag.TonightReservations as List<Reservation>
-        ?? new List<Reservation>();
-
-    var busyTableLabels = tonightReservations
-        .Where(reservation =>
-            reservation.Id != Model.Id &&
-            reservation.ReservationTime == Model.ReservationTime &&
-            (reservation.Status == ReservationStatus.Approved ||
-             reservation.Status == ReservationStatus.Arrived) &&
-            !string.IsNullOrWhiteSpace(reservation.TableLabel))
-        .Select(reservation => reservation.TableLabel!)
-        .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-    var panelId = $"booking-panel-{Model.Id:N}";
 }
 
 <article class="tonight-booking @rowClass">
-
     <time datetime="@Model.ReservationTime.ToString(@"hh\:mm")"
           class="tonight-booking-time">
         @Model.ReservationTime.ToString(@"hh\:mm")
@@ -78,15 +49,12 @@
                 @Model.NumberOfGuests
                 @(Model.NumberOfGuests == 1 ? "guest" : "guests")
             </span>
-
             <span aria-hidden="true">/</span>
-
             <span>
                 @(string.IsNullOrWhiteSpace(Model.TableLabel)
                     ? "No table assigned"
                     : $"Table {Model.TableLabel}")
             </span>
-
             @if (hasNotes)
             {
                 <span aria-hidden="true">/</span>
@@ -100,244 +68,11 @@
     </span>
 
     <div class="tonight-booking-actions">
-        @if (isPending)
-        {
-            <button type="button"
-                    class="tonight-primary-action"
-                    data-admin-panel-open="@panelId">
-                Review
-            </button>
-        }
-        else if (isApproved)
-        {
-            <form asp-controller="AdminReservations"
-                  asp-action="MarkArrived"
-                  asp-route-id="@Model.Id"
-                  method="post">
-                @Html.AntiForgeryToken()
-
-                <button type="submit"
-                        class="tonight-primary-action is-arrival">
-                    Guest arrived
-                </button>
-            </form>
-        }
-
-        @if (!isPending)
-        {
-            <button type="button"
-                    class="tonight-more-action"
-                    data-admin-panel-open="@panelId">
-                Manage
-            </button>
-        }
+        <a asp-controller="AdminReservations"
+           asp-action="Details"
+           asp-route-id="@Model.Id"
+           class="tonight-primary-action">
+            @(isPending ? "Review booking" : "Open booking")
+        </a>
     </div>
-
 </article>
-
-<dialog class="admin-quick-panel"
-        id="@panelId"
-        aria-labelledby="@($"{panelId}-title")">
-    <div class="admin-quick-panel-shell">
-        <header class="admin-quick-panel-header">
-            <div>
-                <span>@Model.ReservationTime.ToString(@"hh\:mm") / @Model.NumberOfGuests guests</span>
-                <h2 id="@($"{panelId}-title")">@Model.FullName</h2>
-                <p>@serviceState</p>
-            </div>
-
-            <button type="button"
-                    data-admin-panel-close
-                    aria-label="Close booking panel">&times;</button>
-        </header>
-
-        <div class="admin-quick-panel-body">
-            <section class="admin-quick-contact">
-                <a href="tel:@Model.PhoneNumber">Call @Model.PhoneNumber</a>
-                @if (!string.IsNullOrWhiteSpace(Model.Email))
-                {
-                    <a href="mailto:@Model.Email">Email guest</a>
-                }
-            </section>
-
-            @if (isPending)
-            {
-                <form asp-controller="AdminReservations"
-                      asp-action="Approve"
-                      method="post"
-                      class="admin-quick-form">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <input type="hidden" name="returnUrl" value="/AdminReservations/Tonight" />
-
-                    <label>
-                        Table
-                        <select name="tableLabel">
-                            <option value="">Approve without a table</option>
-                            @foreach (var table in activeTables)
-                            {
-                                var isBusy = busyTableLabels.Contains(table.Label);
-                                var isTooSmall = Model.NumberOfGuests > table.Capacity;
-                                var tableState = isBusy
-                                    ? " / busy"
-                                    : isTooSmall
-                                        ? " / too small"
-                                        : string.Empty;
-
-                                <option value="@table.Label"
-                                        disabled="@(isBusy || isTooSmall)">
-                                    @table.Label / @table.Capacity seats@tableState
-                                </option>
-                            }
-                        </select>
-                    </label>
-
-                    <label>
-                        Message to guest
-                        <textarea name="adminNote"
-                                  rows="2"
-                                  maxlength="500"
-                                  placeholder="Optional confirmation message"></textarea>
-                    </label>
-
-                    <label>
-                        Staff note
-                        <textarea name="internalNote"
-                                  rows="2"
-                                  maxlength="500"
-                                  placeholder="High chair, birthday, preferred area..."></textarea>
-                    </label>
-
-                    <button type="submit" class="admin-primary-button">
-                        Approve booking
-                    </button>
-                </form>
-
-                <details class="admin-quick-danger">
-                    <summary>Decline request</summary>
-                    <form asp-controller="AdminReservations"
-                          asp-action="Reject"
-                          method="post"
-                          class="admin-quick-form"
-                          onsubmit="return confirm('Decline this reservation request?');">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@Model.Id" />
-                        <input type="hidden" name="returnUrl" value="/AdminReservations/Tonight" />
-                        <label>
-                            Message to guest
-                            <textarea name="adminNote"
-                                      rows="2"
-                                      maxlength="500"
-                                      placeholder="Optional reason or alternative time"></textarea>
-                        </label>
-                        <button type="submit" class="admin-danger-button">
-                            Decline booking
-                        </button>
-                    </form>
-                </details>
-            }
-            else if (!isNoShow)
-            {
-                <form asp-controller="AdminReservations"
-                      asp-action="UpdateFloorDetails"
-                      method="post"
-                      class="admin-quick-form">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <input type="hidden" name="returnUrl" value="/AdminReservations/Tonight" />
-
-                    <label>
-                        Table
-                        <select name="tableLabel">
-                            <option value="">No table</option>
-                            @foreach (var table in activeTables)
-                            {
-                                @if (string.Equals(
-                                    Model.TableLabel,
-                                    table.Label,
-                                    StringComparison.OrdinalIgnoreCase))
-                                {
-                                    <option value="@table.Label" selected>
-                                        @table.Label / @table.Capacity seats
-                                    </option>
-                                }
-                                else
-                                {
-                                    <option value="@table.Label">
-                                        @table.Label / @table.Capacity seats
-                                    </option>
-                                }
-                            }
-                        </select>
-                    </label>
-
-                    <label>
-                        Floor note
-                        <textarea name="internalNote"
-                                  rows="3"
-                                  placeholder="High chair, window, birthday...">@Model.InternalNote</textarea>
-                    </label>
-
-                    <button type="submit" class="admin-primary-button">
-                        Save floor details
-                    </button>
-                </form>
-            }
-
-            @if (hasNotes)
-            {
-                <section class="admin-quick-notes">
-                    <h3>Notes</h3>
-                    @if (!string.IsNullOrWhiteSpace(Model.Note))
-                    {
-                        <p><strong>Guest</strong>@Model.Note</p>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Model.AdminNote))
-                    {
-                        <p><strong>Manager</strong>@Model.AdminNote</p>
-                    }
-                    @if (!string.IsNullOrWhiteSpace(Model.InternalNote))
-                    {
-                        <p><strong>Floor</strong>@Model.InternalNote</p>
-                    }
-                </section>
-            }
-        </div>
-
-        <footer class="admin-quick-panel-actions">
-            <a asp-controller="AdminReservations"
-               asp-action="Details"
-               asp-route-id="@Model.Id"
-               class="admin-secondary-button">Full booking</a>
-
-            @if (isApproved)
-            {
-                <form asp-controller="AdminReservations"
-                      asp-action="MarkNoShow"
-                      asp-route-id="@Model.Id"
-                      method="post"
-                      onsubmit="return confirm('Mark this reservation as a no-show and release its table?');">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="admin-danger-button">Mark no-show</button>
-                </form>
-            }
-
-            @if (isArrived && !string.IsNullOrWhiteSpace(Model.TableLabel))
-            {
-                <form asp-controller="AdminReservations"
-                      asp-action="UpdateFloorDetails"
-                      method="post"
-                      onsubmit="return confirm('Release table @Model.TableLabel? The booking will remain checked in.');">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <input type="hidden" name="tableLabel" value="" />
-                    <input type="hidden" name="internalNote" value="@Model.InternalNote" />
-                    <input type="hidden" name="returnUrl" value="/AdminReservations/Tonight" />
-                    <button type="submit" class="admin-primary-button">
-                        Release table
-                    </button>
-                </form>
-            }
-        </footer>
-    </div>
-</dialog>

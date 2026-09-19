@@ -344,6 +344,12 @@ a {
     color: var(--auth-cream);
 }
 
+.rr-login-reset-note {
+    color: var(--auth-muted);
+    font-size: 0.68rem;
+    text-align: right;
+}
+
 .rr-login-check {
     display: inline-flex;
     align-items: center;

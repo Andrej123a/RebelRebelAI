@@ -12,8 +12,6 @@
         User.IsInRole(AdminRoles.LegacyAdmin);
 
     ViewBag.CurrentTime = Model.CurrentTime;
-    ViewBag.ActiveTables = Model.ActiveTables;
-    ViewBag.TonightReservations = Model.Reservations;
 
     var pendingReservations = Model.Reservations
         .Where(reservation =>

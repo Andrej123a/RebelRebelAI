@@ -1,0 +1,475 @@
+.staff-rota-workspace {
+    --rota-paper: #131411;
+    --rota-card: #191a16;
+    --rota-line: rgba(238, 232, 220, .14);
+    --rota-muted: #8f9188;
+    --rota-cream: #f2ede3;
+    --rota-yellow: #f4c430;
+    --rota-red: #d52a36;
+}
+
+.staff-rota-alert {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 16px;
+    padding: 12px 15px;
+    color: #d9b8b8;
+    border-left: 4px solid var(--rota-red);
+    background: rgba(213, 42, 54, .08);
+    font-size: .68rem;
+}
+
+.staff-rota-alert strong {
+    color: #fff;
+    white-space: nowrap;
+}
+
+.staff-rota-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 18px;
+    align-items: start;
+}
+
+.staff-rota-board {
+    min-width: 0;
+    border-top: 4px solid var(--rota-red);
+    background: #0d0e0c;
+}
+
+.staff-rota-board-heading {
+    display: flex;
+    min-height: 78px;
+    padding: 16px 18px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    border: 1px solid var(--rota-line);
+    border-top: 0;
+}
+
+.staff-rota-board-heading div,
+.staff-rota-add-person > header,
+.staff-rota-pool > header div {
+    display: grid;
+    gap: 3px;
+}
+
+.staff-rota-board-heading span,
+.staff-rota-add-person > header span,
+.staff-rota-pool > header span {
+    color: var(--rota-yellow);
+    font: 700 .58rem "Space Mono", monospace;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.staff-rota-board-heading strong,
+.staff-rota-add-person > header strong,
+.staff-rota-pool > header strong {
+    color: var(--rota-cream);
+    font: 400 1.35rem "Bebas Neue", sans-serif;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+}
+
+.staff-rota-board-heading p {
+    max-width: 320px;
+    margin: 0;
+    color: var(--rota-muted);
+    font-size: .66rem;
+    text-align: right;
+}
+
+.staff-rota-day {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    border: 1px solid var(--rota-line);
+    border-top: 0;
+    background: var(--rota-paper);
+}
+
+.staff-rota-day.is-today {
+    position: relative;
+    border-left: 4px solid var(--rota-yellow);
+    background: linear-gradient(90deg, rgba(244, 196, 48, .055), transparent 38%), var(--rota-paper);
+}
+
+.staff-rota-day.is-locked {
+    opacity: .58;
+    background: #0e0f0d;
+}
+
+.staff-rota-day.is-locked .staff-rota-day-heading span,
+.staff-rota-day.is-locked .staff-rota-period > header strong {
+    color: #777970;
+}
+
+.staff-rota-day-heading {
+    display: flex;
+    min-height: 150px;
+    padding: 17px 14px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    border-right: 1px solid var(--rota-line);
+    background: rgba(255, 255, 255, .015);
+}
+
+.staff-rota-day-heading span {
+    color: var(--rota-yellow);
+    font: 700 .65rem "Space Mono", monospace;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+.staff-rota-day-heading strong {
+    color: var(--rota-cream);
+    font: 400 2rem "Bebas Neue", sans-serif;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.staff-rota-day-heading small {
+    color: var(--rota-muted);
+    font-size: .58rem;
+}
+
+.staff-rota-day-content {
+    display: grid;
+    min-width: 0;
+}
+
+.staff-rota-events {
+    display: flex;
+    gap: 7px;
+    padding: 9px 12px 0;
+}
+
+.staff-rota-events a {
+    display: grid;
+    gap: 2px;
+    padding: 7px 10px;
+    color: var(--rota-cream);
+    border-left: 3px solid var(--rota-yellow);
+    background: rgba(244, 196, 48, .06);
+    text-decoration: none;
+}
+
+.staff-rota-events span {
+    color: var(--rota-muted);
+    font-size: .55rem;
+}
+
+.staff-rota-periods {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    min-width: 0;
+}
+
+.staff-rota-period {
+    min-width: 0;
+    padding: 12px;
+    border-right: 1px solid var(--rota-line);
+    outline: 0;
+    transition: background .16s ease, box-shadow .16s ease;
+}
+
+.staff-rota-period:last-child {
+    border-right: 0;
+}
+
+.staff-rota-period > header {
+    display: flex;
+    margin-bottom: 10px;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.staff-rota-period > header div {
+    display: grid;
+    gap: 3px;
+}
+
+.staff-rota-period > header span {
+    color: var(--rota-cream);
+    font: 700 .62rem "Space Mono", monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.staff-rota-period > header strong {
+    color: #b6a45f;
+    font: 600 .59rem "Space Mono", monospace;
+}
+
+.staff-rota-period > header small {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    color: #111;
+    background: var(--rota-yellow);
+    font: 700 .61rem "Space Mono", monospace;
+}
+
+.staff-rota-period.is-ready {
+    cursor: copy;
+}
+
+.staff-rota-period.is-over,
+.staff-rota-period.is-ready:hover {
+    background: rgba(244, 196, 48, .07);
+    box-shadow: inset 0 0 0 2px var(--rota-yellow);
+}
+
+.staff-rota-period.is-saving {
+    opacity: .55;
+    pointer-events: none;
+}
+
+.staff-rota-assignments {
+    display: grid;
+    gap: 7px;
+}
+
+.staff-rota-empty-slot {
+    display: grid;
+    min-height: 64px;
+    padding: 10px;
+    place-content: center;
+    gap: 3px;
+    color: #777970;
+    border: 1px dashed rgba(238, 232, 220, .18);
+    text-align: center;
+}
+
+.staff-rota-empty-slot span {
+    font: 600 .61rem "Space Mono", monospace;
+    text-transform: uppercase;
+}
+
+.staff-rota-empty-slot small {
+    font-size: .55rem;
+}
+
+.staff-rota-empty-slot.is-locked {
+    color: #5f615b;
+    border-style: solid;
+    background: rgba(255, 255, 255, .012);
+}
+
+.staff-rota-assignment {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 30px;
+    min-width: 0;
+    border: 1px solid var(--rota-line);
+    border-left: 3px solid #e6543f;
+    background: var(--rota-card);
+}
+
+.staff-rota-assignment.role-kitchen {
+    border-left-color: var(--rota-yellow);
+}
+
+.staff-rota-assignment-main {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    min-width: 0;
+    padding: 8px;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+    border: 0;
+    background: transparent;
+    text-align: left;
+}
+
+.staff-rota-assignment-main > span:last-child,
+.staff-rota-person > span:nth-child(2) {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.staff-rota-assignment-main strong,
+.staff-rota-person strong {
+    overflow: hidden;
+    color: var(--rota-cream);
+    font: 600 .68rem "Space Grotesk", sans-serif;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.staff-rota-assignment-main small,
+.staff-rota-person small {
+    overflow: hidden;
+    color: var(--rota-muted);
+    font-size: .54rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.staff-rota-assignment > form {
+    display: grid;
+    border-left: 1px solid var(--rota-line);
+}
+
+.staff-rota-assignment > form button {
+    color: #8d8f87;
+    border: 0;
+    background: transparent;
+}
+
+.staff-rota-assignment > form button:hover {
+    color: #fff;
+    background: var(--rota-red);
+}
+
+.staff-rota-avatar {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    color: #111;
+    background: var(--rota-yellow);
+    font: 700 .65rem "Space Mono", monospace;
+}
+
+.role-front .staff-rota-avatar {
+    color: #fff;
+    background: #d94a37;
+}
+
+.staff-rota-sidebar {
+    position: sticky;
+    top: 20px;
+    display: grid;
+    gap: 14px;
+}
+
+.staff-rota-add-person,
+.staff-rota-pool {
+    border: 1px solid var(--rota-line);
+    border-top: 4px solid var(--rota-yellow);
+    background: var(--rota-paper);
+}
+
+.staff-rota-add-person > header,
+.staff-rota-pool > header {
+    display: flex;
+    min-height: 66px;
+    padding: 13px 14px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--rota-line);
+}
+
+.staff-rota-pool > header > small {
+    color: var(--rota-muted);
+    font-size: .56rem;
+}
+
+.staff-rota-add-person form {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+}
+
+.staff-rota-add-person label {
+    display: grid;
+    gap: 5px;
+    color: #a9aaa3;
+    font: 600 .56rem "Space Mono", monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.staff-rota-add-person label small {
+    color: #666861;
+    font-size: .5rem;
+}
+
+.staff-rota-add-person input,
+.staff-rota-add-person select {
+    min-height: 40px;
+    padding: 0 10px;
+    color: var(--rota-cream);
+    border: 1px solid var(--rota-line);
+    border-radius: 0;
+    background: #0d0e0c;
+    font: 500 .7rem "Space Grotesk", sans-serif;
+}
+
+.staff-rota-pool-group {
+    display: grid;
+    gap: 7px;
+    padding: 12px;
+    border-bottom: 1px solid var(--rota-line);
+}
+
+.staff-rota-pool-group:last-child {
+    border-bottom: 0;
+}
+
+.staff-rota-pool-group > span {
+    color: #777970;
+    font: 700 .54rem "Space Mono", monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.staff-rota-person {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    width: 100%;
+    min-width: 0;
+    padding: 9px;
+    align-items: center;
+    gap: 9px;
+    color: inherit;
+    border: 1px solid var(--rota-line);
+    border-left: 3px solid #d94a37;
+    background: var(--rota-card);
+    text-align: left;
+    cursor: grab;
+}
+
+.staff-rota-person.role-kitchen {
+    border-left-color: var(--rota-yellow);
+}
+
+.staff-rota-person:hover,
+.staff-rota-person.is-selected {
+    border-color: var(--rota-yellow);
+    background: #22231e;
+    box-shadow: 4px 4px 0 rgba(213, 42, 54, .7);
+}
+
+.staff-rota-person b {
+    color: #6d6f68;
+    font: 700 .7rem "Space Mono", monospace;
+    letter-spacing: -2px;
+}
+
+@media (max-width: 1220px) {
+    .staff-rota-layout { grid-template-columns: minmax(0, 1fr) 270px; }
+    .staff-rota-periods { grid-template-columns: 1fr; }
+    .staff-rota-period { border-right: 0; border-bottom: 1px solid var(--rota-line); }
+    .staff-rota-period:last-child { border-bottom: 0; }
+}
+
+@media (max-width: 900px) {
+    .staff-rota-layout { grid-template-columns: 1fr; }
+    .staff-rota-sidebar { position: static; grid-row: 1; grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 640px) {
+    .staff-rota-board-heading { align-items: flex-start; flex-direction: column; }
+    .staff-rota-board-heading p { text-align: left; }
+    .staff-rota-day { grid-template-columns: 1fr; }
+    .staff-rota-day-heading { min-height: 0; border-right: 0; border-bottom: 1px solid var(--rota-line); }
+    .staff-rota-sidebar { grid-template-columns: 1fr; }
+    .staff-rota-alert { grid-template-columns: 1fr; }
+}

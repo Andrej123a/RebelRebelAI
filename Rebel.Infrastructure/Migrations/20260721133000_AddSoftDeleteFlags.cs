@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Rebel.Infrastructure.Migrations
 {
+    [Microsoft.EntityFrameworkCore.Infrastructure.DbContext(typeof(global::Rebel.Infrastructure.Data.AppDbContext))]
     [Migration("20260721133000_AddSoftDeleteFlags")]
     public partial class AddSoftDeleteFlags : Migration
     {
@@ -28,18 +29,14 @@ namespace Rebel.Infrastructure.Migrations
             MigrationBuilder migrationBuilder,
             string table)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsDeleted",
-                table: table,
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.Sql(
+                $"""
+                ALTER TABLE "{table}"
+                ADD COLUMN IF NOT EXISTS "IsDeleted" boolean NOT NULL DEFAULT FALSE;
 
-            migrationBuilder.AddColumn<DateTime>(
-                name: "DeletedAtUtc",
-                table: table,
-                type: "timestamp with time zone",
-                nullable: true);
+                ALTER TABLE "{table}"
+                ADD COLUMN IF NOT EXISTS "DeletedAtUtc" timestamp with time zone;
+                """);
         }
 
         private static void DropSoftDeleteColumns(

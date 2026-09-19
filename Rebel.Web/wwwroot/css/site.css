@@ -1356,6 +1356,10 @@ textarea.form-control {
     transform: rotate(-1deg);
 }
 
+.rr-menu-navigation--two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .rr-menu-nav-link {
     position: relative;
     display: flex;

@@ -31,19 +31,6 @@ namespace Rebel.Web.Controllers
                 SkopjeTimeZone
             );
 
-            var startOfTodayInSkopje = DateTime.SpecifyKind(
-                skopjeNow.Date,
-                DateTimeKind.Unspecified
-            );
-
-            var startOfTodayUtc = TimeZoneInfo.ConvertTimeToUtc(
-                startOfTodayInSkopje,
-                SkopjeTimeZone
-            );
-
-            var startOfTomorrowUtc =
-                startOfTodayUtc.AddDays(1);
-
             var today = skopjeNow.Date;
             var tomorrow = today.AddDays(1);
 
@@ -56,11 +43,6 @@ namespace Rebel.Web.Controllers
                     reservation.Status != ReservationStatus.Rejected &&
                     reservation.Status != ReservationStatus.Cancelled)
                 .OrderBy(reservation => reservation.ReservationTime)
-                .ToListAsync(cancellationToken);
-
-            var activeTables = await _context.PubTables
-                .AsNoTracking()
-                .Where(table => table.IsActive)
                 .ToListAsync(cancellationToken);
 
             var searchQuery = string.IsNullOrWhiteSpace(q)
@@ -94,56 +76,8 @@ namespace Rebel.Web.Controllers
                     .ToList();
             }
 
-            var todayEventBookings = tonightReservations
-                .Where(reservation =>
-                    reservation.EventId.HasValue &&
-                    reservation.Event != null &&
-                    reservation.Status != ReservationStatus.Cancelled &&
-                    reservation.Status != ReservationStatus.Rejected &&
-                    reservation.Status != ReservationStatus.NoShow)
-                .GroupBy(reservation => new
-                {
-                    reservation.EventId,
-                    reservation.Event!.Title,
-                    reservation.Event.StartTime
-                })
-                .Select(group => new DashboardEventBookingSummary
-                {
-                    EventId = group.Key.EventId!.Value,
-                    Title = group.Key.Title,
-                    StartTime = group.Key.StartTime,
-                    ReservationsCount = group.Count(),
-                    GuestsCount = group.Sum(reservation =>
-                        reservation.NumberOfGuests)
-                })
-                .OrderBy(summary => summary.StartTime ?? TimeSpan.MaxValue)
-                .ThenBy(summary => summary.Title)
-                .ToList();
-
             var model = new DashboardViewModel
             {
-                CategoriesCount = await _context.Categories
-                    .CountAsync(cancellationToken),
-
-                ProductsCount = await _context.Products
-                    .CountAsync(cancellationToken),
-
-                EventsCount = await _context.Events
-                    .CountAsync(cancellationToken),
-
-                ReservationsCount = await _context.Reservations
-                    .CountAsync(cancellationToken),
-
-                PendingReservationsCount = await _context.Reservations
-                    .CountAsync(
-                        reservation =>
-                            reservation.Status == ReservationStatus.Pending,
-                        cancellationToken
-                    ),
-
-                TonightReservationsCount =
-                    tonightReservations.Count,
-
                 TonightGuestsCount =
                     tonightReservations.Sum(reservation =>
                         reservation.NumberOfGuests),
@@ -151,27 +85,6 @@ namespace Rebel.Web.Controllers
                 TonightPendingReservationsCount =
                     tonightReservations.Count(reservation =>
                         reservation.Status == ReservationStatus.Pending),
-
-                TonightApprovedReservationsCount =
-                    tonightReservations.Count(reservation =>
-                        reservation.Status == ReservationStatus.Approved),
-
-                TonightArrivedReservationsCount =
-                    tonightReservations.Count(reservation =>
-                        reservation.Status == ReservationStatus.Arrived),
-
-                TonightNoShowReservationsCount =
-                    tonightReservations.Count(reservation =>
-                        reservation.Status == ReservationStatus.NoShow),
-
-                TonightCancelledReservationsCount =
-                    await _context.Reservations
-                        .CountAsync(
-                            reservation =>
-                                reservation.ReservationDate >= today &&
-                                reservation.ReservationDate < tomorrow &&
-                                reservation.Status == ReservationStatus.Cancelled,
-                            cancellationToken),
 
                 TonightUnassignedTablesCount =
                     tonightReservations.Count(reservation =>
@@ -181,100 +94,13 @@ namespace Rebel.Web.Controllers
                         string.IsNullOrWhiteSpace(
                             reservation.TableLabel)),
 
-                TonightLargePartiesCount =
-                    activeTonightReservations.Count(reservation =>
-                        reservation.NumberOfGuests >= 9),
-
-                EmailFailuresCount = await _context.Reservations
-                    .CountAsync(
-                        reservation =>
-                            reservation.EmailStatus.Contains("Failed"),
-                        cancellationToken),
-
-                TodayEventBookingsCount =
-                    todayEventBookings.Sum(summary =>
-                        summary.ReservationsCount),
-
-                UnavailableProductsCount = await _context.Products
-                    .CountAsync(
-                        product => !product.IsAvailable,
-                        cancellationToken),
-
-                ActiveTablesCount = activeTables.Count,
-
-                ActiveTableCapacity = activeTables.Sum(table =>
-                    table.Capacity),
-
                 SearchQuery = searchQuery,
 
                 SearchResults = await BuildSearchResults(
                     searchQuery,
                     cancellationToken),
 
-                LatestPendingReservations = await _context.Reservations
-                    .AsNoTracking()
-                    .Include(reservation => reservation.Event)
-                    .Where(reservation =>
-                        reservation.Status == ReservationStatus.Pending)
-                    .OrderBy(reservation =>
-                        reservation.ReservationDate)
-                    .ThenBy(reservation =>
-                        reservation.ReservationTime)
-                    .Take(5)
-                    .ToListAsync(cancellationToken),
-
-                NextArrivals = nextArrivals,
-
-                LargePartyReservations = activeTonightReservations
-                    .Where(reservation =>
-                        reservation.NumberOfGuests >= 9)
-                    .OrderBy(reservation =>
-                        reservation.ReservationTime)
-                    .ThenByDescending(reservation =>
-                        reservation.NumberOfGuests)
-                    .Take(4)
-                    .ToList(),
-
-                EmailFailureReservations = await _context.Reservations
-                    .AsNoTracking()
-                    .Where(reservation =>
-                        reservation.EmailStatus.Contains("Failed"))
-                    .OrderByDescending(reservation =>
-                        reservation.LastEmailSentAtUtc ??
-                        reservation.CreatedAtUtc)
-                    .Take(4)
-                    .ToListAsync(cancellationToken),
-
-                UnavailableProducts = await _context.Products
-                    .AsNoTracking()
-                    .Include(product => product.Category)
-                    .Where(product => !product.IsAvailable)
-                    .OrderBy(product => product.Category!.Name)
-                    .ThenBy(product => product.Name)
-                    .Take(5)
-                    .ToListAsync(cancellationToken),
-
-                TodayEvents = await _context.Events
-                    .AsNoTracking()
-                    .Where(eventItem =>
-                        eventItem.IsActive &&
-                        eventItem.Date >= startOfTodayUtc &&
-                        eventItem.Date < startOfTomorrowUtc)
-                    .OrderBy(eventItem => eventItem.StartTime)
-                    .ToListAsync(cancellationToken),
-
-                UpcomingEvents = await _context.Events
-                    .AsNoTracking()
-                    .Where(eventItem =>
-                        eventItem.IsActive &&
-                        eventItem.Date >= startOfTodayUtc
-                    )
-                    .OrderBy(eventItem => eventItem.Date)
-                    .ThenBy(eventItem => eventItem.StartTime)
-                    .Take(3)
-                    .ToListAsync(cancellationToken),
-
-                TodayEventBookings = todayEventBookings
+                NextArrivals = nextArrivals
             };
 
             return View(model);
@@ -296,7 +122,7 @@ namespace Rebel.Web.Controllers
                 .Where(reservation =>
                     reservation.FullName.ToLower().Contains(normalizedQuery) ||
                     reservation.PhoneNumber.ToLower().Contains(normalizedQuery) ||
-                    reservation.Email.ToLower().Contains(normalizedQuery) ||
+                    (reservation.Email ?? string.Empty).ToLower().Contains(normalizedQuery) ||
                     reservation.ReservationCode.ToLower().Contains(normalizedQuery))
                 .OrderByDescending(reservation =>
                     reservation.CreatedAtUtc)

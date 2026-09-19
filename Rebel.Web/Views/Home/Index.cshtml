@@ -1,9 +1,12 @@
 ﻿@model Rebel.Web.Models.HomeViewModel
 
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
 @{
     ViewData["Title"] = "Home";
 
     var featuredEvent = Model.FeaturedEvent;
+    var showDrinks = Configuration.GetValue<bool>("Menu:ShowDrinks");
 }
 
 @functions {
@@ -242,13 +245,13 @@
                 </div>
 
                 <p>
-                    Fat Kitchen plates for the hungry table, beer worth slowing
-                    down for and drinks for the nights that refuse to leave on time.
+                    Fat Kitchen plates for the hungry table and beer worth
+                    slowing down for.
                 </p>
 
             </header>
 
-            <div class="rr-menu-grid">
+            <div class="rr-menu-grid @(!showDrinks ? "rr-menu-grid--two" : "")">
 
                 <a asp-controller="Home"
                    asp-action="Menu"
@@ -342,10 +345,12 @@
 
                 </a>
 
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="drink"
-                   class="rr-menu-panel rr-menu-drinks">
+                @if (showDrinks)
+                {
+                    <a asp-controller="Home"
+                       asp-action="Menu"
+                       asp-route-section="drink"
+                       class="rr-menu-panel rr-menu-drinks">
 
                     <span class="rr-menu-code">
                         03
@@ -368,7 +373,8 @@
 
                     </div>
 
-                </a>
+                    </a>
+                }
 
             </div>
 

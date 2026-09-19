@@ -1398,6 +1398,11 @@
     align-items: stretch;
 }
 
+.rr-menu-grid--two .rr-menu-food,
+.rr-menu-grid--two .rr-menu-beer {
+    grid-column: span 6;
+}
+
 .rr-menu-panel {
     position: relative;
     display: flex;
@@ -1442,15 +1447,16 @@
     grid-column: span 4;
     min-height: 430px;
     margin-top: 45px;
-    color: #111111;
-    background: var(--rr-yellow);
+    color: var(--rr-white);
+    background: linear-gradient(145deg, rgba(244, 196, 48, 0.14), transparent 58%), #12110d;
     border-color: var(--rr-yellow);
     transform: rotate(1deg);
 }
 
     .rr-menu-beer:hover {
-        color: #111111;
+        color: var(--rr-white);
         border-color: var(--rr-red);
+        box-shadow: 8px 8px 0 rgba(244, 196, 48, 0.72);
     }
 
 .rr-menu-drinks {
@@ -1487,7 +1493,7 @@
 }
 
 .rr-menu-beer .rr-menu-kicker {
-    color: #6c5700;
+    color: var(--rr-yellow);
 }
 
 .rr-menu-panel h3 {
@@ -2397,6 +2403,11 @@
     .rr-gallery-item {
         height: 300px;
         transform: none;
+    }
+
+    .rr-menu-grid--two .rr-menu-food,
+    .rr-menu-grid--two .rr-menu-beer {
+        grid-column: span 12;
     }
 
     .rr-gallery-one {

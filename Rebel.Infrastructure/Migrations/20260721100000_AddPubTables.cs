@@ -6,32 +6,27 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace _03.Rebel.Infrastructure.Migrations
 {
     /// <inheritdoc />
+    [Microsoft.EntityFrameworkCore.Infrastructure.DbContext(typeof(global::Rebel.Infrastructure.Data.AppDbContext))]
     [Migration("20260721100000_AddPubTables")]
     public partial class AddPubTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "PubTables",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Label = table.Column<string>(type: "character varying(40)", maxLength: 40, nullable: false),
-                    Area = table.Column<string>(type: "character varying(80)", maxLength: 80, nullable: true),
-                    Capacity = table.Column<int>(type: "integer", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PubTables", x => x.Id);
-                });
+            migrationBuilder.Sql(
+                """
+                CREATE TABLE IF NOT EXISTS "PubTables" (
+                    "Id" uuid NOT NULL,
+                    "Label" character varying(40) NOT NULL,
+                    "Area" character varying(80),
+                    "Capacity" integer NOT NULL,
+                    "IsActive" boolean NOT NULL,
+                    CONSTRAINT "PK_PubTables" PRIMARY KEY ("Id")
+                );
 
-            migrationBuilder.CreateIndex(
-                name: "IX_PubTables_Label",
-                table: "PubTables",
-                column: "Label",
-                unique: true);
+                CREATE UNIQUE INDEX IF NOT EXISTS "IX_PubTables_Label"
+                    ON "PubTables" ("Label");
+                """);
         }
 
         /// <inheritdoc />

@@ -1,5 +1,6 @@
 @model Rebel.Domain.Entities.Reservation
 @using Rebel.Domain.Enums
+@using Rebel.Web.Models
 
 @{
     ViewData["Title"] = "Reservation";
@@ -23,9 +24,22 @@
         ViewBag.BusyTables as List<string>
         ?? new List<string>();
 
+    var floorRooms =
+        ViewBag.FloorRooms as List<Rebel.Domain.Entities.FloorRoom>
+        ?? new List<Rebel.Domain.Entities.FloorRoom>();
+
+    var floorFixtures =
+        ViewBag.FloorFixtures as List<Rebel.Domain.Entities.FloorFixture>
+        ?? new List<Rebel.Domain.Entities.FloorFixture>();
+
     var activities =
         ViewBag.ReservationActivities as List<Rebel.Domain.Entities.ReservationActivity>
         ?? new List<Rebel.Domain.Entities.ReservationActivity>();
+
+    var tableWasReleased =
+        Model.Status == ReservationStatus.Arrived &&
+        string.IsNullOrWhiteSpace(Model.TableLabel) &&
+        activities.Any(activity => activity.Title == "Table released");
 
     var recommendedTable = activeTables
         .Where(table =>
@@ -39,7 +53,8 @@
     var canEditFloor =
         Model.Status != ReservationStatus.Rejected &&
         Model.Status != ReservationStatus.NoShow &&
-        Model.Status != ReservationStatus.Cancelled;
+        Model.Status != ReservationStatus.Cancelled &&
+        !tableWasReleased;
 
     var canCancel =
         Model.Status == ReservationStatus.Pending ||
@@ -105,7 +120,7 @@
             </h1>
 
             <p class="admin-workspace-copy">
-                @Model.ReservationCode / @Model.ReservationDate.ToString("dd MMM yyyy") at @Model.ReservationTime.ToString(@"hh\:mm")
+                @Model.ReservationDate.ToString("dd MMM yyyy") at @Model.ReservationTime.ToString(@"hh\:mm")
             </p>
         </div>
 
@@ -114,10 +129,16 @@
                 @statusLabel
             </span>
 
-            <a href="tel:@Model.PhoneNumber"
-               class="admin-secondary-button">
-                Call guest
-            </a>
+            <div class="reservation-phone-action">
+                <span>Guest phone</span>
+                <strong>@Model.PhoneNumber</strong>
+                <button type="button"
+                        class="admin-secondary-button"
+                        data-copy-phone="@Model.PhoneNumber">
+                    Copy phone
+                </button>
+                <small data-copy-phone-status aria-live="polite"></small>
+            </div>
 
             @if (hasGuestEmail)
             {
@@ -129,9 +150,14 @@
         </div>
     </header>
 
-    <section class="admin-metric-bar"
-             style="--metric-columns: 4;"
+    <section class="admin-metric-bar reservation-summary-bar"
+             style="--metric-columns: 5;"
              aria-label="Reservation summary">
+        <div class="admin-metric reservation-code-metric">
+            <span>Check-in code</span>
+            <strong>@Model.ReservationCode</strong>
+        </div>
+
         <div class="admin-metric">
             <span>Party</span>
             <strong>@Model.NumberOfGuests guests</strong>
@@ -219,53 +245,23 @@
                        name="id"
                        value="@Model.Id" />
 
+                @await Html.PartialAsync(
+                    "_ReservationFloorPicker",
+                    new ReservationFloorPickerViewModel
+                    {
+                        InputId = "approve-table-label",
+                        PartySize = Model.NumberOfGuests,
+                        ReservationDate = Model.ReservationDate,
+                        ReservationTime = Model.ReservationTime,
+                        SelectedTableLabel = recommendedTable?.Label,
+                        RecommendedTableLabel = recommendedTable?.Label,
+                        Rooms = floorRooms,
+                        Tables = activeTables,
+                        Fixtures = floorFixtures,
+                        BusyTableLabels = busyTables
+                    })
+
                 <div class="admin-form-grid">
-                    <label class="wide">
-                        Table
-                        <select name="tableLabel">
-                            <option value=""
-                                    selected="@(recommendedTable == null)">
-                                No table yet
-                            </option>
-
-                            @foreach (var table in activeTables)
-                            {
-                                var isBusy =
-                                    busyTables.Contains(table.Label);
-
-                                var isTooSmall =
-                                    Model.NumberOfGuests > table.Capacity;
-
-                                var tableText =
-                                    $"{table.Label} / {table.Capacity} seats";
-
-                                if (!string.IsNullOrWhiteSpace(table.Area))
-                                {
-                                    tableText =
-                                        $"{table.Area} / {tableText}";
-                                }
-
-                                if (isBusy)
-                                {
-                                    tableText += " / busy";
-                                }
-                                else if (isTooSmall)
-                                {
-                                    tableText += " / too small";
-                                }
-
-                                <option value="@table.Label"
-                                        selected="@(recommendedTable?.Label == table.Label ? "selected" : null)"
-                                        disabled="@(isBusy || isTooSmall)">
-                                    @tableText
-                                    @(recommendedTable?.Label == table.Label
-                                        ? " / recommended"
-                                        : "")
-                                </option>
-                            }
-                        </select>
-                    </label>
-
                     <label>
                         Message to guest
                         <textarea name="adminNote"
@@ -352,47 +348,23 @@
                        name="id"
                        value="@Model.Id" />
 
+                @await Html.PartialAsync(
+                    "_ReservationFloorPicker",
+                    new ReservationFloorPickerViewModel
+                    {
+                        InputId = "update-table-label",
+                        PartySize = Model.NumberOfGuests,
+                        ReservationDate = Model.ReservationDate,
+                        ReservationTime = Model.ReservationTime,
+                        SelectedTableLabel = Model.TableLabel,
+                        RecommendedTableLabel = recommendedTable?.Label,
+                        Rooms = floorRooms,
+                        Tables = activeTables,
+                        Fixtures = floorFixtures,
+                        BusyTableLabels = busyTables
+                    })
+
                 <div class="admin-form-grid">
-                    <label>
-                        Table
-                        <select name="tableLabel">
-                            <option value="">Not assigned</option>
-
-                            @foreach (var table in activeTables)
-                            {
-                                var isBusy =
-                                    busyTables.Contains(table.Label);
-
-                                var isTooSmall =
-                                    Model.NumberOfGuests > table.Capacity;
-
-                                var tableText =
-                                    $"{table.Label} / {table.Capacity} seats";
-
-                                if (!string.IsNullOrWhiteSpace(table.Area))
-                                {
-                                    tableText =
-                                        $"{table.Area} / {tableText}";
-                                }
-
-                                if (isBusy)
-                                {
-                                    tableText += " / busy";
-                                }
-                                else if (isTooSmall)
-                                {
-                                    tableText += " / too small";
-                                }
-
-                                <option value="@table.Label"
-                                        selected="@(Model.TableLabel == table.Label ? "selected" : null)"
-                                        disabled="@(isBusy || isTooSmall)">
-                                    @tableText
-                                </option>
-                            }
-                        </select>
-                    </label>
-
                     <label>
                         Staff-only note
                         <input name="internalNote"
@@ -408,6 +380,92 @@
                 </button>
             </form>
         </details>
+    }
+
+    @if (Model.Status == ReservationStatus.Approved)
+    {
+        <section class="admin-section reservation-service-actions">
+            <header class="admin-section-heading">
+                <div>
+                    <span class="admin-workspace-eyebrow">Service</span>
+                    <h2>Guest arrival</h2>
+                    <p>Check the guest in here. This is the only attendance control for the booking.</p>
+                </div>
+            </header>
+
+            <form asp-controller="AdminReservations"
+                  asp-action="MarkArrived"
+                  asp-route-id="@Model.Id"
+                  method="post">
+                @Html.AntiForgeryToken()
+                <div class="reservation-code-check">
+                    <span>Match with guest</span>
+                    <strong>@Model.ReservationCode</strong>
+                    <small>Ask the guest to show this code before check-in.</small>
+                </div>
+                <button type="submit"
+                        class="admin-primary-button is-success">
+                    Guest arrived
+                </button>
+            </form>
+
+            <details class="admin-content-disclosure reservation-reject-zone">
+                <summary>
+                    <span class="reservation-disclosure-title">
+                        <small>Alternative</small>
+                        <strong>Guest did not arrive</strong>
+                    </span>
+                    <span class="reservation-disclosure-value">No-show</span>
+                </summary>
+
+                <form asp-controller="AdminReservations"
+                      asp-action="MarkNoShow"
+                      asp-route-id="@Model.Id"
+                      method="post"
+                      class="admin-form-surface"
+                      onsubmit="return confirm('Mark this reservation as a no-show and release its table?');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            class="admin-primary-button is-danger">
+                        Mark no-show
+                    </button>
+                </form>
+            </details>
+        </section>
+    }
+
+    @if (Model.Status == ReservationStatus.Arrived &&
+         !string.IsNullOrWhiteSpace(Model.TableLabel))
+    {
+        <section class="admin-section reservation-service-actions reservation-release-table">
+            <header class="admin-section-heading">
+                <div>
+                    <span class="admin-workspace-eyebrow">End service</span>
+                    <h2>Release @Model.TableLabel</h2>
+                    <p>Use this when the guests leave. The table becomes available immediately.</p>
+                </div>
+            </header>
+
+            <form asp-controller="AdminReservations"
+                  asp-action="ReleaseTable"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  onsubmit="return confirm('Release table @Model.TableLabel and make it available again?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="admin-primary-button is-success">
+                    Release table
+                </button>
+            </form>
+        </section>
+    }
+
+    @if (tableWasReleased)
+    {
+        <section class="admin-section reservation-table-released-state">
+            <span class="admin-workspace-eyebrow">Service complete</span>
+            <h2>Table released</h2>
+            <p>The guest visit remains in history, and the table is available for another reservation.</p>
+        </section>
     }
 
     <div class="reservation-reference-grid">
@@ -548,3 +606,22 @@
     }
 
 </div>
+
+<script>
+    (() => {
+        const button = document.querySelector("[data-copy-phone]");
+        const status = document.querySelector("[data-copy-phone-status]");
+
+        button?.addEventListener("click", async () => {
+            const phone = button.dataset.copyPhone || "";
+
+            try {
+                await navigator.clipboard.writeText(phone);
+                button.textContent = "Copied";
+                if (status) status.textContent = "Phone number copied.";
+            } catch {
+                if (status) status.textContent = `Phone: ${phone}`;
+            }
+        });
+    })();
+</script>

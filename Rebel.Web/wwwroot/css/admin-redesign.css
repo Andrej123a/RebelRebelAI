@@ -742,6 +742,7 @@ body.admin-shell-body .floor-canvas-palette i {
     opacity: .72;
 }
 body.admin-shell-body .floor-canvas-palette i.is-door { width: 9px; border-radius: 7px 0 0 0; border-bottom: 0; }
+body.admin-shell-body .floor-canvas-palette i.is-table { border-radius: 3px; background: #765235; }
 body.admin-shell-body .floor-canvas-palette i.is-toilet { border-radius: 50% 50% 3px 3px; }
 body.admin-shell-body .floor-canvas-palette i.is-entrance { width: 15px; height: 9px; border-width: 0 2px 2px; }
 body.admin-shell-body .floor-canvas-palette i.is-bar { width: 16px; height: 7px; border-radius: 2px; }
@@ -2009,6 +2010,31 @@ body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-p
     content: "";
 }
 
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-table {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-table::before {
+    inset: 7px 9px;
+    border: 2px solid #2b170d;
+    border-radius: 3px;
+    background: repeating-linear-gradient(90deg, #8a603d 0, #8a603d 6px, #70482f 7px, #70482f 12px);
+    box-shadow: 0 4px 0 #351f12, 0 7px 7px rgba(0,0,0,.42);
+}
+
+body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-table::after {
+    top: 2px;
+    left: 10px;
+    width: 7px;
+    height: 6px;
+    border-radius: 3px 3px 1px 1px;
+    background: #6f7980;
+    box-shadow: 19px 0 0 #6f7980, 0 24px 0 #6f7980, 19px 24px 0 #6f7980;
+}
+
 body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette i.is-door::before {
     inset: 4px 12px 0;
     border: 2px solid #c99b5a;
@@ -2127,4 +2153,1008 @@ body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-p
     body.admin-shell-body .floor-studio.is-preview-mode.is-edit-mode .floor-canvas-palette {
         overflow-x: auto;
     }
+}
+
+body.admin-shell-body .reservation-summary-bar {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+body.admin-shell-body .reservation-code-metric strong {
+    font-family: "Space Mono", monospace;
+    font-size: clamp(1.35rem, 2vw, 2rem);
+    letter-spacing: .08em;
+}
+
+body.admin-shell-body .reservation-phone-action {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    gap: 4px 10px;
+    padding: 9px 10px;
+    border: 1px solid rgba(238, 232, 220, .18);
+    background: #121310;
+}
+
+body.admin-shell-body .reservation-phone-action span,
+body.admin-shell-body .reservation-phone-action small {
+    color: #8f8d86;
+    font: 700 .5rem "Space Mono", monospace;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-phone-action strong {
+    color: #f2ece1;
+    font: 700 .72rem "Space Mono", monospace;
+}
+
+body.admin-shell-body .reservation-phone-action .admin-secondary-button {
+    grid-row: 1 / span 2;
+    grid-column: 2;
+    padding: 8px 10px;
+}
+
+body.admin-shell-body .reservation-phone-action small {
+    grid-column: 1 / -1;
+    min-height: .6rem;
+    color: var(--admin-board-yellow, #f4c400);
+}
+
+body.admin-shell-body .reservation-code-check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 16px;
+    max-width: 520px;
+    margin: 0 0 16px;
+    padding: 15px 17px;
+    border: 2px solid var(--admin-board-yellow, #f4c400);
+    background: #0d0e0c;
+    box-shadow: 5px 5px 0 rgba(244, 196, 0, .15);
+}
+
+body.admin-shell-body .reservation-code-check span {
+    align-self: center;
+    color: #8f8d86;
+    font: 700 .55rem "Space Mono", monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-code-check strong {
+    color: var(--admin-board-yellow, #f4c400);
+    font: 900 1.55rem "Space Mono", monospace;
+    letter-spacing: .1em;
+}
+
+body.admin-shell-body .reservation-code-check small {
+    grid-column: 1 / -1;
+    color: #aaa79e;
+    font: 600 .58rem "Space Mono", monospace;
+}
+
+@media (max-width: 1050px) {
+    body.admin-shell-body .reservation-summary-bar {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    body.admin-shell-body .reservation-summary-bar {
+        grid-template-columns: 1fr;
+    }
+
+    body.admin-shell-body .reservation-phone-action {
+        width: 100%;
+    }
+}
+
+/* Reservation table assignment uses the same spatial language as the floor editor. */
+body.admin-shell-body .reservation-floor-picker {
+    margin: 0 0 22px;
+    border: 1px solid rgba(236, 227, 207, .18);
+    border-top: 4px solid var(--admin-board-red, #e63822);
+    background: #111310;
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, .28);
+}
+
+body.admin-shell-body .reservation-floor-picker-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(236, 227, 207, .14);
+}
+
+body.admin-shell-body .reservation-floor-picker-header > div:first-child {
+    display: grid;
+    gap: 3px;
+}
+
+body.admin-shell-body .reservation-floor-picker-header span,
+body.admin-shell-body .reservation-floor-room-title span,
+body.admin-shell-body .reservation-floor-unplaced > span {
+    color: #e8c83c;
+    font: 700 10px/1.2 var(--admin-mono, monospace);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-floor-picker-header strong {
+    color: #f4eee2;
+    font-size: 19px;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-floor-picker-header small {
+    color: #9fa398;
+    font: 600 11px/1.4 var(--admin-mono, monospace);
+}
+
+body.admin-shell-body .reservation-floor-picker-selection {
+    flex: 0 0 auto;
+    padding: 10px 13px;
+    border: 1px solid #e8c83c;
+    color: #f8e875;
+    background: rgba(232, 200, 60, .07);
+    font: 700 11px/1 var(--admin-mono, monospace);
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-floor-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 10px 20px;
+    color: #aeb2a8;
+    background: #0b0d0b;
+    font: 700 9px/1 var(--admin-mono, monospace);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-floor-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+body.admin-shell-body .reservation-floor-legend i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3d9a62;
+}
+
+body.admin-shell-body .reservation-floor-legend i.is-recommended { background: #e8c83c; }
+body.admin-shell-body .reservation-floor-legend i.is-occupied { background: #df392c; }
+body.admin-shell-body .reservation-floor-legend i.is-small { background: #5b5f59; }
+
+body.admin-shell-body .reservation-floor-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 14px 20px 0;
+    overflow-x: auto;
+}
+
+body.admin-shell-body .reservation-floor-tabs button {
+    min-width: 145px;
+    padding: 11px 14px;
+    border: 1px solid rgba(236, 227, 207, .16);
+    color: #aaa99f;
+    background: #171a16;
+    text-align: left;
+}
+
+body.admin-shell-body .reservation-floor-tabs button.is-active {
+    border-color: #e8c83c;
+    color: #10120f;
+    background: #e8c83c;
+}
+
+body.admin-shell-body .reservation-floor-tabs strong,
+body.admin-shell-body .reservation-floor-tabs small {
+    display: block;
+}
+
+body.admin-shell-body .reservation-floor-tabs strong {
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-floor-tabs small {
+    margin-top: 3px;
+    font: 600 9px/1 var(--admin-mono, monospace);
+}
+
+body.admin-shell-body .reservation-floor-panels {
+    padding: 12px 20px 20px;
+}
+
+body.admin-shell-body .reservation-floor-room { display: none; }
+body.admin-shell-body .reservation-floor-room.is-active { display: block; }
+
+body.admin-shell-body .reservation-floor-room-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 2px;
+}
+
+body.admin-shell-body .reservation-floor-room-title strong {
+    color: #f4eee2;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-floor-room-title small {
+    margin-left: auto;
+    color: #8e948a;
+    font: 600 10px/1 var(--admin-mono, monospace);
+}
+
+body.admin-shell-body .reservation-floor-canvas {
+    position: relative;
+    min-height: 340px;
+    max-height: 560px;
+    overflow: hidden;
+    border: 2px solid #3c4038;
+    background:
+        linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px),
+        radial-gradient(circle at 50% 45%, #272b23, #181b17 72%);
+    background-size: 24px 24px, 24px 24px, auto;
+    box-shadow: inset 0 0 45px rgba(0, 0, 0, .35);
+}
+
+body.admin-shell-body .reservation-floor-table {
+    position: absolute;
+    display: grid;
+    place-content: center;
+    min-width: 74px;
+    min-height: 62px;
+    padding: 7px;
+    border: 2px solid #75c78d;
+    border-radius: 4px;
+    color: #eef8ed;
+    background: #27623d;
+    box-shadow: 0 7px 0 #163522, 0 10px 15px rgba(0, 0, 0, .45);
+    text-align: center;
+    cursor: pointer;
+    transition: filter 120ms ease, box-shadow 120ms ease;
+}
+
+body.admin-shell-body .reservation-floor-table:hover:not(:disabled) {
+    filter: brightness(1.18);
+}
+
+body.admin-shell-body .reservation-floor-table span,
+body.admin-shell-body .reservation-floor-table strong,
+body.admin-shell-body .reservation-floor-table small {
+    display: block;
+    pointer-events: none;
+}
+
+body.admin-shell-body .reservation-floor-table span {
+    font-size: 15px;
+    font-weight: 900;
+}
+
+body.admin-shell-body .reservation-floor-table strong {
+    margin-top: 2px;
+    font: 700 9px/1 var(--admin-mono, monospace);
+}
+
+body.admin-shell-body .reservation-floor-table small {
+    margin-top: 5px;
+    font: 900 8px/1 var(--admin-mono, monospace);
+    letter-spacing: .08em;
+}
+
+body.admin-shell-body .reservation-floor-table[data-shape="Round"] { border-radius: 50%; }
+body.admin-shell-body .reservation-floor-table[data-shape="Counter"] { border-radius: 2px; }
+body.admin-shell-body .reservation-floor-table[data-shape="Lounge"] { border-radius: 16px 4px; }
+
+body.admin-shell-body .reservation-floor-table.is-recommended {
+    border-color: #ffe45b;
+    color: #18160d;
+    background: #d9b91f;
+    box-shadow: 0 7px 0 #76620b, 0 0 22px rgba(232, 200, 60, .28);
+}
+
+body.admin-shell-body .reservation-floor-table.is-selected {
+    border-color: #fff1a1;
+    color: #17130d;
+    background: #f0d03b;
+    box-shadow: 0 0 0 4px #e63822, 0 8px 0 #7f1c13, 0 0 28px rgba(230, 56, 34, .38);
+    z-index: 3;
+}
+
+body.admin-shell-body .reservation-floor-table.is-occupied,
+body.admin-shell-body .reservation-floor-table.is-too-small {
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+body.admin-shell-body .reservation-floor-table.is-occupied {
+    border-color: #ff7569;
+    color: #fff5ee;
+    background: repeating-linear-gradient(-45deg, #a72720 0 9px, #7b1b18 9px 18px);
+    box-shadow: 0 7px 0 #48100e, 0 0 18px rgba(223, 57, 44, .22);
+}
+
+body.admin-shell-body .reservation-floor-table.is-too-small {
+    border-color: #686d66;
+    color: #a5aaa1;
+    background: #343833;
+    box-shadow: 0 7px 0 #20231f;
+}
+
+body.admin-shell-body .reservation-floor-empty,
+body.admin-shell-body .reservation-floor-room-empty {
+    padding: 28px;
+    color: #8f948b;
+    font: 600 11px/1.5 var(--admin-mono, monospace);
+    text-align: center;
+}
+
+body.admin-shell-body .reservation-floor-room-empty {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+}
+
+body.admin-shell-body .reservation-floor-unplaced {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 20px 16px;
+}
+
+body.admin-shell-body .reservation-floor-unplaced button,
+body.admin-shell-body .reservation-floor-clear {
+    padding: 8px 10px;
+    border: 1px solid #52574f;
+    color: #d9ddd4;
+    background: #1b1e19;
+    font: 700 10px/1 var(--admin-mono, monospace);
+}
+
+body.admin-shell-body .reservation-floor-unplaced button:disabled {
+    color: #d66a61;
+    opacity: 1;
+}
+
+body.admin-shell-body .reservation-floor-clear {
+    margin: 0 20px 18px;
+    border-color: #bb3529;
+    color: #ef7a6e;
+}
+
+@media (max-width: 760px) {
+    body.admin-shell-body .reservation-floor-picker-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    body.admin-shell-body .reservation-floor-picker-selection {
+        align-self: flex-start;
+    }
+
+    body.admin-shell-body .reservation-floor-panels {
+        overflow-x: auto;
+    }
+
+    body.admin-shell-body .reservation-floor-room {
+        min-width: 680px;
+    }
+}
+
+/* Match reservation assignment to the full spatial Floor preview. */
+body.admin-shell-body .reservation-floor-picker {
+    overflow: hidden;
+    border: 1px solid #3a3027;
+    border-top: 4px solid var(--admin-board-red, #c8202d);
+    background: #080908;
+}
+
+body.admin-shell-body .reservation-floor-tabs {
+    justify-content: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(238, 232, 220, .1);
+    background: #0c0d0b;
+}
+
+body.admin-shell-body .reservation-floor-tabs button {
+    min-width: 170px;
+    border-color: #3a3027;
+    background: #141511;
+}
+
+body.admin-shell-body .reservation-floor-tabs button.is-active {
+    border-color: var(--admin-board-yellow, #f4c400);
+    background: var(--admin-board-yellow, #f4c400);
+}
+
+body.admin-shell-body .reservation-floor-panels {
+    padding: 24px 30px 34px;
+    background:
+        radial-gradient(circle at 50% 0, rgba(226, 185, 112, .1), transparent 38rem),
+        #080908;
+}
+
+body.admin-shell-body .reservation-floor-room-title {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 2px 12px;
+}
+
+body.admin-shell-body .reservation-floor-room-title strong {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+    letter-spacing: .07em;
+}
+
+body.admin-shell-body .reservation-floor-canvas {
+    width: min(100%, 1120px);
+    height: clamp(500px, 55vw, 680px);
+    min-height: 500px;
+    max-height: none;
+    margin: 0 auto;
+    overflow: hidden;
+    border: 8px solid #32251c;
+    border-radius: 3px;
+    background:
+        repeating-linear-gradient(90deg, transparent 0, transparent 20px, rgba(45, 24, 12, .22) 21px, transparent 22px),
+        repeating-linear-gradient(0deg, #8a6847 0, #8a6847 10px, #7b593c 11px, #7b593c 20px);
+    background-size: 20px 20px, auto;
+    box-shadow:
+        0 13px 0 #140e0a,
+        0 28px 42px rgba(0, 0, 0, .58),
+        inset 0 0 0 4px rgba(37, 22, 13, .32),
+        inset 0 18px 35px rgba(255, 238, 202, .055);
+}
+
+body.admin-shell-body .reservation-floor-canvas[data-shape="Patio"] {
+    border-color: #4b5040;
+    background:
+        linear-gradient(45deg, rgba(255, 255, 255, .035) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, .035) 75%),
+        #4b4d43;
+    background-size: 30px 30px;
+}
+
+body.admin-shell-body .reservation-floor-table,
+body.admin-shell-body .reservation-floor-table.is-free,
+body.admin-shell-body .reservation-floor-table.is-recommended,
+body.admin-shell-body .reservation-floor-table.is-selected,
+body.admin-shell-body .reservation-floor-table.is-occupied,
+body.admin-shell-body .reservation-floor-table.is-too-small {
+    --reservation-table-status: #65ae72;
+    z-index: 5;
+    overflow: visible;
+    min-width: 78px;
+    min-height: 66px;
+    padding: 7px;
+    color: #f3ecdf;
+    border: 2px solid #382316;
+    border-radius: 3px;
+    background:
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, .04) 0, rgba(255, 255, 255, .04) 7px, transparent 8px, transparent 15px),
+        #81502e;
+    box-shadow:
+        0 7px 0 #4b2b18,
+        0 13px 16px rgba(0, 0, 0, .45),
+        0 0 0 3px color-mix(in srgb, var(--reservation-table-status) 65%, transparent);
+}
+
+body.admin-shell-body .reservation-floor-table.is-recommended {
+    --reservation-table-status: #e4b23f;
+}
+
+body.admin-shell-body .reservation-floor-table.is-selected {
+    --reservation-table-status: #f4c400;
+    outline: 3px solid var(--admin-board-red, #c8202d);
+    outline-offset: 5px;
+    z-index: 8;
+}
+
+body.admin-shell-body .reservation-floor-table.is-occupied {
+    --reservation-table-status: #ef493d;
+    color: #fff0eb;
+    background:
+        repeating-linear-gradient(-45deg, rgba(255, 255, 255, .06) 0 8px, transparent 8px 16px),
+        #7f231e;
+}
+
+body.admin-shell-body .reservation-floor-table.is-too-small {
+    --reservation-table-status: #777b72;
+    color: #b7b7ae;
+    filter: saturate(.45);
+}
+
+body.admin-shell-body .reservation-floor-table[data-shape="Round"],
+body.admin-shell-body .reservation-floor-table[data-type="HighTop"] {
+    border-radius: 50%;
+    background: radial-gradient(circle at 36% 30%, #a16a3d, #684026 70%);
+    box-shadow:
+        0 10px 0 #352116,
+        0 17px 18px rgba(0, 0, 0, .5),
+        0 0 0 3px color-mix(in srgb, var(--reservation-table-status) 65%, transparent);
+}
+
+body.admin-shell-body .reservation-floor-table[data-type="HighTop"] {
+    border-color: #16181a;
+    background: radial-gradient(circle at 38% 30%, #55595c, #202326 72%);
+}
+
+body.admin-shell-body .reservation-floor-table[data-type="BarCounter"],
+body.admin-shell-body .reservation-floor-table[data-shape="Counter"] {
+    border-radius: 2px;
+    background:
+        linear-gradient(90deg, rgba(255, 255, 255, .08), transparent 18%, rgba(255, 255, 255, .04) 50%, transparent 82%),
+        #60361f;
+}
+
+body.admin-shell-body .reservation-floor-table[data-type="Lounge"],
+body.admin-shell-body .reservation-floor-table[data-shape="Lounge"] {
+    color: #fff3ec;
+    border-color: #421a20;
+    border-radius: 7px;
+    background:
+        linear-gradient(90deg, transparent 48%, rgba(255, 255, 255, .12) 49%, rgba(255, 255, 255, .12) 51%, transparent 52%),
+        #792d38;
+}
+
+body.admin-shell-body .reservation-floor-table span {
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: .04em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .65);
+}
+
+body.admin-shell-body .reservation-floor-table strong {
+    color: #e8d8c5;
+    font: 700 .56rem "Space Mono", monospace;
+}
+
+body.admin-shell-body .reservation-floor-table small {
+    position: absolute;
+    right: -5px;
+    bottom: -8px;
+    padding: 3px 5px;
+    color: #10110f;
+    background: var(--reservation-table-status);
+    font: 900 .45rem "Space Mono", monospace;
+    letter-spacing: .02em;
+}
+
+body.admin-shell-body .reservation-floor-seat {
+    position: absolute;
+    z-index: -1;
+    display: block;
+    width: clamp(9px, 17%, 18px);
+    height: clamp(7px, 13%, 13px);
+    border: 1px solid #26191a;
+    border-radius: 3px 3px 6px 6px;
+    background: #6d2c35;
+    box-shadow: 0 4px 0 #30161a, 0 7px 7px rgba(0, 0, 0, .42);
+    pointer-events: none;
+}
+
+body.admin-shell-body .reservation-floor-table[data-type="HighTop"] .reservation-floor-seat,
+body.admin-shell-body .reservation-floor-table[data-type="BarCounter"] .reservation-floor-seat {
+    border-radius: 50%;
+    background: #24272a;
+    box-shadow: 0 5px 0 #0d0f10, 0 8px 7px rgba(0, 0, 0, .48);
+}
+
+body.admin-shell-body .reservation-floor-fixture {
+    position: absolute;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    min-width: 52px;
+    min-height: 34px;
+    color: #eee5d7;
+    border: 2px solid #32251c;
+    border-radius: 2px;
+    background: #5f3a22;
+    box-shadow: 0 8px 0 #28170e, 0 15px 18px rgba(0, 0, 0, .45);
+    pointer-events: none;
+}
+
+body.admin-shell-body .reservation-floor-fixture span {
+    font: 800 .55rem "Space Mono", monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-floor-fixture.is-bar {
+    background: repeating-linear-gradient(90deg, #6f4225 0, #6f4225 18px, #5c351e 19px, #5c351e 36px);
+}
+
+body.admin-shell-body .reservation-floor-fixture.is-toilet {
+    color: #21303a;
+    border-color: #8797a0;
+    background:
+        linear-gradient(45deg, rgba(255, 255, 255, .22) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, .22) 75%),
+        #b8c2c7;
+    background-size: 22px 22px;
+    box-shadow: 0 7px 0 #67757c, 0 14px 18px rgba(0, 0, 0, .4);
+}
+
+body.admin-shell-body .reservation-floor-fixture.is-entrance,
+body.admin-shell-body .reservation-floor-fixture.is-door {
+    color: #25180e;
+    border-color: #a77e42;
+    background: #d2ad68;
+    box-shadow: 0 6px 0 #74552c, 0 12px 15px rgba(0, 0, 0, .4);
+}
+
+body.admin-shell-body .reservation-floor-fixture.is-terrace {
+    color: #e3ead9;
+    border: 3px dashed #657857;
+    background: rgba(63, 83, 54, .68);
+}
+
+@media (max-width: 760px) {
+    body.admin-shell-body .reservation-floor-tabs {
+        justify-content: flex-start;
+    }
+
+    body.admin-shell-body .reservation-floor-panels {
+        padding: 16px 16px 30px;
+    }
+
+    body.admin-shell-body .reservation-floor-room {
+        min-width: 0;
+    }
+
+    body.admin-shell-body .reservation-floor-canvas {
+        width: 760px;
+        height: 520px;
+    }
+}
+
+/* Staff schedule: a readable weekly command board instead of seven narrow columns. */
+body.admin-shell-body .staff-week-board {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+}
+
+body.admin-shell-body .staff-day-card {
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr);
+    min-width: 0;
+    border: 1px solid rgba(238, 232, 220, .14);
+    border-left: 4px solid #40413b;
+    background: #10110f;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, .18);
+}
+
+body.admin-shell-body .staff-day-card.is-today {
+    border-color: rgba(244, 196, 48, .55);
+    border-left-color: var(--admin-board-yellow);
+    background: linear-gradient(135deg, rgba(244, 196, 48, .055), transparent 45%), #12130f;
+    box-shadow: 7px 7px 0 rgba(207, 41, 53, .68);
+}
+
+body.admin-shell-body .staff-day-header {
+    display: flex;
+    min-height: 150px;
+    padding: 20px;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 22px;
+    border-right: 1px solid rgba(238, 232, 220, .12);
+    border-bottom: 0;
+    background: rgba(255, 255, 255, .018);
+}
+
+body.admin-shell-body .staff-day-date {
+    display: grid;
+    gap: 2px;
+}
+
+body.admin-shell-body .staff-day-date > span {
+    color: var(--admin-board-yellow);
+    font: 700 .63rem "Space Mono", monospace;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .staff-day-date > strong {
+    color: #f3eee4;
+    font: 400 2.25rem "Bebas Neue", sans-serif;
+    letter-spacing: .035em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+body.admin-shell-body .staff-day-coverage {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 7px;
+}
+
+body.admin-shell-body .staff-day-coverage > span {
+    display: inline-flex;
+    min-height: 30px;
+    padding: 5px 8px;
+    align-items: center;
+    gap: 7px;
+    color: #b9b5ab;
+    border: 1px solid rgba(238, 232, 220, .13);
+    background: #171815;
+    font: 600 .58rem "Space Mono", monospace;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .staff-day-coverage > span strong {
+    color: #f3eee4;
+    font-size: .78rem;
+}
+
+body.admin-shell-body .staff-day-coverage > span.is-empty {
+    color: #d98282;
+    border-color: rgba(207, 41, 53, .4);
+    background: rgba(207, 41, 53, .08);
+}
+
+body.admin-shell-body .staff-shift-list {
+    display: grid;
+    gap: 0;
+    padding: 5px 20px;
+    border: 0;
+    background: transparent;
+}
+
+body.admin-shell-body .staff-day-event {
+    display: grid;
+    grid-template-columns: 46px minmax(0, 1fr);
+    min-height: 64px;
+    margin: 14px 0 0;
+    padding: 8px;
+    align-items: center;
+    gap: 11px;
+    border: 1px solid rgba(244, 196, 48, .28);
+    border-left: 3px solid var(--admin-board-yellow);
+    background: rgba(244, 196, 48, .045);
+}
+
+body.admin-shell-body .staff-day-event img {
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    filter: saturate(.75) contrast(1.08);
+}
+
+body.admin-shell-body .staff-day-event strong,
+body.admin-shell-body .staff-day-event small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.admin-shell-body .staff-day-section {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 18px;
+    padding: 15px 0;
+    align-items: start;
+    border: 0;
+    border-bottom: 1px solid rgba(238, 232, 220, .09);
+}
+
+body.admin-shell-body .staff-day-section:last-child {
+    border-bottom: 0;
+}
+
+body.admin-shell-body .staff-lane-heading {
+    display: grid;
+    gap: 5px;
+    padding-top: 3px;
+}
+
+body.admin-shell-body .staff-lane-heading > span {
+    color: #f3eee4;
+    font: 700 .66rem "Space Mono", monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .staff-lane-heading > small {
+    color: #777970;
+    font: 500 .53rem "Space Grotesk", sans-serif;
+    line-height: 1.25;
+}
+
+body.admin-shell-body .staff-day-section-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-width: 0;
+    gap: 8px;
+}
+
+body.admin-shell-body .staff-shift-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 42px;
+    min-height: 62px;
+    padding: 0;
+    border: 1px solid rgba(238, 232, 220, .12);
+    border-left: 3px solid #697078;
+    background: #171815;
+    overflow: hidden;
+}
+
+body.admin-shell-body .staff-shift-card.role-front {
+    border-left-color: #e64c38;
+}
+
+body.admin-shell-body .staff-shift-card.role-kitchen {
+    border-left-color: var(--admin-board-yellow);
+}
+
+body.admin-shell-body .staff-shift-card:hover {
+    border-color: rgba(238, 232, 220, .3);
+    background: #1c1d19;
+    transform: none;
+}
+
+body.admin-shell-body .staff-shift-edit-trigger,
+body.admin-shell-body .staff-shift-readonly {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-width: 0;
+    padding: 12px 14px;
+    align-items: center;
+    gap: 5px 16px;
+}
+
+body.admin-shell-body .staff-shift-edit-trigger strong,
+body.admin-shell-body .staff-shift-readonly strong {
+    overflow: hidden;
+    color: #f3eee4;
+    font: 600 .78rem "Space Grotesk", sans-serif;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.admin-shell-body .staff-shift-edit-trigger small,
+body.admin-shell-body .staff-shift-readonly small {
+    color: #c7b36a;
+    font: 600 .62rem "Space Mono", monospace;
+    white-space: nowrap;
+}
+
+body.admin-shell-body .staff-shift-edit-trigger em,
+body.admin-shell-body .staff-shift-readonly em {
+    grid-column: 1 / -1;
+    overflow: hidden;
+    color: #8e9187;
+    font: 400 .61rem "Space Grotesk", sans-serif;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.admin-shell-body .staff-shift-card > form {
+    display: grid;
+    padding: 0;
+    place-items: stretch;
+    border-left: 1px solid rgba(238, 232, 220, .1);
+}
+
+body.admin-shell-body .staff-shift-card > form button {
+    width: 100%;
+    min-height: 100%;
+    color: #a7a39b;
+    border: 0;
+    background: transparent;
+    font: 700 .63rem "Space Mono", monospace;
+}
+
+body.admin-shell-body .staff-shift-card > form button:hover {
+    color: #fff;
+    background: var(--admin-board-red);
+}
+
+body.admin-shell-body .staff-no-cover-button,
+body.admin-shell-body .staff-no-cover-readonly {
+    min-height: 54px;
+    padding: 11px 13px;
+    border-color: rgba(238, 232, 220, .16);
+    background: rgba(255, 255, 255, .012);
+}
+
+body.admin-shell-body .staff-no-cover-button:hover {
+    border-color: rgba(244, 196, 48, .5);
+    background: rgba(244, 196, 48, .055);
+}
+
+@media (max-width: 1180px) {
+    body.admin-shell-body .staff-day-section-body {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    body.admin-shell-body .staff-day-card {
+        grid-template-columns: 1fr;
+    }
+
+    body.admin-shell-body .staff-day-header {
+        min-height: 0;
+        align-items: center;
+        flex-direction: row;
+        border-right: 0;
+        border-bottom: 1px solid rgba(238, 232, 220, .12);
+    }
+
+    body.admin-shell-body .staff-day-coverage {
+        justify-content: flex-end;
+    }
+
+    body.admin-shell-body .staff-day-section {
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+
+    body.admin-shell-body .staff-lane-heading {
+        grid-template-columns: 1fr auto;
+    }
+
+    body.admin-shell-body .staff-shift-edit-trigger,
+    body.admin-shell-body .staff-shift-readonly {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    body.admin-shell-body .staff-day-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    body.admin-shell-body .staff-day-coverage {
+        justify-content: flex-start;
+    }
+}
+
+body.admin-shell-body .reservation-release-table {
+    border-top-color: var(--admin-board-yellow);
+    background: linear-gradient(100deg, rgba(244, 196, 48, .05), transparent 42%), #11120f;
+}
+
+body.admin-shell-body .reservation-release-table form {
+    padding-top: 14px;
+    border-top: 1px solid rgba(238, 232, 220, .1);
+}
+
+body.admin-shell-body .reservation-table-released-state {
+    padding: 22px;
+    border: 1px solid rgba(87, 174, 119, .32);
+    border-left: 4px solid #57ae77;
+    background: rgba(87, 174, 119, .055);
+}
+
+body.admin-shell-body .reservation-table-released-state h2 {
+    margin: 5px 0 4px;
+    color: #f1ede4;
+    font: 400 1.8rem "Bebas Neue", sans-serif;
+    text-transform: uppercase;
+}
+
+body.admin-shell-body .reservation-table-released-state p {
+    margin: 0;
+    color: #96998f;
+    font-size: .7rem;
 }

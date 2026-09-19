@@ -589,6 +589,60 @@ namespace Rebel.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReleaseTable(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            var reservation = await _context.Reservations
+                .FirstOrDefaultAsync(
+                    existingReservation => existingReservation.Id == id,
+                    cancellationToken);
+
+            if (reservation == null)
+            {
+                return NotFound();
+            }
+
+            if (reservation.Status != ReservationStatus.Arrived)
+            {
+                TempData["ErrorMessage"] =
+                    "Only an arrived guest can release a table after service.";
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            if (string.IsNullOrWhiteSpace(reservation.TableLabel))
+            {
+                TempData["ErrorMessage"] =
+                    "This reservation no longer has an occupied table.";
+
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var releasedTable = reservation.TableLabel;
+            reservation.TableLabel = null;
+            reservation.InternalNote = NormalizeOptionalText(
+                AppendStaffNote(
+                    reservation.InternalNote,
+                    $"Table {releasedTable} released after service."),
+                500);
+
+            AddReservationActivity(
+                reservation.Id,
+                "Table released",
+                $"Table {releasedTable} was released after the guests left.",
+                "Admin");
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            TempData["SuccessMessage"] =
+                $"Table {releasedTable} is free and available again.";
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResendGuestEmail(
             Guid id,
             CancellationToken cancellationToken)
@@ -1054,9 +1108,26 @@ namespace Rebel.Web.Controllers
         {
             ViewBag.ActiveTables = await _context.PubTables
                 .AsNoTracking()
+                .Include(table => table.FloorRoom)
                 .Where(table => table.IsActive)
-                .OrderBy(table => table.Area)
+                .OrderBy(table => table.FloorRoom!.PositionY)
+                .ThenBy(table => table.FloorRoom!.PositionX)
+                .ThenBy(table => table.Area)
                 .ThenBy(table => table.Label)
+                .ToListAsync(cancellationToken);
+
+            ViewBag.FloorRooms = await _context.FloorRooms
+                .AsNoTracking()
+                .Where(room => room.IsActive)
+                .OrderBy(room => room.PositionY)
+                .ThenBy(room => room.PositionX)
+                .ThenBy(room => room.Name)
+                .ToListAsync(cancellationToken);
+
+            ViewBag.FloorFixtures = await _context.FloorFixtures
+                .AsNoTracking()
+                .OrderBy(fixture => fixture.PositionY)
+                .ThenBy(fixture => fixture.PositionX)
                 .ToListAsync(cancellationToken);
 
             ViewBag.BusyTables = await _context.Reservations
@@ -1269,7 +1340,7 @@ namespace Rebel.Web.Controllers
                 TempData["ErrorMessage"] =
                     "Only approved reservations can receive an attendance status.";
 
-                return RedirectToAction(nameof(Tonight));
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             if (reservation.Status == ReservationStatus.Arrived)
@@ -1277,7 +1348,7 @@ namespace Rebel.Web.Controllers
                 TempData["ErrorMessage"] =
                     "This reservation has already arrived and cannot be changed.";
 
-                return RedirectToAction(nameof(Tonight));
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             if (reservation.Status == ReservationStatus.NoShow ||
@@ -1286,7 +1357,7 @@ namespace Rebel.Web.Controllers
                 TempData["ErrorMessage"] =
                     "This reservation is already closed and cannot be changed from tonight view.";
 
-                return RedirectToAction(nameof(Tonight));
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             if (reservation.Status != ReservationStatus.Approved)
@@ -1294,7 +1365,7 @@ namespace Rebel.Web.Controllers
                 TempData["ErrorMessage"] =
                     "Only approved reservations can be marked as arrived or no-show.";
 
-                return RedirectToAction(nameof(Tonight));
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             reservation.Status = newStatus;
@@ -1323,7 +1394,7 @@ namespace Rebel.Web.Controllers
                     ? $"{reservation.FullName} marked as arrived."
                     : $"{reservation.FullName} marked as no-show.";
 
-            return RedirectToAction(nameof(Tonight));
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         private void AddReservationActivity(

@@ -45,7 +45,7 @@ namespace Rebel.Web.Controllers
                 SkopjeTimeZone
             );
 
-            var upcomingEvents = await _context.Events
+            var featuredEvent = await _context.Events
                 .AsNoTracking()
                 .Where(eventItem =>
                     eventItem.IsActive &&
@@ -53,26 +53,14 @@ namespace Rebel.Web.Controllers
                 )
                 .OrderBy(eventItem => eventItem.Date)
                 .ThenBy(eventItem => eventItem.StartTime)
-                .Take(4)
-                .ToListAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
 
             var model = new HomeViewModel
             {
-                FeaturedEvent = upcomingEvents.FirstOrDefault(),
-
-                UpcomingEvents = upcomingEvents
-                    .Skip(1)
-                    .Take(3)
-                    .ToList()
+                FeaturedEvent = featuredEvent
             };
 
             return View(model);
-        }
-
-        [HttpGet]
-        public IActionResult Privacy()
-        {
-            return View();
         }
 
         [HttpGet]

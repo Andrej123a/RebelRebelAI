@@ -4,66 +4,23 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Rebel.Infrastructure.Migrations
 {
+    [Microsoft.EntityFrameworkCore.Infrastructure.DbContext(typeof(global::Rebel.Infrastructure.Data.AppDbContext))]
     [Migration("20260721130000_AddProductMenuTags")]
     public partial class AddProductMenuTags : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "ContainsNuts",
-                table: "Products",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsGlutenFree",
-                table: "Products",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsLimited",
-                table: "Products",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsPopular",
-                table: "Products",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsPromo",
-                table: "Products",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsSpicy",
-                table: "Products",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsVegan",
-                table: "Products",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "IsVegetarian",
-                table: "Products",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "ContainsNuts" boolean NOT NULL DEFAULT FALSE;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "IsGlutenFree" boolean NOT NULL DEFAULT FALSE;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "IsLimited" boolean NOT NULL DEFAULT FALSE;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "IsPopular" boolean NOT NULL DEFAULT FALSE;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "IsPromo" boolean NOT NULL DEFAULT FALSE;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "IsSpicy" boolean NOT NULL DEFAULT FALSE;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "IsVegan" boolean NOT NULL DEFAULT FALSE;
+                ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "IsVegetarian" boolean NOT NULL DEFAULT FALSE;
+                """);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -178,6 +178,8 @@ namespace Rebel.Infrastructure.Data
                     .WithMany()
                     .HasForeignKey(feedback => feedback.ProductId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasQueryFilter(feedback => !feedback.Product!.IsDeleted);
             });
 
             builder.Entity<BeerGuideResponseContext>(entity =>
@@ -287,6 +289,8 @@ namespace Rebel.Infrastructure.Data
                     activity.ReservationId,
                     activity.CreatedAtUtc
                 });
+
+                entity.HasQueryFilter(activity => !activity.Reservation.IsDeleted);
             });
 
             builder.Entity<Notification>(entity =>

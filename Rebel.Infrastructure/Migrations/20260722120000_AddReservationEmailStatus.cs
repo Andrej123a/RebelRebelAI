@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Rebel.Infrastructure.Migrations
 {
+    [Microsoft.EntityFrameworkCore.Infrastructure.DbContext(typeof(global::Rebel.Infrastructure.Data.AppDbContext))]
     [Migration("20260722120000_AddReservationEmailStatus")]
     public partial class AddReservationEmailStatus : Migration
     {

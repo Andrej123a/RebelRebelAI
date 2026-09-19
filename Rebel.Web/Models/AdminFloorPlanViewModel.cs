@@ -75,6 +75,8 @@ namespace Rebel.Web.Models
     {
         public Guid? Id { get; set; }
 
+        public string ClientId { get; set; } = string.Empty;
+
         public string Label { get; set; } = string.Empty;
 
         public string? Area { get; set; }
@@ -114,10 +116,4 @@ namespace Rebel.Web.Models
         public int Rotation { get; set; }
     }
 
-    public class AdminTableEditorViewModel
-    {
-        public PubTable Table { get; set; } = new();
-
-        public List<FloorRoom> Rooms { get; set; } = new();
-    }
 }

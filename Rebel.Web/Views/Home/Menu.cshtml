@@ -7,12 +7,14 @@
 
     var hideAiFeatures = Configuration.GetValue<bool>(
         "Presentation:HideAiFeatures");
+    var showDrinksMenu = Configuration.GetValue<bool>(
+        "Menu:ShowDrinks");
 
     var selectedSection = (ViewBag.Section as string ?? "food").ToLower();
 
     if (selectedSection != "food" &&
         selectedSection != "beer" &&
-        selectedSection != "drink")
+        !(showDrinksMenu && selectedSection == "drink"))
     {
         selectedSection = "food";
     }
@@ -70,7 +72,8 @@
                 Come hungry. Leave louder.
             </p>
 
-            <nav class="rr-menu-navigation" aria-label="Menu sections">
+            <nav class="rr-menu-navigation @(!showDrinksMenu ? "rr-menu-navigation--two" : "")"
+                 aria-label="Menu sections">
                 <a asp-controller="Home"
                    asp-action="Menu"
                    asp-route-section="food"
@@ -89,14 +92,17 @@
                     <span>Beer</span>
                 </a>
 
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="drink"
-                   class="rr-menu-nav-link @(selectedSection == "drink" ? "active" : "")">
+                @if (showDrinksMenu)
+                {
+                    <a asp-controller="Home"
+                       asp-action="Menu"
+                       asp-route-section="drink"
+                       class="rr-menu-nav-link @(selectedSection == "drink" ? "active" : "")">
 
-                    <span class="rr-menu-nav-number">03</span>
-                    <span>Drinks</span>
-                </a>
+                        <span class="rr-menu-nav-number">03</span>
+                        <span>Drinks</span>
+                    </a>
+                }
             </nav>
         </div>
     </header>
@@ -169,6 +175,12 @@
                 <button type="button"
                         class="rr-menu-chip"
                         aria-pressed="false"
+                        data-filter="sweet">
+                    Sweet
+                </button>
+                <button type="button"
+                        class="rr-menu-chip"
+                        aria-pressed="false"
                         data-filter="vegan">
                     Vegan
                 </button>
@@ -177,12 +189,6 @@
                         aria-pressed="false"
                         data-filter="vegetarian">
                     Vegetarian
-                </button>
-                <button type="button"
-                        class="rr-menu-chip"
-                        aria-pressed="false"
-                        data-filter="glutenfree">
-                    Gluten-free
                 </button>
             </div>
 
@@ -267,9 +273,9 @@
                                     product.IsAvailable ? "available" : "unavailable",
                                     product.IsPopular ? "popular" : "",
                                     product.IsSpicy ? "spicy" : "",
+                                    product.SweetnessLevel is >= 4 ? "sweet" : "",
                                     product.IsVegetarian ? "vegetarian" : "",
                                     product.IsVegan ? "vegan" : "",
-                                    product.IsGlutenFree ? "glutenfree" : "",
                                     product.ContainsNuts ? "nuts" : "",
                                     product.IsLimited ? "limited" : "",
                                     product.IsPromo ? "promo" : ""
@@ -348,6 +354,11 @@
                                                 <span><i>🌶</i>Spicy</span>
                                             }
 
+                                            @if (product.SweetnessLevel is >= 4)
+                                            {
+                                                <span><i>S</i>Sweet</span>
+                                            }
+
                                             @if (product.IsVegetarian)
                                             {
                                                 <span><i>☘</i>Vegetarian</span>
@@ -356,11 +367,6 @@
                                             @if (product.IsVegan)
                                             {
                                                 <span><i>🌿</i>Vegan</span>
-                                            }
-
-                                            @if (product.IsGlutenFree)
-                                            {
-                                                <span><i>GF</i>Gluten free</span>
                                             }
 
                                             @if (product.ContainsNuts)

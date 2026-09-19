@@ -23,11 +23,6 @@ namespace Rebel.Web.Models
         public List<StaffScheduleEventViewModel> Events { get; set; } =
             new();
 
-        public StaffMemberInputModel NewStaff { get; set; } =
-            new();
-
-        public StaffShiftInputModel NewShift { get; set; } =
-            new();
     }
 
     public class StaffMemberInputModel

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace _03.Rebel.Infrastructure.Migrations
 {
     /// <inheritdoc />
+    [Microsoft.EntityFrameworkCore.Infrastructure.DbContext(typeof(global::Rebel.Infrastructure.Data.AppDbContext))]
     [Migration("20260721110000_AddReservationTableAssignmentConstraint")]
     public partial class AddReservationTableAssignmentConstraint : Migration
     {
@@ -37,12 +38,14 @@ namespace _03.Rebel.Infrastructure.Migrations
                 """
             );
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Reservations_ReservationDate_ReservationTime_TableLabel",
-                table: "Reservations",
-                columns: new[] { "ReservationDate", "ReservationTime", "TableLabel" },
-                unique: true,
-                filter: "\"TableLabel\" IS NOT NULL AND \"Status\" IN ('Approved', 'Arrived')");
+            migrationBuilder.Sql(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS
+                    "IX_Reservations_ReservationDate_ReservationTime_TableLabel"
+                ON "Reservations" ("ReservationDate", "ReservationTime", "TableLabel")
+                WHERE "TableLabel" IS NOT NULL
+                    AND "Status" IN ('Approved', 'Arrived');
+                """);
         }
 
         /// <inheritdoc />

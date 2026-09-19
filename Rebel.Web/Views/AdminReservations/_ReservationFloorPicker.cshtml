@@ -1,0 +1,348 @@
+@model Rebel.Web.Models.ReservationFloorPickerViewModel
+@using System.Globalization
+
+@{
+    string CssNumber(decimal value) =>
+        value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    string CssDouble(double value) =>
+        value.ToString("0.##", CultureInfo.InvariantCulture);
+
+    var standardSeatPositions = new (int Left, int Top, int Rotation)[]
+    {
+        (50, -14, 180), (50, 114, 0), (-12, 50, 90), (112, 50, -90),
+        (16, -10, 180), (84, -10, 180), (16, 110, 0), (84, 110, 0)
+    };
+
+    var counterSeatPositions = new (int Left, int Top, int Rotation)[]
+    {
+        (14, 112, 0), (38, 112, 0), (62, 112, 0), (86, 112, 0),
+        (26, -12, 180), (50, -12, 180), (74, -12, 180), (92, -12, 180)
+    };
+
+    var busyLabels = Model.BusyTableLabels
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    var selectedLabel = string.IsNullOrWhiteSpace(Model.SelectedTableLabel)
+        ? Model.RecommendedTableLabel
+        : Model.SelectedTableLabel;
+
+    var selectedTable = Model.Tables.FirstOrDefault(table =>
+        string.Equals(
+            table.Label,
+            selectedLabel,
+            StringComparison.OrdinalIgnoreCase));
+
+    var initialRoomId = selectedTable?.FloorRoomId ??
+        Model.Rooms.FirstOrDefault()?.Id;
+
+    var unplacedTables = Model.Tables
+        .Where(table => !table.FloorRoomId.HasValue)
+        .OrderBy(table => table.Label)
+        .ToList();
+}
+
+<section class="reservation-floor-picker"
+         data-reservation-floor-picker>
+    <input type="hidden"
+           id="@Model.InputId"
+           name="tableLabel"
+           value="@selectedLabel"
+           data-floor-picker-input />
+
+    <header class="reservation-floor-picker-header">
+        <div>
+            <span>Floor assignment</span>
+            <strong>Choose the table in the room</strong>
+            <small>
+                @Model.ReservationDate.ToString("dd MMM yyyy") / @Model.ReservationTime.ToString(@"hh\:mm") / @Model.PartySize guests
+            </small>
+        </div>
+
+        <div class="reservation-floor-picker-selection" data-floor-picker-selection>
+            @(string.IsNullOrWhiteSpace(selectedLabel)
+                ? "No table selected"
+                : $"Selected: {selectedLabel}")
+        </div>
+    </header>
+
+    <div class="reservation-floor-legend" aria-label="Table status legend">
+        <span><i class="is-free"></i>Free</span>
+        <span><i class="is-recommended"></i>Recommended</span>
+        <span><i class="is-occupied"></i>Occupied</span>
+        <span><i class="is-small"></i>Too small</span>
+    </div>
+
+    @if (Model.Rooms.Count == 0)
+    {
+        <div class="reservation-floor-empty">
+            No rooms are configured yet. Open Floor to create the spatial plan.
+        </div>
+    }
+    else
+    {
+        <nav class="reservation-floor-tabs" aria-label="Choose floor">
+            @foreach (var room in Model.Rooms)
+            {
+                var roomTables = Model.Tables.Count(table =>
+                    table.FloorRoomId == room.Id);
+
+                <button type="button"
+                        class="@(room.Id == initialRoomId ? "is-active" : null)"
+                        data-floor-picker-room="@room.Id"
+                        aria-pressed="@(room.Id == initialRoomId ? "true" : "false")">
+                    <strong>@room.Name</strong>
+                    <small>@roomTables tables</small>
+                </button>
+            }
+        </nav>
+
+        <div class="reservation-floor-panels">
+            @foreach (var room in Model.Rooms)
+            {
+                var roomTables = Model.Tables
+                    .Where(table => table.FloorRoomId == room.Id)
+                    .OrderBy(table => table.Label)
+                    .ToList();
+                var roomFixtures = Model.Fixtures
+                    .Where(fixture => fixture.FloorRoomId == room.Id)
+                    .ToList();
+
+                <section class="reservation-floor-room @(room.Id == initialRoomId ? "is-active" : null)"
+                         data-floor-picker-panel="@room.Id"
+                         data-shape="@room.Shape"
+                         aria-label="@room.Name floor plan">
+                    <div class="reservation-floor-room-title">
+                        <span>@room.Shape</span>
+                        <strong>@room.Name</strong>
+                        <small>@roomTables.Sum(table => table.Capacity) seats</small>
+                    </div>
+
+                    <div class="reservation-floor-canvas" data-shape="@room.Shape">
+                        @foreach (var fixture in roomFixtures)
+                        {
+                            var fixtureLeft =
+                                ((double)fixture.PositionX - room.PositionX) /
+                                Math.Max(room.Width, 1) * 100;
+                            var fixtureTop =
+                                ((double)fixture.PositionY - room.PositionY) /
+                                Math.Max(room.Height, 1) * 100;
+                            var fixtureWidth =
+                                (double)fixture.Width / Math.Max(room.Width, 1) * 100;
+                            var fixtureHeight =
+                                (double)fixture.Height / Math.Max(room.Height, 1) * 100;
+
+                            <div class="reservation-floor-fixture is-@fixture.Kind"
+                                 style="left:@CssDouble(fixtureLeft)%; top:@CssDouble(fixtureTop)%; width:@CssDouble(fixtureWidth)%; height:@CssDouble(fixtureHeight)%; transform:rotate(@(fixture.Rotation)deg);">
+                                <span>@fixture.Label</span>
+                            </div>
+                        }
+
+                        @foreach (var table in roomTables)
+                        {
+                            var isBusy = busyLabels.Contains(table.Label);
+                            var isTooSmall = Model.PartySize > table.Capacity;
+                            var isSelected = string.Equals(
+                                table.Label,
+                                selectedLabel,
+                                StringComparison.OrdinalIgnoreCase);
+                            var isRecommended = string.Equals(
+                                table.Label,
+                                Model.RecommendedTableLabel,
+                                StringComparison.OrdinalIgnoreCase);
+                            var stateClass = isBusy
+                                ? "is-occupied"
+                                : isTooSmall
+                                    ? "is-too-small"
+                                    : isSelected
+                                        ? "is-selected"
+                                        : isRecommended
+                                            ? "is-recommended"
+                                            : "is-free";
+                            var stateLabel = isBusy
+                                ? "OCCUPIED"
+                                : isTooSmall
+                                    ? "TOO SMALL"
+                                    : isSelected
+                                        ? "SELECTED"
+                                        : isRecommended
+                                            ? "RECOMMENDED"
+                                            : "FREE";
+                            var seatPositions =
+                                table.TableType == "BarCounter" || table.Shape == "Counter"
+                                    ? counterSeatPositions
+                                    : standardSeatPositions;
+
+                            <button type="button"
+                                    class="reservation-floor-table @stateClass"
+                                    data-floor-picker-table
+                                    data-label="@table.Label"
+                                    data-room-id="@room.Id"
+                                    data-default-state="@(isRecommended ? "recommended" : "free")"
+                                    data-shape="@table.Shape"
+                                    data-type="@table.TableType"
+                                    aria-pressed="@(isSelected ? "true" : "false")"
+                                    disabled="@(isBusy || isTooSmall ? "disabled" : null)"
+                                    style="left:@CssNumber(table.LayoutX)%; top:@CssNumber(table.LayoutY)%; width:@CssNumber(table.LayoutWidth)%; height:@CssNumber(table.LayoutHeight)%; transform:rotate(@(table.Rotation)deg);">
+                                <span>@table.Label</span>
+                                <strong>@table.Capacity seats</strong>
+                                <small data-floor-table-state>@stateLabel</small>
+                                @if (table.TableType != "Lounge" && table.Shape != "Lounge")
+                                {
+                                    @foreach (var seat in seatPositions.Take(Math.Min(table.Capacity, 8)))
+                                    {
+                                        <i class="reservation-floor-seat"
+                                           aria-hidden="true"
+                                           style="left:@(seat.Left)%; top:@(seat.Top)%; transform:translate(-50%, -50%) rotate(@(seat.Rotation)deg);"></i>
+                                    }
+                                }
+                            </button>
+                        }
+
+                        @if (roomTables.Count == 0)
+                        {
+                            <div class="reservation-floor-room-empty">
+                                No tables placed in this room.
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    }
+
+    @if (unplacedTables.Count > 0)
+    {
+        <div class="reservation-floor-unplaced">
+            <span>Not placed on a floor</span>
+            @foreach (var table in unplacedTables)
+            {
+                var isBusy = busyLabels.Contains(table.Label);
+                var isTooSmall = Model.PartySize > table.Capacity;
+
+                <button type="button"
+                        data-floor-picker-table
+                        data-label="@table.Label"
+                        data-default-state="free"
+                        disabled="@(isBusy || isTooSmall ? "disabled" : null)">
+                    @table.Label / @table.Capacity seats
+                    @(isBusy ? "/ OCCUPIED" : isTooSmall ? "/ TOO SMALL" : null)
+                </button>
+            }
+        </div>
+    }
+
+    <button type="button"
+            class="reservation-floor-clear"
+            data-floor-picker-clear>
+        Leave unassigned
+    </button>
+</section>
+
+<script>
+    (() => {
+        document.querySelectorAll("[data-reservation-floor-picker]").forEach((picker) => {
+            if (picker.dataset.ready === "true") {
+                return;
+            }
+
+            picker.dataset.ready = "true";
+
+            const input = picker.querySelector("[data-floor-picker-input]");
+            const selection = picker.querySelector("[data-floor-picker-selection]");
+            const roomButtons = [...picker.querySelectorAll("[data-floor-picker-room]")];
+            const panels = [...picker.querySelectorAll("[data-floor-picker-panel]")];
+            const tables = [...picker.querySelectorAll("[data-floor-picker-table]")];
+
+            const showRoom = (roomId) => {
+                roomButtons.forEach((button) => {
+                    const active = button.dataset.floorPickerRoom === roomId;
+                    button.classList.toggle("is-active", active);
+                    button.setAttribute("aria-pressed", active ? "true" : "false");
+                });
+
+                panels.forEach((panel) =>
+                    panel.classList.toggle(
+                        "is-active",
+                        panel.dataset.floorPickerPanel === roomId));
+            };
+
+            const selectTable = (table) => {
+                if (!input || table.disabled) {
+                    return;
+                }
+
+                tables.forEach((item) => {
+                    if (item.disabled) {
+                        return;
+                    }
+
+                    const selected = item === table;
+                    const defaultState = item.dataset.defaultState || "free";
+                    const state = item.querySelector("[data-floor-table-state]");
+
+                    item.classList.toggle("is-selected", selected);
+                    item.classList.toggle("is-recommended", !selected && defaultState === "recommended");
+                    item.classList.toggle("is-free", !selected && defaultState === "free");
+                    item.setAttribute("aria-pressed", selected ? "true" : "false");
+
+                    if (state) {
+                        state.textContent = selected
+                            ? "SELECTED"
+                            : defaultState === "recommended"
+                                ? "RECOMMENDED"
+                                : "FREE";
+                    }
+                });
+
+                input.value = table.dataset.label || "";
+
+                if (selection) {
+                    selection.textContent = `Selected: ${input.value}`;
+                }
+
+                if (table.dataset.roomId) {
+                    showRoom(table.dataset.roomId);
+                }
+            };
+
+            roomButtons.forEach((button) =>
+                button.addEventListener("click", () =>
+                    showRoom(button.dataset.floorPickerRoom || "")));
+
+            tables.forEach((table) =>
+                table.addEventListener("click", () => selectTable(table)));
+
+            picker.querySelector("[data-floor-picker-clear]")?.addEventListener("click", () => {
+                if (!input) {
+                    return;
+                }
+
+                input.value = "";
+
+                tables.forEach((table) => {
+                    if (table.disabled) {
+                        return;
+                    }
+
+                    const defaultState = table.dataset.defaultState || "free";
+                    const state = table.querySelector("[data-floor-table-state]");
+                    table.classList.remove("is-selected");
+                    table.classList.toggle("is-recommended", defaultState === "recommended");
+                    table.classList.toggle("is-free", defaultState === "free");
+                    table.setAttribute("aria-pressed", "false");
+
+                    if (state) {
+                        state.textContent = defaultState === "recommended"
+                            ? "RECOMMENDED"
+                            : "FREE";
+                    }
+                });
+
+                if (selection) {
+                    selection.textContent = "No table selected";
+                }
+            });
+        });
+    })();
+</script>

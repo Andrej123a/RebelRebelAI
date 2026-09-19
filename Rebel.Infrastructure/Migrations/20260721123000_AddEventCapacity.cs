@@ -4,22 +4,20 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Rebel.Infrastructure.Migrations
 {
+    [Microsoft.EntityFrameworkCore.Infrastructure.DbContext(typeof(global::Rebel.Infrastructure.Data.AppDbContext))]
     [Migration("20260721123000_AddEventCapacity")]
     public partial class AddEventCapacity : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "MaxGuests",
-                table: "Events",
-                type: "integer",
-                nullable: true);
+            migrationBuilder.Sql(
+                """
+                ALTER TABLE "Events"
+                ADD COLUMN IF NOT EXISTS "MaxGuests" integer;
 
-            migrationBuilder.AddColumn<int>(
-                name: "MaxReservations",
-                table: "Events",
-                type: "integer",
-                nullable: true);
+                ALTER TABLE "Events"
+                ADD COLUMN IF NOT EXISTS "MaxReservations" integer;
+                """);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

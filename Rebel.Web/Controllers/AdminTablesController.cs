@@ -291,6 +291,7 @@ namespace Rebel.Web.Controllers
             }
 
             var created = 0;
+            var createdTables = new List<object>();
 
             foreach (var tableRequest in request.Tables)
             {
@@ -325,6 +326,12 @@ namespace Rebel.Web.Controllers
                 {
                     created++;
                     _context.PubTables.Add(table);
+                    createdTables.Add(new
+                    {
+                        clientId = tableRequest.ClientId,
+                        id = table.Id,
+                        label = normalizedLabel
+                    });
                 }
 
                 table.Label = normalizedLabel;
@@ -406,196 +413,12 @@ namespace Rebel.Web.Controllers
 
             return Ok(new
             {
+                createdTables,
                 createdFixtures,
                 message = created == 0
                     ? "Floor layout saved."
                     : $"Floor layout saved. {created} new table{(created == 1 ? string.Empty : "s")} added."
             });
-        }
-
-        [HttpGet]
-        [Authorize(Policy = AdminPolicies.ManagerOnly)]
-        public async Task<IActionResult> Create(
-            CancellationToken cancellationToken)
-        {
-            await EnsureFloorRoomsAsync(cancellationToken);
-
-            return View(await BuildTableEditorModelAsync(
-                new PubTable
-                {
-                    Capacity = 4,
-                    IsActive = true,
-                    TableType = "Classic",
-                    Shape = "Square"
-                },
-                cancellationToken));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = AdminPolicies.ManagerOnly)]
-        public async Task<IActionResult> Create(
-            AdminTableEditorViewModel model,
-            CancellationToken cancellationToken)
-        {
-            Normalize(model.Table);
-
-            if (!ModelState.IsValid)
-            {
-                return View(await BuildTableEditorModelAsync(
-                    model.Table,
-                    cancellationToken));
-            }
-
-            var labelExists = await _context.PubTables
-                .AnyAsync(
-                    existingTable =>
-                        existingTable.Label.ToUpper() == model.Table.Label,
-                    cancellationToken);
-
-            if (labelExists)
-            {
-                ModelState.AddModelError(
-                    "Table.Label",
-                    "A table with this label already exists.");
-
-                return View(await BuildTableEditorModelAsync(
-                    model.Table,
-                    cancellationToken));
-            }
-
-            model.Table.Id = Guid.NewGuid();
-            await ApplyRoomAssignmentAsync(model.Table, cancellationToken);
-
-            _context.PubTables.Add(model.Table);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            TempData["SuccessMessage"] =
-                $"{model.Table.Label} was added to the floor plan.";
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet]
-        [Authorize(Policy = AdminPolicies.ManagerOnly)]
-        public async Task<IActionResult> Edit(
-            Guid id,
-            CancellationToken cancellationToken)
-        {
-            var table = await _context.PubTables
-                .FirstOrDefaultAsync(
-                    existingTable => existingTable.Id == id,
-                    cancellationToken);
-
-            if (table == null)
-            {
-                return NotFound();
-            }
-
-            return View(await BuildTableEditorModelAsync(
-                table,
-                cancellationToken));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = AdminPolicies.ManagerOnly)]
-        public async Task<IActionResult> Edit(
-            Guid id,
-            AdminTableEditorViewModel model,
-            CancellationToken cancellationToken)
-        {
-            if (id != model.Table.Id)
-            {
-                return NotFound();
-            }
-
-            Normalize(model.Table);
-
-            if (!ModelState.IsValid)
-            {
-                return View(await BuildTableEditorModelAsync(
-                    model.Table,
-                    cancellationToken));
-            }
-
-            var labelExists = await _context.PubTables
-                .AnyAsync(
-                    existingTable =>
-                        existingTable.Id != model.Table.Id &&
-                        existingTable.Label.ToUpper() == model.Table.Label,
-                    cancellationToken);
-
-            if (labelExists)
-            {
-                ModelState.AddModelError(
-                    "Table.Label",
-                    "A table with this label already exists.");
-
-                return View(await BuildTableEditorModelAsync(
-                    model.Table,
-                    cancellationToken));
-            }
-
-            var existingTable = await _context.PubTables
-                .FirstOrDefaultAsync(
-                    currentTable => currentTable.Id == id,
-                    cancellationToken);
-
-            if (existingTable == null)
-            {
-                return NotFound();
-            }
-
-            if (!string.Equals(
-                    existingTable.Label,
-                    model.Table.Label,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                var today = DateTime.UtcNow.Date;
-
-                var hasOpenAssignments = await _context.Reservations
-                    .AsNoTracking()
-                    .AnyAsync(
-                        reservation =>
-                            reservation.TableLabel == existingTable.Label &&
-                            reservation.ReservationDate.Date >= today &&
-                            (reservation.Status == ReservationStatus.Approved ||
-                             reservation.Status == ReservationStatus.Arrived),
-                        cancellationToken);
-
-                if (hasOpenAssignments)
-                {
-                    ModelState.AddModelError(
-                        "Table.Label",
-                        "This table has active reservations. Reassign them before changing the label.");
-
-                    return View(await BuildTableEditorModelAsync(
-                        model.Table,
-                        cancellationToken));
-                }
-            }
-
-            existingTable.Label = model.Table.Label;
-            existingTable.Area = model.Table.Area;
-            existingTable.Capacity = model.Table.Capacity;
-            existingTable.TableType = model.Table.TableType;
-            existingTable.Shape = model.Table.Shape;
-            existingTable.LayoutX = model.Table.LayoutX;
-            existingTable.LayoutY = model.Table.LayoutY;
-            existingTable.LayoutWidth = model.Table.LayoutWidth;
-            existingTable.LayoutHeight = model.Table.LayoutHeight;
-            existingTable.Rotation = model.Table.Rotation;
-            existingTable.FloorRoomId = model.Table.FloorRoomId;
-            existingTable.IsActive = model.Table.IsActive;
-
-            await ApplyRoomAssignmentAsync(existingTable, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            TempData["SuccessMessage"] =
-                $"{existingTable.Label} was updated.";
-
-            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
@@ -625,66 +448,6 @@ namespace Rebel.Web.Controllers
 
             TempData["SuccessMessage"] =
                 $"{room.Name} was added to the floor layout.";
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet]
-        [Authorize(Policy = AdminPolicies.ManagerOnly)]
-        public async Task<IActionResult> EditRoom(
-            Guid id,
-            CancellationToken cancellationToken)
-        {
-            var room = await _context.FloorRooms
-                .FirstOrDefaultAsync(
-                    existingRoom => existingRoom.Id == id,
-                    cancellationToken);
-
-            return room == null ? NotFound() : View(room);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = AdminPolicies.ManagerOnly)]
-        public async Task<IActionResult> EditRoom(
-            Guid id,
-            FloorRoom room,
-            CancellationToken cancellationToken)
-        {
-            if (id != room.Id)
-            {
-                return NotFound();
-            }
-
-            Normalize(room);
-
-            if (!ModelState.IsValid)
-            {
-                return View(room);
-            }
-
-            var existingRoom = await _context.FloorRooms
-                .FirstOrDefaultAsync(
-                    currentRoom => currentRoom.Id == id,
-                    cancellationToken);
-
-            if (existingRoom == null)
-            {
-                return NotFound();
-            }
-
-            existingRoom.Name = room.Name;
-            existingRoom.Shape = room.Shape;
-            existingRoom.PositionX = room.PositionX;
-            existingRoom.PositionY = room.PositionY;
-            existingRoom.Width = room.Width;
-            existingRoom.Height = room.Height;
-            existingRoom.IsActive = room.IsActive;
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            TempData["SuccessMessage"] =
-                $"{existingRoom.Name} was updated.";
 
             return RedirectToAction(nameof(Index));
         }
@@ -748,56 +511,6 @@ namespace Rebel.Web.Controllers
             {
                 message = $"{room.Name} was removed from the floor plan."
             });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Policy = AdminPolicies.ManagerOnly)]
-        public async Task<IActionResult> ToggleActive(
-            Guid id,
-            CancellationToken cancellationToken)
-        {
-            var table = await _context.PubTables
-                .FirstOrDefaultAsync(
-                    existingTable => existingTable.Id == id,
-                    cancellationToken);
-
-            if (table == null)
-            {
-                return NotFound();
-            }
-
-            if (table.IsActive)
-            {
-                var today = DateTime.UtcNow.Date;
-
-                var hasOpenAssignments = await _context.Reservations
-                    .AsNoTracking()
-                    .AnyAsync(
-                        reservation =>
-                            reservation.TableLabel == table.Label &&
-                            reservation.ReservationDate.Date >= today &&
-                            (reservation.Status == ReservationStatus.Approved ||
-                             reservation.Status == ReservationStatus.Arrived),
-                        cancellationToken);
-
-                if (hasOpenAssignments)
-                {
-                    TempData["ErrorMessage"] =
-                        $"{table.Label} still has active reservations. Reassign them before deactivating the table.";
-
-                    return RedirectToAction(nameof(Index));
-                }
-            }
-
-            table.IsActive = !table.IsActive;
-            await _context.SaveChangesAsync(cancellationToken);
-
-            TempData["SuccessMessage"] = table.IsActive
-                ? $"{table.Label} is active for reservation assignments."
-                : $"{table.Label} is inactive and hidden from assignment choices.";
-
-            return RedirectToAction(nameof(Index));
         }
 
         private async Task EnsureFloorFixturesSchemaAsync(
@@ -891,65 +604,6 @@ namespace Rebel.Web.Controllers
                 });
 
             await _context.SaveChangesAsync(cancellationToken);
-        }
-
-        private async Task<AdminTableEditorViewModel> BuildTableEditorModelAsync(
-            PubTable table,
-            CancellationToken cancellationToken)
-        {
-            await EnsureFloorRoomsAsync(cancellationToken);
-
-            return new AdminTableEditorViewModel
-            {
-                Table = table,
-                Rooms = await _context.FloorRooms
-                    .AsNoTracking()
-                    .OrderBy(room => room.Name)
-                    .ToListAsync(cancellationToken)
-            };
-        }
-
-        private async Task ApplyRoomAssignmentAsync(
-            PubTable table,
-            CancellationToken cancellationToken)
-        {
-            await EnsureFloorRoomsAsync(cancellationToken);
-
-            var roomExists = table.FloorRoomId.HasValue &&
-                             await _context.FloorRooms.AnyAsync(
-                                 room => room.Id == table.FloorRoomId.Value,
-                                 cancellationToken);
-
-            if (roomExists)
-            {
-                return;
-            }
-
-            table.FloorRoomId = await _context.FloorRooms
-                .OrderBy(room => room.PositionY)
-                .ThenBy(room => room.PositionX)
-                .Select(room => room.Id)
-                .FirstOrDefaultAsync(cancellationToken);
-        }
-
-        private static void Normalize(PubTable table)
-        {
-            table.Label = NormalizeLabel(table.Label);
-            table.Area = NormalizeArea(table.Area);
-            table.Capacity = Math.Clamp(table.Capacity, 1, 30);
-            table.TableType = NormalizeChoice(
-                table.TableType,
-                AllowedTableTypes,
-                "Classic");
-            table.Shape = NormalizeChoice(
-                table.Shape,
-                AllowedTableShapes,
-                DefaultShapeFor(table.TableType));
-            table.LayoutX = ClampDecimal(table.LayoutX, 0, 100);
-            table.LayoutY = ClampDecimal(table.LayoutY, 0, 100);
-            table.LayoutWidth = ClampDecimal(table.LayoutWidth, 6, 60);
-            table.LayoutHeight = ClampDecimal(table.LayoutHeight, 6, 60);
-            table.Rotation = Math.Clamp(table.Rotation, -180, 180);
         }
 
         private static void Normalize(FloorRoom room)
