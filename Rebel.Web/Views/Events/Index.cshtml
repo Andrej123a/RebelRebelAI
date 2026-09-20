@@ -52,7 +52,8 @@
         <div class="events-hero-scratch events-hero-scratch-two"></div>
 
         <div class="container position-relative">
-            <div class="events-hero-content">
+            <div class="events-hero-layout @(nextEvent == null ? "has-no-feature" : string.Empty)">
+                <div class="events-hero-content">
 
                 <div class="events-eyebrow">
                     <span></span>
@@ -93,11 +94,57 @@
                     }
                 </div>
 
-                <a href="#upcoming-events" class="events-scroll-link">
-                    EXPLORE THE LINEUP
-                    <span>↓</span>
-                </a>
+                    <a href="#upcoming-events" class="events-scroll-link">
+                        EXPLORE THE LINEUP
+                        <span>↓</span>
+                    </a>
 
+                </div>
+
+                @if (nextEvent != null)
+                {
+                    <a asp-controller="Events"
+                       asp-action="Details"
+                       asp-route-id="@nextEvent.Id"
+                       class="events-hero-feature"
+                       aria-label="View next event: @nextEvent.Title">
+                        <div class="events-feature-poster">
+                            @if (!string.IsNullOrWhiteSpace(nextEvent.ImageUrl))
+                            {
+                                <img src="@Url.Content(nextEvent.ImageUrl)"
+                                     alt=""
+                                     class="events-feature-image" />
+                            }
+                            else
+                            {
+                                <div class="events-feature-placeholder">
+                                    <span>REBEL REBEL</span>
+                                    <strong>THE NEXT<br />NIGHT AWAITS.</strong>
+                                </div>
+                            }
+
+                            <div class="events-feature-shade"></div>
+                            <span class="events-feature-label">NEXT UP</span>
+
+                            <div class="events-feature-date">
+                                <strong>@nextEvent.Date.ToString("dd")</strong>
+                                <span>@nextEvent.Date.ToString("MMM", CultureInfo.InvariantCulture)</span>
+                            </div>
+
+                            <div class="events-feature-copy">
+                                <span>
+                                    @FormatEventDate(nextEvent.Date)
+                                    @if (nextEvent.StartTime.HasValue)
+                                    {
+                                        <text> · @FormatTime(nextEvent.StartTime.Value)</text>
+                                    }
+                                </span>
+                                <h2>@nextEvent.Title</h2>
+                                <strong>VIEW EVENT <span>↗</span></strong>
+                            </div>
+                        </div>
+                    </a>
+                }
             </div>
         </div>
     </div>
@@ -1722,8 +1769,137 @@
         }
 
     .rebel-3d-poster {
+        z-index: 1;
         border-radius: 3px;
-        clip-path: polygon(0 1%, 99% 0, 100% 97%, 2% 100%);
+        clip-path: polygon(1% 0, 99.4% 1.2%, 100% 96.8%, 98% 100%, 0.8% 98.6%, 0 3%);
+        transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .rebel-3d-slide::before {
+        content: "";
+        position: absolute;
+        inset: 10px -12px -11px 13px;
+        z-index: 0;
+        background: linear-gradient(112deg, var(--rebel-red) 0 68%, var(--rebel-yellow) 68% 100%);
+        clip-path: polygon(0.5% 1.5%, 100% 0, 98.8% 99%, 1.5% 97.8%);
+        opacity: 0.82;
+        pointer-events: none;
+    }
+
+    .rebel-3d-slide::after {
+        content: "";
+        position: absolute;
+        z-index: 9;
+        top: -9px;
+        left: 50%;
+        width: 112px;
+        height: 28px;
+        background: rgba(229, 220, 198, 0.78);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.36);
+        opacity: 0.74;
+        transform: translateX(-50%) rotate(-2.5deg);
+        clip-path: polygon(1% 8%, 100% 0, 95% 91%, 0 100%);
+        pointer-events: none;
+    }
+
+    .rebel-3d-slide:nth-child(odd) .rebel-3d-poster {
+        transform: rotate(-0.7deg);
+    }
+
+    .rebel-3d-slide:nth-child(even) .rebel-3d-poster {
+        transform: rotate(0.7deg);
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-poster {
+        transform: rotate(-0.15deg);
+    }
+
+    .rebel-3d-slide:not(.is-active) .rebel-3d-content {
+        opacity: 0;
+        transform: translateY(22px) translateZ(12px);
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-content {
+        right: auto;
+        bottom: 27px;
+        left: 27px;
+        width: min(650px, 72%);
+        max-width: none;
+        padding: 24px 28px 25px;
+        color: var(--rebel-paper);
+        background: var(--rebel-red);
+        box-shadow: 11px 11px 0 var(--rebel-yellow), 20px 23px 35px rgba(0, 0, 0, 0.42);
+        clip-path: polygon(0.8% 2%, 100% 0, 97.8% 96%, 2% 100%, 0 83%);
+        transform: rotate(-1deg) translateZ(42px);
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-kicker {
+        margin-bottom: 8px;
+        color: #ffe08a;
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-content h3 {
+        color: var(--rebel-paper);
+        font-size: clamp(2.4rem, 3.7vw, 4.2rem);
+        line-height: 0.9;
+        text-shadow: 4px 4px 0 rgba(8, 8, 8, 0.42);
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-meta,
+    .rebel-3d-slide.is-active .rebel-3d-content p {
+        color: rgba(255, 255, 255, 0.86);
+        text-shadow: none;
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-meta {
+        margin-top: 12px;
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-content p {
+        margin-top: 11px;
+        line-height: 1.45;
+        -webkit-line-clamp: 1;
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-actions {
+        gap: 16px;
+        margin-top: 17px;
+    }
+
+    .rebel-3d-slide.is-active .event-reserve-button {
+        min-height: 43px;
+        padding: 10px 18px;
+        box-shadow: 6px 6px 0 #080808;
+    }
+
+    .rebel-3d-slide.is-active .event-details-link,
+    .rebel-3d-slide.is-active .event-details-link span {
+        color: #ffffff;
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-shade {
+        background: linear-gradient(to top, rgba(4, 4, 4, 0.66), transparent 58%), linear-gradient(to right, rgba(4, 4, 4, 0.24), transparent 50%);
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-image {
+        filter: contrast(1.1) saturate(0.92);
+        transform: scale(1.025) translateZ(0);
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-date {
+        background: var(--rebel-yellow);
+        box-shadow: 7px 7px 0 var(--rebel-red), 0 16px 34px rgba(0, 0, 0, 0.36);
+    }
+
+    .rebel-3d-slide.is-active .rebel-3d-number {
+        top: 31px;
+        right: 31px;
+        bottom: auto;
+        padding-bottom: 5px;
+        color: #ffffff;
+        border-bottom: 3px solid var(--rebel-red);
+        font-size: 0.76rem;
+        transform: rotate(2deg) translateZ(38px);
     }
 
     .rebel-3d-type {
@@ -1780,7 +1956,288 @@
         border-top-color: rgba(240, 74, 36, 0.38);
     }
 
+    .events-hero-layout {
+        position: relative;
+        z-index: 3;
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+        gap: clamp(42px, 5vw, 92px);
+        align-items: center;
+    }
+
+    .events-hero-layout.has-no-feature {
+        grid-template-columns: 1fr;
+    }
+
+    .events-hero-feature {
+        position: relative;
+        z-index: 4;
+        display: block;
+        width: min(100%, 410px);
+        justify-self: end;
+        color: #ffffff;
+        text-decoration: none;
+        transform: rotate(1.5deg);
+        transform-origin: center;
+        transition: transform 0.22s ease, filter 0.22s ease;
+    }
+
+    .events-hero-feature:hover {
+        color: #ffffff;
+        filter: brightness(1.06);
+        transform: translateY(-6px) rotate(0.35deg);
+    }
+
+    .events-hero-feature::before {
+        content: "";
+        position: absolute;
+        z-index: 5;
+        top: -10px;
+        left: 50%;
+        width: 94px;
+        height: 25px;
+        background: rgba(241, 237, 228, 0.8);
+        box-shadow: 0 2px 9px rgba(0, 0, 0, 0.36);
+        opacity: 0.82;
+        transform: translateX(-50%) rotate(-3deg);
+        clip-path: polygon(2% 8%, 100% 0, 96% 92%, 0 100%);
+    }
+
+    .events-feature-poster {
+        position: relative;
+        height: 375px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: #12110f;
+        box-shadow: -6px -6px 0 rgba(240, 74, 36, 0.32), 18px 22px 0 rgba(200, 32, 45, 0.78), 0 30px 70px rgba(0, 0, 0, 0.55);
+        clip-path: polygon(1.2% 0, 99.3% 1.4%, 100% 96.7%, 97.8% 100%, 1.1% 98.8%, 0 3%);
+    }
+
+    .events-feature-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        filter: saturate(0.9) contrast(1.08) brightness(0.78);
+        transition: transform 0.35s ease, filter 0.35s ease;
+    }
+
+    .events-hero-feature:hover .events-feature-image {
+        filter: saturate(1) contrast(1.08) brightness(0.86);
+        transform: scale(1.025);
+    }
+
+    .events-feature-placeholder {
+        display: grid;
+        width: 100%;
+        height: 100%;
+        padding: 48px 38px;
+        align-content: center;
+        gap: 13px;
+        background:
+            linear-gradient(135deg, rgba(200, 32, 45, 0.32), transparent 62%),
+            repeating-linear-gradient(-18deg, transparent 0 18px, rgba(255, 255, 255, 0.025) 19px 20px),
+            #11100e;
+    }
+
+    .events-feature-placeholder span {
+        color: var(--rebel-yellow);
+        font: 700 0.66rem "Space Mono", monospace;
+        letter-spacing: 0.18em;
+    }
+
+    .events-feature-placeholder strong {
+        font: 400 clamp(2.7rem, 4vw, 4.6rem)/0.9 "Anton", sans-serif;
+    }
+
+    .events-feature-shade {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(4, 4, 4, 0.08) 22%, rgba(4, 4, 4, 0.9) 100%);
+    }
+
+    .events-feature-label {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        padding: 8px 12px;
+        color: #080808;
+        background: var(--rebel-yellow);
+        box-shadow: 5px 5px 0 var(--rebel-red);
+        font: 700 0.64rem "Space Mono", monospace;
+        letter-spacing: 0.12em;
+        transform: rotate(2deg);
+    }
+
+    .events-feature-date {
+        position: absolute;
+        top: 22px;
+        left: 22px;
+        display: grid;
+        width: 68px;
+        height: 74px;
+        place-content: center;
+        color: #080808;
+        background: var(--rebel-red);
+        text-align: center;
+        transform: rotate(-2deg);
+    }
+
+    .events-feature-date strong {
+        font: 400 2rem/0.9 "Anton", sans-serif;
+    }
+
+    .events-feature-date span {
+        margin-top: 6px;
+        font: 700 0.62rem "Space Mono", monospace;
+        text-transform: uppercase;
+    }
+
+    .events-feature-copy {
+        position: absolute;
+        right: 28px;
+        bottom: 28px;
+        left: 28px;
+    }
+
+    .events-feature-copy > span {
+        color: var(--rebel-yellow);
+        font: 700 0.66rem "Space Mono", monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .events-feature-copy h2 {
+        display: -webkit-box;
+        margin: 9px 0 18px;
+        overflow: hidden;
+        font: 400 clamp(2.1rem, 3vw, 3.4rem)/0.95 "Anton", sans-serif;
+        text-transform: uppercase;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .events-feature-copy > strong {
+        display: inline-flex;
+        padding-bottom: 5px;
+        gap: 8px;
+        border-bottom: 2px solid var(--rebel-red);
+        font: 700 0.68rem "Space Mono", monospace;
+        letter-spacing: 0.08em;
+    }
+
+    @@media (min-width: 992px) {
+        .rebel-events-hero {
+            min-height: 485px;
+        }
+
+        .events-hero-content {
+            padding: 36px 0 32px;
+        }
+
+        .events-hero-description {
+            margin-top: 22px;
+        }
+
+        .events-hero-info {
+            margin-top: 20px;
+        }
+
+        .events-scroll-link {
+            margin-top: 20px;
+        }
+
+        .rebel-events-content {
+            padding: 50px 0 82px;
+        }
+
+        .events-section-header {
+            margin-bottom: 26px;
+        }
+    }
+
+    @@media (max-width: 991.98px) {
+        .events-hero-layout {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .events-hero-feature {
+            width: min(100%, 680px);
+            margin: -24px 0 62px;
+            justify-self: start;
+            transform: rotate(0.7deg);
+        }
+
+        .events-feature-poster {
+            height: 290px;
+        }
+
+        .rebel-3d-slide.is-active .rebel-3d-content {
+            width: min(620px, 78%);
+        }
+    }
+
     @@media (max-width: 767.98px) {
+        .events-hero-feature {
+            width: calc(100% - 12px);
+            margin: -22px 0 48px 3px;
+        }
+
+        .events-feature-poster {
+            height: 235px;
+            box-shadow: 10px 13px 0 rgba(200, 32, 45, 0.72), 0 20px 45px rgba(0, 0, 0, 0.48);
+        }
+
+        .events-feature-label {
+            top: 16px;
+            right: 16px;
+        }
+
+        .events-feature-date {
+            top: 15px;
+            left: 15px;
+            width: 58px;
+            height: 64px;
+        }
+
+        .events-feature-copy {
+            right: 20px;
+            bottom: 18px;
+            left: 20px;
+        }
+
+        .events-feature-copy h2 {
+            margin: 6px 0 11px;
+            font-size: 2rem;
+        }
+
+        .rebel-3d-slide.is-active .rebel-3d-content {
+            right: 14px;
+            bottom: 18px;
+            left: 14px;
+            width: auto;
+            padding: 19px 20px 21px;
+            box-shadow: 7px 7px 0 var(--rebel-yellow), 13px 16px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .rebel-3d-slide.is-active .rebel-3d-content h3 {
+            font-size: clamp(2rem, 10vw, 3rem);
+        }
+
+        .rebel-3d-slide.is-active .rebel-3d-content p {
+            display: none;
+        }
+
+        .rebel-3d-slide.is-active .rebel-3d-meta {
+            gap: 7px 12px;
+            margin-top: 9px;
+        }
+
+        .rebel-3d-slide.is-active .rebel-3d-actions {
+            margin-top: 13px;
+        }
+
         .events-main-title {
             font-size: clamp(3.05rem, 15vw, 4.8rem);
         }
@@ -1875,7 +2332,7 @@
             ).matches;
 
             const spacing = desktop
-                ? Math.min(stageWidth * 0.48, 560)
+                ? Math.min(stageWidth * 0.4, 500)
                 : Math.min(stageWidth * 0.72, 330);
 
             const dragPosition =
@@ -1887,22 +2344,27 @@
                 const distance = Math.abs(position);
                 const translateX = position * spacing;
 
-                const translateZ =
-                    85 -
+            const translateZ =
+                    35 -
                     Math.min(distance, 3) *
-                    (desktop ? 250 : 190);
+                    (desktop ? 145 : 150);
 
                 const rotateY = Math.max(
-                    -68,
-                    Math.min(68, position * -34)
+                    -20,
+                    Math.min(20, position * -9)
+                );
+
+                const rotateZ = Math.max(
+                    -5,
+                    Math.min(5, position * 3.6)
                 );
 
                 const scale = Math.max(
-                    0.72,
-                    1 -
-                    distance *
-                    (desktop ? 0.095 : 0.08)
-                );
+                        0.72,
+                        1 -
+                        distance *
+                        (desktop ? 0.08 : 0.07)
+                    );
 
                 const opacity =
                     distance > 2.55
@@ -1925,7 +2387,7 @@
 
                 slide.style.transform =
                     `translate3d(calc(-50% + ${translateX}px), -50%, ${translateZ}px) ` +
-                    `rotateY(${rotateY}deg) scale(${scale})`;
+                    `rotateY(${rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`;
 
                 slide.style.opacity = opacity.toString();
 

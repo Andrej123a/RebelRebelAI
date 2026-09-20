@@ -26,6 +26,7 @@
     <form asp-controller="AdminEvents"
           asp-action="Create"
           method="post"
+          enctype="multipart/form-data"
           class="admin-editor-form"
           autocomplete="off">
         <div asp-validation-summary="ModelOnly"
@@ -173,9 +174,31 @@
                 <h2>Event Poster</h2>
 
                 <div class="admin-editor-field">
+                    <label for="eventImageFile"
+                           class="form-label">
+                        Upload Poster
+                    </label>
+
+                    <input type="file"
+                           name="imageFile"
+                           id="eventImageFile"
+                           class="form-control"
+                           accept="image/jpeg,image/png,image/webp" />
+
+                    @Html.ValidationMessage(
+                        "imageFile",
+                        null,
+                        new { @class = "text-danger small" })
+
+                    <small class="admin-editor-help">
+                        JPG, PNG or WebP, up to 5 MB.
+                    </small>
+                </div>
+
+                <div class="admin-editor-field">
                     <label asp-for="ImageUrl"
                            class="form-label">
-                        Image URL
+                        Or Use Image URL
                     </label>
 
                     <input asp-for="ImageUrl"
@@ -200,7 +223,7 @@
                          style="display: @(string.IsNullOrWhiteSpace(Model.ImageUrl) ? "flex" : "none");">
                         <span>IMG</span>
                         <strong>Event image preview</strong>
-                        <small>The poster will appear here after entering its URL.</small>
+                        <small>Upload a poster or enter an image URL.</small>
                     </div>
                 </div>
 
@@ -235,8 +258,10 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const imageInput = document.getElementById("imageUrlInput");
+            const imageFileInput = document.getElementById("eventImageFile");
             const imagePreview = document.getElementById("imagePreview");
             const imagePlaceholder = document.getElementById("imagePlaceholder");
+            let previewObjectUrl = null;
 
             const startTimeInput = document.getElementById("startTimeInput");
             const endTimeInput = document.getElementById("endTimeInput");
@@ -249,6 +274,13 @@
             }
 
             function updateImagePreview() {
+                imageFileInput.value = "";
+
+                if (previewObjectUrl) {
+                    URL.revokeObjectURL(previewObjectUrl);
+                    previewObjectUrl = null;
+                }
+
                 const imageUrl = imageInput.value.trim();
 
                 if (!imageUrl) {
@@ -258,6 +290,26 @@
                 }
 
                 imagePreview.src = imageUrl;
+                imagePreview.style.display = "block";
+                imagePlaceholder.style.display = "none";
+            }
+
+            function updateFilePreview() {
+                const imageFile = imageFileInput.files[0];
+
+                if (!imageFile) {
+                    updateImagePreview();
+                    return;
+                }
+
+                imageInput.value = "";
+
+                if (previewObjectUrl) {
+                    URL.revokeObjectURL(previewObjectUrl);
+                }
+
+                previewObjectUrl = URL.createObjectURL(imageFile);
+                imagePreview.src = previewObjectUrl;
                 imagePreview.style.display = "block";
                 imagePlaceholder.style.display = "none";
             }
@@ -294,9 +346,10 @@
                 }
             }
 
-            if (imageInput && imagePreview && imagePlaceholder) {
+            if (imageInput && imageFileInput && imagePreview && imagePlaceholder) {
                 imagePreview.addEventListener("error", showImagePlaceholder);
                 imageInput.addEventListener("input", updateImagePreview);
+                imageFileInput.addEventListener("change", updateFilePreview);
             }
 
             if (startTimeInput && endTimeInput) {

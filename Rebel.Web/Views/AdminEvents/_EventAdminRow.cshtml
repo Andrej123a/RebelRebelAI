@@ -45,7 +45,7 @@
         string.Empty;
 }
 
-<article class="admin-list-row @rowClass">
+<article class="admin-list-row admin-event-row @rowClass">
     <div class="admin-row-main">
         @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
         {
@@ -57,7 +57,9 @@
 
         <div class="admin-row-copy">
             <strong>@Model.Title</strong>
-            <span>@Model.Date.ToString("dd MMM yyyy")</span>
+            <span>
+                @Model.Date.ToString("dd MMM yyyy") · @timeText
+            </span>
         </div>
     </div>
 
@@ -83,33 +85,18 @@
             Bookings
         </a>
 
-        <details class="admin-more-menu">
-            <summary>More</summary>
+        <a asp-controller="AdminEvents"
+           asp-action="Edit"
+           asp-route-id="@Model.Id"
+           class="admin-secondary-button">
+            Edit
+        </a>
 
-            <div class="admin-more-panel">
-                <a asp-controller="AdminEvents"
-                   asp-action="Edit"
-                   asp-route-id="@Model.Id">
-                    Edit event
-                </a>
-
-                <a asp-controller="AdminReservations"
-                   asp-action="Index"
-                   asp-route-eventId="@Model.Id">
-                    Reservation list
-                </a>
-
-                <a asp-controller="AdminEvents"
-                   asp-action="Delete"
-                   asp-route-id="@Model.Id"
-                   class="is-danger">
-                    Archive event
-                </a>
-
-                <span class="admin-inline-note">
-                    @timeText
-                </span>
-            </div>
-        </details>
+        <a asp-controller="AdminEvents"
+           asp-action="Delete"
+           asp-route-id="@Model.Id"
+           class="admin-secondary-button event-archive-action">
+            Archive
+        </a>
     </div>
 </article>

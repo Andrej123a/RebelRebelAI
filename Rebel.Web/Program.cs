@@ -122,6 +122,7 @@ builder.Services.Configure<EmailSettings>(
 
 // EMAIL SERVICE
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEventImageStorage, EventImageStorage>();
 
 var app = builder.Build();
 

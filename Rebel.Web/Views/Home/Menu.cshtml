@@ -142,69 +142,72 @@
                 </label>
                 <input id="menuSearchInput"
                        type="search"
-                       placeholder="Search burgers, beer, spicy, vegan..."
+                       placeholder="@(selectedSection == "beer" ? "Search beers..." : "Search burgers, spicy, vegan...")"
                        autocomplete="off" />
             </div>
 
-            <div class="rr-menu-chip-row"
-                 aria-label="Menu tag filters">
-                <button type="button"
-                        class="rr-menu-chip active"
-                        aria-pressed="true"
-                        data-filter="all">
-                    All
-                </button>
-                <button type="button"
-                        class="rr-menu-chip"
-                        aria-pressed="false"
-                        data-filter="available">
-                    Available
-                </button>
-                <button type="button"
-                        class="rr-menu-chip"
-                        aria-pressed="false"
-                        data-filter="popular">
-                    Popular
-                </button>
-                <button type="button"
-                        class="rr-menu-chip"
-                        aria-pressed="false"
-                        data-filter="spicy">
-                    Spicy
-                </button>
-                <button type="button"
-                        class="rr-menu-chip"
-                        aria-pressed="false"
-                        data-filter="sweet">
-                    Sweet
-                </button>
-                <button type="button"
-                        class="rr-menu-chip"
-                        aria-pressed="false"
-                        data-filter="vegan">
-                    Vegan
-                </button>
-                <button type="button"
-                        class="rr-menu-chip"
-                        aria-pressed="false"
-                        data-filter="vegetarian">
-                    Vegetarian
-                </button>
-            </div>
+            @if (selectedSection != "beer")
+            {
+                <div class="rr-menu-chip-row"
+                     aria-label="Menu tag filters">
+                    <button type="button"
+                            class="rr-menu-chip active"
+                            aria-pressed="true"
+                            data-filter="all">
+                        All
+                    </button>
+                    <button type="button"
+                            class="rr-menu-chip"
+                            aria-pressed="false"
+                            data-filter="available">
+                        Available
+                    </button>
+                    <button type="button"
+                            class="rr-menu-chip"
+                            aria-pressed="false"
+                            data-filter="popular">
+                        Popular
+                    </button>
+                    <button type="button"
+                            class="rr-menu-chip"
+                            aria-pressed="false"
+                            data-filter="spicy">
+                        Spicy
+                    </button>
+                    <button type="button"
+                            class="rr-menu-chip"
+                            aria-pressed="false"
+                            data-filter="sweet">
+                        Sweet
+                    </button>
+                    <button type="button"
+                            class="rr-menu-chip"
+                            aria-pressed="false"
+                            data-filter="vegan">
+                        Vegan
+                    </button>
+                    <button type="button"
+                            class="rr-menu-chip"
+                            aria-pressed="false"
+                            data-filter="vegetarian">
+                        Vegetarian
+                    </button>
+                </div>
 
-            <p id="menuFilterSummary"
-               class="rr-menu-filter-summary"></p>
+                <p id="menuFilterSummary"
+                   class="rr-menu-filter-summary"></p>
 
-            <div id="menuFilterEmpty"
-                 class="rr-menu-filter-empty"
-                 hidden>
-                <strong>No matching menu items.</strong>
-                <span>Try another search or clear the filters.</span>
-                <button type="button"
-                        id="menuFilterClear">
-                    Clear filters
-                </button>
-            </div>
+                <div id="menuFilterEmpty"
+                     class="rr-menu-filter-empty"
+                     hidden>
+                    <strong>No matching menu items.</strong>
+                    <span>Try another search or clear the filters.</span>
+                    <button type="button"
+                            id="menuFilterClear">
+                        Clear filters
+                    </button>
+                </div>
+            }
         </section>
 
         @if (!menuGroups.Any())

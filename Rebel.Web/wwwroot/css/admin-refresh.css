@@ -1680,6 +1680,34 @@ textarea.form-control,
     padding: 0 11px;
 }
 
+.admin-event-row {
+    grid-template-columns: minmax(250px, 1.6fr) minmax(145px, 0.75fr) auto minmax(260px, auto);
+}
+
+.admin-event-row .admin-row-actions {
+    gap: 8px;
+}
+
+.admin-event-row .admin-row-actions .admin-primary-button,
+.admin-event-row .admin-row-actions .admin-secondary-button {
+    min-height: 40px;
+    padding: 0 14px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+}
+
+.admin-event-row .event-archive-action {
+    color: #ffaaa2;
+    border-color: rgba(207, 41, 53, 0.42);
+    background: rgba(207, 41, 53, 0.06);
+}
+
+.admin-event-row .event-archive-action:hover {
+    color: #ffd3cf;
+    border-color: rgba(240, 74, 36, 0.68);
+    background: rgba(207, 41, 53, 0.14);
+}
+
 .reservation-list-open-action {
     white-space: nowrap;
 }
@@ -2074,6 +2102,29 @@ textarea.form-control,
     border: 1px solid var(--admin-line);
     border-radius: var(--admin-radius);
     background: rgba(255, 255, 255, 0.025);
+}
+
+.admin-editor-switch {
+    display: flex;
+    min-height: 54px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.admin-editor-switch .form-check-input {
+    order: 2;
+    width: 44px;
+    height: 24px;
+    margin: 0;
+    flex: 0 0 44px;
+    float: none;
+}
+
+.admin-editor-switch .form-check-label {
+    order: 1;
+    margin: 0;
+    line-height: 1.35;
 }
 
 .form-check-input {

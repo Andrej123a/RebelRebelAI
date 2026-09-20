@@ -6,6 +6,7 @@ using Rebel.Domain.Entities;
 using Rebel.Domain.Enums;
 using Rebel.Infrastructure.Data;
 using Rebel.Web.Authorization;
+using Rebel.Web.Services;
 
 namespace Rebel.Web.Controllers
 {
@@ -13,10 +14,14 @@ namespace Rebel.Web.Controllers
     public class AdminEventsController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IEventImageStorage _eventImageStorage;
 
-        public AdminEventsController(AppDbContext context)
+        public AdminEventsController(
+            AppDbContext context,
+            IEventImageStorage eventImageStorage)
         {
             _context = context;
+            _eventImageStorage = eventImageStorage;
         }
 
         // INDEX
@@ -131,7 +136,10 @@ namespace Rebel.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = AdminPolicies.ManagerOnly)]
-        public async Task<IActionResult> Create(Event model)
+        public async Task<IActionResult> Create(
+            Event model,
+            IFormFile? imageFile,
+            CancellationToken cancellationToken)
         {
             ValidateEventTimes(model);
 
@@ -148,13 +156,35 @@ namespace Rebel.Web.Controllers
                 ? null
                 : model.ImageUrl.Trim();
 
+            if (imageFile is { Length: > 0 })
+            {
+                try
+                {
+                    model.ImageUrl = await _eventImageStorage.SaveAsync(
+                        imageFile,
+                        cancellationToken);
+                }
+                catch (InvalidDataException exception)
+                {
+                    ModelState.AddModelError("imageFile", exception.Message);
+                    return View(model);
+                }
+                catch (IOException)
+                {
+                    ModelState.AddModelError(
+                        "imageFile",
+                        "The poster could not be saved. Please try again.");
+                    return View(model);
+                }
+            }
+
             model.Date = DateTime.SpecifyKind(
                 model.Date.Date,
                 DateTimeKind.Utc
             );
 
             _context.Events.Add(model);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             TempData["SuccessMessage"] =
                 $"{model.Title} was added to the gig calendar.";
@@ -183,7 +213,11 @@ namespace Rebel.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = AdminPolicies.ManagerOnly)]
-        public async Task<IActionResult> Edit(Guid id, Event model)
+        public async Task<IActionResult> Edit(
+            Guid id,
+            Event model,
+            IFormFile? imageFile,
+            CancellationToken cancellationToken)
         {
             if (id != model.Id)
             {
@@ -222,7 +256,29 @@ namespace Rebel.Web.Controllers
                 ? null
                 : model.ImageUrl.Trim();
 
-            await _context.SaveChangesAsync();
+            if (imageFile is { Length: > 0 })
+            {
+                try
+                {
+                    existingEvent.ImageUrl = await _eventImageStorage.SaveAsync(
+                        imageFile,
+                        cancellationToken);
+                }
+                catch (InvalidDataException exception)
+                {
+                    ModelState.AddModelError("imageFile", exception.Message);
+                    return View(model);
+                }
+                catch (IOException)
+                {
+                    ModelState.AddModelError(
+                        "imageFile",
+                        "The poster could not be saved. Please try again.");
+                    return View(model);
+                }
+            }
+
+            await _context.SaveChangesAsync(cancellationToken);
 
             TempData["SuccessMessage"] =
                 $"{existingEvent.Title} was updated.";

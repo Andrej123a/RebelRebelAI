@@ -1,543 +1,363 @@
-﻿@model Rebel.Domain.Entities.Event
+@model Rebel.Domain.Entities.Event
+@using System.Globalization
 
 @{
     ViewData["Title"] = Model.Title;
-
     var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje");
-
     var eventUtcDate = Model.Date.Kind == DateTimeKind.Utc
         ? Model.Date
         : DateTime.SpecifyKind(Model.Date, DateTimeKind.Utc);
-
-    var localEventDate = TimeZoneInfo
-        .ConvertTimeFromUtc(eventUtcDate, timeZone)
-        .Date;
+    var localEventDate = TimeZoneInfo.ConvertTimeFromUtc(eventUtcDate, timeZone).Date;
+    var startTime = Model.StartTime.HasValue ? Model.StartTime.Value.ToString(@"hh\:mm") : "TBA";
+    var endTime = Model.EndTime.HasValue ? Model.EndTime.Value.ToString(@"hh\:mm") : "LATE";
 }
 
-@functions {
-    public DateTime GetSkopjeDate(DateTime date)
-    {
-        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje");
+<section class="event-detail-page">
+    <span class="page-scratch page-scratch-one" aria-hidden="true"></span>
+    <span class="page-scratch page-scratch-two" aria-hidden="true"></span>
 
-        var utcDate = date.Kind == DateTimeKind.Utc
-            ? date
-            : DateTime.SpecifyKind(date, DateTimeKind.Utc);
+    <div class="container event-detail-shell">
+        <a asp-controller="Events" asp-action="Index" class="event-back-link">
+            <span>&larr;</span> All events
+        </a>
 
-        return TimeZoneInfo
-            .ConvertTimeFromUtc(utcDate, timeZone)
-            .Date;
-    }
+        <article class="event-flyer">
+            <span class="flyer-tape flyer-tape-one" aria-hidden="true"></span>
+            <span class="flyer-tape flyer-tape-two" aria-hidden="true"></span>
 
-    public string FormatEventDate(DateTime date)
-    {
-        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje");
+            <header class="flyer-header">
+                <div class="flyer-brand">
+                    <span>REBEL</span><span>REBEL</span><small>BY FAT KITCHEN</small>
+                </div>
 
-        var today = TimeZoneInfo
-            .ConvertTimeFromUtc(DateTime.UtcNow, timeZone)
-            .Date;
+                <div class="flyer-heading">
+                    <span class="flyer-kicker">REBEL REBEL PRESENTS</span>
+                    <h1>@Model.Title</h1>
+                    <span class="flyer-title-swipe" aria-hidden="true"></span>
+                </div>
 
-        var eventDate = GetSkopjeDate(date);
+                <span class="flyer-issue">NO. @localEventDate.ToString("dd")</span>
+            </header>
 
-        if (eventDate == today)
-            return "Tonight";
+            <div class="flyer-body">
+                <div class="flyer-visual">
+                    @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" alt="@Model.Title" />
+                    }
+                    else
+                    {
+                        <div class="flyer-placeholder">
+                            <span>NO POSTER.</span>
+                            <strong>STILL A GOOD NIGHT.</strong>
+                        </div>
+                    }
 
-        if (eventDate == today.AddDays(1))
-            return "Tomorrow";
+                    <span class="visual-crown" aria-hidden="true">M</span>
+                    <span class="visual-arrow" aria-hidden="true">&darr;</span>
+                    <div class="flyer-date">
+                        <strong>@localEventDate.ToString("dd")</strong>
+                        <span>/@localEventDate.ToString("MM")</span>
+                    </div>
+                </div>
 
-        if (eventDate > today && eventDate <= today.AddDays(7))
-            return $"This {eventDate:dddd}";
+                <div class="flyer-copy">
+                    <span class="copy-label">WANTED AFTER @startTime</span>
 
-        return eventDate.ToString("dd MMM yyyy");
-    }
+                    <p class="flyer-description">
+                        @(string.IsNullOrWhiteSpace(Model.Description)
+                            ? "One more reason to cancel your quiet night at home."
+                            : Model.Description)
+                    </p>
 
-}
+                    <div class="flyer-callout">
+                        <span>ONE NIGHT.</span>
+                        <strong>ZERO GOOD EXCUSES.</strong>
+                    </div>
+
+                    <a asp-controller="Reservations"
+                       asp-action="Create"
+                       asp-route-eventId="@Model.Id"
+                       class="event-reserve-button">
+                        Claim your table <span>&rarr;</span>
+                    </a>
+
+                    <div class="flyer-stamp" aria-hidden="true">GUILTY OF<br />GOOD TIMES</div>
+                </div>
+            </div>
+
+            <footer class="flyer-register">
+                <div class="register-cell">
+                    <span>DAY:</span>
+                    <strong>@localEventDate.ToString("dddd", CultureInfo.InvariantCulture)</strong>
+                </div>
+                <div class="register-cell">
+                    <span>DATE:</span>
+                    <strong>@localEventDate.ToString("dd.MM.yyyy")</strong>
+                </div>
+                <div class="register-cell">
+                    <span>START:</span>
+                    <strong>@startTime</strong>
+                </div>
+                <div class="register-cell">
+                    <span>UNTIL:</span>
+                    <strong>@endTime</strong>
+                </div>
+            </footer>
+        </article>
+    </div>
+</section>
 
 <style>
-    .rebel-event-page {
+    .event-detail-page {
+        --flyer-red: #d71927;
+        --flyer-black: #11100e;
+        --flyer-paper: #eee9df;
         position: relative;
         min-height: calc(100vh - 80px);
-        padding: 55px 0 85px;
-        background: radial-gradient(circle at 15% 20%, rgba(255, 190, 0, 0.10), transparent 30%), radial-gradient(circle at 90% 85%, rgba(185, 20, 30, 0.13), transparent 32%), #080808;
-        color: #ffffff;
+        padding: 36px 0 82px;
         overflow: hidden;
+        color: var(--flyer-black);
+        background: radial-gradient(circle at 9% 22%, rgba(215,25,39,.16), transparent 26%), radial-gradient(circle at 90% 78%, rgba(215,25,39,.11), transparent 28%), #080808;
     }
 
-        .rebel-event-page::before {
-            content: "REBEL";
-            position: absolute;
-            top: 50%;
-            left: -45px;
-            transform: translateY(-50%) rotate(-90deg);
-            font-size: clamp(90px, 14vw, 190px);
-            font-weight: 900;
-            letter-spacing: 18px;
-            color: rgba(255, 255, 255, 0.025);
-            pointer-events: none;
-            white-space: nowrap;
-        }
+    .event-detail-page::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: .18;
+        pointer-events: none;
+        background: repeating-linear-gradient(7deg, transparent 0 43px, rgba(255,255,255,.035) 44px 45px), repeating-linear-gradient(91deg, transparent 0 6px, rgba(255,255,255,.015) 7px);
+    }
+
+    .event-detail-shell { position: relative; z-index: 2; max-width: 1240px; }
 
     .event-back-link {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 24px;
-        color: #a7a7a7;
-        font-size: 0.82rem;
-        font-weight: 800;
-        letter-spacing: 1.8px;
+        margin: 0 0 20px 8px;
+        padding: 8px 13px 7px;
+        color: var(--flyer-black);
+        background: var(--flyer-paper);
+        border: 2px solid var(--flyer-black);
+        box-shadow: 5px 5px 0 var(--flyer-red);
+        font-size: .72rem;
+        font-weight: 950;
+        letter-spacing: 1.7px;
         text-decoration: none;
         text-transform: uppercase;
-        transition: 0.25s ease;
+        transform: rotate(-1.5deg);
+        transition: .2s ease;
     }
 
-        .event-back-link span {
-            font-size: 1.1rem;
-            transition: transform 0.25s ease;
-        }
+    .event-back-link:hover { color: #fff; background: var(--flyer-red); transform: rotate(1deg) translate(-2px,-2px); }
 
-        .event-back-link:hover {
-            color: #ffc107;
-        }
-
-            .event-back-link:hover span {
-                transform: translateX(-5px);
-            }
-
-    .event-poster {
+    .event-flyer {
         position: relative;
-        display: grid;
-        grid-template-columns: minmax(0, 1.08fr) minmax(380px, 0.92fr);
-        min-height: 650px;
-        background: #111111;
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        box-shadow: 0 35px 90px rgba(0, 0, 0, 0.55);
-        overflow: hidden;
+        padding: clamp(25px, 3.4vw, 48px);
+        background: radial-gradient(circle at 18% 13%, rgba(0,0,0,.045) 0 1px, transparent 2px), radial-gradient(circle at 73% 72%, rgba(0,0,0,.035) 0 1px, transparent 2px), linear-gradient(92deg, rgba(255,255,255,.34), transparent 30%, rgba(0,0,0,.025)), var(--flyer-paper);
+        background-size: 7px 7px, 11px 11px, auto, auto;
+        border: 1px solid rgba(255,255,255,.35);
+        box-shadow: 0 38px 100px rgba(0,0,0,.72), 14px 14px 0 rgba(215,25,39,.8);
+        clip-path: polygon(.4% .8%,18% 0,37% .6%,58% .15%,78% .7%,99.5% .2%,100% 22%,99.4% 45%,100% 68%,99.2% 99%,77% 99.5%,55% 99%,34% 99.7%,.5% 99%,0 72%,.5% 48%,0 23%);
+        animation: flyerArrives .65s cubic-bezier(.2,.8,.2,1) both;
     }
 
-    .event-visual {
-        position: relative;
-        min-height: 650px;
-        background: #171717;
-        overflow: hidden;
-    }
-
-        .event-visual img {
-            width: 100%;
-            height: 100%;
-            min-height: 650px;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.8s ease;
-        }
-
-    .event-poster:hover .event-visual img {
-        transform: scale(1.035);
-    }
-
-    .event-visual::before {
+    .event-flyer::after {
         content: "";
         position: absolute;
         inset: 0;
-        z-index: 1;
-        background: linear-gradient(to top, rgba(0, 0, 0, 0.90) 0%, transparent 48%), linear-gradient(to right, transparent 65%, rgba(17, 17, 17, 0.55) 100%);
+        opacity: .14;
+        pointer-events: none;
+        mix-blend-mode: multiply;
+        background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,.08) 4px);
+    }
+
+    .flyer-tape {
+        position: absolute;
+        z-index: 8;
+        width: 125px;
+        height: 31px;
+        background: rgba(211,201,179,.82);
+        box-shadow: 0 3px 9px rgba(0,0,0,.2);
+        clip-path: polygon(2% 5%,100% 0,96% 93%,0 100%);
         pointer-events: none;
     }
 
-    .event-visual::after {
-        content: "";
-        position: absolute;
-        inset: 0;
+    .flyer-tape-one { top: -9px; left: 11%; transform: rotate(-5deg); }
+    .flyer-tape-two { right: 7%; bottom: -8px; transform: rotate(4deg); }
+
+    .flyer-header {
+        position: relative;
         z-index: 2;
-        opacity: 0.18;
-        pointer-events: none;
-        background-image: repeating-linear-gradient( 0deg, transparent, transparent 3px, rgba(255,255,255,0.04) 4px );
+        display: grid;
+        grid-template-columns: 145px minmax(0,1fr) 74px;
+        align-items: start;
+        gap: clamp(18px,3vw,42px);
+        margin-bottom: 25px;
     }
 
-    .event-placeholder {
-        width: 100%;
-        height: 100%;
-        min-height: 650px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: radial-gradient(circle at center, #292929, #111111 65%);
-        color: #666666;
-        font-size: 1rem;
-        font-weight: 800;
-        letter-spacing: 4px;
-        text-transform: uppercase;
-    }
-
-    .event-date-stamp {
-        position: absolute;
-        z-index: 4;
-        left: 32px;
-        bottom: 30px;
-        display: flex;
-        align-items: flex-end;
-        gap: 16px;
-    }
-
-    .event-day {
-        font-size: clamp(4.8rem, 9vw, 8rem);
-        line-height: 0.78;
-        font-weight: 950;
-        letter-spacing: -7px;
-        color: #ffffff;
-        text-shadow: 0 10px 25px rgba(0, 0, 0, 0.65);
-    }
-
-    .event-month-year {
-        padding-bottom: 4px;
-        font-size: 0.85rem;
-        line-height: 1.5;
-        font-weight: 900;
-        letter-spacing: 2.5px;
-        color: #ffc107;
-        text-transform: uppercase;
-    }
-
-    .event-content {
-        position: relative;
+    .flyer-brand {
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        padding: 65px 55px;
-        background: linear-gradient(145deg, rgba(255,255,255,0.025), transparent 38%), #111111;
-    }
-
-        .event-content::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-            background: linear-gradient(to bottom, #ffc107, #b50d19);
-        }
-
-    .event-eyebrow {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 20px;
-        color: #ffc107;
-        font-size: 0.73rem;
-        font-weight: 900;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-    }
-
-        .event-eyebrow::before {
-            content: "";
-            width: 35px;
-            height: 2px;
-            background: #ffc107;
-        }
-
-    .event-title {
-        margin: 0 0 24px;
-        font-size: clamp(2.7rem, 5vw, 5.6rem);
-        line-height: 0.93;
+        align-items: flex-start;
+        color: var(--flyer-red);
+        font-family: "Arial Black", Impact, sans-serif;
+        font-size: 1.6rem;
+        font-style: italic;
         font-weight: 950;
+        line-height: .72;
+        letter-spacing: -2px;
+        transform: rotate(-8deg);
+    }
+
+    .flyer-brand span:nth-child(2) { margin-left: 13px; }
+    .flyer-brand small { margin: 8px 0 0 10px; font-family: "Segoe Print", cursive; font-size: .5rem; letter-spacing: 0; }
+    .flyer-heading { position: relative; padding-right: 18px; }
+    .flyer-kicker { display: block; margin-bottom: 7px; font-size: .62rem; font-weight: 950; letter-spacing: 3px; }
+
+    .flyer-heading h1 {
+        position: relative;
+        z-index: 2;
+        max-width: 900px;
+        margin: 0;
+        color: var(--flyer-red);
+        font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+        font-size: clamp(4.8rem,10vw,9.5rem);
+        font-weight: 950;
+        line-height: .78;
         letter-spacing: -3px;
         text-transform: uppercase;
         overflow-wrap: anywhere;
+        transform: scaleX(.93);
+        transform-origin: left center;
     }
 
-        .event-title span {
-            position: relative;
-            z-index: 1;
-        }
-
-    .event-description {
-        max-width: 600px;
-        margin-bottom: 34px;
-        color: #b8b8b8;
-        font-size: 1.02rem;
-        line-height: 1.8;
-        white-space: pre-line;
+    .flyer-title-swipe {
+        position: absolute;
+        z-index: 1;
+        left: 8%;
+        bottom: -12px;
+        width: 67%;
+        height: 13px;
+        border-top: 5px solid var(--flyer-red);
+        border-bottom: 3px solid var(--flyer-red);
+        border-radius: 50%;
+        transform: rotate(-3deg);
     }
 
-    .event-info-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        margin-bottom: 36px;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    }
+    .flyer-issue { justify-self: end; padding-top: 6px; color: var(--flyer-red); font-family: "Courier New",monospace; font-size: .7rem; font-weight: 900; letter-spacing: 1px; writing-mode: vertical-rl; }
 
-    .event-info-item {
-        padding: 19px 16px 19px 0;
-    }
-
-        .event-info-item:not(:last-child) {
-            border-right: 1px solid rgba(255, 255, 255, 0.12);
-            margin-right: 18px;
-        }
-
-    .event-info-label {
-        display: block;
-        margin-bottom: 6px;
-        color: #777777;
-        font-size: 0.64rem;
-        font-weight: 900;
-        letter-spacing: 1.8px;
-        text-transform: uppercase;
-    }
-
-    .event-info-value {
-        display: block;
-        color: #ffffff;
-        font-size: 0.92rem;
-        font-weight: 800;
-    }
-
-    .event-actions {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 25px;
-    }
-
-    .event-button {
+    .flyer-body {
         position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        min-width: 205px;
-        padding: 16px 24px;
-        background: #ffc107;
-        color: #111111;
-        border: 2px solid #ffc107;
-        font-size: 0.78rem;
-        font-weight: 950;
-        letter-spacing: 1.5px;
-        text-decoration: none;
-        text-transform: uppercase;
-        transition: 0.25s ease;
-        box-shadow: 7px 7px 0 #5d0b12;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: minmax(0,1.22fr) minmax(320px,.78fr);
+        gap: clamp(24px,4vw,58px);
+        align-items: stretch;
     }
 
-        .event-button:hover {
-            color: #ffffff;
-            background: #b50d19;
-            border-color: #b50d19;
-            transform: translate(-3px, -3px);
-            box-shadow: 10px 10px 0 #ffc107;
-        }
-
-    .event-tagline {
-        margin: 0;
-        color: #777777;
-        font-size: 0.72rem;
-        font-weight: 800;
-        letter-spacing: 1.3px;
-        text-transform: uppercase;
-        text-align: right;
+    .flyer-visual {
+        position: relative;
+        min-height: 460px;
+        overflow: hidden;
+        background: #d8d2c7;
+        border: 2px solid var(--flyer-black);
+        box-shadow: 9px 9px 0 var(--flyer-red);
+        transform: rotate(-.6deg);
     }
 
-        .event-tagline strong {
-            display: block;
-            color: #ffffff;
-            font-size: 0.86rem;
-        }
+    .flyer-visual::after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(to top,rgba(0,0,0,.64),transparent 47%),repeating-linear-gradient(0deg,transparent 0 4px,rgba(255,255,255,.045) 5px); }
+    .flyer-visual img { width:100%; height:100%; min-height:460px; object-fit:cover; display:block; filter:saturate(.72) contrast(1.16); transition:.6s ease; }
+    .event-flyer:hover .flyer-visual img { transform:scale(1.025); filter:saturate(.9) contrast(1.12); }
+
+    .flyer-placeholder { min-height:460px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; background:repeating-linear-gradient(90deg,#ddd7cc 0 18px,#d4cec3 19px 20px); }
+    .flyer-placeholder span { font-size:.7rem; font-weight:950; letter-spacing:3px; }
+    .flyer-placeholder strong { font-family:Impact,sans-serif; font-size:2.6rem; line-height:.9; text-align:center; }
+
+    .visual-crown { position:absolute; z-index:4; top:15px; right:21px; color:var(--flyer-red); font-family:"Segoe Print",cursive; font-size:3rem; font-weight:900; transform:rotate(13deg); }
+    .visual-arrow { position:absolute; z-index:4; right:32%; bottom:66px; color:var(--flyer-red); font-family:"Segoe Print",cursive; font-size:4.7rem; line-height:1; transform:rotate(-25deg); }
+
+    .flyer-date { position:absolute; z-index:5; left:22px; bottom:18px; display:flex; align-items:flex-end; color:#fff; text-shadow:4px 4px 0 var(--flyer-black); }
+    .flyer-date strong { font-family:Impact,sans-serif; font-size:clamp(5.8rem,10vw,9rem); line-height:.73; letter-spacing:-3px; }
+    .flyer-date span { color:var(--flyer-red); font-family:Impact,sans-serif; font-size:clamp(2.8rem,5vw,4.8rem); line-height:.8; }
+
+    .flyer-copy { position:relative; display:flex; flex-direction:column; justify-content:center; padding:30px 8px 30px 0; }
+    .copy-label { align-self:flex-start; margin-bottom:25px; padding:4px 18px 6px; border:4px solid var(--flyer-red); border-radius:50%; font-family:"Courier New",monospace; font-size:.8rem; font-weight:950; letter-spacing:1px; transform:rotate(-3deg); }
+    .flyer-description { margin:0 0 28px; font-family:"Courier New",monospace; font-size:clamp(1rem,1.45vw,1.25rem); font-weight:700; line-height:1.55; white-space:pre-line; }
+
+    .flyer-callout { display:flex; flex-direction:column; align-items:flex-start; margin-bottom:28px; transform:rotate(-1.5deg); }
+    .flyer-callout span { font-family:"Courier New",monospace; font-size:.72rem; font-weight:950; letter-spacing:2px; }
+    .flyer-callout strong { color:var(--flyer-red); font-family:Impact,sans-serif; font-size:clamp(2rem,3.2vw,3.2rem); line-height:.92; letter-spacing:.5px; }
+
+    .event-reserve-button {
+        align-self:flex-start;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:17px;
+        min-width:235px;
+        padding:15px 21px;
+        color:#fff;
+        background:var(--flyer-red);
+        border:3px solid var(--flyer-red);
+        box-shadow:7px 7px 0 var(--flyer-black);
+        font-size:.76rem;
+        font-weight:950;
+        letter-spacing:1.7px;
+        text-decoration:none;
+        text-transform:uppercase;
+        transform:rotate(1.5deg);
+        transition:.2s ease;
+    }
+
+    .event-reserve-button:hover { color:var(--flyer-red); background:transparent; transform:rotate(-1deg) translate(-3px,-3px); box-shadow:10px 10px 0 var(--flyer-black); }
+
+    .flyer-stamp { position:absolute; right:-12px; bottom:6px; padding:9px 12px; color:var(--flyer-red); border:4px solid var(--flyer-red); font-family:Impact,sans-serif; font-size:1.15rem; line-height:.92; text-align:center; transform:rotate(-8deg); opacity:.9; }
+
+    .flyer-register { position:relative; z-index:3; display:grid; grid-template-columns:1.15fr 1.25fr .9fr .9fr; margin-top:28px; border:2px solid var(--flyer-red); transform:rotate(.25deg); }
+    .register-cell { min-height:68px; padding:8px 12px 9px; }
+    .register-cell:not(:last-child) { border-right:2px solid var(--flyer-red); }
+    .register-cell span { display:block; margin-bottom:3px; font-family:"Arial Narrow",sans-serif; font-size:.58rem; font-weight:950; letter-spacing:1px; }
+    .register-cell strong { display:block; font-family:"Segoe Print","Comic Sans MS",cursive; font-size:clamp(1rem,1.7vw,1.45rem); font-weight:700; line-height:1.15; }
+
+    .page-scratch { position:absolute; z-index:1; width:190px; height:12px; border-top:4px solid #d71927; border-bottom:2px solid #d71927; opacity:.8; pointer-events:none; }
+    .page-scratch-one { top:18%; left:-45px; transform:rotate(-9deg); }
+    .page-scratch-two { right:-40px; bottom:14%; transform:rotate(8deg); }
+
+    @@keyframes flyerArrives {
+        from { opacity:0; transform:translateY(24px) rotate(-.8deg); }
+        to { opacity:1; transform:translateY(0) rotate(0); }
+    }
 
     @@media (max-width: 991.98px) {
-        .rebel-event-page {
-            padding-top: 35px;
-        }
-
-        .event-poster {
-            grid-template-columns: 1fr;
-        }
-
-        .event-visual,
-        .event-visual img,
-        .event-placeholder {
-            min-height: 540px;
-        }
-
-        .event-content {
-            padding: 55px 40px;
-        }
-
-            .event-content::before {
-                width: 100%;
-                height: 5px;
-                background: linear-gradient(to right, #ffc107, #b50d19);
-            }
-
-        .event-visual::before {
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent 55%);
-        }
+        .flyer-header { grid-template-columns:105px minmax(0,1fr); }
+        .flyer-issue { display:none; }
+        .flyer-heading h1 { font-size:clamp(4rem,12vw,7.2rem); }
+        .flyer-body { grid-template-columns:1fr; }
+        .flyer-visual,.flyer-visual img,.flyer-placeholder { min-height:540px; }
+        .flyer-copy { padding:18px 4px 24px; }
+        .flyer-stamp { right:5px; }
     }
 
     @@media (max-width: 575.98px) {
-        .rebel-event-page {
-            padding: 25px 0 55px;
-        }
+        .event-detail-page { padding:24px 0 55px; }
+        .event-flyer { padding:25px 17px 23px; box-shadow:0 28px 70px rgba(0,0,0,.7),7px 8px 0 rgba(215,25,39,.85); }
+        .flyer-header { grid-template-columns:1fr; gap:16px; }
+        .flyer-brand { font-size:1.25rem; }
+        .flyer-heading h1 { font-size:clamp(3.7rem,19vw,6rem); letter-spacing:-2px; }
+        .flyer-visual,.flyer-visual img,.flyer-placeholder { min-height:410px; }
+        .flyer-date strong { font-size:5.4rem; }
+        .flyer-date span { font-size:2.8rem; }
+        .flyer-stamp { position:relative; right:auto; bottom:auto; align-self:flex-end; margin:27px 5px 0 0; }
+        .flyer-register { grid-template-columns:1fr 1fr; }
+        .register-cell:nth-child(2) { border-right:0; }
+        .register-cell:nth-child(-n+2) { border-bottom:2px solid var(--flyer-red); }
+        .event-reserve-button { width:100%; }
+    }
 
-        .event-visual,
-        .event-visual img,
-        .event-placeholder {
-            min-height: 420px;
-        }
-
-        .event-date-stamp {
-            left: 20px;
-            bottom: 22px;
-        }
-
-        .event-day {
-            font-size: 5.1rem;
-        }
-
-        .event-content {
-            padding: 42px 24px 48px;
-        }
-
-        .event-title {
-            font-size: 2.65rem;
-            letter-spacing: -2px;
-        }
-
-        .event-description {
-            font-size: 0.95rem;
-        }
-
-        .event-info-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .event-info-item {
-            padding: 15px 0;
-        }
-
-            .event-info-item:not(:last-child) {
-                border-right: 0;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-                margin-right: 0;
-            }
-
-        .event-actions {
-            align-items: stretch;
-            flex-direction: column;
-        }
-
-        .event-button {
-            width: 100%;
-        }
-
-        .event-tagline {
-            text-align: center;
-        }
+    @@media (prefers-reduced-motion: reduce) {
+        .event-flyer { animation:none; }
     }
 </style>
-
-<section class="rebel-event-page">
-    <div class="container">
-
-        <a asp-controller="Events"
-           asp-action="Index"
-           class="event-back-link">
-            <span>&larr;</span>
-            All Events
-        </a>
-
-        <article class="event-poster">
-
-            <div class="event-visual">
-
-                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
-                {
-                    <img src="@Model.ImageUrl"
-                         alt="@Model.Title" />
-                }
-                else
-                {
-                    <div class="event-placeholder">Rebel Rebel by Fat Kitchen</div>
-                }
-
-                <div class="event-date-stamp">
-                    <div class="event-day">
-                        @localEventDate.ToString("dd")
-                    </div>
-
-                    <div class="event-month-year">
-                        @localEventDate.ToString("MMM")<br />
-                        @localEventDate.ToString("yyyy")
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="event-content">
-
-                <div class="event-eyebrow">
-                    Rebel Rebel by Fat Kitchen Presents
-                </div>
-
-                <h1 class="event-title">
-                    <span>@Model.Title</span>
-                </h1>
-
-                @if (!string.IsNullOrWhiteSpace(Model.Description))
-                {
-                    <div class="event-description">
-                        @Model.Description
-                    </div>
-                }
-
-                <div class="event-info-grid">
-
-                    <div class="event-info-item">
-                        <span class="event-info-label">When</span>
-                        <span class="event-info-value">
-                            @FormatEventDate(Model.Date)
-                        </span>
-                    </div>
-
-                    <div class="event-info-item">
-                        <span class="event-info-label">Starts at</span>
-                        <span class="event-info-value">
-                            @(Model.StartTime.HasValue
-                                                        ? Model.StartTime.Value.ToString(@"hh\:mm")
-                                                        : "TBA")
-                        </span>
-                    </div>
-
-                    <div class="event-info-item">
-                        <span class="event-info-label">Until</span>
-                        <span class="event-info-value">
-                            @(Model.EndTime.HasValue
-                                                        ? Model.EndTime.Value.ToString(@"hh\:mm")
-                                                        : "Late")
-                        </span>
-                    </div>
-
-                </div>
-
-                <div class="event-actions">
-
-                    <a asp-controller="Events"
-                       asp-action="Index"
-                       class="event-button">
-                        <span>&larr;</span>
-                        Back to Events
-                    </a>
-
-                    <p class="event-tagline">
-                        No boring nights
-                        <strong>See you at the bar.</strong>
-                    </p>
-
-                </div>
-
-            </div>
-
-        </article>
-
-    </div>
-</section>
