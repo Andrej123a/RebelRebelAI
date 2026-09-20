@@ -57,8 +57,7 @@ namespace Rebel.Web.Controllers
         public async Task<IActionResult> Index(
             CancellationToken cancellationToken)
         {
-            await EnsureFloorFixturesSchemaAsync(cancellationToken);
-            await EnsureFloorRoomsAsync(cancellationToken);
+            await EnsureDefaultFloorRoomsAsync(cancellationToken);
 
             var nowInSkopje = TimeZoneInfo.ConvertTimeFromUtc(
                 DateTime.UtcNow,
@@ -237,13 +236,7 @@ namespace Rebel.Web.Controllers
             [FromBody] AdminFloorLayoutSaveRequest request,
             CancellationToken cancellationToken)
         {
-            await EnsureFloorFixturesSchemaAsync(cancellationToken);
-            await EnsureFloorRoomsAsync(cancellationToken);
-
-            if (request.Tables.Count == 0)
-            {
-                return BadRequest(new { message = "No tables were sent." });
-            }
+            await EnsureDefaultFloorRoomsAsync(cancellationToken);
 
             var incomingLabels = request.Tables
                 .Select(table => NormalizeLabel(table.Label))
@@ -269,6 +262,42 @@ namespace Rebel.Web.Controllers
                     table => table.Label,
                     table => table.Id,
                     StringComparer.OrdinalIgnoreCase);
+
+            if (request.RemovedTableIds.Count > 0)
+            {
+                var tablesToRemove = existingTables.Values
+                    .Where(table => request.RemovedTableIds.Contains(table.Id))
+                    .ToList();
+                var labelsToRemove = tablesToRemove
+                    .Select(table => table.Label)
+                    .ToList();
+                var today = TimeZoneInfo.ConvertTimeFromUtc(
+                    DateTime.UtcNow,
+                    SkopjeTimeZone).Date;
+                var assignedTable = await _context.Reservations
+                    .AsNoTracking()
+                    .Where(reservation =>
+                        reservation.TableLabel != null &&
+                        labelsToRemove.Contains(reservation.TableLabel) &&
+                        reservation.ReservationDate >= today &&
+                        (reservation.Status == ReservationStatus.Approved ||
+                         reservation.Status == ReservationStatus.Arrived))
+                    .Select(reservation => reservation.TableLabel)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (!string.IsNullOrWhiteSpace(assignedTable))
+                {
+                    return BadRequest(new
+                    {
+                        message = $"{assignedTable} has an active reservation. Release or reassign it first."
+                    });
+                }
+
+                foreach (var table in tablesToRemove)
+                {
+                    table.IsActive = false;
+                }
+            }
 
             foreach (var roomRequest in request.Rooms)
             {
@@ -513,42 +542,6 @@ namespace Rebel.Web.Controllers
             });
         }
 
-        private async Task EnsureFloorFixturesSchemaAsync(
-            CancellationToken cancellationToken)
-        {
-            await _context.Database.ExecuteSqlRawAsync(
-                """
-                CREATE TABLE IF NOT EXISTS "FloorFixtures" (
-                    "Id" uuid NOT NULL,
-                    "FloorRoomId" uuid NULL,
-                    "Kind" character varying(24) NOT NULL,
-                    "Label" character varying(40) NOT NULL,
-                    "PositionX" integer NOT NULL,
-                    "PositionY" integer NOT NULL,
-                    "Width" integer NOT NULL,
-                    "Height" integer NOT NULL,
-                    "Rotation" integer NOT NULL,
-                    CONSTRAINT "PK_FloorFixtures" PRIMARY KEY ("Id")
-                );
-
-                ALTER TABLE "FloorFixtures"
-                ADD COLUMN IF NOT EXISTS "FloorRoomId" uuid NULL;
-
-                ALTER TABLE "FloorRooms"
-                ADD COLUMN IF NOT EXISTS "Rotation" integer NOT NULL DEFAULT 0;
-
-                UPDATE "FloorFixtures"
-                SET "FloorRoomId" = (
-                    SELECT "Id" FROM "FloorRooms"
-                    WHERE "IsActive" = TRUE
-                    ORDER BY "PositionY", "PositionX"
-                    LIMIT 1
-                )
-                WHERE "FloorRoomId" IS NULL;
-                """,
-                cancellationToken);
-        }
-
         private static string NormalizeFixtureLabel(string? label, string kind)
         {
             if (!string.IsNullOrWhiteSpace(label))
@@ -566,16 +559,9 @@ namespace Rebel.Web.Controllers
             };
         }
 
-        private async Task EnsureFloorRoomsAsync(
+        private async Task EnsureDefaultFloorRoomsAsync(
             CancellationToken cancellationToken)
         {
-            await _context.Database.ExecuteSqlRawAsync(
-                """
-                ALTER TABLE "FloorRooms"
-                ADD COLUMN IF NOT EXISTS "Rotation" integer NOT NULL DEFAULT 0;
-                """,
-                cancellationToken);
-
             if (await _context.FloorRooms.AnyAsync(cancellationToken))
             {
                 return;

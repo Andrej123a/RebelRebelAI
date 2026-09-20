@@ -8,6 +8,9 @@ using Rebel.Web.Hubs;
 using Rebel.Web.Models;
 using Rebel.Web.Services;
 
+using Microsoft.AspNetCore.RateLimiting;
+using Rebel.Web.Authorization;
+
 namespace Rebel.Web.Controllers
 {
     public class ReservationsController : Controller
@@ -88,6 +91,7 @@ namespace Rebel.Web.Controllers
         // CREATE POST
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting(RateLimitPolicies.ReservationCreate)]
         public async Task<IActionResult> Create(
             ReservationCreateViewModel model)
         {
@@ -270,6 +274,7 @@ namespace Rebel.Web.Controllers
         }
 
         [HttpGet]
+        [EnableRateLimiting(RateLimitPolicies.ReservationLookup)]
         public async Task<IActionResult> Lookup(
             string? reservationCode,
             CancellationToken cancellationToken)
@@ -294,6 +299,7 @@ namespace Rebel.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting(RateLimitPolicies.ReservationLookup)]
         public async Task<IActionResult> Lookup(
             ReservationLookupViewModel model,
             CancellationToken cancellationToken)
@@ -319,6 +325,7 @@ namespace Rebel.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting(RateLimitPolicies.ReservationLookup)]
         public async Task<IActionResult> Cancel(
             Guid id,
             string reservationCode,
@@ -473,8 +480,7 @@ namespace Rebel.Web.Controllers
         {
             for (var attempt = 0; attempt < 10; attempt++)
             {
-                var code =
-                    $"RR-{Guid.NewGuid():N}"[..9].ToUpperInvariant();
+                var code = ReservationCodeGenerator.Create();
 
                 var exists = await _context.Reservations
                     .IgnoreQueryFilters()
@@ -487,7 +493,8 @@ namespace Rebel.Web.Controllers
                 }
             }
 
-            return $"RR-{DateTime.UtcNow:HHmmss}";
+            throw new InvalidOperationException(
+                "Could not generate a unique reservation code.");
         }
 
         private static string AppendInternalNote(

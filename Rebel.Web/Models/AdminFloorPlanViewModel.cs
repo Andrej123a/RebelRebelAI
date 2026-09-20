@@ -47,6 +47,8 @@ namespace Rebel.Web.Models
 
         public List<AdminFloorLayoutFixtureRequest> Fixtures { get; set; } = new();
 
+        public List<Guid> RemovedTableIds { get; set; } = new();
+
         public List<Guid> RemovedFixtureIds { get; set; } = new();
     }
 

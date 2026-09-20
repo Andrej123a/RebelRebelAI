@@ -975,6 +975,7 @@
             let saveRequestId = 0;
             let tableCounter = [...studio.querySelectorAll("[data-floor-table]")].length + 1;
             let fixtureCounter = 0;
+            const removedTableIds = [];
             const removedFixtureIds = [];
             const carouselRooms = [...studio.querySelectorAll("[data-floor-room]")];
             const carouselLabel = studio.querySelector("[data-floor-carousel-label]");
@@ -1329,7 +1330,7 @@
                             "Content-Type": "application/json",
                             "RequestVerificationToken": token
                         },
-                        body: JSON.stringify({ rooms, tables, fixtures, removedFixtureIds })
+                        body: JSON.stringify({ rooms, tables, fixtures, removedTableIds, removedFixtureIds })
                     });
 
                     const result = await response.json().catch(() => ({}));
@@ -1355,6 +1356,7 @@
                                 fixture.dataset.clientId = "";
                             }
                         });
+                        removedTableIds.length = 0;
                         removedFixtureIds.length = 0;
                         setStatus(result.message || message || "Floor layout saved.");
                     }
@@ -1430,6 +1432,9 @@
 
                 if (selected.kind === "table") {
                     const room = selected.element.closest("[data-floor-room]");
+                    if (selected.element.dataset.id) {
+                        removedTableIds.push(selected.element.dataset.id);
+                    }
                     selected.element.remove();
                     applyRoomMeta(room);
                     selectEntity(null);

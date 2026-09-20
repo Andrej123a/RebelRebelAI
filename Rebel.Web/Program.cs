@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Rebel.Infrastructure.Data;
 using Rebel.Web.Services;
 using Rebel.Web.Hubs;
 using Rebel.Web.Authorization;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,17 +18,34 @@ var defaultConnection =
     ?? throw new InvalidOperationException(
         "DefaultConnection is missing from configuration.");
 
-if (builder.Environment.IsProduction() &&
-    defaultConnection.Contains(
-        "CHANGE_ME",
-        StringComparison.OrdinalIgnoreCase))
+if (builder.Environment.IsProduction())
 {
-    throw new InvalidOperationException(
-        "Production database connection string still contains CHANGE_ME.");
+    if (defaultConnection.Contains(
+            "CHANGE_ME",
+            StringComparison.OrdinalIgnoreCase))
+    {
+        throw new InvalidOperationException(
+            "Production database connection string still contains CHANGE_ME.");
+    }
+
+    var allowedHosts = builder.Configuration["AllowedHosts"];
+    if (string.IsNullOrWhiteSpace(allowedHosts) ||
+        allowedHosts.Split(';', StringSplitOptions.TrimEntries)
+            .Contains("*", StringComparer.Ordinal))
+    {
+        throw new InvalidOperationException(
+            "Production AllowedHosts must contain the public host name, not '*'.");
+    }
 }
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
+builder.Services.AddHealthChecks()
+    .AddCheck(
+        "self",
+        () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy(),
+        tags: ["live"])
+    .AddCheck<DatabaseHealthCheck>("database", tags: ["ready"]);
 builder.Services.AddScoped<IBeerRecommendationService, BeerRecommendationService>();
 builder.Services.AddScoped<IBeerGuideNarrator, OpenAiBeerGuideNarrator>();
 builder.Services.AddSingleton<IBeerCatalogMatcher, BeerCatalogMatcher>();
@@ -49,9 +69,35 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
+    options.Lockout.AllowedForNewUsers = true;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.MaxFailedAccessAttempts = 5;
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy(
+        RateLimitPolicies.Login,
+        context => CreateFixedWindowPartition(context, 10, TimeSpan.FromMinutes(10)));
+    options.AddPolicy(
+        RateLimitPolicies.ReservationCreate,
+        context => CreateFixedWindowPartition(context, 4, TimeSpan.FromMinutes(10)));
+    options.AddPolicy(
+        RateLimitPolicies.ReservationLookup,
+        context => CreateFixedWindowPartition(context, 10, TimeSpan.FromMinutes(1)));
+
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.ContentType = "text/plain";
+        await context.HttpContext.Response.WriteAsync(
+            "Too many requests. Please wait and try again.",
+            cancellationToken);
+    };
+});
 
 builder.Services.AddAuthorization(options =>
 {
@@ -112,6 +158,7 @@ if (hideAiFeatures)
 }
 
 app.UseRouting();
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -122,6 +169,18 @@ app.MapControllerRoute(
 );
 
 app.MapRazorPages();
+app.MapHealthChecks(
+    "/health/live",
+    new HealthCheckOptions
+    {
+        Predicate = registration => registration.Tags.Contains("live")
+    }).AllowAnonymous();
+app.MapHealthChecks(
+    "/health/ready",
+    new HealthCheckOptions
+    {
+        Predicate = registration => registration.Tags.Contains("ready")
+    }).AllowAnonymous();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -130,230 +189,16 @@ using (var scope = app.Services.CreateScope())
     var dbContext =
         services.GetRequiredService<AppDbContext>();
 
-    await dbContext.Database.MigrateAsync();
-
-    await dbContext.Database.ExecuteSqlRawAsync(
-        """
-        ALTER TABLE "Reservations"
-        ADD COLUMN IF NOT EXISTS "InternalNote"
-            character varying(500);
-
-        ALTER TABLE "Reservations"
-        ADD COLUMN IF NOT EXISTS "TableLabel"
-            character varying(40);
-
-        ALTER TABLE "Reservations"
-        ADD COLUMN IF NOT EXISTS "ReservationCode"
-            character varying(16) NOT NULL DEFAULT '';
-
-        UPDATE "Reservations"
-        SET "ReservationCode" =
-            'RR-' ||
-            upper(
-                substring(
-                    replace("Id"::text, '-', ''),
-                    1,
-                    6
-                )
-            )
-        WHERE "ReservationCode" = '';
-
-        CREATE UNIQUE INDEX IF NOT EXISTS "IX_Reservations_ReservationCode"
-            ON "Reservations" ("ReservationCode");
-
-        ALTER TABLE "Reservations"
-        ADD COLUMN IF NOT EXISTS "EmailStatus"
-            character varying(30) NOT NULL DEFAULT 'NotSent';
-
-        ALTER TABLE "Reservations"
-        ADD COLUMN IF NOT EXISTS "LastEmailSentAtUtc"
-            timestamp with time zone;
-
-        ALTER TABLE "Reservations"
-        ADD COLUMN IF NOT EXISTS "LastEmailError"
-            character varying(500);
-
-        CREATE TABLE IF NOT EXISTS "ReservationActivities" (
-            "Id" integer GENERATED BY DEFAULT AS IDENTITY,
-            "ReservationId" uuid NOT NULL,
-            "Title" character varying(80) NOT NULL,
-            "Description" character varying(500) NOT NULL,
-            "Actor" character varying(30) NOT NULL,
-            "CreatedAtUtc" timestamp with time zone NOT NULL,
-            CONSTRAINT "PK_ReservationActivities" PRIMARY KEY ("Id"),
-            CONSTRAINT "FK_ReservationActivities_Reservations_ReservationId"
-                FOREIGN KEY ("ReservationId") REFERENCES "Reservations" ("Id")
-                ON DELETE CASCADE
-        );
-
-        CREATE INDEX IF NOT EXISTS "IX_ReservationActivities_ReservationId_CreatedAtUtc"
-            ON "ReservationActivities" ("ReservationId", "CreatedAtUtc");
-
-        ALTER TABLE "Events"
-        ADD COLUMN IF NOT EXISTS "MaxGuests"
-            integer;
-
-        ALTER TABLE "Events"
-        ADD COLUMN IF NOT EXISTS "MaxReservations"
-            integer;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "ContainsNuts"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "IsGlutenFree"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "IsLimited"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "IsPopular"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "IsPromo"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "IsSpicy"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "IsVegan"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "IsVegetarian"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Categories"
-        ADD COLUMN IF NOT EXISTS "IsDeleted"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Categories"
-        ADD COLUMN IF NOT EXISTS "DeletedAtUtc"
-            timestamp with time zone;
-
-        ALTER TABLE "Events"
-        ADD COLUMN IF NOT EXISTS "IsDeleted"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Events"
-        ADD COLUMN IF NOT EXISTS "DeletedAtUtc"
-            timestamp with time zone;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "IsDeleted"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Products"
-        ADD COLUMN IF NOT EXISTS "DeletedAtUtc"
-            timestamp with time zone;
-
-        ALTER TABLE "Reservations"
-        ADD COLUMN IF NOT EXISTS "IsDeleted"
-            boolean NOT NULL DEFAULT FALSE;
-
-        ALTER TABLE "Reservations"
-        ADD COLUMN IF NOT EXISTS "DeletedAtUtc"
-            timestamp with time zone;
-
-        CREATE TABLE IF NOT EXISTS "PubTables" (
-            "Id" uuid NOT NULL,
-            "Label" character varying(40) NOT NULL,
-            "Area" character varying(80) NULL,
-            "Capacity" integer NOT NULL,
-            "IsActive" boolean NOT NULL,
-            CONSTRAINT "PK_PubTables" PRIMARY KEY ("Id")
-        );
-
-        CREATE UNIQUE INDEX IF NOT EXISTS "IX_PubTables_Label"
-            ON "PubTables" ("Label");
-
-        CREATE TABLE IF NOT EXISTS "StaffMembers" (
-            "Id" uuid NOT NULL,
-            "FullName" character varying(80) NOT NULL,
-            "Role" character varying(20) NOT NULL,
-            "PhoneNumber" character varying(40) NULL,
-            "IsActive" boolean NOT NULL,
-            CONSTRAINT "PK_StaffMembers" PRIMARY KEY ("Id")
-        );
-
-        CREATE INDEX IF NOT EXISTS "IX_StaffMembers_IsActive_Role"
-            ON "StaffMembers" ("IsActive", "Role");
-
-        CREATE TABLE IF NOT EXISTS "StaffShifts" (
-            "Id" uuid NOT NULL,
-            "StaffMemberId" uuid NOT NULL,
-            "Role" character varying(20) NOT NULL,
-            "ShiftDate" date NOT NULL,
-            "StartsAt" time without time zone NOT NULL,
-            "EndsAt" time without time zone NOT NULL,
-            "Note" character varying(160) NULL,
-            "CreatedAtUtc" timestamp with time zone NOT NULL,
-            CONSTRAINT "PK_StaffShifts" PRIMARY KEY ("Id"),
-            CONSTRAINT "FK_StaffShifts_StaffMembers_StaffMemberId"
-                FOREIGN KEY ("StaffMemberId") REFERENCES "StaffMembers" ("Id")
-                ON DELETE CASCADE
-        );
-
-        CREATE INDEX IF NOT EXISTS "IX_StaffShifts_ShiftDate_Role"
-            ON "StaffShifts" ("ShiftDate", "Role");
-
-        CREATE INDEX IF NOT EXISTS "IX_StaffShifts_StaffMemberId"
-            ON "StaffShifts" ("StaffMemberId");
-
-        UPDATE "StaffMembers"
-        SET "Role" = 'Front'
-        WHERE "Role" IN ('Manager', 'Waiter', 'Bar');
-
-        UPDATE "StaffShifts"
-        SET "Role" = 'Front'
-        WHERE "Role" IN ('Manager', 'Waiter', 'Bar');
-
-        DO $$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1
-                FROM pg_indexes
-                WHERE schemaname = 'public'
-                    AND indexname = 'IX_Reservations_ReservationDate_ReservationTime_TableLabel'
-            )
-            AND NOT EXISTS (
-                SELECT 1
-                FROM "Reservations"
-                WHERE "TableLabel" IS NOT NULL
-                    AND "Status" IN ('Approved', 'Arrived')
-                GROUP BY "ReservationDate", "ReservationTime", "TableLabel"
-                HAVING COUNT(*) > 1
-            )
-            THEN
-                CREATE UNIQUE INDEX "IX_Reservations_ReservationDate_ReservationTime_TableLabel"
-                    ON "Reservations"
-                        ("ReservationDate", "ReservationTime", "TableLabel")
-                    WHERE "TableLabel" IS NOT NULL
-                        AND "Status" IN ('Approved', 'Arrived');
-            END IF;
-        END $$;
-        """
-    );
+    if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+    {
+        await dbContext.Database.MigrateAsync();
+    }
 
     var userManager =
         services.GetRequiredService<UserManager<IdentityUser>>();
 
     var roleManager =
         services.GetRequiredService<RoleManager<IdentityRole>>();
-
-    var adminEmail = app.Configuration["AdminUser:Email"]
-    ?? throw new InvalidOperationException(
-        "AdminUser:Email is missing from configuration.");
-
-    var adminPassword = app.Configuration["AdminUser:Password"]
-        ?? throw new InvalidOperationException(
-            "AdminUser:Password is missing from configuration.");
 
     foreach (var roleName in new[]
     {
@@ -368,39 +213,74 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    var adminUser =
-        await userManager.FindByEmailAsync(adminEmail);
-
-    if (adminUser == null)
+    if (app.Configuration.GetValue<bool>("AdminUser:BootstrapEnabled"))
     {
-        adminUser = new IdentityUser
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            EmailConfirmed = true
-        };
+        var adminEmail = app.Configuration["AdminUser:Email"]
+            ?? throw new InvalidOperationException(
+                "AdminUser:Email is required while admin bootstrap is enabled.");
+        var adminPassword = app.Configuration["AdminUser:Password"]
+            ?? throw new InvalidOperationException(
+                "AdminUser:Password is required while admin bootstrap is enabled.");
 
-        var result = await userManager.CreateAsync(
-            adminUser,
-            adminPassword
-        );
+        var adminUser =
+            await userManager.FindByEmailAsync(adminEmail);
 
-        if (result.Succeeded)
+        if (adminUser == null)
         {
-            await userManager.AddToRoleAsync(
+            adminUser = new IdentityUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(
                 adminUser,
-                AdminRoles.LegacyAdmin
+                adminPassword
             );
-        }
-    }
 
-    if (adminUser != null &&
-        !await userManager.IsInRoleAsync(adminUser, AdminRoles.Manager))
-    {
-        await userManager.AddToRoleAsync(adminUser, AdminRoles.Manager);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(
+                    "; ",
+                    result.Errors.Select(error => error.Description));
+                throw new InvalidOperationException(
+                    $"Admin bootstrap failed: {errors}");
+            }
+        }
+
+        foreach (var roleName in new[]
+        {
+            AdminRoles.LegacyAdmin,
+            AdminRoles.Manager
+        })
+        {
+            if (!await userManager.IsInRoleAsync(adminUser, roleName))
+            {
+                await userManager.AddToRoleAsync(adminUser, roleName);
+            }
+        }
     }
 }
 app.MapHub<NotificationHub>("/notificationHub");
 
 
 app.Run();
+
+static RateLimitPartition<string> CreateFixedWindowPartition(
+    HttpContext context,
+    int permitLimit,
+    TimeSpan window)
+{
+    var partitionKey = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+    return RateLimitPartition.GetFixedWindowLimiter(
+        partitionKey,
+        _ => new FixedWindowRateLimiterOptions
+        {
+            AutoReplenishment = true,
+            PermitLimit = permitLimit,
+            QueueLimit = 0,
+            Window = window
+        });
+}
