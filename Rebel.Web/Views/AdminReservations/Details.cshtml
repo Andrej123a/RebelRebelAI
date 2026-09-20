@@ -183,22 +183,62 @@
         </div>
     </section>
 
-    @if (Model.NumberOfGuests >= 9 || Model.Event != null)
+    @if (Model.Event != null)
+    {
+        <section class="reservation-event-card" aria-labelledby="reservationEventTitle">
+            <div class="reservation-event-visual">
+                @if (!string.IsNullOrWhiteSpace(Model.Event.ImageUrl))
+                {
+                    <img src="@Url.Content(Model.Event.ImageUrl)"
+                         alt="@Model.Event.Title event poster"
+                         loading="lazy" />
+                }
+                else
+                {
+                    <div class="reservation-event-placeholder" aria-hidden="true">
+                        <span>REBEL</span>
+                        <strong>EVENT</strong>
+                    </div>
+                }
+
+                <span class="reservation-event-badge">Event booking</span>
+            </div>
+
+            <div class="reservation-event-content">
+                <span class="admin-workspace-eyebrow">Reserved for</span>
+                <h2 id="reservationEventTitle">@Model.Event.Title</h2>
+
+                <div class="reservation-event-meta">
+                    <span>
+                        <small>Date</small>
+                        <strong>@Model.ReservationDate.ToString("dd MMM yyyy")</strong>
+                    </span>
+                    <span>
+                        <small>Guest arrival</small>
+                        <strong>@Model.ReservationTime.ToString(@"hh\:mm")</strong>
+                    </span>
+                    <span>
+                        <small>Event starts</small>
+                        <strong>@(Model.Event.StartTime?.ToString(@"hh\:mm") ?? "TBC")</strong>
+                    </span>
+                </div>
+
+                <a asp-controller="AdminEvents"
+                   asp-action="Bookings"
+                   asp-route-id="@Model.Event.Id"
+                   class="admin-secondary-button">
+                    View event bookings
+                </a>
+            </div>
+        </section>
+    }
+
+    @if (Model.NumberOfGuests >= 9)
     {
         <div class="reservation-focus-alert reservation-context-alert">
-            @if (Model.NumberOfGuests >= 9)
-            {
-                <span>
-                    Large party: confirm the seating plan before approval.
-                </span>
-            }
-
-            @if (Model.Event != null)
-            {
-                <span>
-                    Event booking: @Model.Event.Title.
-                </span>
-            }
+            <span>
+                Large party: confirm the seating plan before approval.
+            </span>
         </div>
     }
 

@@ -96,6 +96,64 @@ namespace Rebel.Web.Services
             return $"/images/events/{fileName}";
         }
 
+        public Task DeleteAsync(
+            string? imageUrl,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (string.IsNullOrWhiteSpace(imageUrl))
+            {
+                return Task.CompletedTask;
+            }
+
+            var normalizedUrl = imageUrl.Replace('\\', '/');
+            if (!normalizedUrl.StartsWith(
+                    "/images/events/event-",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.CompletedTask;
+            }
+
+            var fileName = Path.GetFileName(normalizedUrl);
+            var extension = Path.GetExtension(fileName);
+            var isGeneratedEventImage =
+                fileName.StartsWith("event-", StringComparison.OrdinalIgnoreCase) &&
+                AllowedExtensions.Values
+                    .SelectMany(extensions => extensions)
+                    .Contains(extension, StringComparer.OrdinalIgnoreCase);
+
+            if (!isGeneratedEventImage)
+            {
+                return Task.CompletedTask;
+            }
+
+            var storageDirectory = Path.GetFullPath(Path.Combine(
+                _environment.WebRootPath,
+                "images",
+                "events"));
+            var physicalPath = Path.GetFullPath(Path.Combine(
+                storageDirectory,
+                fileName));
+            var storagePrefix = storageDirectory.TrimEnd(
+                Path.DirectorySeparatorChar,
+                Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+
+            if (!physicalPath.StartsWith(
+                    storagePrefix,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return Task.CompletedTask;
+            }
+
+            if (File.Exists(physicalPath))
+            {
+                File.Delete(physicalPath);
+            }
+
+            return Task.CompletedTask;
+        }
+
         private static bool HasValidSignature(
             string contentType,
             byte[] header,

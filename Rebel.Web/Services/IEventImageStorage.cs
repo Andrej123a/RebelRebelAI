@@ -7,5 +7,9 @@ namespace Rebel.Web.Services
         Task<string> SaveAsync(
             IFormFile image,
             CancellationToken cancellationToken = default);
+
+        Task DeleteAsync(
+            string? imageUrl,
+            CancellationToken cancellationToken = default);
     }
 }

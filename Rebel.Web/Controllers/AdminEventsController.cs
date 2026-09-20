@@ -156,13 +156,16 @@ namespace Rebel.Web.Controllers
                 ? null
                 : model.ImageUrl.Trim();
 
+            string? uploadedImageUrl = null;
+
             if (imageFile is { Length: > 0 })
             {
                 try
                 {
-                    model.ImageUrl = await _eventImageStorage.SaveAsync(
+                    uploadedImageUrl = await _eventImageStorage.SaveAsync(
                         imageFile,
                         cancellationToken);
+                    model.ImageUrl = uploadedImageUrl;
                 }
                 catch (InvalidDataException exception)
                 {
@@ -184,7 +187,17 @@ namespace Rebel.Web.Controllers
             );
 
             _context.Events.Add(model);
-            await _context.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch
+            {
+                await _eventImageStorage.DeleteAsync(
+                    uploadedImageUrl,
+                    CancellationToken.None);
+                throw;
+            }
 
             TempData["SuccessMessage"] =
                 $"{model.Title} was added to the gig calendar.";
@@ -238,6 +251,9 @@ namespace Rebel.Web.Controllers
                 return NotFound();
             }
 
+            var previousImageUrl = existingEvent.ImageUrl;
+            string? uploadedImageUrl = null;
+
             existingEvent.Title = model.Title.Trim();
             existingEvent.Description = model.Description.Trim();
 
@@ -260,9 +276,10 @@ namespace Rebel.Web.Controllers
             {
                 try
                 {
-                    existingEvent.ImageUrl = await _eventImageStorage.SaveAsync(
+                    uploadedImageUrl = await _eventImageStorage.SaveAsync(
                         imageFile,
                         cancellationToken);
+                    existingEvent.ImageUrl = uploadedImageUrl;
                 }
                 catch (InvalidDataException exception)
                 {
@@ -278,7 +295,28 @@ namespace Rebel.Web.Controllers
                 }
             }
 
-            await _context.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+            catch
+            {
+                await _eventImageStorage.DeleteAsync(
+                    uploadedImageUrl,
+                    CancellationToken.None);
+                throw;
+            }
+
+            if (uploadedImageUrl != null &&
+                !string.Equals(
+                    previousImageUrl,
+                    uploadedImageUrl,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                await _eventImageStorage.DeleteAsync(
+                    previousImageUrl,
+                    CancellationToken.None);
+            }
 
             TempData["SuccessMessage"] =
                 $"{existingEvent.Title} was updated.";

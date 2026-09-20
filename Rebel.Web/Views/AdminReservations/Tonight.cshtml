@@ -63,7 +63,6 @@
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .Count();
 
-    var featuredEvent = Model.Events.FirstOrDefault();
 }
 
 <div class="tonight-workspace">
@@ -120,6 +119,83 @@
 
     </section>
 
+    @if (Model.Events.Count > 0)
+    {
+        <section class="tonight-events-board" aria-labelledby="tonightEventsTitle">
+            <header class="tonight-events-heading">
+                <div>
+                    <span class="tonight-eyebrow">Live tonight</span>
+                    <h2 id="tonightEventsTitle">Event of the day</h2>
+                </div>
+
+                <span>@Model.Events.Count event@(Model.Events.Count == 1 ? string.Empty : "s")</span>
+            </header>
+
+            <div class="tonight-events-list">
+                @foreach (var eventItem in Model.Events)
+                {
+                    var eventReservations = Model.Reservations
+                        .Where(reservation => reservation.EventId == eventItem.Id)
+                        .ToList();
+                    var eventGuestCount = eventReservations
+                        .Sum(reservation => reservation.NumberOfGuests);
+
+                    <article class="tonight-event-card">
+                        <div class="tonight-event-card-visual">
+                            @if (!string.IsNullOrWhiteSpace(eventItem.ImageUrl))
+                            {
+                                <img src="@Url.Content(eventItem.ImageUrl)"
+                                     alt="@eventItem.Title event poster"
+                                     loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="tonight-event-card-placeholder" aria-hidden="true">
+                                    <span>REBEL</span>
+                                    <strong>TONIGHT</strong>
+                                </div>
+                            }
+
+                            <span class="tonight-event-live-badge">Tonight</span>
+                        </div>
+
+                        <div class="tonight-event-card-copy">
+                            <span>Today's event</span>
+                            <h3>@eventItem.Title</h3>
+
+                            @if (!string.IsNullOrWhiteSpace(eventItem.Description))
+                            {
+                                <p>@eventItem.Description</p>
+                            }
+
+                            <div class="tonight-event-card-meta">
+                                <span>
+                                    <small>Starts</small>
+                                    <strong>@(eventItem.StartTime?.ToString(@"hh\:mm") ?? "TBC")</strong>
+                                </span>
+                                <span>
+                                    <small>Until</small>
+                                    <strong>@(eventItem.EndTime?.ToString(@"hh\:mm") ?? "Late")</strong>
+                                </span>
+                                <span>
+                                    <small>Bookings</small>
+                                    <strong>@eventReservations.Count / @eventGuestCount guests</strong>
+                                </span>
+                            </div>
+
+                            <a asp-controller="AdminEvents"
+                               asp-action="Bookings"
+                               asp-route-id="@eventItem.Id"
+                               class="admin-primary-button">
+                                Open event bookings
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+    }
+
     <section class="tonight-command-strip" aria-label="Tonight operations">
         <a asp-controller="AdminStaffSchedule"
            asp-action="@(canManageSchedule ? "Index" : "MyShifts")"
@@ -149,24 +225,6 @@
             <small>@Model.ActiveTableCapacity active seats</small>
         </a>
 
-        <a asp-controller="AdminEvents"
-           asp-action="@(Model.Events.Count == 1 ? "Bookings" : "Index")"
-           asp-route-id="@(Model.Events.Count == 1 ? Model.Events[0].Id : null)"
-           class="tonight-command-item tonight-event-item @(!string.IsNullOrWhiteSpace(featuredEvent?.ImageUrl) ? "has-image" : "")">
-            @if (!string.IsNullOrWhiteSpace(featuredEvent?.ImageUrl))
-            {
-                <img src="@Url.Content(featuredEvent.ImageUrl)"
-                     class="tonight-event-image"
-                     alt=""
-                     loading="lazy" />
-            }
-
-            <div class="tonight-event-copy">
-                <span>Event</span>
-                <strong>@(Model.Events.Count == 0 ? "No event tonight" : string.Join(", ", Model.Events.Select(eventItem => eventItem.Title)))</strong>
-                <small>@(Model.Events.Count == 0 ? "Regular service" : string.Join(" / ", Model.Events.Select(eventItem => eventItem.StartTime?.ToString(@"hh\:mm") ?? "Time TBC")))</small>
-            </div>
-        </a>
     </section>
 
     @if (Model.Warnings.Count > 0)

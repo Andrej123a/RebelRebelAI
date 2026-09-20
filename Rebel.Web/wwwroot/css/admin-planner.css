@@ -84,6 +84,7 @@
 .booking-day > span { font: 700 .58rem "Space Mono", monospace; letter-spacing: 1px; text-transform: uppercase; }
 .booking-day > strong { margin-top: 4px; color: var(--planner-text); font: 400 2rem/1 "Bebas Neue", sans-serif; }
 .booking-day > small { overflow: hidden; font-size: .63rem; text-overflow: ellipsis; white-space: nowrap; }
+.booking-day-event-count { margin-left: 5px; color: var(--planner-orange); font-weight: 700; }
 .booking-day > em {
     position: absolute;
     top: 12px;
@@ -120,6 +121,7 @@
 .booking-day-totals span { display: inline-flex; min-height: 36px; padding: 0 11px; align-items: center; gap: 5px; color: var(--planner-muted); border: 1px solid var(--planner-line); border-radius: 5px; font-size: .64rem; }
 .booking-day-totals strong { color: var(--planner-text); }
 .booking-day-totals .has-issues { color: #efd078; border-color: rgba(229,184,62,.35); background: rgba(229,184,62,.07); }
+.booking-day-totals .has-event { color: #ff8e73; border-color: rgba(240,74,36,.38); background: rgba(240,74,36,.07); }
 
 .booking-action-strip {
     display: flex;
@@ -139,6 +141,32 @@
 
 .booking-timeline { margin-top: 12px; border: 1px solid var(--planner-line); border-radius: 9px; background: var(--planner-panel); overflow: hidden; }
 
+.booking-unscheduled-events {
+    display: flex;
+    margin-top: 12px;
+    padding: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+    border: 1px solid rgba(240,74,36,.3);
+    border-radius: 7px;
+    background: rgba(240,74,36,.05);
+}
+
+.booking-unscheduled-events a {
+    display: grid;
+    min-width: 220px;
+    padding: 10px 13px;
+    color: var(--planner-text);
+    border-left: 3px solid var(--planner-orange);
+    background: #191713;
+    text-decoration: none;
+}
+
+.booking-unscheduled-events span { color: var(--planner-orange); font: 700 .52rem "Space Mono"; text-transform: uppercase; }
+.booking-unscheduled-events strong { margin-top: 3px; font-size: .76rem; }
+
+.booking-mobile-events { display: none; }
+
 .booking-time-row {
     display: grid;
     grid-template-columns: 108px minmax(0, 1fr);
@@ -146,6 +174,20 @@
     border-bottom: 1px solid var(--planner-line);
 }
 .booking-time-row:last-child { border-bottom: 0; }
+
+.booking-timeline.has-events {
+    display: grid;
+    grid-template-columns: 108px minmax(0, 1fr) minmax(235px, .72fr);
+}
+
+.booking-timeline.has-events .booking-time-row { display: contents; }
+.booking-timeline.has-events .booking-time { grid-row: var(--planner-row); grid-column: 1; min-height: 92px; border-bottom: 1px solid var(--planner-line); }
+.booking-timeline.has-events .booking-time-reservations { grid-row: var(--planner-row); grid-column: 2; min-height: 92px; border-bottom: 1px solid var(--planner-line); }
+.booking-timeline.has-events .booking-event-track-cell { grid-row: var(--planner-row); grid-column: 3; min-height: 92px; border-bottom: 1px solid var(--planner-line); border-left: 1px solid var(--planner-line); background: #0f0f0d; }
+.booking-timeline.has-events .booking-time-row:last-of-type > * { border-bottom: 0; }
+.booking-timeline.has-events .booking-time-row.is-empty .booking-time,
+.booking-timeline.has-events .booking-time-row.is-empty .booking-time-reservations,
+.booking-timeline.has-events .booking-time-row.is-empty .booking-event-track-cell { min-height: 58px; }
 
 .booking-time {
     display: grid;
@@ -203,6 +245,71 @@
 .booking-time-row.is-empty .booking-time { padding-top: 9px; padding-bottom: 9px; }
 .booking-time-row.is-empty .booking-time-reservations { align-content: center; }
 .booking-open-slot { padding: 0 6px; color: #5f5c56; font-size: .65rem; }
+
+.booking-event-block {
+    position: relative;
+    display: grid;
+    grid-column: 3;
+    min-width: 0;
+    min-height: 58px;
+    margin: 6px;
+    overflow: hidden;
+    color: #fff;
+    border: 2px solid var(--planner-orange);
+    border-radius: 6px;
+    background:
+        repeating-linear-gradient(-45deg, #171512 0 14px, #1d1915 15px 16px),
+        #171512;
+    box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    text-decoration: none;
+    z-index: 2;
+}
+
+.booking-event-block img,
+.booking-event-block-placeholder,
+.booking-event-block-shade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.booking-event-block .booking-event-backdrop {
+    inset: -14px;
+    width: calc(100% + 28px);
+    height: calc(100% + 28px);
+    padding: 0;
+    object-fit: cover;
+    opacity: .46;
+    filter: blur(12px) saturate(.75) brightness(.6);
+    transform: scale(1.05);
+}
+
+.booking-event-block .booking-event-poster {
+    padding: 8px;
+    object-fit: contain;
+    object-position: center;
+    opacity: 1;
+}
+.booking-event-block-placeholder { background: repeating-linear-gradient(-45deg,#241510 0 12px,#2d1912 13px 14px); }
+.booking-event-block-shade {
+    background:
+        linear-gradient(to top, rgba(0,0,0,.93), transparent 42%),
+        linear-gradient(90deg, rgba(0,0,0,.2), transparent 30%, rgba(0,0,0,.2));
+}
+
+.booking-event-block-copy {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    padding: 15px;
+    align-content: end;
+}
+
+.booking-event-block-copy small { color: #ff9b83; font: 700 .52rem "Space Mono"; text-transform: uppercase; }
+.booking-event-block-copy strong { margin-top: 5px; font: 400 clamp(1.4rem,2.4vw,2.25rem)/.92 "Bebas Neue",sans-serif; letter-spacing: .02em; text-transform: uppercase; }
+.booking-event-block-copy em { margin-top: 10px; color: rgba(255,255,255,.7); font: 600 .55rem "Space Mono"; font-style: normal; text-transform: uppercase; }
+.booking-event-block:hover { color: #fff; border-color: #ff795b; filter: brightness(1.08); }
 .booking-planner-empty { display: grid; min-height: 180px; place-content: center; place-items: center; gap: 6px; color: var(--planner-muted); }
 .booking-planner-empty strong { color: var(--planner-text); }
 
@@ -210,6 +317,7 @@
     .booking-day-strip { grid-template-columns: repeat(7, minmax(82px, 1fr)); overflow-x: auto; }
     .booking-day { padding-right: 10px; padding-left: 10px; }
     .booking-time-reservations { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .booking-timeline.has-events { grid-template-columns: 92px minmax(0,1fr) minmax(190px,.65fr); }
 }
 
 @media (max-width: 650px) {
@@ -223,6 +331,21 @@
     .booking-action-strip > strong { margin: 3px 5px; }
     .booking-action-strip a { justify-content: center; }
     .booking-time-row { grid-template-columns: 76px minmax(0, 1fr); }
+    .booking-mobile-events { display: grid; margin-top: 12px; gap: 8px; }
+    .booking-mobile-events a { position: relative; display: grid; min-height: 150px; overflow: hidden; color: #fff; border: 2px solid var(--planner-orange); border-radius: 6px; background: #21130f; text-decoration: none; }
+    .booking-mobile-events img { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .booking-mobile-events .booking-event-backdrop { inset: -12px; width: calc(100% + 24px); height: calc(100% + 24px); object-fit: cover; opacity: .48; filter: blur(10px) brightness(.6); transform: scale(1.05); }
+    .booking-mobile-events .booking-event-poster { padding: 6px; object-fit: contain; object-position: center; opacity: 1; }
+    .booking-mobile-events a::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.93),rgba(0,0,0,.12)); }
+    .booking-mobile-events a > span { position: relative; z-index: 2; display: grid; padding: 14px; align-content: end; }
+    .booking-mobile-events small { color: #ff9b83; font: 700 .54rem "Space Mono"; }
+    .booking-mobile-events strong { margin-top: 4px; font: 400 1.7rem/1 "Bebas Neue",sans-serif; text-transform: uppercase; }
+    .booking-timeline.has-events { display: block; }
+    .booking-timeline.has-events .booking-time-row { display: grid; grid-template-columns: 76px minmax(0,1fr); }
+    .booking-timeline.has-events .booking-time,
+    .booking-timeline.has-events .booking-time-reservations { grid-row: auto; grid-column: auto; min-height: 0; }
+    .booking-event-track-cell,
+    .booking-event-block { display: none; }
     .booking-time { padding: 10px; }
     .booking-time > strong { font-size: 1.45rem; }
     .booking-time-reservations { grid-template-columns: 1fr; }

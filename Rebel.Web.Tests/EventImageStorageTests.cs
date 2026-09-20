@@ -68,6 +68,40 @@ public sealed class EventImageStorageTests : IDisposable
         Assert.Equal("The event poster must be 5 MB or smaller.", exception.Message);
     }
 
+    [Fact]
+    public async Task DeleteAsync_RemovesGeneratedEventImage()
+    {
+        var storage = CreateStorage();
+        var image = CreateFormFile(
+            ValidPngHeader(),
+            "poster.png",
+            "image/png");
+        var imageUrl = await storage.SaveAsync(image);
+        var physicalPath = GetPhysicalPath(imageUrl);
+
+        await storage.DeleteAsync(imageUrl);
+
+        Assert.False(File.Exists(physicalPath));
+    }
+
+    [Fact]
+    public async Task DeleteAsync_DoesNotRemoveManuallyNamedImage()
+    {
+        var storage = CreateStorage();
+        var storageDirectory = Path.Combine(
+            _testRoot,
+            "wwwroot",
+            "images",
+            "events");
+        Directory.CreateDirectory(storageDirectory);
+        var physicalPath = Path.Combine(storageDirectory, "featured.png");
+        await File.WriteAllBytesAsync(physicalPath, ValidPngHeader());
+
+        await storage.DeleteAsync("/images/events/featured.png");
+
+        Assert.True(File.Exists(physicalPath));
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_testRoot))
@@ -87,6 +121,18 @@ public sealed class EventImageStorageTests : IDisposable
             WebRootPath = webRoot
         });
     }
+
+    private string GetPhysicalPath(string imageUrl) => Path.Combine(
+        _testRoot,
+        "wwwroot",
+        imageUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+
+    private static byte[] ValidPngHeader() =>
+    [
+        0x89, 0x50, 0x4E, 0x47,
+        0x0D, 0x0A, 0x1A, 0x0A,
+        0x00, 0x00, 0x00, 0x00
+    ];
 
     private static FormFile CreateFormFile(
         byte[] content,

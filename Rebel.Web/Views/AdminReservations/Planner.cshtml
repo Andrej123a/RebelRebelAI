@@ -1,5 +1,7 @@
 @model List<Rebel.Domain.Entities.Reservation>
 @using Rebel.Domain.Enums
+@using Rebel.Domain.Entities
+@using Rebel.Web.Services
 
 @{
     ViewData["Title"] = "Planner";
@@ -14,6 +16,9 @@
     var reservationSlots =
         ViewBag.ReservationSlots as IReadOnlyList<TimeSpan>
         ?? Array.Empty<TimeSpan>();
+    var plannerEvents =
+        ViewBag.Events as List<Event>
+        ?? new List<Event>();
 
     var dates = Enumerable.Range(0, 7)
         .Select(offset => startDate.Date.AddDays(offset))
@@ -32,6 +37,36 @@
         .ThenBy(reservation => reservation.FullName)
         .ToList();
 
+    var selectedEvents = plannerEvents
+        .Where(eventItem => eventItem.Date.Date == selectedDate.Date)
+        .OrderBy(eventItem => eventItem.StartTime)
+        .ThenBy(eventItem => eventItem.Title)
+        .ToList();
+    var scheduledEvents = selectedEvents
+        .Where(eventItem => eventItem.StartTime.HasValue)
+        .ToList();
+    var plannerClosingBoundary =
+        PlannerSchedulePolicy.GetClosingBoundary(selectedDate);
+    var extendedPlannerSlots = reservationSlots.ToList();
+    var firstExtendedSlot = extendedPlannerSlots.Count > 0
+        ? extendedPlannerSlots.Max().Add(ReservationPolicy.SlotInterval)
+        : ReservationPolicy.FirstOnlineSlot;
+
+    for (var slot = firstExtendedSlot;
+         slot < plannerClosingBoundary;
+         slot = slot.Add(ReservationPolicy.SlotInterval))
+    {
+        extendedPlannerSlots.Add(slot);
+    }
+
+    Func<TimeSpan, string> formatPlannerTime = time =>
+        TimeSpan.FromHours(time.TotalHours % 24).ToString(@"hh\:mm");
+    Func<Event, TimeSpan> getPlannerEventEnd = eventItem =>
+        PlannerSchedulePolicy.ResolveEventEnd(
+            selectedDate,
+            eventItem.StartTime!.Value,
+            eventItem.EndTime);
+
     var selectedGuests = selectedReservations.Sum(reservation => reservation.NumberOfGuests);
     var selectedPending = selectedReservations.Count(reservation => reservation.Status == ReservationStatus.Pending);
     var selectedWithoutTable = selectedReservations.Count(reservation =>
@@ -39,9 +74,11 @@
         string.IsNullOrWhiteSpace(reservation.TableLabel));
     var selectedIssues = selectedPending + selectedWithoutTable;
 
-    var timelineSlots = reservationSlots
+    var timelineSlots = extendedPlannerSlots
         .Concat(selectedReservations.Select(reservation => reservation.ReservationTime))
+        .Concat(scheduledEvents.Select(eventItem => eventItem.StartTime!.Value))
         .Distinct()
+        .Where(slot => slot < plannerClosingBoundary)
         .OrderBy(slot => slot)
         .ToList();
 
@@ -80,6 +117,7 @@
                 .Where(reservation => reservation.ReservationDate.Date == date)
                 .ToList();
             var dayGuests = dayReservations.Sum(reservation => reservation.NumberOfGuests);
+            var dayEventCount = plannerEvents.Count(eventItem => eventItem.Date.Date == date);
             var dayIssues = dayReservations.Count(reservation =>
                 reservation.Status == ReservationStatus.Pending ||
                 (reservation.Status == ReservationStatus.Approved && string.IsNullOrWhiteSpace(reservation.TableLabel)));
@@ -96,7 +134,13 @@
                class="booking-day @(date == selectedDate ? "is-selected" : "") @(date == today ? "is-today" : "")">
                 <span>@date.ToString("ddd")</span>
                 <strong>@date.ToString("dd")</strong>
-                <small>@dayGuests guests</small>
+                <small>
+                    @dayGuests guests
+                    @if (dayEventCount > 0)
+                    {
+                        <b class="booking-day-event-count">@dayEventCount event@(dayEventCount == 1 ? string.Empty : "s")</b>
+                    }
+                </small>
                 @if (dayIssues > 0)
                 {
                     <em>@dayIssues</em>
@@ -115,6 +159,10 @@
         <div class="booking-day-totals">
             <span><strong>@selectedReservations.Count</strong> bookings</span>
             <span><strong>@selectedGuests</strong> guests</span>
+            @if (selectedEvents.Count > 0)
+            {
+                <span class="has-event"><strong>@selectedEvents.Count</strong> event@(selectedEvents.Count == 1 ? string.Empty : "s")</span>
+            }
             @if (selectedIssues > 0)
             {
                 <span class="has-issues"><strong>@selectedIssues</strong> need action</span>
@@ -141,23 +189,77 @@
         </section>
     }
 
-    <section class="booking-timeline" aria-label="Reservations for @selectedDate.ToString("dddd dd MMMM")">
-        @foreach (var slot in timelineSlots)
+    @if (selectedEvents.Any(eventItem => !eventItem.StartTime.HasValue))
+    {
+        <section class="booking-unscheduled-events" aria-label="Events without a confirmed start time">
+            @foreach (var eventItem in selectedEvents.Where(eventItem => !eventItem.StartTime.HasValue))
+            {
+                <a asp-controller="AdminEvents"
+                   asp-action="Bookings"
+                   asp-route-id="@eventItem.Id">
+                    <span>Time TBC</span>
+                    <strong>@eventItem.Title</strong>
+                </a>
+            }
+        </section>
+    }
+
+    @if (scheduledEvents.Count > 0)
+    {
+        <section class="booking-mobile-events" aria-label="Events for the selected day">
+            @foreach (var eventItem in scheduledEvents)
+            {
+                var mobileEventEnd = getPlannerEventEnd(eventItem);
+
+                <a asp-controller="AdminEvents"
+                   asp-action="Bookings"
+                   asp-route-id="@eventItem.Id">
+                    @if (!string.IsNullOrWhiteSpace(eventItem.ImageUrl))
+                    {
+                        <img src="@Url.Content(eventItem.ImageUrl)"
+                             class="booking-event-backdrop"
+                             alt=""
+                             aria-hidden="true"
+                             loading="lazy" />
+                        <img src="@Url.Content(eventItem.ImageUrl)"
+                             class="booking-event-poster"
+                             alt=""
+                             loading="lazy" />
+                    }
+                    <span>
+                        <small>@formatPlannerTime(eventItem.StartTime!.Value)–@formatPlannerTime(mobileEventEnd)</small>
+                        <strong>@eventItem.Title</strong>
+                    </span>
+                </a>
+            }
+        </section>
+    }
+
+    <section class="booking-timeline @(scheduledEvents.Count > 0 ? "has-events" : string.Empty)"
+             aria-label="Reservations for @selectedDate.ToString("dddd dd MMMM")">
+        @for (var slotIndex = 0; slotIndex < timelineSlots.Count; slotIndex++)
         {
+            var slot = timelineSlots[slotIndex];
+            var nextSlot = slotIndex + 1 < timelineSlots.Count
+                ? timelineSlots[slotIndex + 1]
+                : slot.Add(ReservationPolicy.SlotInterval);
             var slotReservations = selectedReservations
                 .Where(reservation => reservation.ReservationTime == slot)
                 .ToList();
             var slotGuests = slotReservations.Sum(reservation => reservation.NumberOfGuests);
             var slotLoad = slotCapacity <= 0 ? 0 : Math.Min(100, (int)Math.Round(slotGuests * 100m / slotCapacity));
+            var slotHasEvent = scheduledEvents.Any(eventItem =>
+                eventItem.StartTime!.Value < nextSlot &&
+                getPlannerEventEnd(eventItem) > slot);
 
-            <article class="booking-time-row @(slotReservations.Count == 0 ? "is-empty" : "") @(slotGuests >= slotCapacity ? "is-full" : "")">
-                <header class="booking-time">
-                    <strong>@slot.ToString(@"hh\:mm")</strong>
+            <article class="booking-time-row @(slotReservations.Count == 0 ? "is-empty" : "") @(slotGuests >= slotCapacity ? "is-full" : "") @(slotHasEvent ? "has-event" : "")">
+                <header class="booking-time" style="--planner-row: @(slotIndex + 1);">
+                    <strong>@formatPlannerTime(slot)</strong>
                     <span>@slotGuests / @slotCapacity</span>
                     <i><b style="--slot-load: @slotLoad%"></b></i>
                 </header>
 
-                <div class="booking-time-reservations">
+                <div class="booking-time-reservations" style="--planner-row: @(slotIndex + 1);">
                     @if (slotReservations.Count == 0)
                     {
                         <span class="booking-open-slot">Open</span>
@@ -202,7 +304,63 @@
                         }
                     }
                 </div>
+
+                @if (scheduledEvents.Count > 0)
+                {
+                    <div class="booking-event-track-cell"
+                         style="--planner-row: @(slotIndex + 1);"
+                         aria-hidden="true"></div>
+                }
             </article>
+        }
+
+        @foreach (var eventItem in scheduledEvents)
+        {
+            var eventStart = eventItem.StartTime!.Value;
+            var eventEnd = getPlannerEventEnd(eventItem);
+            var eventStartIndex = timelineSlots.FindIndex(slot => slot >= eventStart);
+            var eventEndIndex = timelineSlots.FindIndex(slot => slot >= eventEnd);
+
+            if (eventStartIndex >= 0)
+            {
+                if (eventEndIndex < 0)
+                {
+                    eventEndIndex = timelineSlots.Count;
+                }
+
+                var gridRowStart = eventStartIndex + 1;
+                var gridRowEnd = Math.Max(gridRowStart + 1, eventEndIndex + 1);
+
+                <a asp-controller="AdminEvents"
+                   asp-action="Bookings"
+                   asp-route-id="@eventItem.Id"
+                   class="booking-event-block"
+                   style="grid-row: @gridRowStart / @gridRowEnd;">
+                    @if (!string.IsNullOrWhiteSpace(eventItem.ImageUrl))
+                    {
+                        <img src="@Url.Content(eventItem.ImageUrl)"
+                             class="booking-event-backdrop"
+                             alt=""
+                             aria-hidden="true"
+                             loading="lazy" />
+                        <img src="@Url.Content(eventItem.ImageUrl)"
+                             class="booking-event-poster"
+                             alt="@eventItem.Title event poster"
+                             loading="lazy" />
+                    }
+                    else
+                    {
+                        <span class="booking-event-block-placeholder" aria-hidden="true"></span>
+                    }
+
+                    <span class="booking-event-block-shade" aria-hidden="true"></span>
+                    <span class="booking-event-block-copy">
+                        <small>Event · @formatPlannerTime(eventStart)–@formatPlannerTime(eventEnd)</small>
+                        <strong>@eventItem.Title</strong>
+                        <em>Open event bookings &rarr;</em>
+                    </span>
+                </a>
+            }
         }
 
         @if (timelineSlots.Count == 0)

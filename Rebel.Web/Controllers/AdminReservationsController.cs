@@ -179,6 +179,22 @@ namespace Rebel.Web.Controllers
                 .ThenBy(r => r.FullName)
                 .ToListAsync(cancellationToken);
 
+            var eventRangeStart = DateTime.SpecifyKind(
+                weekStart,
+                DateTimeKind.Utc);
+            var eventRangeEnd = DateTime.SpecifyKind(
+                endDate,
+                DateTimeKind.Utc);
+            var events = await _context.Events
+                .AsNoTracking()
+                .Where(eventItem =>
+                    eventItem.IsActive &&
+                    eventItem.Date >= eventRangeStart &&
+                    eventItem.Date < eventRangeEnd)
+                .OrderBy(eventItem => eventItem.Date)
+                .ThenBy(eventItem => eventItem.StartTime)
+                .ToListAsync(cancellationToken);
+
             ViewBag.Today = today;
             ViewBag.StartDate = weekStart;
             ViewBag.EndDate = endDate.AddDays(-1);
@@ -189,6 +205,7 @@ namespace Rebel.Web.Controllers
                 ReservationPolicy.MaxOnlineCoversPerSlot;
             ViewBag.ReservationSlots =
                 ReservationPolicy.GetOnlineSlots();
+            ViewBag.Events = events;
 
             return View(reservations);
         }
