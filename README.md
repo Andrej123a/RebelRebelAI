@@ -128,7 +128,6 @@ A typical request flows from the browser to an MVC controller. The controller pe
 | Neon | Managed PostgreSQL database shared by authorized development machines |
 | ASP.NET Core Identity | Authentication, password management, roles and user accounts |
 | SignalR | Real-time reservation notifications in the admin interface |
-| MailKit | Optional SMTP reservation notifications |
 | HTML, CSS and JavaScript | Responsive UI, planner, drag and drop, and floor editor |
 | xUnit | Automated testing |
 
@@ -188,7 +187,7 @@ Database constraints complement the application checks. A filtered unique index 
 - Accounts are locked for 15 minutes after five failed login attempts.
 - Login, reservation creation and reservation lookup use fixed-window rate limiting by IP address.
 - Production uses HTTPS, HSTS, a specific `AllowedHosts` value and a branded error page.
-- Connection strings, SMTP credentials and bootstrap passwords are stored outside source control.
+- Connection strings and bootstrap passwords are stored outside source control.
 - The bootstrap administrator is temporary and must be disabled after the first successful setup.
 - Event uploads validate extension, content type, binary signature and maximum size.
 
@@ -270,7 +269,7 @@ dotnet test RebelRebel.sln --configuration Release
 
 7. After the first successful administrator login, disable bootstrap and remove the temporary password from configuration.
 
-Never commit the Neon connection string, SMTP password or administrator password. Developers may use the same Neon database by storing the same authorized connection string independently in their local User Secrets. Database migrations and demo data changes must be coordinated because the data source is shared.
+Never commit the Neon connection string or administrator password. Developers may use the same Neon database by storing the same authorized connection string independently in their local User Secrets. Database migrations and demo data changes must be coordinated because the data source is shared.
 
 ## Main Routes
 
