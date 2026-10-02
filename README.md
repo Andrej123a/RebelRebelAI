@@ -18,7 +18,8 @@ The goal is to replace disconnected messages, notebooks and separate tools with 
 ### Public Website
 
 - Branded responsive home page.
-- Food and beer menu with search, prices, descriptions, availability and dietary tags.
+- Food menu with search, prices, descriptions, availability and dietary tags.
+- Beer menu laid out as a tracklist: every beer gets its own colour-flooded section with style, ABV, origin, price, flavour notes, pairings and taste sliders built from the stored beer profile, plus style filters, search and shareable links to a single beer.
 - Upcoming events with posters, details, dates and start/end times.
 - Regular table reservations and reservations linked to a specific event.
 - Reservation lookup and cancellation using a reservation code and phone number.

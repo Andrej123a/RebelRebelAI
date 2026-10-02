@@ -1,0 +1,481 @@
+@using System.Globalization
+@model Rebel.Web.Models.BeerMenuViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+@{
+    var hideAiFeatures = Configuration.GetValue<bool>(
+        "Presentation:HideAiFeatures");
+
+    var tracks = Model.Tracks.ToList();
+    var firstTrack = tracks.FirstOrDefault();
+
+    var marqueeWords = tracks
+        .Where(track => track.IsAvailable)
+        .Select(track => track.Name)
+        .DefaultIfEmpty("Cold")
+        .Take(14)
+        .ToList();
+
+    // Each half of the loop has to be wider than the screen for the marquee to stay seamless.
+    if (marqueeWords.Count < 10)
+    {
+        marqueeWords.AddRange(new[] { "Cold", "Loud", "Hazy", "Bitter", "Strange", "Dark", "Sour", "No bad decisions" });
+    }
+
+    // The orbit ring is a 73-unit radius circle; Space Mono advances 0.6em per glyph.
+    const double OrbitLength = 2 * Math.PI * 73;
+
+    (string Text, string FontSize) OrbitText(Rebel.Web.Models.BeerMenuTrack track)
+    {
+        var phrase = $"TRACK {track.NumberLabel} // {track.Name.ToUpperInvariant()} // REBEL REBEL // ";
+        var text = phrase;
+
+        while (text.Length < 44)
+        {
+            text += phrase;
+        }
+
+        var fontSize = Math.Clamp(OrbitLength / (text.Length * 0.6), 7.5, 16);
+
+        return (text, fontSize.ToString("0.##", CultureInfo.InvariantCulture));
+    }
+
+    IEnumerable<IEnumerable<string>> Words(string name)
+    {
+        foreach (var word in name.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var letters = new List<string>();
+            var enumerator = StringInfo.GetTextElementEnumerator(word);
+
+            while (enumerator.MoveNext())
+            {
+                letters.Add(enumerator.GetTextElement());
+            }
+
+            yield return letters;
+        }
+    }
+}
+
+<svg class="rr-beer-defs" aria-hidden="true" focusable="false">
+    <symbol id="rr-beer-burst" viewBox="0 0 200 200">
+        <polygon points="100.0,0.0 111.2,14.7 125.9,3.4 132.9,20.5 150.0,13.4 152.4,31.8 170.7,29.3 168.2,47.6 186.6,50.0 179.5,67.1 196.6,74.1 185.3,88.8 200.0,100.0 185.3,111.2 196.6,125.9 179.5,132.9 186.6,150.0 168.2,152.4 170.7,170.7 152.4,168.2 150.0,186.6 132.9,179.5 125.9,196.6 111.2,185.3 100.0,200.0 88.8,185.3 74.1,196.6 67.1,179.5 50.0,186.6 47.6,168.2 29.3,170.7 31.8,152.4 13.4,150.0 20.5,132.9 3.4,125.9 14.7,111.2 0.0,100.0 14.7,88.8 3.4,74.1 20.5,67.1 13.4,50.0 31.8,47.6 29.3,29.3 47.6,31.8 50.0,13.4 67.1,20.5 74.1,3.4 88.8,14.7" />
+    </symbol>
+    <symbol id="rr-beer-bolt" viewBox="0 0 100 100">
+        <path d="M60 0 18 57h27L31 100l53-62H56L72 0Z" />
+    </symbol>
+</svg>
+
+<div class="rr-beer-marquee" aria-hidden="true">
+    <div class="rr-beer-marquee-track">
+        @for (var copy = 0; copy < 2; copy++)
+        {
+            <div class="rr-beer-marquee-group">
+                @foreach (var word in marqueeWords)
+                {
+                    <span class="rr-beer-marquee-item">@word</span>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<section class="rr-beer-intro" aria-labelledby="beerMenuTitle">
+    <div class="rr-beer-intro-copy">
+        <p class="rr-beer-kicker">Tonight's tracklist</p>
+
+        <h2 id="beerMenuTitle" class="rr-beer-intro-title">
+            Beer <span>Menu</span>
+        </h2>
+
+        <p class="rr-beer-intro-text">
+            @Model.TotalCount @(Model.TotalCount == 1 ? "beer" : "beers") on the record,
+            @Model.AvailableCount pouring right now.
+            Scroll slowly. The room changes colour with every track.
+        </p>
+    </div>
+
+    <div class="rr-beer-badge" aria-hidden="true">
+        <svg class="rr-beer-badge-ring" viewBox="0 0 200 200">
+            <defs>
+                <path id="rr-beer-badge-path"
+                      d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0" />
+            </defs>
+            <text>
+                <textPath href="#rr-beer-badge-path">REBEL REBEL // BEER MENU // SKOPJE // FAT KITCHEN // </textPath>
+            </text>
+        </svg>
+        <svg class="rr-beer-badge-bolt" viewBox="0 0 100 100">
+            <use href="#rr-beer-bolt" />
+        </svg>
+    </div>
+
+    @if (!hideAiFeatures)
+    {
+        <aside class="rr-beer-callout">
+            <div>
+                <span>Can't pick?</span>
+                <strong>Let Rebel AI narrow the fridge.</strong>
+            </div>
+
+            <a asp-controller="BeerGuide" asp-action="Index">
+                Ask Rebel AI <i aria-hidden="true">&rarr;</i>
+            </a>
+        </aside>
+    }
+</section>
+
+@if (!tracks.Any())
+{
+    <div class="rr-menu-content">
+        <div class="rr-menu-empty">
+            <span class="rr-menu-empty-symbol">✕</span>
+            <h3>Nothing here yet.</h3>
+            <p>The rebels are still working on this part of the menu.</p>
+        </div>
+    </div>
+}
+else
+{
+    <section class="rr-beer-tools"
+             aria-label="Find a beer"
+             data-beer-tools
+             hidden>
+        <div class="rr-beer-search">
+            <label for="beerSearchInput">Find your beer</label>
+            <input id="beerSearchInput"
+                   type="search"
+                   placeholder="Try hazy, stout, citrus, pizza..."
+                   autocomplete="off"
+                   data-beer-search />
+        </div>
+
+        <div class="rr-beer-filters"
+             role="group"
+             aria-label="Beer style">
+            <button type="button"
+                    class="rr-beer-filter is-active"
+                    aria-pressed="true"
+                    data-beer-family="all">
+                All
+                <span>@tracks.Count</span>
+            </button>
+
+            @foreach (var family in Model.Families)
+            {
+                <button type="button"
+                        class="rr-beer-filter"
+                        aria-pressed="false"
+                        data-beer-family="@family.Key"
+                        style="--chip-bg: @family.Background; --chip-ink: @family.Ink; --chip-glow: @family.Glow;">
+                    <i aria-hidden="true"></i>
+                    @family.Label
+                    <span>@tracks.Count(track => track.Family.Key == family.Key)</span>
+                </button>
+            }
+        </div>
+
+        <label class="rr-beer-toggle">
+            <input type="checkbox" data-beer-available-only />
+            <span>Pouring now only</span>
+        </label>
+
+        <p class="rr-beer-summary"
+           aria-live="polite"
+           data-beer-summary></p>
+
+        <div class="rr-beer-empty"
+             data-beer-empty
+             hidden>
+            <strong>Nothing on the record matches that.</strong>
+            <button type="button" data-beer-clear>
+                Clear filters
+            </button>
+        </div>
+    </section>
+
+    <div class="rr-beer-stage"
+         data-beer-stage
+         style="--stage-bg: @firstTrack!.StageBackground; --stage-ink: @firstTrack.StageInk;">
+
+        <nav class="rr-beer-rail"
+             aria-label="Beer tracklist"
+             data-beer-rail-scroller>
+            <p class="rr-beer-rail-title">Tracklist</p>
+
+            @foreach (var side in Model.Sides)
+            {
+                <div class="rr-beer-rail-group" data-beer-rail-group>
+                    <p class="rr-beer-rail-side">
+                        @side.Label <span>@side.CategoryName</span>
+                    </p>
+
+                    <ol class="rr-beer-rail-list">
+                        @foreach (var track in side.Tracks)
+                        {
+                            <li data-beer-rail="@track.Anchor"
+                                class="@(!track.IsAvailable ? "is-sold-out" : null)"
+                                style="--dot: @track.Family.Background;">
+                                <a href="#@track.Anchor">
+                                    <span class="rr-beer-rail-number">@track.NumberLabel</span>
+                                    <span class="rr-beer-rail-name">@track.Name</span>
+                                    <span class="rr-beer-rail-abv">
+                                        @(track.IsAvailable
+                                            ? track.AlcoholByVolume is { } abv ? $"{abv.ToString("0.#")}%" : ""
+                                            : "Out")
+                                    </span>
+                                </a>
+                            </li>
+                        }
+                    </ol>
+                </div>
+            }
+        </nav>
+
+        <div class="rr-beer-tracks">
+            @foreach (var side in Model.Sides)
+            {
+                var sideId = $"rr-beer-side-{side.Tracks[0].Anchor}";
+
+                <section class="rr-beer-side"
+                         aria-labelledby="@sideId"
+                         data-beer-side>
+                    <header class="rr-beer-side-head">
+                        <span class="rr-beer-side-label">@side.Label</span>
+                        <h3 id="@sideId">@side.CategoryName</h3>
+                        <span class="rr-beer-side-count">
+                            @side.Tracks.Count @(side.Tracks.Count == 1 ? "track" : "tracks")
+                        </span>
+                    </header>
+
+                    @foreach (var track in side.Tracks)
+                    {
+                        var orbit = OrbitText(track);
+                        var nameId = $"{track.Anchor}-name";
+                        var letterIndex = 0;
+                        var trackClasses = string.Join(
+                            " ",
+                            new[]
+                            {
+                                "rr-beer-track",
+                                track.IsInverted ? "is-inverted" : "",
+                                !track.IsAvailable ? "is-sold-out" : "",
+                                track.NameScale
+                            }.Where(value => value.Length > 0));
+
+                        <article id="@track.Anchor"
+                                 class="@trackClasses"
+                                 aria-labelledby="@nameId"
+                                 data-beer-track
+                                 data-family="@track.Family.Key"
+                                 data-available="@(track.IsAvailable ? "true" : "false")"
+                                 data-search="@track.SearchText"
+                                 data-bg="@track.StageBackground"
+                                 data-ink="@track.StageInk"
+                                 style="--track-bg: @track.StageBackground; --track-ink: @track.StageInk; --track-accent: @track.Accent;">
+
+                            <div class="rr-beer-track-meta">
+                                <span class="rr-beer-track-number">Track @track.NumberLabel</span>
+                                <span class="rr-beer-track-rule" aria-hidden="true"></span>
+                                <span>@track.Family.Label</span>
+
+                                @if (!track.IsAvailable)
+                                {
+                                    <span class="rr-beer-flag">Sold out</span>
+                                }
+
+                                @if (track.IsPopular)
+                                {
+                                    <span class="rr-beer-flag">Crowd favourite</span>
+                                }
+
+                                @if (track.IsLimited)
+                                {
+                                    <span class="rr-beer-flag">Limited</span>
+                                }
+
+                                @if (track.IsPromo)
+                                {
+                                    <span class="rr-beer-flag">Promo</span>
+                                }
+                            </div>
+
+                            <div class="rr-beer-track-body">
+                                <div class="rr-beer-head">
+                                    @if (track.Style != null)
+                                    {
+                                        <p class="rr-beer-style">@track.Style</p>
+                                    }
+
+                                    <h4 id="@nameId"
+                                        class="rr-beer-name"
+                                        aria-label="@track.Name">
+                                        @foreach (var word in Words(track.Name))
+                                        {
+                                            <span class="rr-beer-word" aria-hidden="true">
+                                                @foreach (var letter in word)
+                                                {
+                                                    <span class="rr-beer-letter" style="--i: @letterIndex">@letter</span>
+                                                    letterIndex++;
+                                                }
+                                            </span>
+                                        }
+                                    </h4>
+
+                                    <dl class="rr-beer-stats">
+                                        @if (track.AlcoholByVolume is { } abv)
+                                        {
+                                            <div>
+                                                <dt>Alc</dt>
+                                                <dd>@abv.ToString("0.#")<small>%</small></dd>
+                                            </div>
+                                        }
+
+                                        @if (track.Origin != null)
+                                        {
+                                            <div>
+                                                <dt>From</dt>
+                                                <dd class="rr-beer-stat-text">@track.Origin</dd>
+                                            </div>
+                                        }
+
+                                        <div>
+                                            <dt>Price</dt>
+                                            <dd>@track.Price.ToString("0.##")<small>ден</small></dd>
+                                        </div>
+                                    </dl>
+                                </div>
+
+                                <figure class="rr-beer-disc">
+                                    <svg class="rr-beer-burst" viewBox="0 0 200 200" aria-hidden="true">
+                                        <use href="#rr-beer-burst" />
+                                    </svg>
+
+                                    <svg class="rr-beer-orbit" viewBox="0 0 200 200" aria-hidden="true">
+                                        <defs>
+                                            <path id="@track.Anchor-orbit"
+                                                  d="M100,100 m-73,0 a73,73 0 1,1 146,0 a73,73 0 1,1 -146,0" />
+                                        </defs>
+                                        <text style="font-size: @(orbit.FontSize)px">
+                                            <textPath href="#@track.Anchor-orbit">@orbit.Text</textPath>
+                                        </text>
+                                    </svg>
+
+                                    <div class="rr-beer-photo">
+                                        @if (track.ImageUrl != null)
+                                        {
+                                            <img src="@track.ImageUrl"
+                                                 alt="@track.Name"
+                                                 loading="lazy"
+                                                 decoding="async" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rr-beer-photo-placeholder" aria-hidden="true">
+                                                <svg viewBox="0 0 100 100">
+                                                    <use href="#rr-beer-bolt" />
+                                                </svg>
+                                                <span>No photo.<br />Still cold.</span>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    @if (!track.IsAvailable)
+                                    {
+                                        <span class="rr-beer-stamp" aria-hidden="true">Sold out</span>
+                                    }
+                                </figure>
+
+                                <div class="rr-beer-text">
+                                    @if (track.Description != null)
+                                    {
+                                        <p class="rr-beer-description">@track.Description</p>
+                                    }
+
+                                    @if (track.FlavorNotes.Any())
+                                    {
+                                        <ul class="rr-beer-notes" aria-label="Flavour notes">
+                                            @foreach (var note in track.FlavorNotes)
+                                            {
+                                                <li>@note</li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+
+                                <div class="rr-beer-profile">
+                                    @if (track.Taste.Any())
+                                    {
+                                        <p class="rr-beer-label">Taste profile</p>
+
+                                        <ul class="rr-beer-taste">
+                                            @for (var scaleIndex = 0; scaleIndex < track.Taste.Count; scaleIndex++)
+                                            {
+                                                var scale = track.Taste[scaleIndex];
+
+                                                <li class="rr-taste"
+                                                    style="--pos: @(scale.Percent)%; --n: @scaleIndex;">
+                                                    <span class="rr-taste-label" aria-hidden="true">@scale.Label</span>
+                                                    <span class="rr-taste-end" aria-hidden="true">@scale.LowLabel</span>
+                                                    <span class="rr-taste-bar" aria-hidden="true">
+                                                        <span class="rr-taste-fill"></span>
+                                                        <span class="rr-taste-mark"></span>
+                                                    </span>
+                                                    <span class="rr-taste-end" aria-hidden="true">@scale.HighLabel</span>
+                                                    <span class="visually-hidden">@scale.Reading</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+
+                                    @if (track.Pairings.Any())
+                                    {
+                                        <p class="rr-beer-pairs">
+                                            <span class="rr-beer-label">Pairs with</span>
+                                            @string.Join(" · ", track.Pairings)
+                                        </p>
+                                    }
+
+                                    @if (!hideAiFeatures)
+                                    {
+                                        <a asp-controller="BeerGuide"
+                                           asp-action="Index"
+                                           asp-route-prompt="@($"Tell me about {track.Name}.")"
+                                           class="rr-beer-action">
+                                            @(track.IsAvailable
+                                                ? "Ask Rebel AI about this beer"
+                                                : "Find something similar")
+                                            <i aria-hidden="true">&rarr;</i>
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </section>
+            }
+        </div>
+    </div>
+
+    <section class="rr-beer-outro" aria-label="After the last track">
+        <p class="rr-beer-kicker">End of the record</p>
+        <h2>Still thirsty?</h2>
+
+        <div class="rr-beer-outro-actions">
+            <a asp-controller="Reservations" asp-action="Create">
+                Book a table
+            </a>
+
+            @if (!hideAiFeatures)
+            {
+                <a asp-controller="BeerGuide" asp-action="Index">
+                    Ask Rebel AI
+                </a>
+            }
+
+            <a href="#beerMenuTitle">
+                Back to the tracklist
+            </a>
+        </div>
+    </section>
+}

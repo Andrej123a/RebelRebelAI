@@ -1,4 +1,5 @@
 ﻿@using Rebel.Domain.Enums
+@using Rebel.Web.Services
 @model List<Rebel.Domain.Entities.Product>
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
@@ -47,7 +48,7 @@
         .ToList();
 }
 
-<div class="rr-menu-page">
+<div class="rr-menu-page@(selectedSection == "beer" ? " rr-menu-page--beer" : "")">
 
     <header class="rr-menu-hero">
         <div class="rr-menu-hero-noise"></div>
@@ -107,47 +108,37 @@
         </div>
     </header>
 
-    <main class="rr-menu-content">
+    @if (selectedSection == "beer")
+    {
+        <partial name="_BeerMenuStage" model="BeerMenuPresenter.Build(Model)" />
+    }
+    else
+    {
+        <main class="rr-menu-content">
 
-        @if (selectedSection == "beer" && !hideAiFeatures)
-        {
-            <aside class="rr-menu-guide-callout">
+            <div class="rr-menu-intro">
                 <div>
-                    <span>CAN'T PICK?</span>
-                    <strong>Let Rebel AI narrow the fridge.</strong>
+                    <p class="rr-menu-intro-label">CURRENTLY SERVING</p>
+                    <h2>@sectionTitle</h2>
                 </div>
 
-                <a asp-controller="BeerGuide" asp-action="Index">
-                    Ask Rebel AI &rarr;
-                </a>
-            </aside>
-        }
+            <p class="rr-menu-intro-text">
+                @sectionMessage
+            </p>
+        </div>
 
-        <div class="rr-menu-intro">
-            <div>
-                <p class="rr-menu-intro-label">CURRENTLY SERVING</p>
-                <h2>@sectionTitle</h2>
-            </div>
+            <section class="rr-menu-tools"
+                     aria-label="Menu search and filters">
+                <div class="rr-menu-search">
+                    <label for="menuSearchInput">
+                        Find your order
+                    </label>
+                    <input id="menuSearchInput"
+                           type="search"
+                           placeholder="Search burgers, spicy, vegan..."
+                           autocomplete="off" />
+                </div>
 
-        <p class="rr-menu-intro-text">
-            @sectionMessage
-        </p>
-    </div>
-
-        <section class="rr-menu-tools"
-                 aria-label="Menu search and filters">
-            <div class="rr-menu-search">
-                <label for="menuSearchInput">
-                    Find your order
-                </label>
-                <input id="menuSearchInput"
-                       type="search"
-                       placeholder="@(selectedSection == "beer" ? "Search beers..." : "Search burgers, spicy, vegan...")"
-                       autocomplete="off" />
-            </div>
-
-            @if (selectedSection != "beer")
-            {
                 <div class="rr-menu-chip-row"
                      aria-label="Menu tag filters">
                     <button type="button"
@@ -207,231 +198,235 @@
                         Clear filters
                     </button>
                 </div>
-            }
-        </section>
+            </section>
 
-        @if (!menuGroups.Any())
-        {
-            <div class="rr-menu-empty">
-                <span class="rr-menu-empty-symbol">✕</span>
-                <h3>Nothing here yet.</h3>
-                <p>The rebels are still working on this part of the menu.</p>
-            </div>
-        }
-        else
-        {
-            var categoryNumber = 1;
-
-            @foreach (var group in menuGroups)
+            @if (!menuGroups.Any())
             {
-                <section class="rr-menu-category">
+                <div class="rr-menu-empty">
+                    <span class="rr-menu-empty-symbol">✕</span>
+                    <h3>Nothing here yet.</h3>
+                    <p>The rebels are still working on this part of the menu.</p>
+                </div>
+            }
+            else
+            {
+                var categoryNumber = 1;
 
-                    <div class="rr-category-heading">
-                        <div class="rr-category-number">
-                            @categoryNumber.ToString("00")
+                @foreach (var group in menuGroups)
+                {
+                    <section class="rr-menu-category">
+
+                        <div class="rr-category-heading">
+                            <div class="rr-category-number">
+                                @categoryNumber.ToString("00")
+                            </div>
+
+                            <div class="rr-category-title-wrap">
+                                <span>REBEL MENU FILE</span>
+                                <h3>@group.Key</h3>
+                            </div>
+
+                            <div class="rr-category-count">
+                                @group.Count()
+                                @(group.Count() == 1 ? "ITEM" : "ITEMS")
+                            </div>
                         </div>
 
-                        <div class="rr-category-title-wrap">
-                            <span>REBEL MENU FILE</span>
-                            <h3>@group.Key</h3>
-                        </div>
+                        <div class="row g-4">
 
-                        <div class="rr-category-count">
-                            @group.Count()
-                            @(group.Count() == 1 ? "ITEM" : "ITEMS")
-                        </div>
-                    </div>
-
-                    <div class="row g-4">
-
-                        @foreach (var product in group)
-                        {
-                            var pairingDescription = string.IsNullOrWhiteSpace(product.Description)
-                                ? null
-                                : product.Description.Trim()[..Math.Min(product.Description.Trim().Length, 180)];
-                            var rebelPrompt = selectedType switch
+                            @foreach (var product in group)
                             {
-                                CategoryType.Food when product.IsAvailable =>
-                                    $"I need a beer pairing for {product.Name}." +
-                                    (pairingDescription == null
-                                        ? ""
-                                        : $" The dish is: {pairingDescription}.") +
-                                    " Give me three available options.",
-                                CategoryType.Beer when product.IsAvailable =>
-                                    $"Tell me about {product.Name}.",
-                                CategoryType.Beer =>
-                                    $"Tell me about {product.Name}.",
-                                _ => null
-                            };
-
-                            var searchableText =
-                                $"{product.Name} {product.Description} {group.Key}"
-                                    .ToLowerInvariant()
-                                    .Replace("\"", string.Empty);
-
-                            var tagData = string.Join(
-                                " ",
-                                new[]
+                                var pairingDescription = string.IsNullOrWhiteSpace(product.Description)
+                                    ? null
+                                    : product.Description.Trim()[..Math.Min(product.Description.Trim().Length, 180)];
+                                var rebelPrompt = selectedType switch
                                 {
-                                    product.IsAvailable ? "available" : "unavailable",
-                                    product.IsPopular ? "popular" : "",
-                                    product.IsSpicy ? "spicy" : "",
-                                    product.SweetnessLevel is >= 4 ? "sweet" : "",
-                                    product.IsVegetarian ? "vegetarian" : "",
-                                    product.IsVegan ? "vegan" : "",
-                                    product.ContainsNuts ? "nuts" : "",
-                                    product.IsLimited ? "limited" : "",
-                                    product.IsPromo ? "promo" : ""
-                                }.Where(tag => !string.IsNullOrWhiteSpace(tag)));
+                                    CategoryType.Food when product.IsAvailable =>
+                                        $"I need a beer pairing for {product.Name}." +
+                                        (pairingDescription == null
+                                            ? ""
+                                            : $" The dish is: {pairingDescription}.") +
+                                        " Give me three available options.",
+                                    _ => null
+                                };
 
-                            <div class="col-md-6 col-xl-4 rr-menu-product-shell"
-                                 data-menu-item
-                                 data-search="@searchableText"
-                                 data-tags="@tagData">
+                                var searchableText =
+                                    $"{product.Name} {product.Description} {group.Key}"
+                                        .ToLowerInvariant()
+                                        .Replace("\"", string.Empty);
 
-                                <article class="rr-menu-card h-100 @(!product.IsAvailable ? "is-unavailable" : "")">
+                                var tagData = string.Join(
+                                    " ",
+                                    new[]
+                                    {
+                                        product.IsAvailable ? "available" : "unavailable",
+                                        product.IsPopular ? "popular" : "",
+                                        product.IsSpicy ? "spicy" : "",
+                                        product.SweetnessLevel is >= 4 ? "sweet" : "",
+                                        product.IsVegetarian ? "vegetarian" : "",
+                                        product.IsVegan ? "vegan" : "",
+                                        product.ContainsNuts ? "nuts" : "",
+                                        product.IsLimited ? "limited" : "",
+                                        product.IsPromo ? "promo" : ""
+                                    }.Where(tag => !string.IsNullOrWhiteSpace(tag)));
 
-                                    <div class="rr-menu-card-image-wrap">
+                                <div class="col-md-6 col-xl-4 rr-menu-product-shell"
+                                     data-menu-item
+                                     data-search="@searchableText"
+                                     data-tags="@tagData">
 
-                                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                                        {
-                                            <img src="@product.ImageUrl"
-                                                 alt="@product.Name"
-                                                 class="rr-menu-card-image"
-                                                 loading="lazy" />
-                                        }
-                                        else
-                                        {
-                                            <div class="rr-menu-card-placeholder">
-                                                <span>RR</span>
-                                                <small>NO PHOTO.<br />STILL TASTES GOOD.</small>
-                                            </div>
-                                        }
+                                    <article class="rr-menu-card h-100 @(!product.IsAvailable ? "is-unavailable" : "")">
 
-                                        <div class="rr-menu-card-shade"></div>
+                                        <div class="rr-menu-card-image-wrap">
 
-                                        <div class="rr-menu-price">
-                                            <strong>@product.Price.ToString("0.##")</strong>
-                                            <span>ДЕН</span>
-                                        </div>
-
-                                        @if (!product.IsAvailable)
-                                        {
-                                            <div class="rr-sold-out">
-                                                SOLD OUT
-                                            </div>
-                                        }
-                                    </div>
-
-                                    <div class="rr-menu-card-body">
-
-                                        <div class="rr-menu-card-topline">
-                                            <span>@group.Key</span>
-
-                                            @if (product.IsAvailable)
+                                            @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
                                             {
-                                                <span class="rr-availability-dot">
-                                                    AVAILABLE
-                                                </span>
+                                                <img src="@product.ImageUrl"
+                                                     alt="@product.Name"
+                                                     class="rr-menu-card-image"
+                                                     loading="lazy" />
                                             }
                                             else
                                             {
-                                                <span class="rr-availability-dot unavailable">
-                                                    UNAVAILABLE
-                                                </span>
+                                                <div class="rr-menu-card-placeholder">
+                                                    <span>RR</span>
+                                                    <small>NO PHOTO.<br />STILL TASTES GOOD.</small>
+                                                </div>
+                                            }
+
+                                            <div class="rr-menu-card-shade"></div>
+
+                                            <div class="rr-menu-price">
+                                                <strong>@product.Price.ToString("0.##")</strong>
+                                                <span>ДЕН</span>
+                                            </div>
+
+                                            @if (!product.IsAvailable)
+                                            {
+                                                <div class="rr-sold-out">
+                                                    SOLD OUT
+                                                </div>
                                             }
                                         </div>
 
-                                        <h4 class="rr-menu-card-title">
-                                            @product.Name
-                                        </h4>
+                                        <div class="rr-menu-card-body">
 
-                                        <div class="rr-menu-tags">
-                                            @if (product.IsPopular)
+                                            <div class="rr-menu-card-topline">
+                                                <span>@group.Key</span>
+
+                                                @if (product.IsAvailable)
+                                                {
+                                                    <span class="rr-availability-dot">
+                                                        AVAILABLE
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="rr-availability-dot unavailable">
+                                                        UNAVAILABLE
+                                                    </span>
+                                                }
+                                            </div>
+
+                                            <h4 class="rr-menu-card-title">
+                                                @product.Name
+                                            </h4>
+
+                                            <div class="rr-menu-tags">
+                                                @if (product.IsPopular)
+                                                {
+                                                    <span><i>*</i>Popular</span>
+                                                }
+
+                                                @if (product.IsSpicy)
+                                                {
+                                                    <span><i>🌶</i>Spicy</span>
+                                                }
+
+                                                @if (product.SweetnessLevel is >= 4)
+                                                {
+                                                    <span><i>S</i>Sweet</span>
+                                                }
+
+                                                @if (product.IsVegetarian)
+                                                {
+                                                    <span><i>☘</i>Vegetarian</span>
+                                                }
+
+                                                @if (product.IsVegan)
+                                                {
+                                                    <span><i>🌿</i>Vegan</span>
+                                                }
+
+                                                @if (product.ContainsNuts)
+                                                {
+                                                    <span class="warning"><i>!</i>Contains nuts</span>
+                                                }
+
+                                                @if (product.IsLimited)
+                                                {
+                                                    <span><i>#</i>Limited</span>
+                                                }
+
+                                                @if (product.IsPromo)
+                                                {
+                                                    <span><i>%</i>Promo</span>
+                                                }
+                                            </div>
+
+                                            <p class="rr-menu-card-description">
+                                                @product.Description
+                                            </p>
+
+                                            @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
                                             {
-                                                <span><i>*</i>Popular</span>
+                                                <a asp-controller="BeerGuide"
+                                                   asp-action="Index"
+                                                   asp-route-prompt="@rebelPrompt"
+                                                   class="rr-menu-rebel-action">
+                                                    <span aria-hidden="true"></span>
+                                                    <strong>Find a beer for this</strong>
+                                                    <i aria-hidden="true">&rarr;</i>
+                                                </a>
                                             }
 
-                                            @if (product.IsSpicy)
-                                            {
-                                                <span><i>🌶</i>Spicy</span>
-                                            }
-
-                                            @if (product.SweetnessLevel is >= 4)
-                                            {
-                                                <span><i>S</i>Sweet</span>
-                                            }
-
-                                            @if (product.IsVegetarian)
-                                            {
-                                                <span><i>☘</i>Vegetarian</span>
-                                            }
-
-                                            @if (product.IsVegan)
-                                            {
-                                                <span><i>🌿</i>Vegan</span>
-                                            }
-
-                                            @if (product.ContainsNuts)
-                                            {
-                                                <span class="warning"><i>!</i>Contains nuts</span>
-                                            }
-
-                                            @if (product.IsLimited)
-                                            {
-                                                <span><i>#</i>Limited</span>
-                                            }
-
-                                            @if (product.IsPromo)
-                                            {
-                                                <span><i>%</i>Promo</span>
-                                            }
+                                            <div class="rr-menu-card-footer">
+                                                <span>REBEL REBEL BY FAT KITCHEN</span>
+                                                <span>✦</span>
+                                            </div>
                                         </div>
 
-                                        <p class="rr-menu-card-description">
-                                            @product.Description
-                                        </p>
+                                    </article>
 
-                                        @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
-                                        {
-                                            <a asp-controller="BeerGuide"
-                                               asp-action="Index"
-                                               asp-route-prompt="@rebelPrompt"
-                                               class="rr-menu-rebel-action">
-                                                <span aria-hidden="true"></span>
-                                                <strong>
-                                                    @(selectedType == CategoryType.Food
-                                                        ? "Find a beer for this"
-                                                        : product.IsAvailable
-                                                            ? "Ask about this beer"
-                                                            : "Find something similar")
-                                                </strong>
-                                                <i aria-hidden="true">&rarr;</i>
-                                            </a>
-                                        }
+                                </div>
+                            }
 
-                                        <div class="rr-menu-card-footer">
-                                            <span>REBEL REBEL BY FAT KITCHEN</span>
-                                            <span>✦</span>
-                                        </div>
-                                    </div>
+                        </div>
+                    </section>
 
-                                </article>
-
-                            </div>
-                        }
-
-                    </div>
-                </section>
-
-                categoryNumber++;
+                    categoryNumber++;
+                }
             }
-        }
 
-    </main>
+        </main>
+    }
 </div>
 
+@section Styles {
+    @if (selectedSection == "beer")
+    {
+        <link rel="stylesheet"
+              href="~/css/beer-menu.css"
+              asp-append-version="true" />
+    }
+}
+
 @section Scripts {
+    @if (selectedSection == "beer")
+    {
+        <script src="~/js/beer-menu.js" asp-append-version="true"></script>
+    }
+
     <script>
         (() => {
             const searchInput =
