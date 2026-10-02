@@ -38,9 +38,9 @@
             </div>
 
             <div class="rs-event-copy">
-                <p class="rs-kicker rs-kicker--pink">Rebel Rebel presents · No. @localEventDate.ToString("dd")</p>
+                <p class="rs-kicker rs-kicker--red">Rebel Rebel presents · No. @localEventDate.ToString("dd")</p>
 
-                <h1 class="rs-display rs-display--lg" data-rs-flip>@Model.Title</h1>
+                <h1 class="rs-display rs-display--lg">@Model.Title</h1>
 
                 <dl class="rs-stats rs-event-stats">
                     <div>
@@ -76,7 +76,7 @@
                     <a asp-controller="Reservations"
                        asp-action="Create"
                        asp-route-eventId="@Model.Id"
-                       class="rs-btn rs-btn--gradient">
+                       class="rs-btn rs-btn--primary">
                         Claim your table <i aria-hidden="true">&rarr;</i>
                     </a>
 

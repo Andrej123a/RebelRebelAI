@@ -61,11 +61,11 @@
     <section class="rs-section rs-home-intro">
         <div class="rs-container rs-home-intro-grid">
             <div class="rs-home-intro-copy">
-                <p class="rs-kicker">Skopje // alternative pub // since May 2025</p>
+                <p class="rs-kicker">Skopje / alternative pub / since May 2025</p>
 
-                <h1 class="rs-display rs-display--xl" data-rs-flip aria-label="Meet the Rebels">
+                <h1 class="rs-display rs-display--xl" aria-label="Meet the Rebels">
                     Meet the
-                    <span class="rs-gradient-text">Rebels</span>
+                    <span class="rs-accent">Rebels</span>
                 </h1>
 
                 <p class="rs-lead">
@@ -84,7 +84,7 @@
                 <div class="rs-home-actions">
                     <a asp-controller="Reservations"
                        asp-action="Create"
-                       class="rs-btn rs-btn--gradient">
+                       class="rs-btn rs-btn--primary">
                         Book a table <i aria-hidden="true">&rarr;</i>
                     </a>
 
@@ -99,14 +99,15 @@
                 </div>
             </div>
 
-            <figure class="rs-photo rs-home-bowie" style="--tone: var(--rs-coral);">
+            <figure class="rs-photo rs-home-bowie" style="--tone: var(--rs-red);">
                 <div class="rs-photo-frame rs-home-bowie-frame">
+                    <span class="rs-tape rs-home-bowie-tape" aria-hidden="true"></span>
                     <img src="~/images/rebel-bowie-mural.webp"
                          alt="David Bowie portrait, the signature image of Rebel Rebel" />
                 </div>
 
                 <figcaption>
-                    <strong>Inspired by Bowie</strong>
+                    <strong class="rs-scrawl">Inspired by Bowie</strong>
                     He is more than a picture on our wall. Bowie gave Rebel
                     Rebel its name and its spirit: curious, bold and never
                     too interested in fitting neatly into one box.
@@ -133,11 +134,11 @@
         </div>
     </div>
 
-    <section class="rs-flood rs-flood--coral rs-home-beer">
+    <section class="rs-flood rs-flood--bone rs-home-beer">
         <div class="rs-container">
             <div class="rs-home-beer-head">
-                <h2 class="rs-display rs-display--lg" data-rs-flip aria-label="More than 50 beers.">
-                    More than <span class="rs-outline-text">50</span> beers.
+                <h2 class="rs-display rs-display--lg" aria-label="More than 50 beers.">
+                    More than <span class="rs-home-fifty">50</span> beers.
                 </h2>
 
                 <div class="rs-home-beer-copy">
@@ -157,7 +158,7 @@
                     <a asp-controller="Home"
                        asp-action="Menu"
                        asp-route-section="beer"
-                       class="rs-btn rs-btn--night">
+                       class="rs-btn rs-btn--primary">
                         Open the beer menu <i aria-hidden="true">&rarr;</i>
                     </a>
                 </div>
@@ -207,8 +208,8 @@
         <div class="rs-container">
             <header class="rs-heading">
                 <div>
-                    <p class="rs-kicker rs-kicker--yellow">Inside the room</p>
-                    <h2 class="rs-display rs-display--lg" data-rs-flip>The evidence.</h2>
+                    <p class="rs-kicker rs-kicker--red">Inside the room</p>
+                    <h2 class="rs-display rs-display--lg">The evidence.</h2>
                 </div>
 
                 <p>
@@ -229,10 +230,7 @@
                          alt="The Bowie mural and Rebel Rebel wall inside the Skopje pub" />
                 </figure>
 
-                <div class="rs-home-gallery-card rs-flood rs-flood--cyan">
-                    <svg class="rs-home-gallery-burst" viewBox="0 0 200 200" aria-hidden="true">
-                        <use href="#rs-burst" />
-                    </svg>
+                <div class="rs-home-gallery-card rs-flood rs-flood--red">
                     <span class="rs-label">Warning</span>
                     <strong>Perfectly imperfect. Properly alive.</strong>
                 </div>
@@ -249,8 +247,8 @@
         <div class="rs-container">
             <header class="rs-heading">
                 <div>
-                    <p class="rs-kicker rs-kicker--pink">Fat Kitchen + the fridge</p>
-                    <h2 class="rs-display rs-display--lg" data-rs-flip>Pick your poison.</h2>
+                    <p class="rs-kicker">Fat Kitchen + the fridge</p>
+                    <h2 class="rs-display rs-display--lg">Pick your poison.</h2>
                 </div>
 
                 <p>
@@ -264,7 +262,7 @@
                    asp-action="Menu"
                    asp-route-section="food"
                    class="rs-home-panel"
-                   style="--tone: var(--rs-yellow);">
+                   style="--tone: var(--rs-orange);">
                     <span class="rs-home-rotator" aria-hidden="true">
                         <img src="https://imageproxy.wolt.com/assets/6a02e61c938b4b58b5c33754?w=960" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/6a03117d3f815eb3031bd7ba?w=960" alt="" />
@@ -285,7 +283,7 @@
                    asp-action="Menu"
                    asp-route-section="beer"
                    class="rs-home-panel"
-                   style="--tone: var(--rs-cyan);">
+                   style="--tone: var(--rs-yellow);">
                     <span class="rs-home-rotator" aria-hidden="true">
                         <img src="https://imageproxy.wolt.com/assets/699da1e53eb3341f036f3ee9?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf30?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
@@ -308,7 +306,7 @@
                        asp-action="Menu"
                        asp-route-section="drink"
                        class="rs-home-panel"
-                       style="--tone: var(--rs-pink);">
+                       style="--tone: var(--rs-red);">
                         <span class="rs-home-panel-num">03</span>
 
                         <span class="rs-home-panel-body">
@@ -322,7 +320,7 @@
         </div>
     </section>
 
-    <section class="rs-flood rs-flood--gradient rs-home-cta">
+    <section class="rs-flood rs-flood--red rs-home-cta">
         <div class="rs-container rs-home-cta-inner">
             <h2 class="rs-display rs-display--lg">Your table<br />is waiting.</h2>
 

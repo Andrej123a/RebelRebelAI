@@ -99,7 +99,7 @@
 
     @await RenderSectionAsync("Styles", required: false)
 
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Rock+Salt&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&family=Special+Elite&display=swap"
           rel="stylesheet" />
 </head>
 
@@ -152,7 +152,7 @@
                     <a asp-controller="Home"
                        asp-action="Index"
                        class="rs-nav-link @IsActive("Home", "Index")"
-                       style="--tone: var(--rs-coral);">
+                       style="--tone: var(--rs-orange);">
                         <span class="rs-nav-num" aria-hidden="true">01</span>
                         Home
                     </a>
@@ -171,7 +171,7 @@
                         <a asp-controller="BeerGuide"
                            asp-action="Index"
                            class="rs-nav-link @IsActive("BeerGuide")"
-                           style="--tone: var(--rs-cyan);">
+                           style="--tone: var(--rs-yellow);">
                             <span class="rs-nav-num" aria-hidden="true">03</span>
                             Rebel AI
                         </a>
@@ -180,7 +180,7 @@
                     <a asp-controller="Events"
                        asp-action="Index"
                        class="rs-nav-link @IsActive("Events")"
-                       style="--tone: var(--rs-pink);">
+                       style="--tone: var(--rs-red);">
                         <span class="rs-nav-num" aria-hidden="true">@(hideAiFeatures ? "03" : "04")</span>
                         Events
                     </a>
@@ -188,7 +188,7 @@
                     <a asp-controller="Home"
                        asp-action="Contact"
                        class="rs-nav-link @IsActive("Home", "Contact")"
-                       style="--tone: var(--rs-lilac);">
+                       style="--tone: var(--rs-paper);">
                         <span class="rs-nav-num" aria-hidden="true">@(hideAiFeatures ? "04" : "05")</span>
                         Contact
                     </a>
@@ -196,7 +196,7 @@
                     <a asp-controller="Reservations"
                        asp-action="Lookup"
                        class="rs-nav-link @IsActive("Reservations", "Lookup")"
-                       style="--tone: var(--rs-blue-glow);">
+                       style="--tone: var(--rs-paper);">
                         <span class="rs-nav-num" aria-hidden="true">@(hideAiFeatures ? "05" : "06")</span>
                         My booking
                     </a>
@@ -204,7 +204,7 @@
 
                 <a asp-controller="Reservations"
                    asp-action="Create"
-                   class="rs-btn rs-btn--gradient rs-nav-cta">
+                   class="rs-btn rs-btn--primary rs-nav-cta">
                     Book a table <i aria-hidden="true">&rarr;</i>
                 </a>
             </div>
@@ -252,7 +252,7 @@
                 <p>Walk in or play it smart.</p>
                 <a asp-controller="Reservations"
                    asp-action="Create"
-                   class="rs-btn rs-btn--gradient">
+                   class="rs-btn rs-btn--primary">
                     Book a table <i aria-hidden="true">&rarr;</i>
                 </a>
             </div>
@@ -268,7 +268,7 @@
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="~/js/rebel-stardust.js" asp-append-version="true"></script>
+    <script src="~/js/rebel-site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 

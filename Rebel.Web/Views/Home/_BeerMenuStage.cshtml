@@ -39,22 +39,6 @@
 
         return (text, fontSize.ToString("0.##", CultureInfo.InvariantCulture));
     }
-
-    IEnumerable<IEnumerable<string>> Words(string name)
-    {
-        foreach (var word in name.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-        {
-            var letters = new List<string>();
-            var enumerator = StringInfo.GetTextElementEnumerator(word);
-
-            while (enumerator.MoveNext())
-            {
-                letters.Add(enumerator.GetTextElement());
-            }
-
-            yield return letters;
-        }
-    }
 }
 
 <svg class="rr-beer-defs" aria-hidden="true" focusable="false">
@@ -91,7 +75,7 @@
         <p class="rr-beer-intro-text">
             @Model.TotalCount @(Model.TotalCount == 1 ? "beer" : "beers") on the record,
             @Model.AvailableCount pouring right now.
-            Scroll slowly. The room changes colour with every track.
+            Scroll slowly. The light shifts with every track.
         </p>
     </div>
 
@@ -167,7 +151,7 @@ else
                         class="rr-beer-filter"
                         aria-pressed="false"
                         data-beer-family="@family.Key"
-                        style="--chip-bg: @family.Background; --chip-ink: @family.Ink; --chip-glow: @family.Glow;">
+                        style="--chip-bg: @family.Glow; --chip-ink: #0B0B0B; --chip-glow: @family.Glow;">
                     <i aria-hidden="true"></i>
                     @family.Label
                     <span>@tracks.Count(track => track.Family.Key == family.Key)</span>
@@ -215,7 +199,7 @@ else
                         {
                             <li data-beer-rail="@track.Anchor"
                                 class="@(!track.IsAvailable ? "is-sold-out" : null)"
-                                style="--dot: @track.Family.Background;">
+                                style="--dot: @track.Family.Glow;">
                                 <a href="#@track.Anchor">
                                     <span class="rr-beer-rail-number">@track.NumberLabel</span>
                                     <span class="rr-beer-rail-name">@track.Name</span>
@@ -252,7 +236,6 @@ else
                     {
                         var orbit = OrbitText(track);
                         var nameId = $"{track.Anchor}-name";
-                        var letterIndex = 0;
                         var trackClasses = string.Join(
                             " ",
                             new[]
@@ -307,20 +290,7 @@ else
                                         <p class="rr-beer-style">@track.Style</p>
                                     }
 
-                                    <h4 id="@nameId"
-                                        class="rr-beer-name"
-                                        aria-label="@track.Name">
-                                        @foreach (var word in Words(track.Name))
-                                        {
-                                            <span class="rr-beer-word" aria-hidden="true">
-                                                @foreach (var letter in word)
-                                                {
-                                                    <span class="rr-beer-letter" style="--i: @letterIndex">@letter</span>
-                                                    letterIndex++;
-                                                }
-                                            </span>
-                                        }
-                                    </h4>
+                                    <h4 id="@nameId" class="rr-beer-name">@track.Name</h4>
 
                                     <dl class="rr-beer-stats">
                                         @if (track.AlcoholByVolume is { } abv)

@@ -1,10 +1,13 @@
 ﻿/* =========================================================
-   REBEL REBEL — PUBLIC SITE ("Stardust")
+   REBEL REBEL — PUBLIC SITE ("Station to Station")
 
-   One visual language for every guest page, taken from the
-   beer menu: black stage, Ziggy colours (coral, cyan, yellow,
-   lilac, pink, electric blue), Anton headlines, Space Mono
-   labels, pills, `//` marquees and spinning badges.
+   One visual language for every guest page, in the pub's
+   original colours: near-black rooms, bone paper, Bowie red,
+   the old orange and yellow, plus the darks of a goth bar
+   (oxblood, ash). References: the black-and-white Station to
+   Station sleeve with its red type, Factory Records' strict
+   typographic order, and photocopied post-punk flyers — tape,
+   stamps, typewriter and scrawl.
 
    Photos are never recoloured here: every image keeps the
    crop and filter it had before the redesign.
@@ -30,46 +33,43 @@
    ========================================================= */
 
 :root {
-    --rs-night: #0b0b0b;
-    --rs-night-2: #111111;
-    --rs-panel: #141414;
-    --rs-panel-2: #1b1b1b;
-    --rs-paper: #faf7f0;
-    --rs-muted: rgba(250, 247, 240, 0.7);
-    --rs-faint: rgba(250, 247, 240, 0.48);
-    --rs-line: rgba(250, 247, 240, 0.14);
-    --rs-line-strong: rgba(250, 247, 240, 0.3);
+    --rs-night: #070707;
+    --rs-night-2: #0d0d0d;
+    --rs-panel: #111111;
+    --rs-panel-2: #181818;
+    --rs-paper: #f1ede4;
+    --rs-muted: #b8b3aa;
+    --rs-faint: #929292;
+    --rs-line: rgba(241, 237, 228, 0.12);
+    --rs-line-strong: rgba(241, 237, 228, 0.26);
 
-    --rs-coral: #f6676c;
-    --rs-cyan: #07bfdd;
-    --rs-yellow: #f4c400;
-    --rs-purple: #6a4fb0;
-    --rs-lilac: #a894f2;
-    --rs-magenta: #c2187a;
-    --rs-pink: #ff6fc8;
+    /* The original Rebel Rebel colours. */
     --rs-red: #c8202d;
-    --rs-red-glow: #ff5a67;
-    --rs-blue: #0456fd;
-    --rs-blue-glow: #5b8cff;
+    --rs-red-text: #e0453b;
+    --rs-orange: #f04a24;
+    --rs-yellow: #f4c400;
 
-    --rs-gradient: linear-gradient(90deg, #07bfdd 0%, #f6676c 40%, #ff6fc8 58%, #7365ac 76%, #0456fd 100%);
+    /* Goth-bar darks for the few flooded panels. */
+    --rs-oxblood: #4a0f15;
+    --rs-ash: #2b2928;
 
     --rs-display: "Anton", Impact, "Arial Black", sans-serif;
     --rs-mono: "Space Mono", ui-monospace, monospace;
     --rs-body: "Space Grotesk", system-ui, sans-serif;
+    --rs-type: "Special Elite", "Courier New", monospace;
+    --rs-scrawl: "Rock Salt", cursive;
 
-    --rs-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
     --rs-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-    --rs-radius: 24px;
-    --rs-gutter: clamp(20px, 5vw, 80px);
+    --rs-shadow-red: 7px 7px 0 var(--rs-red);
+    --rs-shadow-yellow: 7px 7px 0 var(--rs-yellow);
 
     /* Legacy names still read by the Rebel AI and beer menu sheets. */
     --rr-black: var(--rs-night);
     --rr-white: var(--rs-paper);
     --rr-yellow: var(--rs-yellow);
     --rr-red: var(--rs-red);
-    --rr-orange: var(--rs-coral);
+    --rr-orange: var(--rs-orange);
     --rr-border: var(--rs-line);
     --rr-border-strong: var(--rs-line-strong);
 }
@@ -96,9 +96,9 @@ body {
     min-height: 100vh;
     margin: 0;
     background:
-        radial-gradient(circle at 8% 10%, rgba(7, 191, 221, 0.07), transparent 30%),
-        radial-gradient(circle at 92% 82%, rgba(255, 111, 200, 0.06), transparent 32%),
-        var(--rs-night);
+        radial-gradient(circle at 12% 18%, rgba(244, 196, 0, 0.05), transparent 28%),
+        radial-gradient(circle at 88% 78%, rgba(200, 32, 45, 0.09), transparent 30%),
+        linear-gradient(115deg, #050505 0%, #0b0b0b 48%, #060606 100%);
     color: var(--rs-paper);
     font-family: var(--rs-body);
     isolation: isolate;
@@ -113,7 +113,7 @@ body {
 
 ::selection {
     color: var(--rs-night);
-    background: var(--rs-cyan);
+    background: var(--rs-yellow);
 }
 
 /* The paper texture stays: it is part of the site's photography, not its colour scheme. */
@@ -143,7 +143,7 @@ img {
 
 a {
     color: inherit;
-    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.3s var(--rs-bounce);
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 h1,
@@ -162,7 +162,7 @@ p {
 }
 
 ::placeholder {
-    color: var(--rs-faint) !important;
+    color: #777777 !important;
     opacity: 1;
 }
 
@@ -172,7 +172,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
-    outline: 2px solid var(--rs-cyan);
+    outline: 2px solid var(--rs-yellow);
     outline-offset: 3px;
 }
 
@@ -180,26 +180,26 @@ summary:focus-visible {
 .form-control:focus,
 .form-check-input:focus,
 .form-select:focus {
-    box-shadow: 0 0 0 0.25rem rgba(7, 191, 221, 0.3);
+    box-shadow: 0 0 0 0.25rem rgba(244, 196, 0, 0.3);
 }
 
 .form-control,
 .form-select {
     color: var(--rs-paper);
-    background-color: var(--rs-night-2);
-    border-color: var(--rs-line-strong);
+    background-color: var(--rs-panel);
+    border-color: #303030;
 }
 
     .form-control:focus,
     .form-select:focus {
         color: var(--rs-paper);
-        background-color: var(--rs-panel);
-        border-color: var(--rs-cyan);
+        background-color: #151515;
+        border-color: var(--rs-yellow);
     }
 
 .text-danger,
 .field-validation-error {
-    color: var(--rs-red-glow) !important;
+    color: var(--rs-orange) !important;
 }
 
 /* Keep native date/time controls legible on dark surfaces. */
@@ -223,13 +223,13 @@ input[type="search"]::-webkit-search-cancel-button {
    ========================================================= */
 
 .rs-container {
-    width: min(1320px, calc(100% - 40px));
+    width: min(1280px, calc(100% - 40px));
     margin-inline: auto;
 }
 
 .rs-section {
     position: relative;
-    padding-block: clamp(72px, 10vw, 140px);
+    padding-block: clamp(72px, 10vw, 136px);
 }
 
 .rs-defs {
@@ -244,7 +244,7 @@ input[type="search"]::-webkit-search-cancel-button {
 .rs-kicker {
     display: block;
     margin: 0 0 14px;
-    color: var(--rs-cyan);
+    color: var(--rs-yellow);
     font-family: var(--rs-mono);
     font-size: 12px;
     font-weight: 700;
@@ -253,16 +253,12 @@ input[type="search"]::-webkit-search-cancel-button {
     text-transform: uppercase;
 }
 
-.rs-kicker--coral {
-    color: var(--rs-coral);
+.rs-kicker--red {
+    color: var(--rs-orange);
 }
 
 .rs-kicker--yellow {
     color: var(--rs-yellow);
-}
-
-.rs-kicker--pink {
-    color: var(--rs-pink);
 }
 
 .rs-kicker--ink {
@@ -270,39 +266,58 @@ input[type="search"]::-webkit-search-cancel-button {
     opacity: 0.8;
 }
 
+/* A hand-written aside, like a marker note on a flyer. */
+.rs-scrawl {
+    color: var(--rs-red-text);
+    font-family: var(--rs-scrawl);
+    font-size: 0.95rem;
+    letter-spacing: 0;
+    line-height: 1.6;
+    text-transform: none;
+}
+
+/* A marker-pen word inside a big headline, as on the old flyers. */
+.rs-display .rs-display-scrawl {
+    display: inline-block;
+    font-size: 0.56em;
+    line-height: 1.3;
+    text-transform: none;
+    transform: rotate(-3deg);
+}
+
 .rs-display {
     margin: 0;
     font-family: var(--rs-display);
     font-weight: 400;
     letter-spacing: -0.005em;
-    line-height: 0.86;
+    line-height: 0.88;
     text-transform: uppercase;
 }
 
 .rs-display--xl {
-    font-size: clamp(68px, 11.5vw, 190px);
+    font-size: clamp(64px, 10.5vw, 170px);
 }
 
 .rs-display--lg {
-    font-size: clamp(54px, 8vw, 136px);
+    font-size: clamp(52px, 7.4vw, 124px);
 }
 
 .rs-display--md {
-    font-size: clamp(40px, 5.4vw, 88px);
+    font-size: clamp(40px, 5.2vw, 84px);
 }
 
 .rs-display--sm {
     font-size: clamp(30px, 3.4vw, 52px);
 }
 
-.rs-gradient-text {
-    background: var(--rs-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
+/* The red word on a black-and-white sleeve. */
+.rs-accent {
+    color: var(--rs-red-text);
+}
+
+.rs-display .rs-accent {
+    color: var(--rs-paper);
+    text-shadow: 0.055em 0.055em 0 var(--rs-red);
 }
 
 .rs-outline-text {
@@ -314,15 +329,17 @@ input[type="search"]::-webkit-search-cancel-button {
     max-width: 60ch;
     margin: 24px 0 0;
     color: var(--rs-muted);
-    font-size: clamp(16px, 1.3vw, 19px);
-    line-height: 1.6;
+    font-family: var(--rs-type);
+    font-size: clamp(16px, 1.25vw, 18px);
+    line-height: 1.7;
 }
 
 .rs-copy p {
     max-width: 62ch;
     color: var(--rs-muted);
-    font-size: 16px;
-    line-height: 1.7;
+    font-family: var(--rs-type);
+    font-size: 15px;
+    line-height: 1.8;
 }
 
 .rs-label {
@@ -333,7 +350,7 @@ input[type="search"]::-webkit-search-cancel-button {
     text-transform: uppercase;
 }
 
-/* ---------- buttons ---------- */
+/* ---------- buttons: square, printed, with a hard shadow ---------- */
 
 .rs-btn {
     display: inline-flex;
@@ -343,54 +360,55 @@ input[type="search"]::-webkit-search-cancel-button {
     min-height: 52px;
     padding: 14px 24px;
     border: 1px solid transparent;
-    border-radius: 999px;
+    border-radius: 0;
     background: transparent;
     color: var(--rs-paper);
     font-family: var(--rs-display);
     font-size: 18px;
     font-weight: 400;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     line-height: 1;
     text-decoration: none;
     text-transform: uppercase;
     white-space: nowrap;
     cursor: pointer;
-    transition: transform 0.3s var(--rs-bounce), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
     .rs-btn i {
         font-style: normal;
-        transition: transform 0.3s var(--rs-bounce);
+        transition: transform 0.2s ease;
     }
 
-    .rs-btn:hover,
-    .rs-btn:focus-visible {
-        transform: translateY(-2px) rotate(-1deg);
+    .rs-btn:hover i,
+    .rs-btn:focus-visible i {
+        transform: translateX(4px);
     }
 
-        .rs-btn:hover i,
-        .rs-btn:focus-visible i {
-            transform: translateX(4px);
-        }
-
-.rs-btn--gradient {
-    background: var(--rs-gradient);
+.rs-btn--primary {
+    background: var(--rs-orange);
     color: var(--rs-night);
+    box-shadow: 5px 5px 0 var(--rs-red);
 }
 
-    .rs-btn--gradient:hover,
-    .rs-btn--gradient:focus-visible {
+    .rs-btn--primary:hover,
+    .rs-btn--primary:focus-visible {
+        background: var(--rs-yellow);
         color: var(--rs-night);
+        box-shadow: 7px 7px 0 var(--rs-red);
+        transform: translate(-2px, -2px);
     }
 
 .rs-btn--paper {
     background: var(--rs-paper);
     color: var(--rs-night);
+    box-shadow: 5px 5px 0 var(--rs-red);
 }
 
     .rs-btn--paper:hover,
     .rs-btn--paper:focus-visible {
         color: var(--rs-night);
+        transform: translate(-2px, -2px);
     }
 
 .rs-btn--night {
@@ -400,6 +418,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
     .rs-btn--night:hover,
     .rs-btn--night:focus-visible {
+        background: var(--rs-red);
         color: var(--rs-paper);
     }
 
@@ -410,8 +429,8 @@ input[type="search"]::-webkit-search-cancel-button {
 
     .rs-btn--ghost:hover,
     .rs-btn--ghost:focus-visible {
-        border-color: var(--rs-cyan);
-        color: var(--rs-cyan);
+        border-color: var(--rs-yellow);
+        color: var(--rs-yellow);
     }
 
 .rs-btn--ink {
@@ -422,6 +441,7 @@ input[type="search"]::-webkit-search-cancel-button {
     .rs-btn--ink:hover,
     .rs-btn--ink:focus-visible {
         color: inherit;
+        transform: translate(-2px, -2px);
     }
 
 .rs-btn--small {
@@ -434,57 +454,57 @@ input[type="search"]::-webkit-search-cancel-button {
     width: 100%;
 }
 
-/* ---------- chips & pills ---------- */
+/* ---------- chips & tags: diamonds, like the old menu ---------- */
 
 .rs-chip {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 9px 14px;
+    padding: 8px 13px;
     border: 1px solid var(--rs-line-strong);
-    border-radius: 999px;
+    border-radius: 0;
     background: transparent;
     color: var(--rs-paper);
     font-family: var(--rs-mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     line-height: 1.2;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.3s var(--rs-bounce);
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
     .rs-chip i {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
         flex-shrink: 0;
-        border-radius: 50%;
-        background: var(--chip, var(--rs-paper));
+        background: var(--chip, var(--rs-orange));
+        transform: rotate(45deg);
     }
 
     .rs-chip:hover {
-        border-color: var(--chip, var(--rs-paper));
-        color: var(--chip, var(--rs-paper));
-        transform: translateY(-1px);
+        border-color: var(--rs-yellow);
+        color: var(--rs-yellow);
     }
 
     .rs-chip.is-active {
         border-color: transparent;
-        background: var(--chip, var(--rs-paper));
+        background: var(--rs-yellow);
         color: var(--rs-night);
     }
 
         .rs-chip.is-active i {
-            background: currentColor;
+            background: var(--rs-red);
         }
 
 .rs-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 11px;
+    padding: 3px 9px;
     border: 1px solid currentColor;
-    border-radius: 999px;
+    border-radius: 0;
     font-family: var(--rs-mono);
     font-size: 11px;
     letter-spacing: 0.1em;
@@ -497,24 +517,29 @@ input[type="search"]::-webkit-search-cancel-button {
 .rs-card {
     position: relative;
     border: 1px solid var(--rs-line);
-    border-radius: var(--rs-radius);
+    border-radius: 0;
     background: var(--rs-panel);
 }
 
 .rs-flood {
-    --flood: var(--rs-coral);
-    --flood-ink: var(--rs-night);
+    --flood: var(--rs-red);
+    --flood-ink: var(--rs-paper);
     background: var(--flood);
     color: var(--flood-ink);
 }
 
-.rs-flood--coral {
-    --flood: var(--rs-coral);
+.rs-flood--red {
+    --flood: var(--rs-red);
+    --flood-ink: var(--rs-paper);
+}
+
+.rs-flood--bone {
+    --flood: var(--rs-paper);
     --flood-ink: var(--rs-night);
 }
 
-.rs-flood--cyan {
-    --flood: var(--rs-cyan);
+.rs-flood--orange {
+    --flood: var(--rs-orange);
     --flood-ink: var(--rs-night);
 }
 
@@ -523,27 +548,37 @@ input[type="search"]::-webkit-search-cancel-button {
     --flood-ink: var(--rs-night);
 }
 
-.rs-flood--purple {
-    --flood: var(--rs-purple);
+.rs-flood--oxblood {
+    --flood: var(--rs-oxblood);
     --flood-ink: var(--rs-paper);
 }
 
-.rs-flood--magenta {
-    --flood: var(--rs-magenta);
-    --flood-ink: var(--rs-paper);
+/* A strip of masking tape across a corner. */
+.rs-tape {
+    position: absolute;
+    z-index: 3;
+    width: 86px;
+    height: 24px;
+    background: rgba(240, 74, 36, 0.88);
+    pointer-events: none;
 }
 
-.rs-flood--blue {
-    --flood: var(--rs-blue);
-    --flood-ink: var(--rs-paper);
+/* A rubber stamp: outlined, slightly crooked. */
+.rs-stamp {
+    display: inline-block;
+    padding: 6px 14px;
+    border: 3px solid currentColor;
+    color: var(--rs-red-text);
+    font-family: var(--rs-display);
+    font-size: 20px;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+    transform: rotate(-8deg);
 }
 
-.rs-flood--gradient {
-    background: var(--rs-gradient);
-    color: var(--rs-night);
-}
-
-/* ---------- stats (same rhythm as the beer menu) ---------- */
+/* ---------- stats ---------- */
 
 .rs-stats {
     display: flex;
@@ -555,7 +590,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
     .rs-stats > div {
         padding: 0 clamp(16px, 2.4vw, 32px);
-        border-left: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+        border-left: 1px solid color-mix(in srgb, currentColor 30%, transparent);
     }
 
         .rs-stats > div:first-child {
@@ -576,7 +611,7 @@ input[type="search"]::-webkit-search-cancel-button {
     .rs-stats dd {
         margin: 0;
         font-family: var(--rs-display);
-        font-size: clamp(28px, 3vw, 48px);
+        font-size: clamp(28px, 3vw, 46px);
         line-height: 1;
         text-transform: uppercase;
     }
@@ -597,21 +632,24 @@ input[type="search"]::-webkit-search-cancel-button {
     align-items: end;
     gap: 24px 48px;
     margin-bottom: clamp(36px, 5vw, 64px);
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--rs-line);
 }
 
     .rs-heading p {
         margin: 0;
         color: var(--rs-muted);
-        font-size: 16px;
-        line-height: 1.65;
+        font-family: var(--rs-type);
+        font-size: 15px;
+        line-height: 1.75;
     }
 
-/* ---------- marquee ---------- */
+/* ---------- marquee: a slow setlist strip ---------- */
 
 .rs-marquee {
     position: relative;
     overflow: hidden;
-    padding: 18px 0;
+    padding: 16px 0;
     border-block: 1px solid var(--rs-line);
     background: var(--rs-night);
 }
@@ -648,47 +686,56 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .rs-marquee-item {
-    color: var(--rs-coral);
+    color: var(--rs-paper);
     font-family: var(--rs-display);
-    font-size: clamp(28px, 4vw, 58px);
+    font-size: clamp(26px, 3.4vw, 48px);
     line-height: 1;
     text-transform: uppercase;
     white-space: nowrap;
 }
 
     .rs-marquee-item::after {
-        content: "//";
-        margin: 0 0.45em;
-        color: var(--rs-cyan);
+        content: "✦";
+        margin: 0 0.6em;
+        color: var(--rs-red);
+        font-size: 0.6em;
+        vertical-align: 0.2em;
     }
 
-    .rs-marquee-item:nth-child(4n + 2) {
+    .rs-marquee-item:nth-child(3n + 2) {
+        -webkit-text-fill-color: transparent;
+        -webkit-text-stroke: 1.5px var(--rs-paper);
+    }
+
+    .rs-marquee-item:nth-child(3n + 3) {
         color: var(--rs-yellow);
-    }
-
-    .rs-marquee-item:nth-child(4n + 3) {
-        color: var(--rs-pink);
-    }
-
-    .rs-marquee-item:nth-child(4n + 4) {
-        color: var(--rs-lilac);
     }
 
 .rs-marquee--small .rs-marquee-item {
     font-size: clamp(20px, 2.4vw, 32px);
 }
 
-/* ---------- spinning badge ---------- */
+/* ---------- stamp badge: text round a bolt, standing still ---------- */
 
 .rs-badge {
     position: relative;
     flex-shrink: 0;
-    width: clamp(140px, 16vw, 220px);
+    width: clamp(130px, 14vw, 190px);
     aspect-ratio: 1;
     color: var(--rs-paper);
+    transform: rotate(-12deg);
 }
 
+    .rs-badge::before {
+        content: "";
+        position: absolute;
+        inset: 6%;
+        border: 2px solid var(--rs-red);
+        border-radius: 50%;
+    }
+
 .rs-badge-ring {
+    position: relative;
     width: 100%;
     height: 100%;
     fill: currentColor;
@@ -699,12 +746,12 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-badge-bolt {
     position: absolute;
-    inset: 28%;
-    fill: var(--badge-bolt, var(--rs-coral));
+    inset: 30%;
+    fill: var(--badge-bolt, var(--rs-red));
     transform: rotate(8deg);
 }
 
-/* ---------- photos: frame only, never the image itself ---------- */
+/* ---------- photos: the old polaroid frame, never the image itself ---------- */
 
 .rs-photo {
     position: relative;
@@ -713,10 +760,9 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-photo-frame {
     position: relative;
-    overflow: hidden;
-    border-radius: 18px;
-    outline: 1px solid var(--tone, var(--rs-coral));
-    outline-offset: 10px;
+    padding: 7px;
+    background: #e8e2d7;
+    box-shadow: 13px 13px 0 var(--tone, var(--rs-red));
 }
 
     .rs-photo-frame img {
@@ -728,13 +774,11 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-photo figcaption,
 .rs-photo-caption {
-    margin-top: 22px;
+    margin-top: 28px;
     color: var(--rs-muted);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    letter-spacing: 0.14em;
-    line-height: 1.6;
-    text-transform: uppercase;
+    font-family: var(--rs-type);
+    font-size: 14px;
+    line-height: 1.7;
 }
 
 /* ---------- forms ---------- */
@@ -747,11 +791,11 @@ input[type="search"]::-webkit-search-cancel-button {
 
     .rs-field > span,
     .rs-field > label {
-        color: var(--rs-muted);
+        color: var(--rs-yellow);
         font-family: var(--rs-mono);
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.22em;
+        letter-spacing: 0.2em;
         text-transform: uppercase;
     }
 
@@ -760,15 +804,15 @@ input[type="search"]::-webkit-search-cancel-button {
 .rs-field textarea,
 .rs-field select {
     width: 100%;
-    min-height: 54px;
-    padding: 14px 16px;
-    border: 1px solid var(--rs-line-strong);
-    border-radius: 14px;
-    background: rgba(250, 247, 240, 0.04);
+    min-height: 52px;
+    padding: 13px 15px;
+    border: 1px solid #303030;
+    border-radius: 0;
+    background: #0a0a0a;
     color: var(--rs-paper);
     font-family: var(--rs-body);
     font-size: 17px;
-    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .rs-field textarea {
@@ -780,14 +824,13 @@ input[type="search"]::-webkit-search-cancel-button {
     .rs-field input:focus,
     .rs-field textarea:focus,
     .rs-field select:focus {
-        border-color: var(--rs-cyan);
+        border-color: var(--rs-yellow);
         outline: none;
-        background: rgba(7, 191, 221, 0.06);
-        box-shadow: 0 0 0 4px rgba(7, 191, 221, 0.18);
+        box-shadow: 4px 4px 0 var(--rs-red);
     }
 
 .rs-field .field-validation-error {
-    color: var(--rs-red-glow);
+    color: var(--rs-orange);
     font-family: var(--rs-body);
     font-size: 13px;
     font-weight: 600;
@@ -806,9 +849,8 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-errors {
     padding: 14px 18px;
-    border: 1px solid var(--rs-red-glow);
-    border-radius: 14px;
-    background: rgba(255, 90, 103, 0.08);
+    border-left: 5px solid var(--rs-red);
+    background: rgba(200, 32, 45, 0.12);
     color: var(--rs-paper);
 }
 
@@ -816,18 +858,6 @@ input[type="search"]::-webkit-search-cancel-button {
         margin: 0;
         padding-left: 18px;
     }
-
-/* ---------- letter flip + reveal (driven by rebel-stardust.js) ---------- */
-
-.rs-flip-word {
-    display: inline-flex;
-    white-space: nowrap;
-}
-
-.rs-flip-letter {
-    display: inline-block;
-    transform-origin: 50% 85%;
-}
 
 /* =========================================================
    4. HEADER
@@ -837,7 +867,7 @@ input[type="search"]::-webkit-search-cancel-button {
     position: relative;
     z-index: 50;
     border-bottom: 1px solid var(--rs-line);
-    background: var(--rs-night);
+    background: linear-gradient(115deg, rgba(244, 196, 0, 0.03), transparent 32%), var(--rs-night);
 }
 
 .rs-header-inner {
@@ -867,6 +897,8 @@ input[type="search"]::-webkit-search-cancel-button {
     width: 54px;
     height: 54px;
     object-fit: cover;
+    box-shadow: 5px 5px 0 var(--rs-red);
+    transform: rotate(-3deg);
 }
 
 .rs-brand-text {
@@ -883,22 +915,21 @@ input[type="search"]::-webkit-search-cancel-button {
     }
 
     .rs-brand-text small {
-        margin-top: 6px;
-        color: var(--rs-coral);
-        font-family: var(--rs-mono);
+        margin-top: 4px;
+        color: var(--rs-red-text);
+        font-family: var(--rs-scrawl);
         font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.24em;
-        text-transform: uppercase;
+        letter-spacing: 0;
+        text-transform: none;
     }
 
 .rs-nav-toggle {
     display: none;
     align-items: center;
     gap: 10px;
-    padding: 10px 16px;
+    padding: 10px 14px;
     border: 1px solid var(--rs-line-strong);
-    border-radius: 999px;
+    border-radius: 0;
     background: transparent;
     color: var(--rs-paper);
     font-family: var(--rs-mono);
@@ -917,9 +948,8 @@ input[type="search"]::-webkit-search-cancel-button {
     .rs-nav-toggle-bars span {
         display: block;
         height: 2px;
-        border-radius: 2px;
         background: currentColor;
-        transition: transform 0.3s var(--rs-bounce), opacity 0.2s ease;
+        transition: transform 0.2s ease, opacity 0.2s ease;
     }
 
 .rs-nav-toggle[aria-expanded="true"] .rs-nav-toggle-bars span:nth-child(1) {
@@ -951,7 +981,7 @@ input[type="search"]::-webkit-search-cancel-button {
     align-items: center;
     gap: 8px;
     padding: 12px 0;
-    color: var(--rs-muted);
+    color: var(--rs-faint);
     font-family: var(--rs-mono);
     font-size: 12px;
     font-weight: 700;
@@ -964,14 +994,13 @@ input[type="search"]::-webkit-search-cancel-button {
         content: "";
         position: absolute;
         right: 0;
-        bottom: 2px;
+        bottom: 4px;
         left: 0;
-        height: 4px;
-        border-radius: 2px;
-        background: var(--tone, var(--rs-cyan));
-        transform: scaleY(0);
-        transform-origin: bottom;
-        transition: transform 0.25s var(--rs-bounce);
+        height: 3px;
+        background: var(--rs-red);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease;
     }
 
     .rs-nav-link:hover,
@@ -983,7 +1012,7 @@ input[type="search"]::-webkit-search-cancel-button {
         .rs-nav-link:hover::after,
         .rs-nav-link:focus-visible::after,
         .rs-nav-link.active::after {
-            transform: scaleY(1);
+            transform: scaleX(1);
         }
 
 .rs-nav-num {
@@ -994,7 +1023,13 @@ input[type="search"]::-webkit-search-cancel-button {
     min-height: 46px;
     padding: 12px 22px;
     font-size: 17px;
+    transform: rotate(-1.5deg);
 }
+
+    .rs-nav-cta:hover,
+    .rs-nav-cta:focus-visible {
+        transform: rotate(-1.5deg) translate(-2px, -2px);
+    }
 
 @media (min-width: 1100px) {
     .rs-nav-panel.collapse:not(.show) {
@@ -1050,7 +1085,7 @@ input[type="search"]::-webkit-search-cancel-button {
         border-bottom: 1px solid var(--rs-line);
         color: var(--rs-paper);
         font-family: var(--rs-display);
-        font-size: clamp(34px, 9vw, 48px);
+        font-size: clamp(32px, 8.5vw, 44px);
         font-weight: 400;
         letter-spacing: 0.01em;
         line-height: 1;
@@ -1061,21 +1096,20 @@ input[type="search"]::-webkit-search-cancel-button {
             right: 0;
             bottom: auto;
             left: auto;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            transform: translateY(-50%) scale(0);
+            width: 12px;
+            height: 12px;
+            transform: translateY(-50%) rotate(45deg) scale(0);
         }
 
         .rs-nav-link:hover::after,
         .rs-nav-link:focus-visible::after,
         .rs-nav-link.active::after {
-            transform: translateY(-50%) scale(1);
+            transform: translateY(-50%) rotate(45deg) scale(1);
         }
 
     .rs-nav-num {
         display: inline;
-        color: var(--tone, var(--rs-cyan));
+        color: var(--rs-red-text);
         font-family: var(--rs-mono);
         font-size: 12px;
         letter-spacing: 0.1em;
@@ -1083,8 +1117,14 @@ input[type="search"]::-webkit-search-cancel-button {
 
     .rs-nav-cta {
         width: 100%;
-        margin: 8px 0 24px;
+        margin: 12px 0 24px;
+        transform: none;
     }
+
+        .rs-nav-cta:hover,
+        .rs-nav-cta:focus-visible {
+            transform: translate(-2px, -2px);
+        }
 }
 
 /* =========================================================
@@ -1094,15 +1134,9 @@ input[type="search"]::-webkit-search-cancel-button {
 .rs-footer {
     position: relative;
     z-index: 2;
-    background: var(--rs-night);
+    border-top: 1px solid var(--rs-line);
+    background: linear-gradient(180deg, transparent, rgba(200, 32, 45, 0.06)), var(--rs-night);
 }
-
-    .rs-footer::before {
-        content: "";
-        display: block;
-        height: 6px;
-        background: var(--rs-gradient);
-    }
 
 .rs-footer-main {
     display: grid;
@@ -1115,7 +1149,7 @@ input[type="search"]::-webkit-search-cancel-button {
     margin: 0;
     color: var(--rs-paper);
     font-family: var(--rs-display);
-    font-size: clamp(64px, 8vw, 128px);
+    font-size: clamp(60px, 7.4vw, 120px);
     line-height: 0.84;
     text-transform: uppercase;
 }
@@ -1123,12 +1157,12 @@ input[type="search"]::-webkit-search-cancel-button {
     .rs-footer-word span {
         display: block;
         -webkit-text-fill-color: transparent;
-        -webkit-text-stroke: 2px var(--rs-paper);
+        -webkit-text-stroke: 2px var(--rs-red);
     }
 
 .rs-footer-col h2 {
     margin: 0 0 18px;
-    color: var(--rs-cyan);
+    color: var(--rs-yellow);
     font-family: var(--rs-mono);
     font-size: 12px;
     font-weight: 700;
@@ -1148,20 +1182,21 @@ input[type="search"]::-webkit-search-cancel-button {
 .rs-footer-col p {
     margin: 0;
     color: var(--rs-muted);
-    font-size: 15px;
-    line-height: 1.6;
+    font-family: var(--rs-type);
+    font-size: 14px;
+    line-height: 1.7;
     text-decoration: none;
 }
 
     .rs-footer-col a:hover {
-        color: var(--rs-paper);
+        color: var(--rs-yellow);
     }
 
 .rs-footer-cta {
     display: grid;
     align-content: start;
     justify-items: start;
-    gap: 16px;
+    gap: 18px;
 }
 
     .rs-footer-cta p {
@@ -1208,8 +1243,7 @@ input[type="search"]::-webkit-search-cancel-button {
     left: 12px;
     z-index: 2000;
     padding: 10px 16px;
-    border-radius: 999px;
-    background: var(--rs-paper);
+    background: var(--rs-yellow);
     color: var(--rs-night);
     font-family: var(--rs-mono);
     font-size: 12px;
@@ -1232,16 +1266,22 @@ input[type="search"]::-webkit-search-cancel-button {
     max-width: 58ch;
     margin: 18px 0 0;
     color: var(--rs-faint);
-    font-size: 16px;
-    line-height: 1.7;
+    font-family: var(--rs-type);
+    font-size: 15px;
+    line-height: 1.8;
 }
 
 .rs-home-actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    margin-top: 36px;
+    gap: 16px;
+    margin-top: 40px;
+}
+
+.rs-home-bowie-badge {
+    width: clamp(104px, 8.5vw, 124px);
+    margin-left: 12px;
 }
 
 .rs-home-bowie {
@@ -1251,36 +1291,31 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-home-bowie-frame {
     aspect-ratio: 4 / 5.15;
+    transform: rotate(0.7deg);
 }
 
-/* The badge closes the button row, so it never sits on the mural. */
-.rs-home-bowie-badge {
-    width: clamp(108px, 9vw, 132px);
-    margin-left: 8px;
+.rs-home-bowie-tape {
+    top: -12px;
+    left: 42%;
+    transform: rotate(-3deg);
 }
 
 .rs-home-bowie figcaption {
     max-width: 440px;
-    padding-left: 18px;
-    border-left: 3px solid var(--rs-coral);
-    font-family: var(--rs-body);
-    font-size: 15px;
-    letter-spacing: 0;
-    text-transform: none;
+    margin: 32px 0 0 22px;
+    padding-left: 17px;
+    border-left: 3px solid var(--rs-yellow);
 }
 
     .rs-home-bowie figcaption strong {
         display: block;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         color: var(--rs-paper);
-        font-family: var(--rs-display);
-        font-size: 24px;
-        font-weight: 400;
-        text-transform: uppercase;
+        font-size: 1rem;
     }
 
 .rs-home-beer {
-    padding-block: clamp(72px, 10vw, 140px);
+    padding-block: clamp(72px, 10vw, 136px);
 }
 
 .rs-home-beer-head {
@@ -1294,10 +1329,18 @@ input[type="search"]::-webkit-search-cancel-button {
         color: var(--rs-night);
     }
 
+.rs-home-fifty {
+    color: var(--rs-red);
+    font-family: var(--rs-scrawl);
+    font-size: 0.62em;
+    vertical-align: 0.18em;
+}
+
 .rs-home-beer-copy p {
     margin: 0 0 16px;
-    font-size: 17px;
-    line-height: 1.65;
+    font-family: var(--rs-type);
+    font-size: 16px;
+    line-height: 1.75;
 }
 
 .rs-home-beer-copy .rs-btn {
@@ -1307,13 +1350,13 @@ input[type="search"]::-webkit-search-cancel-button {
 .rs-home-trio {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(24px, 3vw, 48px);
+    gap: clamp(28px, 3vw, 52px);
     margin-top: clamp(56px, 7vw, 96px);
 }
 
 .rs-home-trio-item {
     display: grid;
-    gap: 18px;
+    gap: 22px;
     color: var(--rs-night);
     text-decoration: none;
 }
@@ -1322,14 +1365,24 @@ input[type="search"]::-webkit-search-cancel-button {
         color: var(--rs-night);
     }
 
+/* The old polaroid posters: same photos, same 4:5 crop. */
 .rs-home-trio-photo {
     display: block;
-    overflow: hidden;
     aspect-ratio: 4 / 5;
-    border-radius: 18px;
-    outline: 2px solid var(--rs-night);
-    outline-offset: 8px;
-    transition: transform 0.45s var(--rs-bounce);
+    border: 7px solid #e8e2d7;
+    box-shadow: 13px 13px 0 var(--rs-yellow);
+    transform: rotate(-0.65deg);
+    transition: transform 0.25s ease;
+}
+
+.rs-home-trio-item:nth-child(2) .rs-home-trio-photo {
+    box-shadow: 13px 13px 0 var(--rs-red);
+    transform: rotate(0.65deg);
+}
+
+.rs-home-trio-item:nth-child(3) .rs-home-trio-photo {
+    box-shadow: 13px 13px 0 var(--rs-orange);
+    transform: rotate(-0.35deg);
 }
 
     .rs-home-trio-photo img {
@@ -1339,18 +1392,15 @@ input[type="search"]::-webkit-search-cancel-button {
         object-fit: cover;
     }
 
-.rs-home-trio-item:nth-child(2) {
-    margin-top: clamp(24px, 4vw, 64px);
-}
-
 .rs-home-trio-item:hover .rs-home-trio-photo,
 .rs-home-trio-item:focus-visible .rs-home-trio-photo {
-    transform: translateY(-6px) rotate(-1.2deg);
+    transform: translateY(-5px) rotate(-0.35deg);
 }
 
 .rs-home-trio-caption {
     font-family: var(--rs-display);
-    font-size: clamp(22px, 2vw, 30px);
+    font-size: clamp(20px, 1.8vw, 26px);
+    letter-spacing: 0.02em;
     line-height: 1;
     text-transform: uppercase;
 }
@@ -1370,7 +1420,6 @@ input[type="search"]::-webkit-search-cancel-button {
     position: relative;
     margin: 0;
     overflow: hidden;
-    border-radius: 18px;
 }
 
     .rs-home-gallery-item img {
@@ -1390,15 +1439,15 @@ input[type="search"]::-webkit-search-cancel-button {
         position: absolute;
         bottom: 18px;
         left: 18px;
-        padding: 8px 14px;
-        border-radius: 999px;
+        padding: 7px 12px;
         background: var(--rs-yellow);
         color: var(--rs-night);
         font-family: var(--rs-mono);
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: 0.14em;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
+        transform: rotate(-1deg);
     }
 
 .rs-home-gallery-one {
@@ -1420,32 +1469,16 @@ input[type="search"]::-webkit-search-cancel-button {
     flex-direction: column;
     justify-content: flex-end;
     gap: 10px;
-    overflow: hidden;
     padding: clamp(20px, 2.4vw, 32px);
-    border-radius: 18px;
 }
 
     .rs-home-gallery-card strong {
-        position: relative;
         font-family: var(--rs-display);
         font-size: clamp(26px, 2.6vw, 40px);
         font-weight: 400;
         line-height: 0.95;
         text-transform: uppercase;
     }
-
-    .rs-home-gallery-card .rs-label {
-        position: relative;
-    }
-
-.rs-home-gallery-burst {
-    position: absolute;
-    top: -30%;
-    right: -22%;
-    width: 78%;
-    fill: var(--rs-night);
-    opacity: 0.14;
-}
 
 .rs-home-panels {
     display: grid;
@@ -1466,39 +1499,20 @@ input[type="search"]::-webkit-search-cancel-button {
     overflow: hidden;
     isolation: isolate;
     padding: clamp(24px, 3vw, 44px);
-    border: 1px solid var(--rs-line);
-    border-radius: var(--rs-radius);
+    border: 1px solid color-mix(in srgb, var(--tone) 45%, transparent);
     background: var(--rs-panel);
     color: var(--rs-paper);
     text-decoration: none;
-    transition: border-color 0.3s ease, transform 0.45s var(--rs-bounce);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
-
-    .rs-home-panel::after {
-        content: "";
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 3;
-        height: 8px;
-        background: var(--tone);
-        transform: scaleY(0);
-        transform-origin: bottom;
-        transition: transform 0.3s var(--rs-bounce);
-    }
 
     .rs-home-panel:hover,
     .rs-home-panel:focus-visible {
         border-color: var(--tone);
         color: var(--rs-paper);
-        transform: translateY(-4px);
+        box-shadow: 9px 9px 0 var(--tone);
+        transform: translate(-3px, -3px);
     }
-
-        .rs-home-panel:hover::after,
-        .rs-home-panel:focus-visible::after {
-            transform: scaleY(1);
-        }
 
 /* Same photos, same 0.34 opacity and grading as before; only the frame changed. */
 .rs-home-rotator {
@@ -1567,7 +1581,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .rs-home-panel-num {
-    color: var(--tone);
+    color: color-mix(in srgb, var(--tone) 75%, transparent);
     font-family: var(--rs-display);
     font-size: clamp(64px, 7vw, 110px);
     line-height: 0.8;
@@ -1596,19 +1610,19 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 10px;
     justify-self: start;
     margin-top: 10px;
-    padding: 12px 20px;
-    border-radius: 999px;
-    background: var(--tone);
-    color: var(--rs-night);
-    font-family: var(--rs-display);
-    font-size: 17px;
-    letter-spacing: 0.04em;
+    padding-bottom: 4px;
+    border-bottom: 2px solid var(--tone);
+    color: var(--rs-paper);
+    font-family: var(--rs-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
 }
 
     .rs-home-panel-action i {
         font-style: normal;
-        transition: transform 0.3s var(--rs-bounce);
+        transition: transform 0.2s ease;
     }
 
 .rs-home-panel:hover .rs-home-panel-action i {
@@ -1626,6 +1640,10 @@ input[type="search"]::-webkit-search-cancel-button {
     justify-content: space-between;
     gap: 32px;
 }
+
+    .rs-home-cta-inner h2 {
+        text-shadow: 0.05em 0.05em 0 var(--rs-night);
+    }
 
 .rs-home-cta-actions {
     display: flex;
@@ -1645,7 +1663,6 @@ input[type="search"]::-webkit-search-cancel-button {
         margin-top: 24px;
     }
 
-
     .rs-home-panels,
     .rs-home-panels--three {
         grid-template-columns: minmax(0, 1fr);
@@ -1659,12 +1676,7 @@ input[type="search"]::-webkit-search-cancel-button {
 @media (max-width: 767.98px) {
     .rs-home-trio {
         grid-template-columns: minmax(0, 1fr);
-        width: min(100%, 420px);
-        margin-inline: auto;
-    }
-
-    .rs-home-trio-item:nth-child(2) {
-        margin-top: 0;
+        width: min(calc(100% - 14px), 420px);
     }
 
     .rs-home-gallery-grid {
@@ -1691,6 +1703,10 @@ input[type="search"]::-webkit-search-cancel-button {
         min-height: 200px;
     }
 
+    .rs-home-bowie-frame,
+    .rs-home-trio-photo {
+        box-shadow: 8px 8px 0 var(--rs-red);
+    }
 }
 
 /* =========================================================
@@ -1713,6 +1729,18 @@ input[type="search"]::-webkit-search-cancel-button {
     --badge-bolt: var(--rs-yellow);
 }
 
+.rs-menu-hero h1 {
+    text-shadow: 0.04em 0.04em 0 rgba(216, 64, 47, 0.6);
+}
+
+.rs-menu-hero h1 .rs-accent {
+    display: block;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 2px var(--rs-paper);
+    text-shadow: none;
+    transform: translateX(4%);
+}
+
 .rs-menu-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -1729,7 +1757,8 @@ input[type="search"]::-webkit-search-cancel-button {
     min-height: 58px;
     padding: 14px 28px;
     border: 1px solid var(--rs-line-strong);
-    border-radius: 999px;
+    border-radius: 0;
+    background: #090909;
     color: var(--rs-paper);
     font-family: var(--rs-display);
     font-size: 24px;
@@ -1737,11 +1766,11 @@ input[type="search"]::-webkit-search-cancel-button {
     line-height: 1;
     text-decoration: none;
     text-transform: uppercase;
-    transition: transform 0.3s var(--rs-bounce), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: transform 0.3s var(--rs-ease), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
     .rs-menu-tab span {
-        color: var(--tone);
+        color: var(--rs-faint);
         font-family: var(--rs-mono);
         font-size: 12px;
         letter-spacing: 0.1em;
@@ -1749,16 +1778,17 @@ input[type="search"]::-webkit-search-cancel-button {
 
     .rs-menu-tab:hover,
     .rs-menu-tab:focus-visible {
-        border-color: var(--tone);
-        color: var(--tone);
-        transform: translateY(-2px);
+        border-color: var(--rs-yellow);
+        color: var(--rs-yellow);
     }
 
+    /* The old menu switch: yellow ticket, red shadow, a little crooked. */
     .rs-menu-tab.is-active {
         border-color: transparent;
-        background: var(--tone);
+        background: var(--rs-yellow);
         color: var(--rs-night);
-        transform: rotate(-1.5deg);
+        box-shadow: 7px 7px 0 var(--rs-red);
+        transform: rotate(-1deg);
     }
 
         .rs-menu-tab.is-active span {
@@ -1817,7 +1847,7 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 14px 20px;
     padding: 22px 24px;
     border: 1px dashed var(--rs-line-strong);
-    border-radius: 18px;
+    border-radius: 0;
 }
 
     .rs-food-empty[hidden] {
@@ -1841,13 +1871,13 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 12px;
     padding: clamp(56px, 8vw, 96px) 24px;
     border: 1px dashed var(--rs-line-strong);
-    border-radius: var(--rs-radius);
+    border-radius: 0;
     text-align: center;
 }
 
     .rs-food-nothing svg {
         width: 64px;
-        fill: var(--rs-coral);
+        fill: var(--rs-orange);
     }
 
     .rs-food-nothing p {
@@ -1908,9 +1938,9 @@ input[type="search"]::-webkit-search-cancel-button {
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--rs-line);
-    border-radius: var(--rs-radius);
+    border-radius: 0;
     background: var(--rs-panel);
-    transition: border-color 0.3s ease, transform 0.45s var(--rs-bounce);
+    transition: border-color 0.3s ease, transform 0.45s var(--rs-ease);
 }
 
     .rs-food-card[hidden] {
@@ -1975,12 +2005,13 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-food-price {
     position: absolute;
-    right: 16px;
-    bottom: 16px;
-    padding: 8px 16px;
-    border-radius: 999px;
-    background: var(--tone);
+    right: 14px;
+    bottom: 14px;
+    padding: 8px 14px;
+    border-radius: 0;
+    background: var(--rs-yellow);
     color: var(--rs-night);
+    box-shadow: 5px 5px 0 var(--rs-red);
     font-family: var(--rs-display);
     font-size: 26px;
     line-height: 1;
@@ -1999,9 +2030,9 @@ input[type="search"]::-webkit-search-cancel-button {
     top: 50%;
     left: 50%;
     padding: 6px 16px;
-    border: 3px solid var(--rs-red-glow);
+    border: 3px solid var(--rs-red-text);
     background: rgba(11, 11, 11, 0.78);
-    color: var(--rs-red-glow);
+    color: var(--rs-red-text);
     font-family: var(--rs-display);
     font-size: 32px;
     letter-spacing: 0.06em;
@@ -2058,7 +2089,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .rs-pill--warning {
-    color: var(--rs-red-glow);
+    color: var(--rs-orange);
 }
 
 .rs-food-card p {
@@ -2076,7 +2107,7 @@ input[type="search"]::-webkit-search-cancel-button {
     margin-top: auto;
     padding: 10px 18px;
     border: 1px solid var(--tone);
-    border-radius: 999px;
+    border-radius: 0;
     color: var(--tone);
     font-family: var(--rs-display);
     font-size: 16px;
@@ -2170,10 +2201,11 @@ input[type="search"]::-webkit-search-cancel-button {
     display: block;
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    border-radius: var(--rs-radius);
-    outline: 1px solid var(--rs-pink);
-    outline-offset: 10px;
+    border: 7px solid #e8e2d7;
+    border-radius: 0;
     background: var(--rs-panel);
+    box-shadow: 13px 13px 0 var(--rs-red);
+    transform: rotate(1deg);
 }
 
     .rs-events-feature-poster img {
@@ -2199,8 +2231,8 @@ input[type="search"]::-webkit-search-cancel-button {
     place-items: center;
     width: 110px;
     aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--rs-pink);
+    border-radius: 0;
+    background: var(--rs-red);
     color: var(--rs-night);
     font-family: var(--rs-mono);
     font-size: 12px;
@@ -2228,12 +2260,12 @@ input[type="search"]::-webkit-search-cancel-button {
     display: grid;
     gap: 10px;
     padding: 28px;
-    border-radius: 0 0 var(--rs-radius) var(--rs-radius);
+    border-radius: 0;
     background: linear-gradient(180deg, transparent, rgba(8, 8, 8, 0.92) 46%);
 }
 
     .rs-events-feature-copy .rs-label {
-        color: var(--rs-pink);
+        color: var(--rs-red);
     }
 
     .rs-events-feature-copy strong {
@@ -2273,7 +2305,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
     .rs-events-placeholder svg {
         width: 64px;
-        fill: var(--tone, var(--rs-pink));
+        fill: var(--tone, var(--rs-red));
     }
 
 .rs-events-list {
@@ -2291,15 +2323,31 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 20px clamp(20px, 3vw, 44px);
     padding: clamp(22px, 3vw, 36px) clamp(12px, 2vw, 28px);
     border-bottom: 1px solid var(--rs-line);
-    border-radius: 18px;
+    border-radius: 0;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+    .rs-events-row::before {
+        content: "";
+        position: absolute;
+        top: 18px;
+        bottom: 18px;
+        left: 0;
+        width: 4px;
+        background: var(--tone);
+        transform: scaleY(0);
+        transition: transform 0.2s ease;
+    }
+
     .rs-events-row:hover,
     .rs-events-row:focus-within {
-        background: var(--tone);
-        color: var(--rs-night);
+        background: rgba(241, 237, 228, 0.035);
     }
+
+        .rs-events-row:hover::before,
+        .rs-events-row:focus-within::before {
+            transform: scaleY(1);
+        }
 
 .rs-events-date {
     display: grid;
@@ -2328,18 +2376,14 @@ input[type="search"]::-webkit-search-cancel-button {
         opacity: 0.75;
     }
 
-.rs-events-row:hover .rs-events-date,
-.rs-events-row:focus-within .rs-events-date {
-    color: var(--rs-night);
-}
-
 .rs-events-poster {
     display: block;
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    border-radius: 14px;
+    border: 5px solid #e8e2d7;
+    border-radius: 0;
     background: var(--rs-panel);
-    transition: transform 0.45s var(--rs-bounce);
+    transition: transform 0.45s var(--rs-ease);
 }
 
     .rs-events-poster img {
@@ -2357,7 +2401,7 @@ input[type="search"]::-webkit-search-cancel-button {
     }
 
 .rs-events-row:hover .rs-events-poster {
-    transform: rotate(-3deg) scale(1.04);
+    transform: rotate(-2deg);
 }
 
 .rs-events-copy {
@@ -2367,7 +2411,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
     .rs-events-copy .rs-label {
-        color: var(--tone);
+        color: var(--rs-yellow);
         transition: color 0.3s ease;
     }
 
@@ -2400,15 +2444,6 @@ input[type="search"]::-webkit-search-cancel-button {
     transition: color 0.3s ease;
 }
 
-.rs-events-row:hover .rs-events-copy .rs-label,
-.rs-events-row:hover .rs-events-copy p,
-.rs-events-row:hover .rs-events-meta,
-.rs-events-row:focus-within .rs-events-copy .rs-label,
-.rs-events-row:focus-within .rs-events-copy p,
-.rs-events-row:focus-within .rs-events-meta {
-    color: var(--rs-night);
-}
-
 .rs-events-actions {
     display: grid;
     gap: 10px;
@@ -2416,26 +2451,17 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .rs-events-reserve {
-    background: var(--tone);
+    background: var(--rs-orange);
     color: var(--rs-night);
+    box-shadow: 4px 4px 0 var(--rs-red);
 }
 
     .rs-events-reserve:hover,
     .rs-events-reserve:focus-visible {
+        background: var(--rs-yellow);
         color: var(--rs-night);
+        transform: translate(-2px, -2px);
     }
-
-.rs-events-row:hover .rs-events-reserve,
-.rs-events-row:focus-within .rs-events-reserve {
-    background: var(--rs-night);
-    color: var(--rs-paper);
-}
-
-.rs-events-row:hover .rs-btn--ghost,
-.rs-events-row:focus-within .rs-btn--ghost {
-    border-color: var(--rs-night);
-    color: var(--rs-night);
-}
 
 .rs-events-empty {
     display: grid;
@@ -2443,7 +2469,7 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 14px;
     padding: clamp(32px, 5vw, 64px);
     border: 1px dashed var(--rs-line-strong);
-    border-radius: var(--rs-radius);
+    border-radius: 0;
 }
 
     .rs-events-empty p {
@@ -2535,11 +2561,13 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .rs-event-poster {
+    position: relative;
     overflow: hidden;
-    border-radius: var(--rs-radius);
-    outline: 1px solid var(--rs-pink);
-    outline-offset: 12px;
+    border: 7px solid #e8e2d7;
+    border-radius: 0;
     background: var(--rs-panel);
+    box-shadow: 13px 13px 0 var(--rs-red);
+    transform: rotate(-0.7deg);
 }
 
     .rs-event-poster img {
@@ -2583,9 +2611,10 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 6px;
     margin-top: 32px;
     padding: 24px 28px;
-    border-radius: 18px;
-    background: var(--rs-gradient);
-    color: var(--rs-night);
+    border-left: 6px solid var(--rs-yellow);
+    border-radius: 0;
+    background: var(--rs-red);
+    color: var(--rs-paper);
 }
 
     .rs-event-callout strong {
@@ -2613,8 +2642,8 @@ input[type="search"]::-webkit-search-cancel-button {
     right: 0;
     bottom: -84px;
     padding: 8px 16px;
-    border: 3px solid var(--rs-coral);
-    color: var(--rs-coral);
+    border: 3px solid var(--rs-orange);
+    color: var(--rs-orange);
     font-family: var(--rs-display);
     font-size: 22px;
     line-height: 1;
@@ -2654,7 +2683,7 @@ input[type="search"]::-webkit-search-cancel-button {
     position: relative;
     min-height: 560px;
     overflow: hidden;
-    border-radius: var(--rs-radius);
+    border-radius: 0;
 }
 
 .rs-reserve-art-photo {
@@ -2701,7 +2730,7 @@ input[type="search"]::-webkit-search-cancel-button {
     width: 76px;
     height: 76px;
     object-fit: cover;
-    border-radius: 14px;
+    border-radius: 0;
 }
 
 .rs-reserve-form {
@@ -2725,9 +2754,10 @@ input[type="search"]::-webkit-search-cancel-button {
     display: grid;
     gap: 4px;
     padding: 16px 20px;
-    border-radius: 16px;
-    background: var(--rs-pink);
-    color: var(--rs-night);
+    border-left: 6px solid var(--rs-yellow);
+    border-radius: 0;
+    background: var(--rs-red);
+    color: var(--rs-paper);
 }
 
     .rs-reserve-event strong {
@@ -2789,11 +2819,11 @@ input[type="search"]::-webkit-search-cancel-button {
             place-items: center;
             width: 24px;
             height: 24px;
-            border-radius: 50%;
-            background: var(--rs-cyan);
+            border-radius: 0;
+            background: var(--rs-yellow);
             color: var(--rs-night);
             font-size: 16px;
-            transition: transform 0.3s var(--rs-bounce);
+            transition: transform 0.3s var(--rs-ease);
         }
 
     .rs-reserve-note[open] summary::before {
@@ -2824,7 +2854,7 @@ input[type="search"]::-webkit-search-cancel-button {
     }
 
 .input-validation-error {
-    border-color: var(--rs-red-glow) !important;
+    border-color: var(--rs-orange) !important;
 }
 
 /* lookup + confirmation */
@@ -2836,8 +2866,9 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-booking-message {
     padding: 16px 20px;
-    border-radius: 16px;
-    background: var(--rs-cyan);
+    border-left: 6px solid var(--rs-red);
+    border-radius: 0;
+    background: var(--rs-yellow);
     color: var(--rs-night);
     font-weight: 600;
 }
@@ -2879,8 +2910,8 @@ input[type="search"]::-webkit-search-cancel-button {
     display: grid;
     gap: 6px;
     padding: 22px 24px;
-    border: 1px dashed var(--rs-coral);
-    border-radius: 18px;
+    border: 1px dashed var(--rs-orange);
+    border-radius: 0;
 }
 
     .rs-booking-empty strong {
@@ -2897,22 +2928,25 @@ input[type="search"]::-webkit-search-cancel-button {
 .rs-booking-result {
     --status: var(--rs-yellow);
     --status-ink: var(--rs-night);
+    box-shadow: 9px 9px 0 var(--rs-red);
     overflow: hidden;
     border: 1px solid var(--rs-line);
-    border-radius: var(--rs-radius);
+    border-radius: 0;
     background: var(--rs-panel);
 }
 
     .rs-booking-result.is-approved {
-        --status: var(--rs-cyan);
+        --status: #536f3d;
+        --status-ink: var(--rs-paper);
     }
 
     .rs-booking-result.is-arrived {
-        --status: var(--rs-lilac);
+        --status: var(--rs-paper);
     }
 
     .rs-booking-result.is-cancelled {
-        --status: var(--rs-coral);
+        --status: var(--rs-red);
+        --status-ink: var(--rs-paper);
     }
 
 .rs-booking-result-head {
@@ -2965,7 +2999,7 @@ input[type="search"]::-webkit-search-cancel-button {
     width: 100%;
     padding: 20px 22px;
     border: 1px solid var(--rs-line);
-    border-radius: 18px;
+    border-radius: 0;
 }
 
     .rs-booking-cancel strong {
@@ -2983,13 +3017,13 @@ input[type="search"]::-webkit-search-cancel-button {
     }
 
     .rs-booking-cancel .rs-label {
-        color: var(--rs-cyan);
+        color: var(--rs-yellow);
     }
 
 .rs-booking-cancel-button:hover,
 .rs-booking-cancel-button:focus-visible {
-    border-color: var(--rs-red-glow);
-    color: var(--rs-red-glow);
+    border-color: var(--rs-orange);
+    color: var(--rs-orange);
 }
 
 .rs-confirm-head {
@@ -3013,7 +3047,7 @@ input[type="search"]::-webkit-search-cancel-button {
         inset: 0;
         width: 100%;
         height: 100%;
-        fill: var(--rs-cyan);
+        fill: var(--rs-yellow);
     }
 
     .rs-confirm-mark span {
@@ -3028,13 +3062,18 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: clamp(16px, 2vw, 28px);
 }
 
+/* A torn-off ticket stub. */
 .rs-confirm-ticket {
     display: grid;
     align-content: start;
     justify-items: start;
     gap: 14px;
     padding: clamp(26px, 3vw, 40px);
-    border-radius: var(--rs-radius);
+    border-radius: 0;
+    outline: 2px dashed rgba(7, 7, 7, 0.45);
+    outline-offset: -14px;
+    box-shadow: 10px 10px 0 var(--rs-red);
+    transform: rotate(-0.6deg);
 }
 
     .rs-confirm-ticket strong {
@@ -3097,7 +3136,7 @@ input[type="search"]::-webkit-search-cancel-button {
         content: "0" counter(rs-step);
         display: block;
         margin-bottom: 10px;
-        color: var(--rs-pink);
+        color: var(--rs-red);
         font-family: var(--rs-display);
         font-size: 44px;
         line-height: 1;
@@ -3154,7 +3193,8 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 2px;
     min-width: 260px;
     padding: 28px 32px;
-    border-radius: var(--rs-radius);
+    border-radius: 0;
+    box-shadow: 9px 9px 0 var(--rs-red);
     transform: rotate(2deg);
 }
 
@@ -3197,18 +3237,20 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 24px;
     min-height: 300px;
     padding: clamp(24px, 3vw, 40px);
-    border-radius: var(--rs-radius);
+    border-radius: 0;
     text-decoration: none;
 }
 
 .rs-contact-place {
-    transition: transform 0.45s var(--rs-bounce);
+    box-shadow: 9px 9px 0 var(--rs-red);
+    transform: rotate(-1deg);
+    transition: transform 0.25s ease;
 }
 
     .rs-contact-place:hover,
     .rs-contact-place:focus-visible {
         color: var(--rs-night);
-        transform: rotate(-1deg) translateY(-4px);
+        transform: rotate(-1deg) translate(-2px, -4px);
     }
 
     .rs-contact-place strong,
@@ -3254,7 +3296,7 @@ input[type="search"]::-webkit-search-cancel-button {
         }
 
         .rs-contact-direct a:hover {
-            color: var(--rs-cyan);
+            color: var(--rs-yellow);
         }
 
     .rs-contact-direct small {
@@ -3278,10 +3320,11 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-contact-map {
     overflow: hidden;
-    border-radius: var(--rs-radius);
-    outline: 1px solid var(--rs-cyan);
-    outline-offset: 10px;
+    border: 7px solid #e8e2d7;
+    border-radius: 0;
     background: var(--rs-panel);
+    box-shadow: 13px 13px 0 var(--rs-red);
+    transform: rotate(-0.4deg);
 }
 
     .rs-contact-map iframe {
@@ -3330,7 +3373,7 @@ input[type="search"]::-webkit-search-cancel-button {
         inset: 0;
         width: 100%;
         height: 100%;
-        fill: var(--rs-coral);
+        fill: var(--rs-orange);
     }
 
     .rs-error-burst .rs-error-bolt {
@@ -3362,47 +3405,22 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 /* =========================================================
-   13. MOTION — only for people who have not asked for less
+   13. MOTION — slow and sparse; nothing for people who asked for less
    ========================================================= */
 
 @media (prefers-reduced-motion: no-preference) {
     .rs-marquee-track {
-        animation: rs-marquee 48s linear infinite;
+        animation: rs-marquee 70s linear infinite;
     }
 
     .rs-marquee:hover .rs-marquee-track {
         animation-play-state: paused;
     }
 
-    .rs-badge-ring {
-        animation: rs-spin 22s linear infinite;
-    }
-
-    .rs-confirm-mark svg,
-    .rs-error-burst svg:first-child,
-    .rs-home-gallery-burst {
-        animation: rs-spin 40s linear infinite;
-    }
-
-    .rs-js .rs-flip-ready .rs-flip-letter {
-        opacity: 0;
-        transform: rotateX(90deg) translateY(0.12em);
-        transition: transform 0.7s var(--rs-bounce) calc(var(--i) * 26ms), opacity 0.35s ease calc(var(--i) * 26ms);
-    }
-
-    .rs-js .rs-flip-ready.is-in-view .rs-flip-letter {
-        opacity: 1;
-        transform: none;
-    }
-
-    .rs-js .rs-flip-ready {
-        perspective: 900px;
-    }
-
     .rs-js [data-rs-reveal] {
         opacity: 0;
-        transform: translateY(28px);
-        transition: opacity 0.7s var(--rs-ease), transform 0.9s var(--rs-bounce);
+        transform: translateY(18px);
+        transition: opacity 0.6s var(--rs-ease), transform 0.6s var(--rs-ease);
     }
 
         .rs-js [data-rs-reveal].is-in-view {
@@ -3424,11 +3442,5 @@ input[type="search"]::-webkit-search-cancel-button {
 @keyframes rs-marquee {
     to {
         transform: translate3d(-50%, 0, 0);
-    }
-}
-
-@keyframes rs-spin {
-    to {
-        transform: rotate(360deg);
     }
 }

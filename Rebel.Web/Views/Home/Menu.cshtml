@@ -44,11 +44,9 @@
     var categoryTones = new[]
     {
         "var(--rs-yellow)",
-        "var(--rs-coral)",
-        "var(--rs-cyan)",
-        "var(--rs-pink)",
-        "var(--rs-lilac)",
-        "var(--rs-blue-glow)"
+        "var(--rs-orange)",
+        "var(--rs-red-text)",
+        "var(--rs-paper)"
     };
 
     var menuGroups = Model
@@ -65,8 +63,8 @@
             <div>
                 <p class="rs-kicker">Food · Beer · Loud nights</p>
 
-                <h1 class="rs-display rs-display--xl" data-rs-flip aria-label="Rebel Rebel menu">
-                    Rebel <span class="rs-gradient-text">Rebel</span>
+                <h1 class="rs-display rs-display--xl" aria-label="Rebel Rebel menu">
+                    Rebel <span class="rs-accent">Rebel</span>
                 </h1>
 
                 <p class="rs-lead">Come hungry. Leave louder.</p>
@@ -90,7 +88,7 @@
                asp-route-section="beer"
                class="rs-menu-tab @(selectedSection == "beer" ? "is-active" : "")"
                aria-current="@(selectedSection == "beer" ? "page" : null)"
-               style="--tone: var(--rs-cyan);">
+               style="--tone: var(--rs-yellow);">
                 <span>02</span> Beer
             </a>
 
@@ -101,7 +99,7 @@
                    asp-route-section="drink"
                    class="rs-menu-tab @(selectedSection == "drink" ? "is-active" : "")"
                    aria-current="@(selectedSection == "drink" ? "page" : null)"
-                   style="--tone: var(--rs-pink);">
+                   style="--tone: var(--rs-red);">
                     <span>03</span> Drinks
                 </a>
             }
@@ -117,8 +115,8 @@
         <div class="rs-container rs-food">
             <header class="rs-heading">
                 <div>
-                    <p class="rs-kicker rs-kicker--yellow">Currently serving</p>
-                    <h2 class="rs-display rs-display--lg" data-rs-flip>@sectionTitle</h2>
+                    <p class="rs-kicker rs-kicker--red">Currently serving</p>
+                    <h2 class="rs-display rs-display--lg">@sectionTitle</h2>
                 </div>
 
                 <p>@sectionMessage</p>
@@ -138,12 +136,12 @@
                      role="group"
                      aria-label="Menu tag filters">
                     <button type="button" class="rs-chip is-active" aria-pressed="true" data-filter="all">All</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="available" style="--chip: var(--rs-cyan);"><i aria-hidden="true"></i>Available</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="popular" style="--chip: var(--rs-yellow);"><i aria-hidden="true"></i>Popular</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="spicy" style="--chip: var(--rs-coral);"><i aria-hidden="true"></i>Spicy</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="sweet" style="--chip: var(--rs-pink);"><i aria-hidden="true"></i>Sweet</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegan" style="--chip: var(--rs-lilac);"><i aria-hidden="true"></i>Vegan</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegetarian" style="--chip: var(--rs-blue-glow);"><i aria-hidden="true"></i>Vegetarian</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="available"><i aria-hidden="true"></i>Available</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="popular"><i aria-hidden="true"></i>Popular</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="spicy"><i aria-hidden="true"></i>Spicy</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="sweet"><i aria-hidden="true"></i>Sweet</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegan"><i aria-hidden="true"></i>Vegan</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegetarian"><i aria-hidden="true"></i>Vegetarian</button>
                 </div>
 
                 <p id="menuFilterSummary"

@@ -10,29 +10,31 @@ namespace Rebel.Web.Services;
 public static partial class BeerMenuPresenter
 {
     private const string DarkInk = "#0B0B0B";
-    private const string LightInk = "#FAF7F0";
+    private const string LightInk = "#F1EDE4";
     private const string SoldOutBackground = "#1C1C1C";
 
+    // Every room stays dark: the background is only a tint of the style colour,
+    // and the colour itself appears as the accent (disc, name shadow, sliders).
     public static readonly BeerMenuFamily Hoppy =
-        new("hoppy", "Hoppy & Hazy", "#F6676C", DarkInk, "#F6676C");
+        new("hoppy", "Hoppy & Hazy", "#24120D", LightInk, "#F04A24");
 
     public static readonly BeerMenuFamily Crisp =
-        new("crisp", "Crisp & Golden", "#F4C400", DarkInk, "#F4C400");
+        new("crisp", "Crisp & Golden", "#231E0A", LightInk, "#F4C400");
 
     public static readonly BeerMenuFamily Sour =
-        new("sour", "Sour & Fruity", "#07BFDD", DarkInk, "#07BFDD");
+        new("sour", "Sour & Fruity", "#1E1D1B", LightInk, "#F1EDE4");
 
     public static readonly BeerMenuFamily Dark =
-        new("dark", "Dark & Roasty", "#6A4FB0", LightInk, "#A894F2");
+        new("dark", "Dark & Roasty", "#100C0B", LightInk, "#E0453B");
 
     public static readonly BeerMenuFamily Amber =
-        new("amber", "Amber & Malty", "#C8202D", LightInk, "#FF5A67");
+        new("amber", "Amber & Malty", "#260C0F", LightInk, "#F04A24");
 
     public static readonly BeerMenuFamily Belgian =
-        new("belgian", "Belgian & Wheat", "#C2187A", LightInk, "#FF6FC8");
+        new("belgian", "Belgian & Wheat", "#1C0A0E", LightInk, "#F4C400");
 
     public static readonly BeerMenuFamily Wildcard =
-        new("wildcard", "Wildcards", "#0456FD", LightInk, "#5B8CFF");
+        new("wildcard", "Wildcards", "#171615", LightInk, "#F1EDE4");
 
     private static readonly IReadOnlyList<BeerMenuFamily> FamilyOrder =
         [Hoppy, Crisp, Sour, Dark, Amber, Belgian, Wildcard];
@@ -99,8 +101,8 @@ public static partial class BeerMenuPresenter
             {
                 var family = ClassifyFamily(product.BeerStyle, group.Key);
 
-                // Two neighbours from the same family would leave the stage on one colour,
-                // so every second one plays on black with the colour as its ink.
+                // Two neighbours from the same family would leave the stage on one tint,
+                // so every second one plays on plain black.
                 var isInverted =
                     product.IsAvailable &&
                     previousVisual == family.Key;
@@ -205,8 +207,8 @@ public static partial class BeerMenuPresenter
         var (stageBackground, stageInk, accent) = !product.IsAvailable
             ? (SoldOutBackground, LightInk, family.Glow)
             : isInverted
-                ? (DarkInk, family.Glow, family.Glow)
-                : (family.Background, family.Ink, family.Ink);
+                ? (DarkInk, LightInk, family.Glow)
+                : (family.Background, family.Ink, family.Glow);
 
         var searchText = string.Join(
                 " ",

@@ -13,11 +13,10 @@
 
     var tones = new[]
     {
-        "var(--rs-coral)",
-        "var(--rs-cyan)",
+        "var(--rs-red-text)",
         "var(--rs-yellow)",
-        "var(--rs-pink)",
-        "var(--rs-lilac)"
+        "var(--rs-orange)",
+        "var(--rs-paper)"
     };
 }
 
@@ -55,10 +54,10 @@
     <header class="rs-section rs-events-hero">
         <div class="rs-container rs-events-hero-grid @(nextEvent == null ? "has-no-feature" : string.Empty)">
             <div>
-                <p class="rs-kicker rs-kicker--pink">Rebel Rebel events</p>
+                <p class="rs-kicker rs-kicker--red">Rebel Rebel events</p>
 
-                <h1 class="rs-display rs-display--xl" data-rs-flip aria-label="The night starts here.">
-                    The <span class="rs-gradient-text">night</span>
+                <h1 class="rs-display rs-display--xl" aria-label="The night starts here.">
+                    The <span class="rs-accent">night</span>
                     <span class="rs-outline-text rs-events-here">starts here.</span>
                 </h1>
 
@@ -153,9 +152,9 @@
         <div class="rs-container">
             <header class="rs-heading">
                 <div>
-                    <p class="rs-kicker">Don't miss out</p>
-                    <h2 class="rs-display rs-display--lg" data-rs-flip aria-label="Upcoming nights">
-                        Upcoming <span class="rs-gradient-text">nights</span>
+                    <p class="rs-kicker rs-kicker--red">Don't miss out</p>
+                    <h2 class="rs-display rs-display--lg" aria-label="Upcoming nights">
+                        Upcoming <span class="rs-scrawl rs-display-scrawl">nights</span>
                     </h2>
                 </div>
 
@@ -246,7 +245,7 @@
             else
             {
                 <div class="rs-events-empty">
-                    <span class="rs-kicker rs-kicker--yellow">Currently quiet</span>
+                    <span class="rs-kicker">Currently quiet</span>
                     <h3 class="rs-display rs-display--sm">No upcoming events right now.</h3>
                     <p>
                         The speakers are resting, but not for long.

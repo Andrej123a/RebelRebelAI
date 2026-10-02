@@ -127,7 +127,7 @@ public sealed class BeerMenuPresenterTests
         Assert.Equal([false, true, false, false], tracks.Select(track => track.IsInverted));
         Assert.Equal(BeerMenuPresenter.Hoppy.Background, tracks[0].StageBackground);
         Assert.Equal("#0B0B0B", tracks[1].StageBackground);
-        Assert.Equal(BeerMenuPresenter.Hoppy.Glow, tracks[1].StageInk);
+        Assert.Equal(BeerMenuPresenter.Hoppy.Glow, tracks[1].Accent);
         Assert.Equal(BeerMenuPresenter.Dark.Background, tracks[3].StageBackground);
     }
 
