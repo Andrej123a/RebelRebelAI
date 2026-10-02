@@ -284,7 +284,7 @@ public class BeerRecommendationService : IBeerRecommendationService
         return text
             .ToLowerInvariant()
             .Split(
-                [' ', ',', '.', '/', '-', ';', ':', '(', ')'],
+                new[] { ' ', ',', '.', '/', '-', ';', ':', '(', ')' },
                 StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
