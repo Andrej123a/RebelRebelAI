@@ -2,25 +2,25 @@
     ViewData["Title"] = "Contact";
 }
 
-<section class="rr-contact-page">
-    <header class="rr-contact-hero">
-        <div class="rr-contact-shell rr-contact-hero-grid">
-            <div class="rr-contact-heading">
-                <p>Skopje / Center / After dark</p>
+<section class="rs-contact">
+    <header class="rs-section rs-contact-hero">
+        <div class="rs-container rs-contact-hero-grid">
+            <div>
+                <p class="rs-kicker rs-kicker--coral">Skopje / Center / After dark</p>
 
-                <h1>
-                    <span>Find</span>
-                    <strong>the Rebels.</strong>
+                <h1 class="rs-display rs-display--xl" data-rs-flip aria-label="Find the Rebels.">
+                    Find
+                    <span class="rs-gradient-text">the Rebels.</span>
                 </h1>
 
-                <div class="rr-contact-heading-note">
+                <p class="rs-lead">
                     Cold beer, loud records and Fat Kitchen food.<br />
                     You bring the people.
-                </div>
+                </p>
             </div>
 
-            <aside class="rr-contact-open" aria-label="Opening hours">
-                <span>Open every day</span>
+            <aside class="rs-contact-hours rs-flood rs-flood--yellow" aria-label="Opening hours">
+                <span class="rs-label">Open every day</span>
                 <strong>12:00</strong>
                 <i>until</i>
                 <strong>01:00</strong>
@@ -29,22 +29,22 @@
         </div>
     </header>
 
-    <div class="rr-contact-shell">
-        <section class="rr-contact-board" aria-label="Contact details">
-            <a class="rr-contact-place"
+    <div class="rs-container">
+        <section class="rs-contact-board" aria-label="Contact details">
+            <a class="rs-contact-place rs-flood rs-flood--coral"
                href="https://www.google.com/maps/search/?api=1&amp;query=Naum+Naumovski+Borce+62+Skopje"
                target="_blank"
                rel="noopener noreferrer">
-                <span>Where to find us</span>
+                <span class="rs-label">Where to find us</span>
                 <strong>
                     Naum Naumovski<br />
                     Borce 62, Skopje
                 </strong>
-                <small>Open directions &nearr;</small>
+                <span class="rs-contact-place-link">Open directions <i aria-hidden="true">&nearr;</i></span>
             </a>
 
-            <div class="rr-contact-direct">
-                <span>Talk to us</span>
+            <div class="rs-card rs-contact-direct">
+                <span class="rs-kicker">Talk to us</span>
 
                 <a href="tel:+38970123456">
                     <small>Phone</small>
@@ -64,23 +64,24 @@
                 </a>
             </div>
 
-            <div class="rr-contact-walkin">
-                <span>Coming tonight?</span>
+            <div class="rs-contact-walkin rs-flood rs-flood--cyan">
+                <span class="rs-label">Coming tonight?</span>
                 <strong>Walk in.<br />Or play it smart.</strong>
                 <a asp-controller="Reservations"
-                   asp-action="Create">
-                    Book a table <b>&rarr;</b>
+                   asp-action="Create"
+                   class="rs-btn rs-btn--night">
+                    Book a table <i aria-hidden="true">&rarr;</i>
                 </a>
             </div>
         </section>
 
-        <section class="rr-contact-manifesto">
-            <h2>
+        <section class="rs-section rs-contact-manifesto">
+            <h2 class="rs-display rs-display--lg" data-rs-flip aria-label="Come thirsty. Leave louder.">
                 Come thirsty.<br />
-                <span>Leave louder.</span>
+                <span class="rs-gradient-text">Leave louder.</span>
             </h2>
 
-            <div>
+            <div class="rs-copy">
                 <p>
                     Rebel Rebel is a small alternative pub for beer lovers,
                     hungry tables and people who prefer their nights with a
@@ -93,17 +94,17 @@
             </div>
         </section>
 
-        <section class="rr-contact-map-section">
-            <header>
+        <section class="rs-contact-map-section">
+            <header class="rs-heading">
                 <div>
-                    <span>Naum Naumovski Borce 62</span>
-                    <h2>You're almost here.</h2>
+                    <p class="rs-kicker rs-kicker--pink">Naum Naumovski Borce 62</p>
+                    <h2 class="rs-display rs-display--md" data-rs-flip>You're almost here.</h2>
                 </div>
 
                 <p>Skopje 1000 / North Macedonia</p>
             </header>
 
-            <div class="rr-contact-map">
+            <div class="rs-contact-map">
                 <iframe src="https://www.google.com/maps?q=Naum%20Naumovski%20Borce%2062,%20Skopje&amp;output=embed"
                         title="Map showing Rebel Rebel by Fat Kitchen in Skopje"
                         width="100%"

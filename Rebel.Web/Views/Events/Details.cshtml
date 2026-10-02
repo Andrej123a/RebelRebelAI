@@ -12,352 +12,79 @@
     var endTime = Model.EndTime.HasValue ? Model.EndTime.Value.ToString(@"hh\:mm") : "LATE";
 }
 
-<section class="event-detail-page">
-    <span class="page-scratch page-scratch-one" aria-hidden="true"></span>
-    <span class="page-scratch page-scratch-two" aria-hidden="true"></span>
-
-    <div class="container event-detail-shell">
-        <a asp-controller="Events" asp-action="Index" class="event-back-link">
-            <span>&larr;</span> All events
+<section class="rs-section rs-event">
+    <div class="rs-container">
+        <a asp-controller="Events"
+           asp-action="Index"
+           class="rs-btn rs-btn--small rs-btn--ghost rs-event-back">
+            <i aria-hidden="true">&larr;</i> All events
         </a>
 
-        <article class="event-flyer">
-            <span class="flyer-tape flyer-tape-one" aria-hidden="true"></span>
-            <span class="flyer-tape flyer-tape-two" aria-hidden="true"></span>
-
-            <header class="flyer-header">
-                <div class="flyer-brand">
-                    <span>REBEL</span><span>REBEL</span><small>BY FAT KITCHEN</small>
-                </div>
-
-                <div class="flyer-heading">
-                    <span class="flyer-kicker">REBEL REBEL PRESENTS</span>
-                    <h1>@Model.Title</h1>
-                    <span class="flyer-title-swipe" aria-hidden="true"></span>
-                </div>
-
-                <span class="flyer-issue">NO. @localEventDate.ToString("dd")</span>
-            </header>
-
-            <div class="flyer-body">
-                <div class="flyer-visual">
+        <article class="rs-event-grid">
+            <div class="rs-event-visual">
+                <div class="rs-event-poster">
                     @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
                     {
                         <img src="@Model.ImageUrl" alt="@Model.Title" />
                     }
                     else
                     {
-                        <div class="flyer-placeholder">
-                            <span>NO POSTER.</span>
-                            <strong>STILL A GOOD NIGHT.</strong>
+                        <div class="rs-events-placeholder">
+                            <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-bolt" /></svg>
+                            No poster. Still a good night.
                         </div>
                     }
-
-                    <span class="visual-crown" aria-hidden="true">M</span>
-                    <span class="visual-arrow" aria-hidden="true">&darr;</span>
-                    <div class="flyer-date">
-                        <strong>@localEventDate.ToString("dd")</strong>
-                        <span>/@localEventDate.ToString("MM")</span>
-                    </div>
-                </div>
-
-                <div class="flyer-copy">
-                    <span class="copy-label">WANTED AFTER @startTime</span>
-
-                    <p class="flyer-description">
-                        @(string.IsNullOrWhiteSpace(Model.Description)
-                            ? "One more reason to cancel your quiet night at home."
-                            : Model.Description)
-                    </p>
-
-                    <div class="flyer-callout">
-                        <span>ONE NIGHT.</span>
-                        <strong>ZERO GOOD EXCUSES.</strong>
-                    </div>
-
-                    <a asp-controller="Reservations"
-                       asp-action="Create"
-                       asp-route-eventId="@Model.Id"
-                       class="event-reserve-button">
-                        Claim your table <span>&rarr;</span>
-                    </a>
-
-                    <div class="flyer-stamp" aria-hidden="true">GUILTY OF<br />GOOD TIMES</div>
                 </div>
             </div>
 
-            <footer class="flyer-register">
-                <div class="register-cell">
-                    <span>DAY:</span>
-                    <strong>@localEventDate.ToString("dddd", CultureInfo.InvariantCulture)</strong>
+            <div class="rs-event-copy">
+                <p class="rs-kicker rs-kicker--pink">Rebel Rebel presents · No. @localEventDate.ToString("dd")</p>
+
+                <h1 class="rs-display rs-display--lg" data-rs-flip>@Model.Title</h1>
+
+                <dl class="rs-stats rs-event-stats">
+                    <div>
+                        <dt>Day</dt>
+                        <dd>@localEventDate.ToString("dddd", CultureInfo.InvariantCulture)</dd>
+                    </div>
+                    <div>
+                        <dt>Date</dt>
+                        <dd>@localEventDate.ToString("dd.MM.yyyy")</dd>
+                    </div>
+                    <div>
+                        <dt>Start</dt>
+                        <dd>@startTime</dd>
+                    </div>
+                    <div>
+                        <dt>Until</dt>
+                        <dd>@endTime</dd>
+                    </div>
+                </dl>
+
+                <p class="rs-lead">
+                    @(string.IsNullOrWhiteSpace(Model.Description)
+                        ? "One more reason to cancel your quiet night at home."
+                        : Model.Description)
+                </p>
+
+                <div class="rs-event-callout">
+                    <span class="rs-label">One night.</span>
+                    <strong>Zero good excuses.</strong>
                 </div>
-                <div class="register-cell">
-                    <span>DATE:</span>
-                    <strong>@localEventDate.ToString("dd.MM.yyyy")</strong>
+
+                <div class="rs-event-actions">
+                    <a asp-controller="Reservations"
+                       asp-action="Create"
+                       asp-route-eventId="@Model.Id"
+                       class="rs-btn rs-btn--gradient">
+                        Claim your table <i aria-hidden="true">&rarr;</i>
+                    </a>
+
+                    <span class="rs-pill">Wanted after @startTime</span>
                 </div>
-                <div class="register-cell">
-                    <span>START:</span>
-                    <strong>@startTime</strong>
-                </div>
-                <div class="register-cell">
-                    <span>UNTIL:</span>
-                    <strong>@endTime</strong>
-                </div>
-            </footer>
+
+                <span class="rs-event-stamp" aria-hidden="true">Guilty of<br />good times</span>
+            </div>
         </article>
     </div>
 </section>
-
-<style>
-    .event-detail-page {
-        --flyer-red: #d71927;
-        --flyer-black: #11100e;
-        --flyer-paper: #eee9df;
-        position: relative;
-        min-height: calc(100vh - 80px);
-        padding: 36px 0 82px;
-        overflow: hidden;
-        color: var(--flyer-black);
-        background: radial-gradient(circle at 9% 22%, rgba(215,25,39,.16), transparent 26%), radial-gradient(circle at 90% 78%, rgba(215,25,39,.11), transparent 28%), #080808;
-    }
-
-    .event-detail-page::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        opacity: .18;
-        pointer-events: none;
-        background: repeating-linear-gradient(7deg, transparent 0 43px, rgba(255,255,255,.035) 44px 45px), repeating-linear-gradient(91deg, transparent 0 6px, rgba(255,255,255,.015) 7px);
-    }
-
-    .event-detail-shell { position: relative; z-index: 2; max-width: 1240px; }
-
-    .event-back-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        margin: 0 0 20px 8px;
-        padding: 8px 13px 7px;
-        color: var(--flyer-black);
-        background: var(--flyer-paper);
-        border: 2px solid var(--flyer-black);
-        box-shadow: 5px 5px 0 var(--flyer-red);
-        font-size: .72rem;
-        font-weight: 950;
-        letter-spacing: 1.7px;
-        text-decoration: none;
-        text-transform: uppercase;
-        transform: rotate(-1.5deg);
-        transition: .2s ease;
-    }
-
-    .event-back-link:hover { color: #fff; background: var(--flyer-red); transform: rotate(1deg) translate(-2px,-2px); }
-
-    .event-flyer {
-        position: relative;
-        padding: clamp(25px, 3.4vw, 48px);
-        background: radial-gradient(circle at 18% 13%, rgba(0,0,0,.045) 0 1px, transparent 2px), radial-gradient(circle at 73% 72%, rgba(0,0,0,.035) 0 1px, transparent 2px), linear-gradient(92deg, rgba(255,255,255,.34), transparent 30%, rgba(0,0,0,.025)), var(--flyer-paper);
-        background-size: 7px 7px, 11px 11px, auto, auto;
-        border: 1px solid rgba(255,255,255,.35);
-        box-shadow: 0 38px 100px rgba(0,0,0,.72), 14px 14px 0 rgba(215,25,39,.8);
-        clip-path: polygon(.4% .8%,18% 0,37% .6%,58% .15%,78% .7%,99.5% .2%,100% 22%,99.4% 45%,100% 68%,99.2% 99%,77% 99.5%,55% 99%,34% 99.7%,.5% 99%,0 72%,.5% 48%,0 23%);
-        animation: flyerArrives .65s cubic-bezier(.2,.8,.2,1) both;
-    }
-
-    .event-flyer::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        opacity: .14;
-        pointer-events: none;
-        mix-blend-mode: multiply;
-        background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(0,0,0,.08) 4px);
-    }
-
-    .flyer-tape {
-        position: absolute;
-        z-index: 8;
-        width: 125px;
-        height: 31px;
-        background: rgba(211,201,179,.82);
-        box-shadow: 0 3px 9px rgba(0,0,0,.2);
-        clip-path: polygon(2% 5%,100% 0,96% 93%,0 100%);
-        pointer-events: none;
-    }
-
-    .flyer-tape-one { top: -9px; left: 11%; transform: rotate(-5deg); }
-    .flyer-tape-two { right: 7%; bottom: -8px; transform: rotate(4deg); }
-
-    .flyer-header {
-        position: relative;
-        z-index: 2;
-        display: grid;
-        grid-template-columns: 145px minmax(0,1fr) 74px;
-        align-items: start;
-        gap: clamp(18px,3vw,42px);
-        margin-bottom: 25px;
-    }
-
-    .flyer-brand {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        color: var(--flyer-red);
-        font-family: "Arial Black", Impact, sans-serif;
-        font-size: 1.6rem;
-        font-style: italic;
-        font-weight: 950;
-        line-height: .72;
-        letter-spacing: -2px;
-        transform: rotate(-8deg);
-    }
-
-    .flyer-brand span:nth-child(2) { margin-left: 13px; }
-    .flyer-brand small { margin: 8px 0 0 10px; font-family: "Segoe Print", cursive; font-size: .5rem; letter-spacing: 0; }
-    .flyer-heading { position: relative; padding-right: 18px; }
-    .flyer-kicker { display: block; margin-bottom: 7px; font-size: .62rem; font-weight: 950; letter-spacing: 3px; }
-
-    .flyer-heading h1 {
-        position: relative;
-        z-index: 2;
-        max-width: 900px;
-        margin: 0;
-        color: var(--flyer-red);
-        font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
-        font-size: clamp(4.8rem,10vw,9.5rem);
-        font-weight: 950;
-        line-height: .78;
-        letter-spacing: -3px;
-        text-transform: uppercase;
-        overflow-wrap: anywhere;
-        transform: scaleX(.93);
-        transform-origin: left center;
-    }
-
-    .flyer-title-swipe {
-        position: absolute;
-        z-index: 1;
-        left: 8%;
-        bottom: -12px;
-        width: 67%;
-        height: 13px;
-        border-top: 5px solid var(--flyer-red);
-        border-bottom: 3px solid var(--flyer-red);
-        border-radius: 50%;
-        transform: rotate(-3deg);
-    }
-
-    .flyer-issue { justify-self: end; padding-top: 6px; color: var(--flyer-red); font-family: "Courier New",monospace; font-size: .7rem; font-weight: 900; letter-spacing: 1px; writing-mode: vertical-rl; }
-
-    .flyer-body {
-        position: relative;
-        z-index: 2;
-        display: grid;
-        grid-template-columns: minmax(0,1.22fr) minmax(320px,.78fr);
-        gap: clamp(24px,4vw,58px);
-        align-items: stretch;
-    }
-
-    .flyer-visual {
-        position: relative;
-        min-height: 460px;
-        overflow: hidden;
-        background: #d8d2c7;
-        border: 2px solid var(--flyer-black);
-        box-shadow: 9px 9px 0 var(--flyer-red);
-        transform: rotate(-.6deg);
-    }
-
-    .flyer-visual::after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(to top,rgba(0,0,0,.64),transparent 47%),repeating-linear-gradient(0deg,transparent 0 4px,rgba(255,255,255,.045) 5px); }
-    .flyer-visual img { width:100%; height:100%; min-height:460px; object-fit:cover; display:block; filter:saturate(.72) contrast(1.16); transition:.6s ease; }
-    .event-flyer:hover .flyer-visual img { transform:scale(1.025); filter:saturate(.9) contrast(1.12); }
-
-    .flyer-placeholder { min-height:460px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; background:repeating-linear-gradient(90deg,#ddd7cc 0 18px,#d4cec3 19px 20px); }
-    .flyer-placeholder span { font-size:.7rem; font-weight:950; letter-spacing:3px; }
-    .flyer-placeholder strong { font-family:Impact,sans-serif; font-size:2.6rem; line-height:.9; text-align:center; }
-
-    .visual-crown { position:absolute; z-index:4; top:15px; right:21px; color:var(--flyer-red); font-family:"Segoe Print",cursive; font-size:3rem; font-weight:900; transform:rotate(13deg); }
-    .visual-arrow { position:absolute; z-index:4; right:32%; bottom:66px; color:var(--flyer-red); font-family:"Segoe Print",cursive; font-size:4.7rem; line-height:1; transform:rotate(-25deg); }
-
-    .flyer-date { position:absolute; z-index:5; left:22px; bottom:18px; display:flex; align-items:flex-end; color:#fff; text-shadow:4px 4px 0 var(--flyer-black); }
-    .flyer-date strong { font-family:Impact,sans-serif; font-size:clamp(5.8rem,10vw,9rem); line-height:.73; letter-spacing:-3px; }
-    .flyer-date span { color:var(--flyer-red); font-family:Impact,sans-serif; font-size:clamp(2.8rem,5vw,4.8rem); line-height:.8; }
-
-    .flyer-copy { position:relative; display:flex; flex-direction:column; justify-content:center; padding:30px 8px 30px 0; }
-    .copy-label { align-self:flex-start; margin-bottom:25px; padding:4px 18px 6px; border:4px solid var(--flyer-red); border-radius:50%; font-family:"Courier New",monospace; font-size:.8rem; font-weight:950; letter-spacing:1px; transform:rotate(-3deg); }
-    .flyer-description { margin:0 0 28px; font-family:"Courier New",monospace; font-size:clamp(1rem,1.45vw,1.25rem); font-weight:700; line-height:1.55; white-space:pre-line; }
-
-    .flyer-callout { display:flex; flex-direction:column; align-items:flex-start; margin-bottom:28px; transform:rotate(-1.5deg); }
-    .flyer-callout span { font-family:"Courier New",monospace; font-size:.72rem; font-weight:950; letter-spacing:2px; }
-    .flyer-callout strong { color:var(--flyer-red); font-family:Impact,sans-serif; font-size:clamp(2rem,3.2vw,3.2rem); line-height:.92; letter-spacing:.5px; }
-
-    .event-reserve-button {
-        align-self:flex-start;
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        gap:17px;
-        min-width:235px;
-        padding:15px 21px;
-        color:#fff;
-        background:var(--flyer-red);
-        border:3px solid var(--flyer-red);
-        box-shadow:7px 7px 0 var(--flyer-black);
-        font-size:.76rem;
-        font-weight:950;
-        letter-spacing:1.7px;
-        text-decoration:none;
-        text-transform:uppercase;
-        transform:rotate(1.5deg);
-        transition:.2s ease;
-    }
-
-    .event-reserve-button:hover { color:var(--flyer-red); background:transparent; transform:rotate(-1deg) translate(-3px,-3px); box-shadow:10px 10px 0 var(--flyer-black); }
-
-    .flyer-stamp { position:absolute; right:-12px; bottom:6px; padding:9px 12px; color:var(--flyer-red); border:4px solid var(--flyer-red); font-family:Impact,sans-serif; font-size:1.15rem; line-height:.92; text-align:center; transform:rotate(-8deg); opacity:.9; }
-
-    .flyer-register { position:relative; z-index:3; display:grid; grid-template-columns:1.15fr 1.25fr .9fr .9fr; margin-top:28px; border:2px solid var(--flyer-red); transform:rotate(.25deg); }
-    .register-cell { min-height:68px; padding:8px 12px 9px; }
-    .register-cell:not(:last-child) { border-right:2px solid var(--flyer-red); }
-    .register-cell span { display:block; margin-bottom:3px; font-family:"Arial Narrow",sans-serif; font-size:.58rem; font-weight:950; letter-spacing:1px; }
-    .register-cell strong { display:block; font-family:"Segoe Print","Comic Sans MS",cursive; font-size:clamp(1rem,1.7vw,1.45rem); font-weight:700; line-height:1.15; }
-
-    .page-scratch { position:absolute; z-index:1; width:190px; height:12px; border-top:4px solid #d71927; border-bottom:2px solid #d71927; opacity:.8; pointer-events:none; }
-    .page-scratch-one { top:18%; left:-45px; transform:rotate(-9deg); }
-    .page-scratch-two { right:-40px; bottom:14%; transform:rotate(8deg); }
-
-    @@keyframes flyerArrives {
-        from { opacity:0; transform:translateY(24px) rotate(-.8deg); }
-        to { opacity:1; transform:translateY(0) rotate(0); }
-    }
-
-    @@media (max-width: 991.98px) {
-        .flyer-header { grid-template-columns:105px minmax(0,1fr); }
-        .flyer-issue { display:none; }
-        .flyer-heading h1 { font-size:clamp(4rem,12vw,7.2rem); }
-        .flyer-body { grid-template-columns:1fr; }
-        .flyer-visual,.flyer-visual img,.flyer-placeholder { min-height:540px; }
-        .flyer-copy { padding:18px 4px 24px; }
-        .flyer-stamp { right:5px; }
-    }
-
-    @@media (max-width: 575.98px) {
-        .event-detail-page { padding:24px 0 55px; }
-        .event-flyer { padding:25px 17px 23px; box-shadow:0 28px 70px rgba(0,0,0,.7),7px 8px 0 rgba(215,25,39,.85); }
-        .flyer-header { grid-template-columns:1fr; gap:16px; }
-        .flyer-brand { font-size:1.25rem; }
-        .flyer-heading h1 { font-size:clamp(3.7rem,19vw,6rem); letter-spacing:-2px; }
-        .flyer-visual,.flyer-visual img,.flyer-placeholder { min-height:410px; }
-        .flyer-date strong { font-size:5.4rem; }
-        .flyer-date span { font-size:2.8rem; }
-        .flyer-stamp { position:relative; right:auto; bottom:auto; align-self:flex-end; margin:27px 5px 0 0; }
-        .flyer-register { grid-template-columns:1fr 1fr; }
-        .register-cell:nth-child(2) { border-right:0; }
-        .register-cell:nth-child(-n+2) { border-bottom:2px solid var(--flyer-red); }
-        .event-reserve-button { width:100%; }
-    }
-
-    @@media (prefers-reduced-motion: reduce) {
-        .event-flyer { animation:none; }
-    }
-</style>

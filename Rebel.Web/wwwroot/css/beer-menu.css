@@ -25,13 +25,6 @@
     background: var(--beer-night);
 }
 
-/* site.css sets overflow-x: hidden on html and body, which turns body into a
-   scroll container and stops the sticky tracklist from sticking. clip keeps the
-   horizontal guard without that side effect. */
-body.rr-public-shell {
-    overflow-x: clip;
-}
-
 .rr-beer-defs {
     position: absolute;
     width: 0;

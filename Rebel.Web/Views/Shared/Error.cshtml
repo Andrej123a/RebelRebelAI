@@ -5,38 +5,48 @@
     ViewData["MetaDescription"] = "Rebel Rebel by Fat Kitchen could not load this page. Return home, view the menu, or book a table.";
 }
 
-<section class="rr-error-page">
-    <div class="rr-error-panel">
-        <p>Signal lost</p>
-
-        <h1>Something went sideways.</h1>
-
-        <span>
-            The page could not be loaded right now. Try again, or head back to the main Rebel Rebel by Fat Kitchen pages.
-        </span>
-
-        <div class="rr-error-actions">
-            <a asp-controller="Home"
-               asp-action="Index">
-                Back Home
-            </a>
-
-            <a asp-controller="Home"
-               asp-action="Menu">
-                View Menu
-            </a>
-
-            <a asp-controller="Reservations"
-               asp-action="Create">
-                Book a Table
-            </a>
+<section class="rs-section rs-error">
+    <div class="rs-container rs-error-inner">
+        <div class="rs-error-burst" aria-hidden="true">
+            <svg viewBox="0 0 200 200"><use href="#rs-burst" /></svg>
+            <svg class="rs-error-bolt" viewBox="0 0 100 100"><use href="#rs-bolt" /></svg>
         </div>
 
-        @if (Model.ShowRequestId)
-        {
-            <small>
-                Reference: @Model.RequestId
-            </small>
-        }
+        <div>
+            <p class="rs-kicker rs-kicker--coral">Signal lost</p>
+
+            <h1 class="rs-display rs-display--lg" data-rs-flip>Something went sideways.</h1>
+
+            <p class="rs-lead">
+                The page could not be loaded right now. Try again, or head back to the main Rebel Rebel by Fat Kitchen pages.
+            </p>
+
+            <div class="rs-error-actions">
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="rs-btn rs-btn--gradient">
+                    Back home
+                </a>
+
+                <a asp-controller="Home"
+                   asp-action="Menu"
+                   class="rs-btn rs-btn--ghost">
+                    View menu
+                </a>
+
+                <a asp-controller="Reservations"
+                   asp-action="Create"
+                   class="rs-btn rs-btn--ghost">
+                    Book a table
+                </a>
+            </div>
+
+            @if (Model.ShowRequestId)
+            {
+                <small class="rs-error-ref">
+                    Reference: @Model.RequestId
+                </small>
+            }
+        </div>
     </div>
 </section>

@@ -41,6 +41,16 @@
         _ => "Messy hands. Full stomach. No regrets."
     };
 
+    var categoryTones = new[]
+    {
+        "var(--rs-yellow)",
+        "var(--rs-coral)",
+        "var(--rs-cyan)",
+        "var(--rs-pink)",
+        "var(--rs-lilac)",
+        "var(--rs-blue-glow)"
+    };
+
     var menuGroups = Model
         .Where(p => p.Category != null && p.Category.Type == selectedType)
         .GroupBy(p => p.Category!.Name)
@@ -48,64 +58,54 @@
         .ToList();
 }
 
-<div class="rr-menu-page@(selectedSection == "beer" ? " rr-menu-page--beer" : "")">
+<div class="rs-menu-page@(selectedSection == "beer" ? " rr-menu-page--beer" : "")">
 
-    <header class="rr-menu-hero">
-        <div class="rr-menu-hero-noise"></div>
-        <div class="rr-menu-star rr-menu-star-one">✦</div>
-        <div class="rr-menu-star rr-menu-star-two">✦</div>
+    <header class="rs-menu-hero">
+        <div class="rs-container rs-menu-hero-inner">
+            <div>
+                <p class="rs-kicker">Food · Beer · Loud nights</p>
 
-        <div class="rr-menu-hero-content">
-            <div class="rr-menu-stamp">
-                EST. SKOPJE
+                <h1 class="rs-display rs-display--xl" data-rs-flip aria-label="Rebel Rebel menu">
+                    Rebel <span class="rs-gradient-text">Rebel</span>
+                </h1>
+
+                <p class="rs-lead">Come hungry. Leave louder.</p>
             </div>
 
-            <p class="rr-menu-eyebrow">
-                FOOD · BEER · LOUD NIGHTS
-            </p>
-
-            <h1 class="rr-menu-main-title">
-                REBEL
-                <span>REBEL</span>
-            </h1>
-
-            <p class="rr-menu-lead">
-                Come hungry. Leave louder.
-            </p>
-
-            <nav class="rr-menu-navigation @(!showDrinksMenu ? "rr-menu-navigation--two" : "")"
-                 aria-label="Menu sections">
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="food"
-                   class="rr-menu-nav-link @(selectedSection == "food" ? "active" : "")">
-
-                    <span class="rr-menu-nav-number">01</span>
-                    <span>Food</span>
-                </a>
-
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="beer"
-                   class="rr-menu-nav-link @(selectedSection == "beer" ? "active" : "")">
-
-                    <span class="rr-menu-nav-number">02</span>
-                    <span>Beer</span>
-                </a>
-
-                @if (showDrinksMenu)
-                {
-                    <a asp-controller="Home"
-                       asp-action="Menu"
-                       asp-route-section="drink"
-                       class="rr-menu-nav-link @(selectedSection == "drink" ? "active" : "")">
-
-                        <span class="rr-menu-nav-number">03</span>
-                        <span>Drinks</span>
-                    </a>
-                }
-            </nav>
+            <partial name="_RebelBadge" model='new RebelBadgeModel("rs-menu-badge", "EST. SKOPJE // FOOD // BEER // LOUD NIGHTS // ", "rs-menu-badge")' />
         </div>
+
+        <nav class="rs-container rs-menu-tabs" aria-label="Menu sections">
+            <a asp-controller="Home"
+               asp-action="Menu"
+               asp-route-section="food"
+               class="rs-menu-tab @(selectedSection == "food" ? "is-active" : "")"
+               aria-current="@(selectedSection == "food" ? "page" : null)"
+               style="--tone: var(--rs-yellow);">
+                <span>01</span> Food
+            </a>
+
+            <a asp-controller="Home"
+               asp-action="Menu"
+               asp-route-section="beer"
+               class="rs-menu-tab @(selectedSection == "beer" ? "is-active" : "")"
+               aria-current="@(selectedSection == "beer" ? "page" : null)"
+               style="--tone: var(--rs-cyan);">
+                <span>02</span> Beer
+            </a>
+
+            @if (showDrinksMenu)
+            {
+                <a asp-controller="Home"
+                   asp-action="Menu"
+                   asp-route-section="drink"
+                   class="rs-menu-tab @(selectedSection == "drink" ? "is-active" : "")"
+                   aria-current="@(selectedSection == "drink" ? "page" : null)"
+                   style="--tone: var(--rs-pink);">
+                    <span>03</span> Drinks
+                </a>
+            }
+        </nav>
     </header>
 
     @if (selectedSection == "beer")
@@ -114,87 +114,50 @@
     }
     else
     {
-        <main class="rr-menu-content">
-
-            <div class="rr-menu-intro">
+        <div class="rs-container rs-food">
+            <header class="rs-heading">
                 <div>
-                    <p class="rr-menu-intro-label">CURRENTLY SERVING</p>
-                    <h2>@sectionTitle</h2>
+                    <p class="rs-kicker rs-kicker--yellow">Currently serving</p>
+                    <h2 class="rs-display rs-display--lg" data-rs-flip>@sectionTitle</h2>
                 </div>
 
-            <p class="rr-menu-intro-text">
-                @sectionMessage
-            </p>
-        </div>
+                <p>@sectionMessage</p>
+            </header>
 
-            <section class="rr-menu-tools"
+            <section class="rs-food-tools"
                      aria-label="Menu search and filters">
-                <div class="rr-menu-search">
-                    <label for="menuSearchInput">
-                        Find your order
-                    </label>
+                <div class="rs-field rs-food-search">
+                    <label for="menuSearchInput">Find your order</label>
                     <input id="menuSearchInput"
                            type="search"
                            placeholder="Search burgers, spicy, vegan..."
                            autocomplete="off" />
                 </div>
 
-                <div class="rr-menu-chip-row"
+                <div class="rs-food-chips"
+                     role="group"
                      aria-label="Menu tag filters">
-                    <button type="button"
-                            class="rr-menu-chip active"
-                            aria-pressed="true"
-                            data-filter="all">
-                        All
-                    </button>
-                    <button type="button"
-                            class="rr-menu-chip"
-                            aria-pressed="false"
-                            data-filter="available">
-                        Available
-                    </button>
-                    <button type="button"
-                            class="rr-menu-chip"
-                            aria-pressed="false"
-                            data-filter="popular">
-                        Popular
-                    </button>
-                    <button type="button"
-                            class="rr-menu-chip"
-                            aria-pressed="false"
-                            data-filter="spicy">
-                        Spicy
-                    </button>
-                    <button type="button"
-                            class="rr-menu-chip"
-                            aria-pressed="false"
-                            data-filter="sweet">
-                        Sweet
-                    </button>
-                    <button type="button"
-                            class="rr-menu-chip"
-                            aria-pressed="false"
-                            data-filter="vegan">
-                        Vegan
-                    </button>
-                    <button type="button"
-                            class="rr-menu-chip"
-                            aria-pressed="false"
-                            data-filter="vegetarian">
-                        Vegetarian
-                    </button>
+                    <button type="button" class="rs-chip is-active" aria-pressed="true" data-filter="all">All</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="available" style="--chip: var(--rs-cyan);"><i aria-hidden="true"></i>Available</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="popular" style="--chip: var(--rs-yellow);"><i aria-hidden="true"></i>Popular</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="spicy" style="--chip: var(--rs-coral);"><i aria-hidden="true"></i>Spicy</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="sweet" style="--chip: var(--rs-pink);"><i aria-hidden="true"></i>Sweet</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegan" style="--chip: var(--rs-lilac);"><i aria-hidden="true"></i>Vegan</button>
+                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegetarian" style="--chip: var(--rs-blue-glow);"><i aria-hidden="true"></i>Vegetarian</button>
                 </div>
 
                 <p id="menuFilterSummary"
-                   class="rr-menu-filter-summary"></p>
+                   class="rs-food-summary"
+                   aria-live="polite"></p>
 
                 <div id="menuFilterEmpty"
-                     class="rr-menu-filter-empty"
+                     class="rs-food-empty"
                      hidden>
                     <strong>No matching menu items.</strong>
                     <span>Try another search or clear the filters.</span>
                     <button type="button"
-                            id="menuFilterClear">
+                            id="menuFilterClear"
+                            class="rs-btn rs-btn--small rs-btn--paper">
                         Clear filters
                     </button>
                 </div>
@@ -202,9 +165,9 @@
 
             @if (!menuGroups.Any())
             {
-                <div class="rr-menu-empty">
-                    <span class="rr-menu-empty-symbol">✕</span>
-                    <h3>Nothing here yet.</h3>
+                <div class="rs-food-nothing">
+                    <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-bolt" /></svg>
+                    <h3 class="rs-display rs-display--sm">Nothing here yet.</h3>
                     <p>The rebels are still working on this part of the menu.</p>
                 </div>
             }
@@ -214,26 +177,20 @@
 
                 @foreach (var group in menuGroups)
                 {
-                    <section class="rr-menu-category">
+                    var tone = categoryTones[(categoryNumber - 1) % categoryTones.Length];
 
-                        <div class="rr-category-heading">
-                            <div class="rr-category-number">
-                                @categoryNumber.ToString("00")
-                            </div>
+                    <section class="rs-food-category"
+                             data-menu-category
+                             style="--tone: @tone;">
+                        <header class="rs-food-category-head">
+                            <span class="rs-food-category-num">@categoryNumber.ToString("00")</span>
+                            <h3>@group.Key</h3>
+                            <span class="rs-label">
+                                @group.Count() @(group.Count() == 1 ? "item" : "items")
+                            </span>
+                        </header>
 
-                            <div class="rr-category-title-wrap">
-                                <span>REBEL MENU FILE</span>
-                                <h3>@group.Key</h3>
-                            </div>
-
-                            <div class="rr-category-count">
-                                @group.Count()
-                                @(group.Count() == 1 ? "ITEM" : "ITEMS")
-                            </div>
-                        </div>
-
-                        <div class="row g-4">
-
+                        <div class="rs-food-grid">
                             @foreach (var product in group)
                             {
                                 var pairingDescription = string.IsNullOrWhiteSpace(product.Description)
@@ -270,145 +227,116 @@
                                         product.IsPromo ? "promo" : ""
                                     }.Where(tag => !string.IsNullOrWhiteSpace(tag)));
 
-                                <div class="col-md-6 col-xl-4 rr-menu-product-shell"
-                                     data-menu-item
-                                     data-search="@searchableText"
-                                     data-tags="@tagData">
-
-                                    <article class="rr-menu-card h-100 @(!product.IsAvailable ? "is-unavailable" : "")">
-
-                                        <div class="rr-menu-card-image-wrap">
-
-                                            @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                                            {
-                                                <img src="@product.ImageUrl"
-                                                     alt="@product.Name"
-                                                     class="rr-menu-card-image"
-                                                     loading="lazy" />
-                                            }
-                                            else
-                                            {
-                                                <div class="rr-menu-card-placeholder">
-                                                    <span>RR</span>
-                                                    <small>NO PHOTO.<br />STILL TASTES GOOD.</small>
-                                                </div>
-                                            }
-
-                                            <div class="rr-menu-card-shade"></div>
-
-                                            <div class="rr-menu-price">
-                                                <strong>@product.Price.ToString("0.##")</strong>
-                                                <span>ДЕН</span>
+                                <article class="rs-food-card @(!product.IsAvailable ? "is-unavailable" : "")"
+                                         data-menu-item
+                                         data-search="@searchableText"
+                                         data-tags="@tagData">
+                                    <div class="rs-food-card-media">
+                                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                        {
+                                            <img src="@product.ImageUrl"
+                                                 alt="@product.Name"
+                                                 loading="lazy" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rs-food-card-placeholder" aria-hidden="true">
+                                                <svg viewBox="0 0 100 100"><use href="#rs-bolt" /></svg>
+                                                <span>No photo.<br />Still tastes good.</span>
                                             </div>
+                                        }
 
-                                            @if (!product.IsAvailable)
-                                            {
-                                                <div class="rr-sold-out">
-                                                    SOLD OUT
-                                                </div>
-                                            }
+                                        <span class="rs-food-price">
+                                            @product.Price.ToString("0.##")<small>ден</small>
+                                        </span>
+
+                                        @if (!product.IsAvailable)
+                                        {
+                                            <span class="rs-food-stamp">Sold out</span>
+                                        }
+                                    </div>
+
+                                    <div class="rs-food-card-body">
+                                        <div class="rs-food-card-top">
+                                            <span class="rs-label">@group.Key</span>
+                                            <span class="rs-food-status">
+                                                @(product.IsAvailable ? "Available" : "Unavailable")
+                                            </span>
                                         </div>
 
-                                        <div class="rr-menu-card-body">
+                                        <h4>@product.Name</h4>
 
-                                            <div class="rr-menu-card-topline">
-                                                <span>@group.Key</span>
-
-                                                @if (product.IsAvailable)
-                                                {
-                                                    <span class="rr-availability-dot">
-                                                        AVAILABLE
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="rr-availability-dot unavailable">
-                                                        UNAVAILABLE
-                                                    </span>
-                                                }
-                                            </div>
-
-                                            <h4 class="rr-menu-card-title">
-                                                @product.Name
-                                            </h4>
-
-                                            <div class="rr-menu-tags">
+                                        @if (product.IsPopular || product.IsSpicy || product.SweetnessLevel is >= 4 ||
+                                             product.IsVegetarian || product.IsVegan || product.ContainsNuts ||
+                                             product.IsLimited || product.IsPromo)
+                                        {
+                                            <ul class="rs-food-tags" aria-label="Tags">
                                                 @if (product.IsPopular)
                                                 {
-                                                    <span><i>*</i>Popular</span>
+                                                    <li class="rs-pill">Popular</li>
                                                 }
 
                                                 @if (product.IsSpicy)
                                                 {
-                                                    <span><i>🌶</i>Spicy</span>
+                                                    <li class="rs-pill">Spicy</li>
                                                 }
 
                                                 @if (product.SweetnessLevel is >= 4)
                                                 {
-                                                    <span><i>S</i>Sweet</span>
+                                                    <li class="rs-pill">Sweet</li>
                                                 }
 
                                                 @if (product.IsVegetarian)
                                                 {
-                                                    <span><i>☘</i>Vegetarian</span>
+                                                    <li class="rs-pill">Vegetarian</li>
                                                 }
 
                                                 @if (product.IsVegan)
                                                 {
-                                                    <span><i>🌿</i>Vegan</span>
+                                                    <li class="rs-pill">Vegan</li>
                                                 }
 
                                                 @if (product.ContainsNuts)
                                                 {
-                                                    <span class="warning"><i>!</i>Contains nuts</span>
+                                                    <li class="rs-pill rs-pill--warning">Contains nuts</li>
                                                 }
 
                                                 @if (product.IsLimited)
                                                 {
-                                                    <span><i>#</i>Limited</span>
+                                                    <li class="rs-pill">Limited</li>
                                                 }
 
                                                 @if (product.IsPromo)
                                                 {
-                                                    <span><i>%</i>Promo</span>
+                                                    <li class="rs-pill">Promo</li>
                                                 }
-                                            </div>
+                                            </ul>
+                                        }
 
-                                            <p class="rr-menu-card-description">
-                                                @product.Description
-                                            </p>
+                                        @if (!string.IsNullOrWhiteSpace(product.Description))
+                                        {
+                                            <p>@product.Description</p>
+                                        }
 
-                                            @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
-                                            {
-                                                <a asp-controller="BeerGuide"
-                                                   asp-action="Index"
-                                                   asp-route-prompt="@rebelPrompt"
-                                                   class="rr-menu-rebel-action">
-                                                    <span aria-hidden="true"></span>
-                                                    <strong>Find a beer for this</strong>
-                                                    <i aria-hidden="true">&rarr;</i>
-                                                </a>
-                                            }
-
-                                            <div class="rr-menu-card-footer">
-                                                <span>REBEL REBEL BY FAT KITCHEN</span>
-                                                <span>✦</span>
-                                            </div>
-                                        </div>
-
-                                    </article>
-
-                                </div>
+                                        @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
+                                        {
+                                            <a asp-controller="BeerGuide"
+                                               asp-action="Index"
+                                               asp-route-prompt="@rebelPrompt"
+                                               class="rs-food-pair">
+                                                Find a beer for this <i aria-hidden="true">&rarr;</i>
+                                            </a>
+                                        }
+                                    </div>
+                                </article>
                             }
-
                         </div>
                     </section>
 
                     categoryNumber++;
                 }
             }
-
-        </main>
+        </div>
     }
 </div>
 
@@ -426,104 +354,85 @@
     {
         <script src="~/js/beer-menu.js" asp-append-version="true"></script>
     }
+    else
+    {
+        <script>
+            (() => {
+                const searchInput = document.getElementById("menuSearchInput");
+                const summary = document.getElementById("menuFilterSummary");
+                const emptyState = document.getElementById("menuFilterEmpty");
+                const clearButton = document.getElementById("menuFilterClear");
+                const chips = Array.from(document.querySelectorAll(".rs-food-chips [data-filter]"));
+                const items = Array.from(document.querySelectorAll("[data-menu-item]"));
+                const categories = Array.from(document.querySelectorAll("[data-menu-category]"));
 
-    <script>
-        (() => {
-            const searchInput =
-                document.getElementById("menuSearchInput");
-            const summary =
-                document.getElementById("menuFilterSummary");
-            const emptyState =
-                document.getElementById("menuFilterEmpty");
-            const clearButton =
-                document.getElementById("menuFilterClear");
-            const chips =
-                Array.from(document.querySelectorAll(".rr-menu-chip"));
-            const items =
-                Array.from(document.querySelectorAll("[data-menu-item]"));
-            const categories =
-                Array.from(document.querySelectorAll(".rr-menu-category"));
-
-            if (!searchInput || !items.length) {
-                return;
-            }
-
-            let activeFilter = "all";
-
-            const applyFilters = () => {
-                const query =
-                    searchInput.value.trim().toLowerCase();
-
-                let visibleCount = 0;
-
-                items.forEach((item) => {
-                    const matchesSearch =
-                        !query ||
-                        item.dataset.search.includes(query);
-                    const matchesFilter =
-                        activeFilter === "all" ||
-                        item.dataset.tags.split(" ").includes(activeFilter);
-                    const isVisible =
-                        matchesSearch && matchesFilter;
-
-                    item.hidden = !isVisible;
-
-                    if (isVisible) {
-                        visibleCount++;
-                    }
-                });
-
-                categories.forEach((category) => {
-                    const hasVisibleItems =
-                        category.querySelector("[data-menu-item]:not([hidden])") !== null;
-
-                    category.hidden = !hasVisibleItems;
-                });
-
-                if (summary) {
-                    summary.textContent =
-                        visibleCount === 1
-                            ? "1 item found"
-                            : `${visibleCount} items found`;
+                if (!searchInput || !items.length) {
+                    return;
                 }
 
-                if (emptyState) {
-                    emptyState.hidden = visibleCount > 0;
-                }
-            };
+                let activeFilter = "all";
 
-            chips.forEach((chip) => {
-                chip.addEventListener("click", () => {
-                    activeFilter = chip.dataset.filter ?? "all";
+                const setActiveChip = (filter) => {
+                    activeFilter = filter;
 
-                    chips.forEach((item) => {
-                        item.classList.toggle("active", item === chip);
-                        item.setAttribute(
-                            "aria-pressed",
-                            item === chip ? "true" : "false");
+                    chips.forEach((chip) => {
+                        const isActive = chip.dataset.filter === filter;
+                        chip.classList.toggle("is-active", isActive);
+                        chip.setAttribute("aria-pressed", isActive ? "true" : "false");
+                    });
+                };
+
+                const applyFilters = () => {
+                    const query = searchInput.value.trim().toLowerCase();
+                    let visibleCount = 0;
+
+                    items.forEach((item) => {
+                        const matchesSearch = !query || item.dataset.search.includes(query);
+                        const matchesFilter =
+                            activeFilter === "all" ||
+                            item.dataset.tags.split(" ").includes(activeFilter);
+                        const isVisible = matchesSearch && matchesFilter;
+
+                        item.hidden = !isVisible;
+
+                        if (isVisible) {
+                            visibleCount++;
+                        }
                     });
 
-                    applyFilters();
+                    categories.forEach((category) => {
+                        category.hidden = category.querySelector("[data-menu-item]:not([hidden])") === null;
+                    });
+
+                    if (summary) {
+                        summary.textContent = visibleCount === 1
+                            ? "1 item found"
+                            : `${visibleCount} items found`;
+                    }
+
+                    if (emptyState) {
+                        emptyState.hidden = visibleCount > 0;
+                    }
+                };
+
+                chips.forEach((chip) => {
+                    chip.addEventListener("click", () => {
+                        setActiveChip(chip.dataset.filter ?? "all");
+                        applyFilters();
+                    });
                 });
-            });
 
-            searchInput.addEventListener("input", applyFilters);
-            clearButton?.addEventListener("click", () => {
-                searchInput.value = "";
-                activeFilter = "all";
+                searchInput.addEventListener("input", applyFilters);
 
-                chips.forEach((item) => {
-                    const isAll = item.dataset.filter === "all";
-                    item.classList.toggle("active", isAll);
-                    item.setAttribute(
-                        "aria-pressed",
-                        isAll ? "true" : "false");
+                clearButton?.addEventListener("click", () => {
+                    searchInput.value = "";
+                    setActiveChip("all");
+                    applyFilters();
+                    searchInput.focus();
                 });
 
                 applyFilters();
-                searchInput.focus();
-            });
-            applyFilters();
-        })();
-    </script>
+            })();
+        </script>
+    }
 }

@@ -8,118 +8,118 @@
         ViewData.ModelState[nameof(Model.Note)]?.Errors.Count > 0;
 }
 
-<section class="rr-reservation-simple-page">
-    <div class="container">
-        <div class="rr-reservation-ticket">
-            <aside class="rr-reservation-art" aria-label="Rebel Rebel">
-                <img class="rr-reservation-art-photo"
-                     src="~/images/rebel-bowie-logo-room.webp"
-                     alt="Bowie artwork inside Rebel Rebel" />
+<section class="rs-section rs-reserve">
+    <div class="rs-container rs-reserve-grid">
+        <aside class="rs-reserve-art" aria-label="Rebel Rebel">
+            <img class="rs-reserve-art-photo"
+                 src="~/images/rebel-bowie-logo-room.webp"
+                 alt="Bowie artwork inside Rebel Rebel" />
 
-                <div class="rr-reservation-art-shade"></div>
+            <div class="rs-reserve-art-copy">
+                <img src="~/images/logo.jpg"
+                     alt="Rebel Rebel by Fat Kitchen"
+                     class="rs-reserve-logo" />
+                <span class="rs-label">Skopje / Table reservations</span>
+                <strong>Come as<br />you are.</strong>
+            </div>
+        </aside>
 
-                <div class="rr-reservation-art-copy">
-                    <img src="~/images/logo.jpg"
-                         alt="Rebel Rebel by Fat Kitchen"
-                         class="rr-reservation-logo" />
-                    <span>Skopje / Table reservations</span>
-                    <strong>Come as you are.</strong>
-                </div>
-            </aside>
+        <form asp-controller="Reservations"
+              asp-action="Create"
+              method="post"
+              class="rs-card rs-reserve-form">
+            <input asp-for="EventId" type="hidden" />
 
-            <form asp-controller="Reservations"
-                  asp-action="Create"
-                  method="post"
-                  class="rr-reservation-simple-form">
-                <input asp-for="EventId" type="hidden" />
-
-                <header>
-                    <span>Book a table</span>
-                    <h1>Pick your arrival.</h1>
-                    <p>
-                        Choose the exact date and time. We will give you a code to track the request.
-                    </p>
-                </header>
-
-                <div asp-validation-summary="ModelOnly"
-                     class="rr-reservation-errors"></div>
-
-                @if (!string.IsNullOrWhiteSpace(Model.EventTitle))
-                {
-                    <div class="rr-reservation-event">
-                        <span>Event</span>
-                        <strong>@Model.EventTitle</strong>
-                    </div>
-                }
-
-                <div class="rr-reservation-datetime">
-                    <label>
-                        <span>Date</span>
-                        <input asp-for="ReservationDate"
-                               type="date"
-                               min="@ViewBag.MinimumReservationDate" />
-                        <small asp-validation-for="ReservationDate"></small>
-                    </label>
-
-                    <label>
-                        <span>Arrival time</span>
-                        <input asp-for="ReservationTime"
-                               type="time"
-                               min="10:00"
-                               max="22:00" />
-                        <small asp-validation-for="ReservationTime"></small>
-                    </label>
-                </div>
-
-                <p class="rr-reservation-hours">
-                    Reservations from 10:00 to 22:00 / at least 2 hours ahead
+            <header>
+                <p class="rs-kicker">Book a table</p>
+                <h1 class="rs-display rs-display--md" data-rs-flip aria-label="Pick your arrival.">
+                    Pick your <span class="rs-gradient-text">arrival.</span>
+                </h1>
+                <p class="rs-reserve-intro">
+                    Choose the exact date and time. We will give you a code to track the request.
                 </p>
+            </header>
 
-                <div class="rr-reservation-fields">
-                    <label>
-                        <span>Guests</span>
-                        <input asp-for="NumberOfGuests"
-                               type="number"
-                               inputmode="numeric"
-                               min="1"
-                               max="20" />
-                        <small asp-validation-for="NumberOfGuests"></small>
-                    </label>
+            <div asp-validation-summary="ModelOnly"
+                 class="rs-errors"></div>
 
-                    <label>
-                        <span>Full name</span>
-                        <input asp-for="FullName"
-                               placeholder="Your name"
-                               autocomplete="name" />
-                        <small asp-validation-for="FullName"></small>
-                    </label>
-
-                    <label>
-                        <span>Phone</span>
-                        <input asp-for="PhoneNumber"
-                               placeholder="+389..."
-                               autocomplete="tel" />
-                        <small asp-validation-for="PhoneNumber"></small>
-                    </label>
+            @if (!string.IsNullOrWhiteSpace(Model.EventTitle))
+            {
+                <div class="rs-reserve-event">
+                    <span class="rs-label">Event</span>
+                    <strong>@Model.EventTitle</strong>
                 </div>
+            }
 
-                <details class="rr-reservation-note" open="@showNote">
-                    <summary>Add a note <span>optional</span></summary>
-                    <label>
-                        <span>For the crew</span>
-                        <textarea asp-for="Note"
-                                  rows="3"
-                                  placeholder="Birthday, accessibility, seating..."></textarea>
-                        <small asp-validation-for="Note"></small>
-                    </label>
-                </details>
+            <div class="rs-reserve-row rs-reserve-row--two">
+                <label class="rs-field">
+                    <span>Date</span>
+                    <input asp-for="ReservationDate"
+                           type="date"
+                           min="@ViewBag.MinimumReservationDate" />
+                    <span asp-validation-for="ReservationDate"></span>
+                </label>
 
-                <div class="rr-reservation-submit">
-                    <button type="submit">Request the table</button>
-                    <p>No email needed. Keep the code shown after submitting.</p>
-                </div>
-            </form>
-        </div>
+                <label class="rs-field">
+                    <span>Arrival time</span>
+                    <input asp-for="ReservationTime"
+                           type="time"
+                           min="10:00"
+                           max="22:00" />
+                    <span asp-validation-for="ReservationTime"></span>
+                </label>
+            </div>
+
+            <p class="rs-reserve-hours">
+                Reservations from 10:00 to 22:00 // at least 2 hours ahead
+            </p>
+
+            <div class="rs-reserve-row rs-reserve-row--three">
+                <label class="rs-field">
+                    <span>Guests</span>
+                    <input asp-for="NumberOfGuests"
+                           type="number"
+                           inputmode="numeric"
+                           min="1"
+                           max="20" />
+                    <span asp-validation-for="NumberOfGuests"></span>
+                </label>
+
+                <label class="rs-field">
+                    <span>Full name</span>
+                    <input asp-for="FullName"
+                           placeholder="Your name"
+                           autocomplete="name" />
+                    <span asp-validation-for="FullName"></span>
+                </label>
+
+                <label class="rs-field">
+                    <span>Phone</span>
+                    <input asp-for="PhoneNumber"
+                           placeholder="+389..."
+                           autocomplete="tel" />
+                    <span asp-validation-for="PhoneNumber"></span>
+                </label>
+            </div>
+
+            <details class="rs-reserve-note" open="@showNote">
+                <summary>Add a note <span>optional</span></summary>
+                <label class="rs-field">
+                    <span>For the crew</span>
+                    <textarea asp-for="Note"
+                              rows="3"
+                              placeholder="Birthday, accessibility, seating..."></textarea>
+                    <span asp-validation-for="Note"></span>
+                </label>
+            </details>
+
+            <div class="rs-reserve-submit">
+                <button type="submit" class="rs-btn rs-btn--gradient">
+                    Request the table <i aria-hidden="true">&rarr;</i>
+                </button>
+                <p>No email needed. Keep the code shown after submitting.</p>
+            </div>
+        </form>
     </div>
 </section>
 

@@ -86,37 +86,39 @@
     }
 }
 
-<section class="rr-booking-page">
-    <div class="container">
-        <div class="rr-booking-header">
-            <p>Reservation Desk</p>
+<section class="rs-section rs-booking">
+    <div class="rs-container rs-booking-inner">
+        <header class="rs-booking-header">
+            <p class="rs-kicker rs-kicker--yellow">Reservation desk</p>
 
-            <h1>Find My Reservation</h1>
+            <h1 class="rs-display rs-display--xl" data-rs-flip aria-label="Find my reservation">
+                Find my <span class="rs-gradient-text">reservation</span>
+            </h1>
 
-            <p>
+            <p class="rs-lead">
                 Enter your code to see what staff decided, review the details, or cancel before the booking time.
             </p>
-        </div>
+        </header>
 
         @if (TempData["LookupMessage"] is string lookupMessage)
         {
-            <div class="rr-lookup-message">
+            <div class="rs-booking-message" role="status">
                 @lookupMessage
             </div>
         }
 
         <form asp-action="Lookup"
               method="post"
-              class="rr-lookup-search">
+              class="rs-card rs-booking-search">
             @Html.AntiForgeryToken()
 
             <div>
-                <span>Guest lookup</span>
+                <span class="rs-label">Guest lookup</span>
                 <strong>Enter your reservation code</strong>
                 <p>Codes look like RR-A1B2C3. Spaces and lowercase are fine.</p>
             </div>
 
-            <div class="rr-lookup-input-group">
+            <div class="rs-field">
                 <label asp-for="ReservationCode"></label>
                 <input asp-for="ReservationCode"
                        placeholder="RR-A1B2C3"
@@ -124,8 +126,8 @@
                 <span asp-validation-for="ReservationCode"></span>
             </div>
 
-            <button type="submit" class="rr-booking-submit">
-                Find Reservation
+            <button type="submit" class="rs-btn rs-btn--gradient">
+                Find reservation <i aria-hidden="true">&rarr;</i>
             </button>
         </form>
 
@@ -133,7 +135,7 @@
         {
             if (Model.Reservation == null)
             {
-                <div class="rr-lookup-empty">
+                <div class="rs-booking-empty">
                     <strong>No upcoming reservation found.</strong>
                     <span>Check the reservation code, or contact the pub directly.</span>
                 </div>
@@ -142,31 +144,29 @@
             {
                 var reservation = Model.Reservation;
 
-                <div class="rr-lookup-results">
-                    <article class="rr-lookup-row @StatusClass(reservation.Status)">
-                        <div class="rr-lookup-result-head">
-                            <span class="rr-lookup-status">
-                                @StatusLabel(reservation.Status)
-                            </span>
+                <article class="rs-booking-result @StatusClass(reservation.Status)">
+                    <header class="rs-booking-result-head">
+                        <span class="rs-pill rs-booking-status">
+                            @StatusLabel(reservation.Status)
+                        </span>
 
-                            <h2>
-                                @GuestStatusMessage(reservation.Status)
-                            </h2>
+                        <h2>
+                            @GuestStatusMessage(reservation.Status)
+                        </h2>
 
-                            <p>
-                                Code
-                                <strong id="lookupReservationCode">
-                                    @reservation.ReservationCode
-                                </strong>
-                                <button type="button"
-                                        class="rr-copy-code-button"
-                                        data-copy-code="@reservation.ReservationCode">
-                                    Copy
-                                </button>
-                            </p>
-                        </div>
+                        <p class="rs-booking-code">
+                            <span class="rs-label">Code</span>
+                            <strong id="lookupReservationCode">@reservation.ReservationCode</strong>
+                            <button type="button"
+                                    class="rs-btn rs-btn--small rs-btn--night"
+                                    data-copy-code="@reservation.ReservationCode">
+                                Copy
+                            </button>
+                        </p>
+                    </header>
 
-                        <dl class="rr-lookup-summary">
+                    <div class="rs-booking-result-body">
+                        <dl class="rs-stats">
                             <div>
                                 <dt>Date</dt>
                                 <dd>@reservation.ReservationDate.ToString("dd MMM yyyy")</dd>
@@ -191,9 +191,9 @@
                             }
                         </dl>
 
-                        <div class="rr-lookup-cancel-panel">
+                        <div class="rs-booking-cancel">
                             <div>
-                                <span>Changes</span>
+                                <span class="rs-label">Changes</span>
                                 <strong>
                                     @(CanCancel(reservation.Status)
                                         ? "Cancellation available"
@@ -210,27 +210,24 @@
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@reservation.Id" />
                                     <input type="hidden" name="reservationCode" value="@Model.ReservationCode" />
-                                    <button type="submit">
-                                        Cancel Reservation
+                                    <button type="submit" class="rs-btn rs-btn--small rs-btn--ghost rs-booking-cancel-button">
+                                        Cancel reservation
                                     </button>
                                 </form>
                             }
                             else
                             {
-                                <span class="rr-lookup-locked">
-                                    Locked
-                                </span>
+                                <span class="rs-pill">Locked</span>
                             }
                         </div>
 
-                        <div class="rr-lookup-actions">
-                            <a asp-controller="Reservations"
-                               asp-action="Create">
-                                New Reservation
-                            </a>
-                        </div>
-                    </article>
-                </div>
+                        <a asp-controller="Reservations"
+                           asp-action="Create"
+                           class="rs-btn rs-btn--small rs-btn--ghost">
+                            New reservation
+                        </a>
+                    </div>
+                </article>
             }
         }
     </div>
