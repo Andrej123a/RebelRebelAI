@@ -7,8 +7,12 @@
    Aladdin Sane '73, Rebel Rebel '74, Station to Station '76,
    Heroes '77, Ashes to Ashes '80 and Blackstar 2016.
 
-   Red and yellow dominate; light blue is kept for small
-   details (lines, lights, the edge of the bolt). Huge
+   Every page sits under one night sky (rebel-sky.js): a red
+   nebula, the Milky Way, falling stars and Ziggy's stardust.
+   Chapters are either windows onto that sky (red at the
+   horizon) or printed matter laid over it (gold, newsprint,
+   concrete). Light blue is kept for small details (lines,
+   lights, the edge of the bolt, Ground Control). Huge
    condensed Big Shoulders over a red sky, Space Mono for
    Ground Control, Playfair for fanzine headlines.
 
@@ -43,6 +47,7 @@
     --z-blue: #9ad3f0;
     --z-ink: #1a0f0d;
     --z-space: #0e0807;
+    --z-night: #0b0405;
     --z-cream: #fff1dc;
     --z-news: #f1e8d6;
     --z-concrete: #a7a198;
@@ -59,6 +64,9 @@
     /* A red sky with thin orange streaks, drawn as noise (no image file). */
     --z-clouds: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' preserveAspectRatio='none'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0024 0.016' numOctaves='4' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 0.42  0 0 0 0 0.12  2.6 0 0 0 -1.56'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
     --z-shadows: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' preserveAspectRatio='none'%3E%3Cfilter id='d' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0016 0.005' numOctaves='3' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.22  0 0 0 0 0.02  0 0 0 0 0.01  2 0 0 0 -1.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E");
+
+    /* The same clouds, thinner, for the horizon under the night sky. */
+    --z-clouds-night: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' preserveAspectRatio='none'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0024 0.02' numOctaves='4' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 0.38  0 0 0 0 0.12  2.2 0 0 0 -1.42'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
 
     /* What a chapter hands to everything inside it (the red sky by default). */
     --ch-bg: var(--z-red);
@@ -100,9 +108,10 @@
 html {
     position: relative;
     min-height: 100%;
+    background: var(--z-night);
     font-size: 15px;
     scroll-behavior: smooth;
-    scrollbar-color: var(--z-gold) var(--z-red-deep);
+    scrollbar-color: var(--z-gold) var(--z-night);
     scrollbar-width: thin;
 }
 
@@ -117,7 +126,7 @@ html::-webkit-scrollbar {
 }
 
 html::-webkit-scrollbar-track {
-    background: var(--z-red-deep);
+    background: var(--z-night);
 }
 
 html::-webkit-scrollbar-thumb {
@@ -128,7 +137,8 @@ body {
     position: relative;
     min-height: 100vh;
     margin: 0;
-    background: var(--z-red);
+    /* Transparent, so the night sky canvas behind it shows. */
+    background: transparent;
     color: var(--z-cream);
     font-family: var(--rs-body);
     font-weight: 400;
@@ -888,12 +898,12 @@ input[type="search"]::-webkit-search-cancel-button {
     padding-block: clamp(72px, 10vw, 140px);
 }
 
-/* The default: Ziggy's red sky with thin orange streaks. */
+/* The default: a window onto the night sky, glowing Ziggy red down at the horizon,
+   with thin clouds lit from below. */
 .rs-chapter--sky {
     background:
-        var(--z-clouds) center / cover no-repeat,
-        var(--z-shadows) center / cover no-repeat,
-        linear-gradient(180deg, var(--z-red-deep) 0%, var(--z-red) 30%, #c4180c 70%, #b2140a 100%);
+        var(--z-clouds-night) center bottom / 100% 72% no-repeat,
+        linear-gradient(180deg, transparent 0%, rgba(74, 8, 3, 0.16) 34%, rgba(125, 13, 6, 0.46) 64%, rgba(187, 21, 11, 0.84) 100%);
 }
 
 /* Flat red, for long stretches of content. */
@@ -904,6 +914,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-chapter--deep {
     --ch-bg: var(--z-red-deep);
+    background: linear-gradient(180deg, rgba(74, 8, 3, 0.3), rgba(125, 13, 6, 0.62));
 }
 
 /* The yellow flood: red type on gold. */
@@ -929,9 +940,7 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-tag: var(--z-blue);
     --ch-hot: var(--z-blue);
     --ch-line: rgba(154, 211, 240, 0.24);
-    background:
-        radial-gradient(ellipse 70% 50% at 50% 120%, rgba(187, 21, 11, 0.55), transparent 70%),
-        var(--z-space);
+    background: radial-gradient(ellipse 70% 50% at 50% 120%, rgba(187, 21, 11, 0.5), transparent 70%);
 }
 
 /* Heroes: concrete slabs with a single red accent. */
@@ -984,7 +993,38 @@ input[type="search"]::-webkit-search-cancel-button {
     clip-path: polygon(0 var(--cut), 11% calc(var(--cut) * 0.25), 19% calc(var(--cut) * 0.8), 34% 0, 43% calc(var(--cut) * 0.62), 58% calc(var(--cut) * 0.08), 66% calc(var(--cut) * 0.9), 81% calc(var(--cut) * 0.2), 90% calc(var(--cut) * 0.7), 100% calc(var(--cut) * 0.1), 100% 100%, 0 100%);
 }
 
-/* ---------- stars ---------- */
+/* ---------- the night sky ---------- */
+
+/* rebel-sky.js paints the sky on this canvas; these layers are what shows without it. */
+.rs-sky {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    display: block;
+    width: 100%;
+    height: 100vh;
+    height: 100lvh;
+    pointer-events: none;
+    background:
+        radial-gradient(1px 1px at 20% 30%, rgba(255, 244, 234, 0.9) 50%, transparent 52%) 0 0 / 230px 190px,
+        radial-gradient(1px 1px at 70% 80%, rgba(202, 215, 255, 0.8) 50%, transparent 52%) 0 0 / 170px 210px,
+        radial-gradient(1.6px 1.6px at 45% 55%, rgba(255, 216, 106, 0.9) 50%, transparent 52%) 0 0 / 390px 330px,
+        radial-gradient(0.8px 0.8px at 85% 15%, rgba(255, 255, 255, 0.7) 50%, transparent 52%) 0 0 / 120px 140px,
+        radial-gradient(60% 45% at 85% 12%, rgba(187, 21, 11, 0.38), transparent 70%),
+        radial-gradient(55% 50% at 8% 55%, rgba(125, 13, 6, 0.42), transparent 70%),
+        radial-gradient(50% 40% at 70% 95%, rgba(226, 64, 26, 0.22), transparent 70%),
+        var(--z-night);
+}
+
+.rs-sky-on .rs-sky {
+    background: radial-gradient(120% 70% at 50% 115%, rgba(74, 8, 3, 0.5), transparent 70%), var(--z-night);
+}
+
+/* Per-chapter stars, only for when the sky script is not running. */
+.rs-sky-on .rs-stars {
+    display: none;
+}
 
 .rs-stars {
     position: absolute;
@@ -1000,15 +1040,6 @@ input[type="search"]::-webkit-search-cancel-button {
         radial-gradient(1px 1px at 91% 12%, var(--z-cream) 50%, transparent 52%);
     background-size: 340px 280px, 260px 300px, 420px 360px, 300px 240px, 380px 320px, 220px 200px;
     opacity: 0.9;
-}
-
-/* A few bigger sparkles that twinkle. */
-.rs-sparkle {
-    position: absolute;
-    z-index: -1;
-    width: var(--s, 22px);
-    fill: var(--sparkle, var(--z-yellow));
-    pointer-events: none;
 }
 
 /* ---------- the Bowie timeline ---------- */
@@ -1447,11 +1478,12 @@ a:focus-visible .rs-vhs img {
    7. HEADER + #OPEN MENU + PRELOADER
    ========================================================= */
 
-/* The header shares the darkest red at the top of the sky, so the two run together. */
+/* The header floats on the night sky, ruled off with a hairline. */
 .rs-header {
     position: relative;
     z-index: 800;
-    background: var(--z-red-deep);
+    border-bottom: 1px solid rgba(255, 241, 220, 0.1);
+    background: linear-gradient(180deg, rgba(11, 4, 5, 0.55), transparent);
 }
 
 .rs-header-inner {
@@ -1660,9 +1692,17 @@ a:focus-visible .rs-vhs img {
     overflow-y: auto;
     overscroll-behavior: contain;
     isolation: isolate;
+    /* Its own patch of night sky: stars, the red horizon and thin clouds. */
     background:
-        var(--z-clouds) center / cover no-repeat,
-        linear-gradient(180deg, var(--z-red-deep), var(--z-red) 60%);
+        radial-gradient(1px 1px at 20% 30%, rgba(255, 244, 234, 0.9) 50%, transparent 52%) 0 0 / 230px 190px,
+        radial-gradient(1px 1px at 70% 80%, rgba(202, 215, 255, 0.8) 50%, transparent 52%) 0 0 / 170px 210px,
+        radial-gradient(1.6px 1.6px at 45% 55%, rgba(255, 216, 106, 0.9) 50%, transparent 52%) 0 0 / 390px 330px,
+        radial-gradient(0.8px 0.8px at 85% 15%, rgba(255, 255, 255, 0.7) 50%, transparent 52%) 0 0 / 120px 140px,
+        radial-gradient(0.8px 0.8px at 35% 65%, rgba(255, 226, 180, 0.6) 50%, transparent 52%) 0 0 / 90px 110px,
+        radial-gradient(1.2px 1.2px at 60% 20%, rgba(255, 255, 255, 0.75) 50%, transparent 52%) 0 0 / 310px 260px,
+        var(--z-clouds-night) center bottom / 100% 60% no-repeat,
+        radial-gradient(60% 45% at 80% 10%, rgba(187, 21, 11, 0.3), transparent 70%),
+        linear-gradient(180deg, var(--z-night) 0%, #1c0605 45%, var(--z-red-deep) 82%, var(--z-red) 100%);
     color: var(--z-cream);
     visibility: hidden;
     clip-path: circle(0 at calc(100% - 70px) 40px);
@@ -1687,15 +1727,17 @@ html.rs-open-lock body {
     overflow: hidden;
 }
 
-.rs-open-ufo {
-    position: absolute;
-    top: 9%;
-    right: 34%;
+.rs-open-starman {
+    top: 2%;
+    right: 30%;
     z-index: -1;
-    width: clamp(110px, 12vw, 190px);
-    transform: rotate(-12deg);
-    pointer-events: none;
+    width: clamp(200px, 22vw, 340px);
 }
+
+    .rs-open-starman span {
+        right: 57%;
+        left: auto;
+    }
 
 .rs-open-inner {
     position: relative;
@@ -1893,10 +1935,15 @@ html.rs-open-lock body {
             display: none;
         }
 
-    .rs-open-ufo {
-        top: 12%;
-        right: 6%;
+    .rs-open-starman {
+        top: 4%;
+        right: -4%;
+        width: 200px;
     }
+
+        .rs-open-starman span {
+            display: none;
+        }
 }
 
 /* ---------- preloader: the Space Oddity countdown, once per visit ---------- */
@@ -1914,7 +1961,7 @@ html.rs-open-lock body {
     justify-items: center;
     gap: 6px;
     isolation: isolate;
-    background: var(--z-space);
+    background: var(--z-night);
     color: var(--z-cream);
     /* Falls away on its own if the script never runs. */
     animation: rs-preloader-out 0.7s var(--rs-snap) 2.8s forwards;
@@ -1947,16 +1994,13 @@ html.rs-open-lock body {
     font-variant-numeric: tabular-nums;
 }
 
-.rs-preloader-rocket {
-    width: clamp(40px, 5vw, 64px);
-    fill: var(--z-cream);
-    --rocket-window: var(--z-blue);
-    --rocket-flame: var(--z-gold);
-    transition: transform 0.8s var(--rs-snap);
-}
-
-.rs-preloader.is-lift .rs-preloader-rocket {
-    transform: translateY(-70vh);
+/* Warp speed: the starfield streaks past while the count runs down. */
+.rs-preloader-warp {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
 }
 
 .rs-preloader-status {
@@ -1979,27 +2023,6 @@ html.rs-open-lock body {
     }
 }
 
-/* ---------- stardust: sparks that trail the pointer on some chapters ---------- */
-
-.rs-spark {
-    position: fixed;
-    z-index: 1100;
-    width: 14px;
-    height: 14px;
-    margin: -7px 0 0 -7px;
-    background: var(--spark, var(--z-yellow));
-    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
-    pointer-events: none;
-    animation: rs-spark 0.9s ease-out forwards;
-}
-
-@keyframes rs-spark {
-    to {
-        opacity: 0;
-        transform: translate(var(--spark-x, 0), var(--spark-y, 30px)) rotate(120deg) scale(0.2);
-    }
-}
-
 /* =========================================================
    8. FOOTER — Blackstar
    ========================================================= */
@@ -2013,7 +2036,8 @@ html.rs-open-lock body {
     z-index: 2;
     overflow: clip;
     isolation: isolate;
-    background: var(--z-space);
+    border-top: 1px solid rgba(255, 241, 220, 0.1);
+    background: linear-gradient(180deg, transparent 40%, rgba(5, 2, 2, 0.55));
     color: var(--z-cream);
 }
 
@@ -2210,17 +2234,6 @@ html.rs-open-lock body {
     letter-spacing: 0.01em;
     line-height: 0.8;
     text-transform: uppercase;
-}
-
-.rs-hero-ufo {
-    position: absolute;
-    top: 7%;
-    right: 5%;
-    z-index: 0;
-    width: clamp(120px, 13vw, 220px);
-    transform: rotate(-14deg);
-    translate: 0 var(--rs-drift, 0px);
-    pointer-events: none;
 }
 
 .rs-hero-mural {
@@ -2484,16 +2497,10 @@ html.rs-open-lock body {
 /* ---------- 1971 · Life on Mars?: fanzine clippings under the red sky ---------- */
 
 .rs-home-mars {
-    position: absolute;
-    top: 3%;
-    right: 3%;
+    top: 5%;
+    right: 6%;
     z-index: -1;
-    width: clamp(140px, 17vw, 270px);
-    color: var(--z-gold);
-    fill: var(--z-gold);
-    transform: rotate(-8deg);
-    translate: 0 var(--rs-drift, 0px);
-    pointer-events: none;
+    width: clamp(120px, 13vw, 210px);
 }
 
 .rs-home-headline {
@@ -2651,35 +2658,6 @@ html.rs-open-lock body {
 
 /* ---------- 1969 · Space Oddity: Ground Control ---------- */
 
-.rs-home-cta {
-    padding-bottom: clamp(90px, 11vw, 150px);
-}
-
-.rs-home-moon {
-    position: absolute;
-    top: 12%;
-    right: 8%;
-    z-index: -1;
-    width: clamp(80px, 9vw, 140px);
-    fill: var(--z-cream);
-    opacity: 0.9;
-    pointer-events: none;
-}
-
-.rs-home-rocket {
-    position: absolute;
-    bottom: 8%;
-    left: 4%;
-    z-index: -1;
-    width: clamp(50px, 5vw, 80px);
-    fill: var(--z-cream);
-    --rocket-window: var(--z-blue);
-    --rocket-flame: var(--z-gold);
-    transform: rotate(18deg);
-    translate: 0 var(--rs-drift, 0px);
-    pointer-events: none;
-}
-
 .rs-home-console {
     max-width: 1120px;
 }
@@ -2742,16 +2720,13 @@ html.rs-open-lock body {
 
 @media (max-width: 767.98px) {
     .rs-home-mars {
-        top: 1%;
-        width: 84px;
-        opacity: 0.85;
+        top: 2%;
+        width: 78px;
     }
 
-    .rs-hero-ufo {
-        top: 2%;
-        right: 2%;
-        width: 96px;
-    }
+        .rs-home-mars::after {
+            display: none;
+        }
 
     .rs-home-trio {
         grid-template-columns: minmax(0, 1fr);
@@ -4662,17 +4637,6 @@ html.rs-open-lock body {
     border-radius: 0 0 60% 0;
 }
 
-.rs-error-planet {
-    position: absolute;
-    right: 6%;
-    bottom: 10%;
-    z-index: -1;
-    width: clamp(120px, 14vw, 220px);
-    color: var(--z-red);
-    fill: var(--z-red);
-    pointer-events: none;
-}
-
 .rs-error .rs-display {
     color: var(--z-gold);
 }
@@ -4715,6 +4679,415 @@ html.rs-open-lock body {
 }
 
 /* =========================================================
+   9z. SPACE — Ground Control's HUD, the bolt constellation, Earth
+
+   Space is drawn as instruments would draw it: hairlines, ticks,
+   coordinates and small mono readouts over a real-looking sky
+   (rebel-sky.js), not as cartoons.
+   ========================================================= */
+
+/* ---------- the HUD frame over a chapter ---------- */
+
+.rs-hud {
+    --hud: rgba(154, 211, 240, 0.5);
+    --hud-arm: 22px;
+    position: absolute;
+    inset: clamp(12px, 1.6vw, 22px);
+    z-index: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(var(--hud), var(--hud)) top left / var(--hud-arm) 1px no-repeat,
+        linear-gradient(var(--hud), var(--hud)) top left / 1px var(--hud-arm) no-repeat,
+        linear-gradient(var(--hud), var(--hud)) top right / var(--hud-arm) 1px no-repeat,
+        linear-gradient(var(--hud), var(--hud)) top right / 1px var(--hud-arm) no-repeat,
+        linear-gradient(var(--hud), var(--hud)) bottom left / var(--hud-arm) 1px no-repeat,
+        linear-gradient(var(--hud), var(--hud)) bottom left / 1px var(--hud-arm) no-repeat,
+        linear-gradient(var(--hud), var(--hud)) bottom right / var(--hud-arm) 1px no-repeat,
+        linear-gradient(var(--hud), var(--hud)) bottom right / 1px var(--hud-arm) no-repeat;
+}
+
+/* Clear the timeline that runs down the left on wide screens. */
+@media (min-width: 992px) {
+    .rs-hud {
+        left: 86px;
+    }
+}
+
+.rs-hud-read {
+    position: absolute;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: calc(50% - 40px);
+    overflow: hidden;
+    color: rgba(154, 211, 240, 0.8);
+    font-family: var(--rs-mono);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+    .rs-hud-read b {
+        color: var(--z-gold);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+
+.rs-hud-read--tl,
+.rs-hud-read--tr {
+    top: 7px;
+}
+
+.rs-hud-read--bl,
+.rs-hud-read--br {
+    bottom: 6px;
+}
+
+.rs-hud-read--tl,
+.rs-hud-read--bl {
+    left: 32px;
+}
+
+.rs-hud-read--tr,
+.rs-hud-read--br {
+    right: 32px;
+}
+
+/* Four bars of signal, the last one fading. */
+.rs-hud-signal {
+    flex-shrink: 0;
+    width: 15px;
+    height: 9px;
+    background:
+        linear-gradient(var(--z-gold), var(--z-gold)) 0 100% / 2px 32% no-repeat,
+        linear-gradient(var(--z-gold), var(--z-gold)) 4px 100% / 2px 56% no-repeat,
+        linear-gradient(var(--z-gold), var(--z-gold)) 8px 100% / 2px 80% no-repeat,
+        linear-gradient(rgba(154, 211, 240, 0.4), rgba(154, 211, 240, 0.4)) 12px 100% / 2px 100% no-repeat;
+}
+
+/* The altitude tape down the right edge; its marker follows the scroll. */
+.rs-hud-tape {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 12px;
+    height: min(42%, 280px);
+    translate: 0 -50%;
+    background:
+        repeating-linear-gradient(180deg, var(--hud) 0 1px, transparent 1px 10px) right / 5px 100% no-repeat,
+        repeating-linear-gradient(180deg, var(--z-gold) 0 1px, transparent 1px 50px) right / 11px 100% no-repeat;
+}
+
+    .rs-hud-tape::after {
+        content: "";
+        position: absolute;
+        top: calc(var(--hud-tape, 0) * 100%);
+        right: 14px;
+        border: 4px solid transparent;
+        border-right: 0;
+        border-left: 6px solid var(--z-gold);
+        translate: 0 -50%;
+    }
+
+/* A reticle, as if Ground Control is watching this patch of sky. */
+.rs-hud-cross {
+    position: absolute;
+    top: 13%;
+    right: 27%;
+    width: 46px;
+    height: 46px;
+    border: 1px dashed rgba(154, 211, 240, 0.45);
+    border-radius: 50%;
+    background:
+        linear-gradient(var(--hud), var(--hud)) center / 1px 66px no-repeat,
+        linear-gradient(var(--hud), var(--hud)) center / 66px 1px no-repeat;
+}
+
+    .rs-hud-cross::after {
+        content: "TGT 04";
+        position: absolute;
+        top: -2px;
+        left: calc(100% + 12px);
+        color: rgba(154, 211, 240, 0.7);
+        font-family: var(--rs-mono);
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        white-space: nowrap;
+    }
+
+@media (max-width: 767.98px) {
+    .rs-hud {
+        --hud-arm: 14px;
+    }
+
+    .rs-hud-read--bl,
+    .rs-hud-cross,
+    .rs-hud-tape {
+        display: none;
+    }
+
+    .rs-hud-read--tl,
+    .rs-hud-read--bl {
+        left: 20px;
+    }
+
+    .rs-hud-read--tr,
+    .rs-hud-read--br {
+        right: 20px;
+    }
+}
+
+/* ---------- Ziggy's bolt, charted as a constellation ---------- */
+
+.rs-constellation {
+    position: absolute;
+    top: clamp(8px, 2.6vw, 40px);
+    left: 51%;
+    z-index: -1;
+    width: clamp(190px, 22vw, 330px);
+    height: auto;
+    overflow: visible;
+    translate: 0 var(--rs-drift, 0px);
+    pointer-events: none;
+}
+
+.rs-constellation-grid {
+    fill: none;
+    stroke: rgba(154, 211, 240, 0.18);
+    stroke-dasharray: 2 6;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+.rs-constellation-grid--ra {
+    stroke-dasharray: 1 9;
+}
+
+.rs-constellation-line {
+    fill: none;
+    stroke: rgba(154, 211, 240, 0.75);
+    stroke-linejoin: round;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+.rs-constellation-line--faint {
+    stroke: rgba(154, 211, 240, 0.35);
+    stroke-dasharray: 0.02 0.022;
+}
+
+.rs-constellation-stars circle {
+    fill: #fff6ea;
+    filter: drop-shadow(0 0 2px rgba(255, 216, 106, 0.95)) drop-shadow(0 0 7px rgba(255, 216, 106, 0.5));
+}
+
+    .rs-constellation-stars circle.rs-constellation-dim {
+        fill: rgba(255, 244, 234, 0.7);
+        filter: none;
+    }
+
+.rs-constellation-labels text {
+    fill: rgba(154, 211, 240, 0.8);
+    font-family: var(--rs-mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+}
+
+    .rs-constellation-labels text.rs-constellation-name {
+        fill: var(--z-gold);
+        font-family: var(--rs-display);
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+    }
+
+@media (max-width: 991.98px) {
+    .rs-constellation {
+        top: 40px;
+        right: 4%;
+        left: auto;
+        width: clamp(120px, 30vw, 200px);
+        opacity: 0.85;
+    }
+}
+
+/* ---------- "Planet Earth is blue": the planet's edge from orbit ---------- */
+
+.rs-earth {
+    --earth: max(1700px, 175vw);
+    position: absolute;
+    top: calc(100% - clamp(80px, 9vw, 140px));
+    left: 50%;
+    z-index: -1;
+    width: var(--earth);
+    aspect-ratio: 1;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(circle closest-side, #020509 0 calc(100% - 60px), #06121f calc(100% - 22px), #12395c calc(100% - 6px), #6fb6e6 calc(100% - 1.5px), #d8f1ff 100%);
+    box-shadow:
+        0 0 14px 1px rgba(154, 211, 240, 0.6),
+        0 0 60px 10px rgba(80, 150, 215, 0.3),
+        0 0 150px 40px rgba(40, 95, 175, 0.16);
+    pointer-events: none;
+}
+
+    /* City lights on the night side, near the edge. */
+    .rs-earth::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background:
+            radial-gradient(1px 1px at 30% 40%, rgba(255, 216, 106, 0.9) 50%, transparent 55%) 0 0 / 23px 17px,
+            radial-gradient(1px 1px at 70% 60%, rgba(255, 196, 120, 0.8) 50%, transparent 55%) 0 0 / 37px 13px,
+            radial-gradient(1.4px 1.4px at 50% 50%, rgba(255, 236, 190, 0.85) 50%, transparent 55%) 0 0 / 61px 29px;
+        -webkit-mask-image: radial-gradient(circle closest-side, transparent calc(100% - 70px), #000 calc(100% - 34px), transparent calc(100% - 8px));
+        mask-image: radial-gradient(circle closest-side, transparent calc(100% - 70px), #000 calc(100% - 34px), transparent calc(100% - 8px));
+        opacity: 0.5;
+    }
+
+    /* The sun about to come up over the edge. */
+    .rs-earth i {
+        position: absolute;
+        top: calc(var(--earth) * 0.0101);
+        left: 40%;
+        width: clamp(260px, 30vw, 460px);
+        height: clamp(90px, 9vw, 150px);
+        translate: -50% -52%;
+        border-radius: 50%;
+        background: radial-gradient(ellipse closest-side, rgba(255, 246, 225, 0.95) 0, rgba(255, 216, 106, 0.6) 14%, rgba(226, 64, 26, 0.26) 42%, transparent 100%);
+        mix-blend-mode: screen;
+    }
+
+.rs-home-cta {
+    padding-bottom: clamp(170px, 17vw, 250px);
+}
+
+/* Below the planet's edge the night side carries on into the footer. */
+body:has(.rs-home-cta) .rs-footer,
+body:has(.rs-error-earth) .rs-footer {
+    border-top: 0;
+    background:
+        linear-gradient(180deg, #020509 0, rgba(2, 5, 9, 0.7) 90px, transparent 320px),
+        linear-gradient(180deg, transparent 40%, rgba(5, 2, 2, 0.55));
+}
+
+.rs-error-earth {
+    top: calc(100% - clamp(70px, 8vw, 120px));
+}
+
+/* ---------- "Life on Mars?": the planet itself, lit from one side ---------- */
+
+.rs-mars {
+    position: absolute;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(ellipse 24% 7% at 52% 6%, rgba(255, 244, 236, 0.85), transparent 70%),
+        radial-gradient(circle at 32% 30%, rgba(255, 226, 190, 0.32), transparent 36%),
+        radial-gradient(circle at 30% 28%, transparent 44%, rgba(8, 2, 1, 0.55) 64%, rgba(3, 1, 0, 0.94) 80%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='m' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011 0.017' numOctaves='5' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.24  0 0 0 0 0.07  0 0 0 0 0.03  0 0 -2 0 1.12'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E") center / cover,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='d' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 0.98  0 0 0 0 0.66  0 0 0 0 0.42  1.7 0 0 0 -0.98'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)'/%3E%3C/svg%3E") center / cover,
+        radial-gradient(circle at 38% 36%, #e27a3c, #b9461c 42%, #7d2a10 70%, #3b1207);
+    box-shadow: 0 0 0 1px rgba(255, 170, 120, 0.12), 0 0 70px rgba(226, 64, 26, 0.2);
+    translate: 0 var(--rs-drift, 0px);
+    pointer-events: none;
+}
+
+    /* Ground Control's tag on the planet. */
+    .rs-mars::after {
+        content: attr(data-label);
+        position: absolute;
+        top: 76%;
+        right: 88%;
+        padding-top: 6px;
+        border-top: 1px solid rgba(154, 211, 240, 0.55);
+        color: rgba(154, 211, 240, 0.85);
+        font-family: var(--rs-mono);
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+/* ---------- Starman, waiting in the sky: one bright star through a lens ---------- */
+
+.rs-starman {
+    position: absolute;
+    aspect-ratio: 1;
+    background:
+        radial-gradient(circle, #fff 0 1.1%, rgba(255, 248, 232, 0.95) 2.2%, rgba(255, 226, 170, 0.5) 6%, rgba(242, 194, 58, 0.18) 14%, rgba(226, 64, 26, 0.07) 26%, transparent 46%),
+        linear-gradient(90deg, transparent 2%, rgba(255, 240, 215, 0.8) 50%, transparent 98%) center / 100% 1px no-repeat,
+        linear-gradient(180deg, transparent 2%, rgba(255, 240, 215, 0.8) 50%, transparent 98%) center / 1px 100% no-repeat;
+    translate: 0 var(--rs-drift, 0px);
+    pointer-events: none;
+}
+
+    .rs-starman::before {
+        content: "";
+        position: absolute;
+        inset: 24%;
+        background:
+            linear-gradient(90deg, transparent, rgba(255, 240, 215, 0.32) 50%, transparent) center / 100% 1px no-repeat,
+            linear-gradient(180deg, transparent, rgba(255, 240, 215, 0.32) 50%, transparent) center / 1px 100% no-repeat;
+        rotate: 45deg;
+    }
+
+    .rs-starman span {
+        position: absolute;
+        top: 57%;
+        left: 57%;
+        padding-top: 6px;
+        border-top: 1px solid rgba(154, 211, 240, 0.55);
+        color: rgba(154, 211, 240, 0.85);
+        font-family: var(--rs-mono);
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+.rs-menu-mars,
+.rs-menu-starman {
+    top: 8%;
+    right: 7%;
+    z-index: -1;
+}
+
+.rs-menu-mars {
+    width: clamp(130px, 14vw, 220px);
+}
+
+.rs-menu-starman {
+    top: 2%;
+    right: 4%;
+    width: clamp(220px, 24vw, 380px);
+}
+
+@media (max-width: 767.98px) {
+    .rs-menu-mars {
+        top: 4%;
+        right: 4%;
+        width: 92px;
+    }
+
+    .rs-menu-starman {
+        top: 0;
+        right: -6%;
+        width: 170px;
+    }
+
+        .rs-menu-starman span,
+        .rs-menu-mars::after {
+            display: none;
+        }
+}
+
+/* =========================================================
    10. MOTION — none of it for people who asked for less
    ========================================================= */
 
@@ -4731,37 +5104,53 @@ html.rs-open-lock body {
         animation: rs-spin 28s linear infinite;
     }
 
-    /* Ziggy's sun turns slowly on the timeline. */
-    .rs-era-icon--sun {
-        animation: rs-spin 40s linear infinite;
-    }
-
-    .rs-hero-ufo use,
-    .rs-open-ufo use {
-        animation: rs-hover 4.5s ease-in-out infinite;
-    }
-
-    .rs-sparkle {
-        animation: rs-twinkle 3.2s ease-in-out infinite;
-    }
-
-        .rs-sparkle:nth-of-type(2n) {
-            animation-delay: 1.4s;
-        }
-
     .rs-led--blink {
         animation: rs-blink 1.2s steps(1) infinite;
     }
 
+    /* Out of focus, then sharp: one calm arrival, never repeated. */
     .rs-js [data-rs-reveal] {
         opacity: 0;
-        translate: 0 26px;
-        transition: opacity 0.8s var(--rs-ease), translate 0.8s var(--rs-ease);
+        filter: blur(12px);
+        translate: 0 14px;
+        transition: opacity 0.9s var(--rs-ease), filter 0.9s var(--rs-ease), translate 0.9s var(--rs-ease);
     }
 
         .rs-js [data-rs-reveal].is-in-view {
             opacity: 1;
+            filter: none;
             translate: 0 0;
+        }
+
+    /* The constellation is charted line by line, once. */
+    .rs-constellation-line:not(.rs-constellation-line--faint) {
+        stroke-dasharray: 1;
+        animation: rs-chart 2.6s var(--rs-ease) 0.5s both;
+    }
+
+    .rs-constellation-line--faint,
+    .rs-constellation-labels {
+        animation: rs-fade-in 1.2s ease 2.4s both;
+    }
+
+    .rs-constellation-stars circle {
+        animation: rs-fade-in 0.8s ease both;
+    }
+
+        .rs-constellation-stars circle:nth-child(2) {
+            animation-delay: 0.9s;
+        }
+
+        .rs-constellation-stars circle:nth-child(3) {
+            animation-delay: 1.5s;
+        }
+
+        .rs-constellation-stars circle:nth-child(4) {
+            animation-delay: 2.2s;
+        }
+
+        .rs-constellation-stars circle:nth-child(n + 5) {
+            animation-delay: 2.6s;
         }
 
     /* Ashes to Ashes: a tape rolling into place. */
@@ -4808,25 +5197,19 @@ html.rs-open-lock body {
     }
 }
 
-@keyframes rs-hover {
-    0%, 100% {
-        transform: translateY(0);
+@keyframes rs-chart {
+    from {
+        stroke-dashoffset: 1;
     }
 
-    50% {
-        transform: translateY(-8px);
+    to {
+        stroke-dashoffset: 0;
     }
 }
 
-@keyframes rs-twinkle {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1) rotate(0deg);
-    }
-
-    50% {
-        opacity: 0.35;
-        transform: scale(0.6) rotate(45deg);
+@keyframes rs-fade-in {
+    from {
+        opacity: 0;
     }
 }
 

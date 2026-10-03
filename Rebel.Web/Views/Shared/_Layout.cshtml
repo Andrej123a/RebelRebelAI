@@ -122,6 +122,8 @@
 
     <a class="visually-hidden-focusable rs-skip" href="#main">Skip to content</a>
 
+    <canvas class="rs-sky" data-rs-sky aria-hidden="true"></canvas>
+
     <svg class="rs-defs" aria-hidden="true" focusable="false">
         <symbol id="rs-bolt" viewBox="0 0 100 100">
             <path d="M60 0 18 57h27L31 100l53-62H56L72 0Z" />
@@ -199,10 +201,9 @@
     </svg>
 
     <div class="rs-preloader" aria-hidden="true" data-rs-preloader>
-        <span class="rs-stars"></span>
+        <canvas class="rs-preloader-warp" data-rs-warp></canvas>
         <p class="rs-preloader-label">Ground Control · Rebel Rebel · Skopje</p>
         <p class="rs-preloader-count" data-rs-count>10</p>
-        <svg class="rs-preloader-rocket" viewBox="0 0 100 100"><use href="#rs-rocket" /></svg>
         <p class="rs-preloader-status"><i class="rs-led"></i><span data-rs-status>Countdown</span></p>
     </div>
 
@@ -274,8 +275,7 @@
          aria-modal="true"
          aria-label="Site menu"
          data-rs-open>
-        <span class="rs-stars"></span>
-        <svg class="rs-open-ufo" viewBox="0 0 120 96" aria-hidden="true"><use href="#rs-ufo" /></svg>
+        <div class="rs-starman rs-open-starman" aria-hidden="true"><span>Starman · mag &minus;1.4</span></div>
 
         <div class="rs-open-inner">
             <div class="rs-open-top">
@@ -439,6 +439,8 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/rebel-sky.js" asp-append-version="true"></script>
 
     <script src="~/js/rebel-site.js" asp-append-version="true"></script>
 

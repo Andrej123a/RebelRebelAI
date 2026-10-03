@@ -24,7 +24,8 @@
     --track-pad: clamp(20px, 5vw, 80px);
     /* clip, not hidden: the tracklist rail is sticky and needs a non-scrolling ancestor */
     overflow: clip;
-    background: var(--beer-red);
+    /* Transparent: the night sky (rebel-sky.js) shows between the tracks. */
+    background: transparent;
 }
 
 .rr-beer-defs {

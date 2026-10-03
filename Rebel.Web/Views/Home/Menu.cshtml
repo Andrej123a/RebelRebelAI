@@ -57,7 +57,7 @@
 
     var heroIcon = selectedSection switch
     {
-        "beer" => "ufo",
+        "beer" => "star",
         "drink" => "record",
         _ => "planet"
     };
@@ -84,7 +84,20 @@
 
         <partial name="_Era" model="era" />
 
-        <svg class="rs-menu-icon rs-menu-icon--@heroIcon" viewBox="@(heroIcon == "ufo" ? "0 0 120 96" : "0 0 100 100")" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-@heroIcon" /></svg>
+        <partial name="_Hud" model='new HudModel($"RR-{era.Year[2..]}", "Kitchen on · fridge cold")' />
+
+        @if (heroIcon == "planet")
+        {
+            <div class="rs-mars rs-menu-mars" data-label="Mars · 0.52 AU" aria-hidden="true" data-rs-drift="-0.1"></div>
+        }
+        else if (heroIcon == "star")
+        {
+            <div class="rs-starman rs-menu-starman" aria-hidden="true" data-rs-drift="-0.1"><span>Starman · mag &minus;1.4</span></div>
+        }
+        else
+        {
+            <svg class="rs-menu-icon rs-menu-icon--@heroIcon" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-@heroIcon" /></svg>
+        }
 
         <div class="rs-container rs-menu-hero-inner">
             <div>

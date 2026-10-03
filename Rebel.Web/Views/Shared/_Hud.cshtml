@@ -1,0 +1,10 @@
+@model Rebel.Web.Models.HudModel
+
+<div class="rs-hud" aria-hidden="true">
+    <span class="rs-hud-read rs-hud-read--tl"><b>@Model.Code</b> 41&deg;59&prime;N 21&deg;26&prime;E</span>
+    <span class="rs-hud-read rs-hud-read--tr">T+ <b data-rs-clock>00:00:00</b></span>
+    <span class="rs-hud-read rs-hud-read--bl">Alt <b data-rs-alt>408</b> km &middot; Vel <b data-rs-vel>7.66</b> km/s</span>
+    <span class="rs-hud-read rs-hud-read--br"><i class="rs-hud-signal"></i>@Model.Status</span>
+    <span class="rs-hud-tape"></span>
+    <span class="rs-hud-cross"></span>
+</div>

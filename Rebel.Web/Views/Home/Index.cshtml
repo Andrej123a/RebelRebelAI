@@ -63,10 +63,35 @@
 
         <partial name="_Era" model='new EraModel("1974", "sun", "Rebel Rebel")' />
 
-        <svg class="rs-hero-ufo" viewBox="0 0 120 96" aria-hidden="true" data-rs-drift="-0.18"><use href="#rs-ufo" /></svg>
-        <svg class="rs-sparkle" style="--s: 26px; top: 16%; left: 44%;" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-star" /></svg>
-        <svg class="rs-sparkle" style="--s: 14px; top: 62%; left: 6%;" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-star" /></svg>
-        <svg class="rs-sparkle" style="--s: 18px; top: 84%; left: 58%; --sparkle: var(--z-blue);" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-star" /></svg>
+        <partial name="_Hud" model='new HudModel("RR-74", "Ground Control · signal locked")' />
+
+        @* Ziggy's lightning bolt, charted as a constellation. *@
+        <svg class="rs-constellation" viewBox="0 0 320 440" aria-hidden="true" data-rs-drift="-0.06">
+            <path class="rs-constellation-grid" d="M-60 330A380 380 0 0 1 330 -40" />
+            <path class="rs-constellation-grid" d="M0 450A330 330 0 0 1 330 60" />
+            <path class="rs-constellation-grid rs-constellation-grid--ra" d="M150 -10L120 450M262 -10L246 450" />
+            <polyline class="rs-constellation-line" points="226,22 122,204 214,198 66,414" pathLength="1" />
+            <polyline class="rs-constellation-line rs-constellation-line--faint" points="226,22 282,92 214,198" pathLength="1" />
+            <g class="rs-constellation-stars">
+                <circle cx="226" cy="22" r="3.6" />
+                <circle cx="122" cy="204" r="2.6" />
+                <circle cx="214" cy="198" r="3" />
+                <circle cx="66" cy="414" r="4" />
+                <circle cx="282" cy="92" r="1.8" />
+                <circle class="rs-constellation-dim" cx="170" cy="110" r="1.2" />
+                <circle class="rs-constellation-dim" cx="40" cy="300" r="1" />
+                <circle class="rs-constellation-dim" cx="268" cy="300" r="1.3" />
+                <circle class="rs-constellation-dim" cx="98" cy="70" r="1" />
+            </g>
+            <g class="rs-constellation-labels">
+                <text x="238" y="18">α ZIGGY</text>
+                <text x="98" y="222">β</text>
+                <text x="226" y="206">γ</text>
+                <text x="80" y="436">δ STARMAN</text>
+                <text class="rs-constellation-name" x="236" y="66">BOLT</text>
+                <text x="238" y="82">CONST. 1972 · MAG 1.2</text>
+            </g>
+        </svg>
 
         <div class="rs-container rs-hero-grid">
             <h1 class="rs-hero-title" aria-label="Meet the Rebels">
@@ -284,7 +309,7 @@
     <section class="rs-chapter rs-chapter--sky rs-torn rs-home-menu">
         <partial name="_Era" model='new EraModel("1971", "planet", "Life on Mars?")' />
 
-        <svg class="rs-home-mars" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-planet" /></svg>
+        <div class="rs-mars rs-home-mars" data-label="Mars · 0.52 AU" aria-hidden="true" data-rs-drift="-0.1"></div>
 
         <div class="rs-container">
             <header class="rs-heading" data-rs-reveal>
@@ -373,8 +398,8 @@
 
         <partial name="_Era" model='new EraModel("1969", "rocket", "Space Oddity")' />
 
-        <svg class="rs-home-moon" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-moon" /></svg>
-        <svg class="rs-home-rocket" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.25"><use href="#rs-rocket" /></svg>
+        @* "Planet Earth is blue": the planet's edge seen from the tin can, the sun about to come up. *@
+        <div class="rs-earth" aria-hidden="true"><i></i></div>
 
         <div class="rs-container">
             <div class="rs-console rs-home-console" data-rs-reveal>

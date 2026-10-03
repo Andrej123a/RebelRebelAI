@@ -1,4 +1,5 @@
-/* Starman '72: the red sky, a UFO and a few stars behind the chat. */
+/* Starman '72: the night sky over the chat, red at the horizon, and one bright
+   star (Starman, waiting in the sky) sending rings out like a radio signal. */
 .rr-guide-page {
     position: relative;
     isolation: isolate;
@@ -6,22 +7,24 @@
     min-height: 100vh;
     color: #fff1dc;
     background:
-        var(--z-clouds) center / cover no-repeat,
-        var(--z-shadows) center / cover no-repeat,
-        linear-gradient(180deg, #7d0d06 0%, #bb150b 30%, #c4180c 70%, #b2140a 100%);
+        var(--z-clouds-night) center bottom / 100% 72% no-repeat,
+        linear-gradient(180deg, transparent 0%, rgba(74, 8, 3, 0.16) 34%, rgba(125, 13, 6, 0.46) 64%, rgba(187, 21, 11, 0.84) 100%);
 }
 
-.rr-guide-ufo {
-    position: absolute;
-    top: 10%;
-    right: 6%;
+.rr-guide-starman {
+    top: 9%;
+    right: 3%;
     z-index: -1;
-    width: clamp(130px, 15vw, 240px);
-    transform: rotate(-12deg);
-    pointer-events: none;
+    width: clamp(220px, 24vw, 380px);
 }
 
-/* Radio waves from the saucer: the only light blue on the page. */
+    /* Tag the star on its inner side, away from the edge of the screen. */
+    .rr-guide-starman span {
+        right: 57%;
+        left: auto;
+    }
+
+/* The star's signal, in rings: the only light blue on the page. */
 .rr-guide-waves {
     position: absolute;
     top: 9%;
@@ -1715,7 +1718,8 @@
 }
 
 @media (max-width: 991.98px) {
+    /* Below the HUD's top readouts. */
     .rr-guide-page > .rs-era {
-        margin-top: 28px;
+        margin-top: 64px;
     }
 }

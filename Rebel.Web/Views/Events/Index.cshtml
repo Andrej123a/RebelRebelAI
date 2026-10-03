@@ -56,6 +56,8 @@
 
         <partial name="_Era" model='new EraModel("1980", "tape", "Ashes to Ashes")' />
 
+        <partial name="_Hud" model='new HudModel("RR-80", "Tape rolling")' />
+
         <svg class="rs-events-tape" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-tape" /></svg>
 
         <div class="rs-container rs-events-hero-grid @(nextEvent == null ? "has-no-feature" : string.Empty)">
