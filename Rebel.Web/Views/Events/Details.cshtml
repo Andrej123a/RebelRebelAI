@@ -12,7 +12,11 @@
     var endTime = Model.EndTime.HasValue ? Model.EndTime.Value.ToString(@"hh\:mm") : "LATE";
 }
 
-<section class="rs-section rs-event">
+<section class="rs-chapter rs-chapter--char rs-event" data-rs-stardust>
+    <span class="rs-chapter-num rs-event-num" aria-hidden="true" data-rs-drift="0.14">@localEventDate.ToString("dd")</span>
+
+    <svg class="rs-bolt rs-event-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.1"><use href="#rs-bolt-sane" /></svg>
+
     <div class="rs-container">
         <a asp-controller="Events"
            asp-action="Index"
@@ -38,7 +42,7 @@
             </div>
 
             <div class="rs-event-copy">
-                <p class="rs-kicker rs-kicker--red">Rebel Rebel presents · No. @localEventDate.ToString("dd")</p>
+                <p class="rs-chapter-tag"><b>No. @localEventDate.ToString("dd")</b> Rebel Rebel presents</p>
 
                 <h1 class="rs-display rs-display--lg">@Model.Title</h1>
 
@@ -67,7 +71,7 @@
                         : Model.Description)
                 </p>
 
-                <div class="rs-event-callout">
+                <div class="rs-event-callout rs-flood rs-flood--orange">
                     <span class="rs-label">One night.</span>
                     <strong>Zero good excuses.</strong>
                 </div>

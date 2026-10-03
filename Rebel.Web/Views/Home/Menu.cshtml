@@ -44,9 +44,9 @@
     var categoryTones = new[]
     {
         "var(--rs-yellow)",
-        "var(--rs-orange)",
-        "var(--rs-red-text)",
-        "var(--rs-paper)"
+        "var(--rs-flame)",
+        "var(--rs-sky)",
+        "var(--rs-bone)"
     };
 
     var menuGroups = Model
@@ -58,10 +58,14 @@
 
 <div class="rs-menu-page@(selectedSection == "beer" ? " rr-menu-page--beer" : "")">
 
-    <header class="rs-menu-hero">
+    <header class="rs-chapter rs-chapter--ziggy rs-menu-hero" data-rs-stardust>
+        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+
+        <svg class="rs-bolt rs-menu-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.12"><use href="#rs-bolt-sane" /></svg>
+
         <div class="rs-container rs-menu-hero-inner">
             <div>
-                <p class="rs-kicker">Food · Beer · Loud nights</p>
+                <p class="rs-chapter-tag"><b>The menu</b> Food · Beer · Loud nights</p>
 
                 <h1 class="rs-display rs-display--xl" aria-label="Rebel Rebel menu">
                     Rebel <span class="rs-accent">Rebel</span>

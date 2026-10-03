@@ -58,14 +58,20 @@
 
 <div class="rs-home">
 
-    <section class="rs-section rs-home-intro">
-        <div class="rs-container rs-home-intro-grid">
-            <div class="rs-home-intro-copy">
-                <p class="rs-kicker">Skopje / alternative pub / since May 2025</p>
+    <section class="rs-chapter rs-chapter--red rs-hero" data-rs-stardust>
+        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
 
-                <h1 class="rs-display rs-display--xl" aria-label="Meet the Rebels">
-                    Meet the
-                    <span class="rs-accent">Rebels</span>
+        <svg class="rs-bolt rs-hero-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-bolt-sane" /></svg>
+
+        <span class="rs-chapter-num rs-hero-year" aria-hidden="true" data-rs-drift="0.2">2025</span>
+
+        <div class="rs-container rs-hero-grid">
+            <div class="rs-hero-copy">
+                <p class="rs-chapter-tag"><b>Chapter 01</b> Skopje / alternative pub / since May 2025</p>
+
+                <h1 class="rs-hero-title" aria-label="Meet the Rebels">
+                    <span class="rs-hero-meet" aria-hidden="true">Meet the</span>
+                    <span class="rs-hero-rebels" aria-hidden="true">Rebels</span>
                 </h1>
 
                 <p class="rs-lead">
@@ -74,7 +80,7 @@
                     warmer, stranger and more personal than another polished bar.
                 </p>
 
-                <p class="rs-home-intro-more">
+                <p class="rs-hero-more">
                     It is built around good music, casual tables, honest food
                     and the feeling that the place has already lived a little.
                     Come for one drink, stay for a second, and let the night
@@ -94,17 +100,16 @@
                        class="rs-btn rs-btn--ghost">
                         See the menu
                     </a>
-
-                    <partial name="_RebelBadge" model='new RebelBadgeModel("rs-home-badge", "INSPIRED BY BOWIE // REBEL REBEL // SKOPJE // ", "rs-home-bowie-badge")' />
                 </div>
             </div>
 
-            <figure class="rs-photo rs-home-bowie" style="--tone: var(--rs-red);">
-                <div class="rs-photo-frame rs-home-bowie-frame">
-                    <span class="rs-tape rs-home-bowie-tape" aria-hidden="true"></span>
+            <figure class="rs-photo rs-hero-mural" data-rs-reveal>
+                <div class="rs-misprint rs-hero-mural-frame">
                     <img src="~/images/rebel-bowie-mural.webp"
                          alt="David Bowie portrait, the signature image of Rebel Rebel" />
                 </div>
+
+                <partial name="_RebelBadge" model='new RebelBadgeModel("rs-home-badge", "INSPIRED BY BOWIE // REBEL REBEL // SKOPJE // ", "rs-hero-badge")' />
 
                 <figcaption>
                     <strong class="rs-scrawl">Inspired by Bowie</strong>
@@ -116,32 +121,60 @@
         </div>
     </section>
 
-    <div class="rs-marquee" aria-hidden="true">
-        <div class="rs-marquee-track">
-            @for (var copy = 0; copy < 2; copy++)
-            {
-                <div class="rs-marquee-group">
-                    <span class="rs-marquee-item">Cold beer</span>
-                    <span class="rs-marquee-item">Loud records</span>
-                    <span class="rs-marquee-item">Fat Kitchen</span>
-                    <span class="rs-marquee-item">Rare bottles</span>
-                    <span class="rs-marquee-item">Skopje after dark</span>
-                    <span class="rs-marquee-item">Rebel Rebel</span>
-                    <span class="rs-marquee-item">Wings</span>
-                    <span class="rs-marquee-item">No bad decisions</span>
-                </div>
-            }
+    <div class="rs-tapes" aria-hidden="true">
+        <div class="rs-marquee">
+            <div class="rs-marquee-track">
+                @for (var copy = 0; copy < 2; copy++)
+                {
+                    <div class="rs-marquee-group">
+                        <span class="rs-marquee-item">Cold beer</span>
+                        <span class="rs-marquee-item">Loud records</span>
+                        <span class="rs-marquee-item">Fat Kitchen</span>
+                        <span class="rs-marquee-item">Rare bottles</span>
+                        <span class="rs-marquee-item">Skopje after dark</span>
+                        <span class="rs-marquee-item">Rebel Rebel</span>
+                        <span class="rs-marquee-item">Wings</span>
+                        <span class="rs-marquee-item">No bad decisions</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="rs-marquee rs-marquee--char rs-marquee--reverse">
+            <div class="rs-marquee-track">
+                @for (var copy = 0; copy < 2; copy++)
+                {
+                    <div class="rs-marquee-group">
+                        <span class="rs-marquee-item">Heroes</span>
+                        <span class="rs-marquee-item">Just for one night</span>
+                        <span class="rs-marquee-item">Space oddity</span>
+                        <span class="rs-marquee-item">Stardust</span>
+                        <span class="rs-marquee-item">Rebel Rebel</span>
+                        <span class="rs-marquee-item">Starman</span>
+                        <span class="rs-marquee-item">Changes</span>
+                        <span class="rs-marquee-item">Let's dance</span>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 
-    <section class="rs-flood rs-flood--bone rs-home-beer">
+    <section class="rs-chapter rs-chapter--flame rs-cut rs-home-beer">
+        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+
+        <span class="rs-chapter-num rs-home-beer-num" aria-hidden="true" data-rs-drift="0.16">50+</span>
+
         <div class="rs-container">
             <div class="rs-home-beer-head">
-                <h2 class="rs-display rs-display--lg" aria-label="More than 50 beers.">
-                    More than <span class="rs-home-fifty">50</span> beers.
-                </h2>
+                <div data-rs-reveal>
+                    <p class="rs-chapter-tag"><b>Chapter 02</b> The fridge</p>
 
-                <div class="rs-home-beer-copy">
+                    <h2 class="rs-display rs-display--lg" aria-label="More than 50 beers.">
+                        More than <span class="rs-home-fifty">50</span> beers.
+                    </h2>
+                </div>
+
+                <div class="rs-home-beer-copy" data-rs-reveal>
                     <p>
                         In the beer menu you can find Hungarian, Belgian, German,
                         Czech and local beers, plus familiar choices for the easy
@@ -169,8 +202,10 @@
                    asp-action="Menu"
                    asp-route-section="beer"
                    class="rs-home-trio-item"
-                   aria-label="Open the beer menu">
-                    <span class="rs-home-trio-photo">
+                   aria-label="Open the beer menu"
+                   data-rs-reveal
+                   data-rs-drift="-0.05">
+                    <span class="rs-misprint rs-home-trio-photo">
                         <img src="~/images/rebel-six-beers.webp"
                              alt="Six imported craft beer cans lined up at Rebel Rebel" />
                     </span>
@@ -181,11 +216,14 @@
                    asp-action="Menu"
                    asp-route-section="beer"
                    class="rs-home-trio-item"
-                   aria-label="Open the beer menu">
-                    <span class="rs-home-trio-photo">
+                   aria-label="Open the beer menu"
+                   data-rs-reveal
+                   data-rs-drift="0.06">
+                    <span class="rs-misprint rs-home-trio-photo">
                         <img src="~/images/rebel-beers-bowie-sculpture.webp"
                              alt="Four craft beer cans beside the handmade Bowie sculpture at Rebel Rebel" />
                     </span>
+                    <span class="rs-home-trio-note rs-scrawl" aria-hidden="true">the Bowie head, hand made</span>
                     <span class="rs-home-trio-caption">Open beer menu &rarr;</span>
                 </a>
 
@@ -193,23 +231,29 @@
                    asp-action="Menu"
                    asp-route-section="beer"
                    class="rs-home-trio-item"
-                   aria-label="Open the beer menu">
-                    <span class="rs-home-trio-photo">
+                   aria-label="Open the beer menu"
+                   data-rs-reveal
+                   data-rs-drift="-0.03">
+                    <span class="rs-misprint rs-home-trio-photo">
                         <img src="~/images/rebel-liquid-cocaine-beers.webp"
                              alt="Three Liquid Cocaine craft beer cans on the bar at Rebel Rebel" />
                     </span>
                     <span class="rs-home-trio-caption">Liquid lineup.</span>
                 </a>
+
+                <svg class="rs-bolt rs-sticker rs-home-trio-sticker" viewBox="-8 -4 112 108" aria-hidden="true"><use href="#rs-bolt-sane" /></svg>
             </div>
         </div>
     </section>
 
-    <section class="rs-section rs-home-gallery">
+    <section class="rs-chapter rs-chapter--char rs-cut rs-home-gallery">
+        <span class="rs-chapter-num rs-home-gallery-num" aria-hidden="true" data-rs-drift="0.12">03</span>
+
         <div class="rs-container">
-            <header class="rs-heading">
+            <header class="rs-heading" data-rs-reveal>
                 <div>
-                    <p class="rs-kicker rs-kicker--red">Inside the room</p>
-                    <h2 class="rs-display rs-display--lg">The evidence.</h2>
+                    <p class="rs-chapter-tag"><b>Chapter 03</b> Inside the room</p>
+                    <h2 class="rs-display rs-display--lg">The <span class="rs-accent">evidence.</span></h2>
                 </div>
 
                 <p>
@@ -219,23 +263,25 @@
             </header>
 
             <div class="rs-home-gallery-grid">
-                <figure class="rs-home-gallery-item rs-home-gallery-one">
+                <figure class="rs-home-gallery-item rs-home-gallery-one" data-rs-reveal>
                     <img src="~/images/rebel-exterior-yugo-night.webp"
                          alt="Rebel Rebel in Skopje on a rainy night, with a light-blue Yugo parked outside" />
                     <figcaption>Wet streets. Warm lights. Skopje.</figcaption>
                 </figure>
 
-                <figure class="rs-home-gallery-item rs-home-gallery-two">
+                <figure class="rs-home-gallery-item rs-home-gallery-two" data-rs-reveal>
                     <img src="~/images/rebel-bowie-logo-room.webp"
                          alt="The Bowie mural and Rebel Rebel wall inside the Skopje pub" />
+                    <span class="rs-home-gallery-note rs-scrawl" aria-hidden="true">he's watching</span>
                 </figure>
 
-                <div class="rs-home-gallery-card rs-flood rs-flood--red">
+                <div class="rs-home-gallery-card rs-flood rs-flood--orange" data-rs-reveal>
+                    <svg class="rs-bolt" viewBox="-8 -4 112 108" aria-hidden="true"><use href="#rs-bolt-sane" /></svg>
                     <span class="rs-label">Warning</span>
                     <strong>Perfectly imperfect. Properly alive.</strong>
                 </div>
 
-                <figure class="rs-home-gallery-item rs-home-gallery-three">
+                <figure class="rs-home-gallery-item rs-home-gallery-three" data-rs-reveal>
                     <img src="~/images/rebel-liquid-cocaine-mural-room.webp"
                          alt="The Liquid Cocaine beer mural and seating inside Rebel Rebel" />
                 </figure>
@@ -243,12 +289,14 @@
         </div>
     </section>
 
-    <section class="rs-section rs-home-menu">
+    <section class="rs-chapter rs-chapter--jack rs-cut rs-home-menu">
+        <div class="rs-aura" aria-hidden="true"><span></span><span></span></div>
+
         <div class="rs-container">
-            <header class="rs-heading">
+            <header class="rs-heading" data-rs-reveal>
                 <div>
-                    <p class="rs-kicker">Fat Kitchen + the fridge</p>
-                    <h2 class="rs-display rs-display--lg">Pick your poison.</h2>
+                    <p class="rs-chapter-tag"><b>Chapter 04</b> Fat Kitchen + the fridge</p>
+                    <h2 class="rs-display rs-display--lg">Pick your <span class="rs-accent">poison.</span></h2>
                 </div>
 
                 <p>
@@ -262,7 +310,7 @@
                    asp-action="Menu"
                    asp-route-section="food"
                    class="rs-home-panel"
-                   style="--tone: var(--rs-orange);">
+                   style="--tone: var(--rs-flame);" data-rs-reveal>
                     <span class="rs-home-rotator" aria-hidden="true">
                         <img src="https://imageproxy.wolt.com/assets/6a02e61c938b4b58b5c33754?w=960" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/6a03117d3f815eb3031bd7ba?w=960" alt="" />
@@ -283,7 +331,7 @@
                    asp-action="Menu"
                    asp-route-section="beer"
                    class="rs-home-panel"
-                   style="--tone: var(--rs-yellow);">
+                   style="--tone: var(--rs-yellow);" data-rs-reveal>
                     <span class="rs-home-rotator" aria-hidden="true">
                         <img src="https://imageproxy.wolt.com/assets/699da1e53eb3341f036f3ee9?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf30?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
@@ -306,7 +354,7 @@
                        asp-action="Menu"
                        asp-route-section="drink"
                        class="rs-home-panel"
-                       style="--tone: var(--rs-red);">
+                       style="--tone: var(--rs-duke);" data-rs-reveal>
                         <span class="rs-home-panel-num">03</span>
 
                         <span class="rs-home-panel-body">
@@ -320,20 +368,27 @@
         </div>
     </section>
 
-    <section class="rs-flood rs-flood--red rs-home-cta">
+    <section class="rs-chapter rs-chapter--teal rs-cut rs-home-cta" data-rs-stardust>
+        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+
+        <svg class="rs-bolt rs-home-cta-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.1"><use href="#rs-bolt-sane" /></svg>
+
         <div class="rs-container rs-home-cta-inner">
-            <h2 class="rs-display rs-display--lg">Your table<br />is waiting.</h2>
+            <div data-rs-reveal>
+                <p class="rs-chapter-tag"><b>Chapter 05</b> Tonight</p>
+                <h2 class="rs-display rs-display--xl">Your table<br /><span class="rs-accent">is waiting.</span></h2>
+            </div>
 
             <div class="rs-home-cta-actions">
                 <a asp-controller="Reservations"
                    asp-action="Create"
-                   class="rs-btn rs-btn--night">
+                   class="rs-btn rs-btn--primary">
                     Book a table <i aria-hidden="true">&rarr;</i>
                 </a>
 
                 <a asp-controller="Reservations"
                    asp-action="Lookup"
-                   class="rs-btn rs-btn--ink">
+                   class="rs-btn rs-btn--ghost">
                     Find my booking
                 </a>
             </div>

@@ -18,7 +18,7 @@ The goal is to replace disconnected messages, notebooks and separate tools with 
 ### Public Website
 
 - Branded responsive home page.
-- One shared look across every guest page, in the pub's own colours: near-black rooms, bone paper, Bowie red, orange and yellow, with taped polaroid photo frames, rubber stamps, typewriter and marker-pen type (`wwwroot/css/site.css`). Photos keep their original crops and grading.
+- One shared look across every guest page, built like a longread on Bowie's personas: each page runs as chapters that flood the screen with Bowie red, the Aladdin Sane flame and teal, Halloween Jack yellow or charcoal, with huge Anton against thin Hanken Grotesk, lightning bolts, misprinted colour blocks behind photos, film grain, a full-screen `#open` menu and a count-up preloader (`wwwroot/css/site.css`, `wwwroot/js/rebel-site.js`). Photos keep their original files and crops.
 - Food menu with search, prices, descriptions, availability and dietary tags.
 - Beer menu laid out as a tracklist: every beer gets its own colour-flooded section with style, ABV, origin, price, flavour notes, pairings and taste sliders built from the stored beer profile, plus style filters, search and shareable links to a single beer.
 - Upcoming events with posters, details, dates and start/end times.

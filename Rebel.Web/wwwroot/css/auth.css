@@ -1,12 +1,12 @@
 :root {
-    --auth-black: #080808;
-    --auth-panel: #11110f;
-    --auth-cream: #f1ede4;
-    --auth-muted: #aaa59b;
-    --auth-red: #c8202d;
-    --auth-orange: #f04a24;
-    --auth-yellow: #f4c400;
-    --auth-line: rgba(241, 237, 228, 0.17);
+    --auth-black: #171717;
+    --auth-panel: #1c1c1c;
+    --auth-cream: #f2f2f2;
+    --auth-muted: #adadad;
+    --auth-red: #c51f05;
+    --auth-orange: #ff492d;
+    --auth-yellow: #ffd43d;
+    --auth-line: rgba(242, 242, 242, 0.17);
 }
 
 * {
@@ -25,10 +25,10 @@ body.rr-auth {
     overflow-x: hidden;
     color: var(--auth-cream);
     background:
-        linear-gradient(90deg, rgba(200, 32, 45, 0.12), transparent 24%) left top / 2px 100% no-repeat,
-        radial-gradient(circle at 76% 35%, rgba(200, 32, 45, 0.14), transparent 27%),
-        linear-gradient(118deg, #080808 0%, #0d0c0a 56%, #070707 100%);
-    font-family: "Space Grotesk", sans-serif;
+        linear-gradient(90deg, rgba(197, 31, 5, 0.12), transparent 24%) left top / 2px 100% no-repeat,
+        radial-gradient(circle at 76% 35%, rgba(197, 31, 5, 0.14), transparent 27%),
+        linear-gradient(118deg, #171717 0%, #171717 56%, #202020 100%);
+    font-family: "Hanken Grotesk", sans-serif;
     isolation: isolate;
 }
 
@@ -52,7 +52,7 @@ body.rr-auth::after {
     right: -0.08em;
     bottom: -0.22em;
     z-index: -1;
-    color: rgba(241, 237, 228, 0.025);
+    color: rgba(242, 242, 242, 0.025);
     font-family: "Anton", sans-serif;
     font-size: 22rem;
     line-height: 1;
@@ -103,7 +103,7 @@ a {
 }
 
 .rr-auth-brand strong {
-    font-family: "Bebas Neue", sans-serif;
+    font-family: "Anton", sans-serif;
     font-size: 1.75rem;
     line-height: 0.95;
     letter-spacing: 1px;
@@ -113,7 +113,7 @@ a {
 .rr-auth-door,
 .rr-auth-footer {
     color: var(--auth-muted);
-    font-family: "Space Mono", monospace;
+    font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 1.3px;
@@ -159,7 +159,7 @@ a {
 .rr-login-eyebrow,
 .rr-login-form header span {
     color: var(--auth-orange);
-    font-family: "Space Mono", monospace;
+    font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 3px;
@@ -186,7 +186,7 @@ a {
 .rr-login-copy p {
     max-width: 470px;
     margin: 32px 0 0;
-    color: #c8c3b9;
+    color: #c9c9c9;
     font-size: 1.05rem;
     line-height: 1.7;
 }
@@ -222,8 +222,8 @@ a {
 .rr-login-form-wrap {
     position: relative;
     border: 1px solid var(--auth-line);
-    background: rgba(13, 13, 11, 0.94);
-    box-shadow: 12px 12px 0 rgba(200, 32, 45, 0.64);
+    background: rgba(23, 23, 23, 0.94);
+    box-shadow: 12px 12px 0 rgba(197, 31, 5, 0.64);
 }
 
 .rr-login-form-wrap::before {
@@ -245,7 +245,7 @@ a {
     padding: 7px 12px;
     color: var(--auth-cream);
     border: 2px solid var(--auth-red);
-    font-family: "Space Mono", monospace;
+    font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 2px;
@@ -264,7 +264,7 @@ a {
 
 .rr-login-form h2 {
     margin: 7px 0 0;
-    font-family: "Bebas Neue", sans-serif;
+    font-family: "Anton", sans-serif;
     font-size: 3.8rem;
     line-height: 1;
     letter-spacing: 1px;
@@ -278,8 +278,8 @@ a {
 .rr-login-field label {
     display: block;
     margin-bottom: 8px;
-    color: #d6d1c7;
-    font-family: "Space Mono", monospace;
+    color: #d6d6d6;
+    font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 1.3px;
@@ -291,24 +291,24 @@ a {
     height: 56px;
     padding: 0 16px;
     color: var(--auth-cream);
-    border: 1px solid rgba(241, 237, 228, 0.24);
+    border: 1px solid rgba(242, 242, 242, 0.24);
     border-radius: 0;
     outline: 0;
-    background: #070707;
-    font: 500 1rem "Space Grotesk", sans-serif;
+    background: #202020;
+    font: 500 1rem "Hanken Grotesk", sans-serif;
     transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .rr-login-field input:focus {
     border-color: var(--auth-orange);
-    box-shadow: 5px 5px 0 rgba(200, 32, 45, 0.55);
+    box-shadow: 5px 5px 0 rgba(197, 31, 5, 0.55);
 }
 
 .rr-login-field > span,
 .rr-login-alert {
     display: block;
     margin-top: 7px;
-    color: #ff7866;
+    color: #ff6a52;
     font-size: 0.78rem;
 }
 
@@ -321,7 +321,7 @@ a {
     margin: 0;
     padding: 12px 15px;
     border-left: 4px solid var(--auth-orange);
-    background: rgba(200, 32, 45, 0.12);
+    background: rgba(197, 31, 5, 0.12);
     list-style: none;
 }
 
@@ -371,8 +371,8 @@ a {
     height: 18px;
     flex: 0 0 18px;
     place-items: center;
-    border: 1px solid rgba(241, 237, 228, 0.4);
-    background: #070707;
+    border: 1px solid rgba(242, 242, 242, 0.4);
+    background: #202020;
 }
 
 .rr-login-check input:checked + span::after {
@@ -395,12 +395,12 @@ a {
     padding: 0 20px;
     align-items: center;
     justify-content: space-between;
-    color: #080808;
+    color: #171717;
     border: 0;
     border-radius: 0;
     background: var(--auth-orange);
     box-shadow: 6px 6px 0 var(--auth-red);
-    font-family: "Space Mono", monospace;
+    font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 1.4px;
@@ -413,7 +413,7 @@ a {
 }
 
 .rr-login-submit:hover {
-    background: #ff5b33;
+    background: #ff492d;
     transform: translate(2px, 2px);
     box-shadow: 4px 4px 0 var(--auth-red);
 }
@@ -552,5 +552,116 @@ a {
     *::after {
         scroll-behavior: auto !important;
         transition: none !important;
+    }
+}
+
+/* =========================================================
+   HEROES: the staff door is Bowie red, like the public
+   site's #open menu, with the form as a charcoal block
+   printed slightly out of register.
+   ========================================================= */
+
+body.rr-auth {
+    background:
+        radial-gradient(ellipse 42% 36% at 82% 30%, rgba(255, 212, 61, 0.28), transparent 70%),
+        radial-gradient(ellipse 40% 40% at 8% 90%, rgba(122, 16, 2, 0.8), transparent 70%),
+        #c51f05;
+}
+
+    body.rr-auth::before {
+        opacity: 0.12;
+    }
+
+    body.rr-auth::after {
+        color: rgba(255, 212, 61, 0.55);
+        font-family: "Hanken Grotesk", sans-serif;
+        font-weight: 100;
+        letter-spacing: -0.06em;
+    }
+
+.rr-auth-header,
+.rr-auth-footer {
+    border-color: rgba(242, 242, 242, 0.32);
+}
+
+.rr-auth-logo {
+    box-shadow: -5px 5px 0 #2abdeb, 5px -4px 0 #ffd43d;
+    transform: rotate(-5deg);
+}
+
+.rr-auth-brand small,
+.rr-auth-door,
+.rr-auth-footer,
+.rr-auth-footer a {
+    color: #f2f2f2;
+}
+
+.rr-auth-door::before {
+    background: #ffd43d;
+}
+
+.rr-auth-footer a {
+    text-decoration-color: #ffd43d;
+}
+
+.rr-login-eyebrow {
+    color: #f2f2f2;
+}
+
+.rr-login-copy h1 span {
+    display: inline-block;
+    color: #ffd43d;
+    text-shadow: -0.04em 0.035em 0 #2abdeb, 0.04em -0.02em 0 #202020;
+    transform: rotate(-4deg);
+}
+
+.rr-login-copy p {
+    color: #f2f2f2;
+}
+
+.rr-login-signal span:first-child {
+    background: #202020;
+}
+
+.rr-login-signal span:last-child {
+    background: #2abdeb;
+}
+
+.rr-login-form-wrap {
+    background: #202020;
+    box-shadow: -16px 16px 0 #2abdeb, 16px -14px 0 #ffd43d;
+    transform: rotate(1deg);
+}
+
+    .rr-login-form-wrap::before {
+        background: #ffd43d;
+    }
+
+.rr-login-field input:focus {
+    border-color: #ffd43d;
+    box-shadow: -5px 5px 0 #2abdeb;
+}
+
+.rr-login-check input:checked + span::after {
+    background: #ffd43d;
+}
+
+.rr-login-submit {
+    border-radius: 999px;
+    background: #ffd43d;
+    color: #202020;
+    box-shadow: -5px 5px 0 #2abdeb, 5px -4px 0 #ff492d;
+    font-weight: 800;
+}
+
+    .rr-login-submit:hover {
+        background: #ffd43d;
+        box-shadow: -8px 8px 0 #2abdeb, 8px -6px 0 #ff492d;
+        transform: rotate(-2deg) scale(1.02);
+    }
+
+@media (max-width: 760px) {
+    .rr-login-form-wrap {
+        transform: none;
     }
 }

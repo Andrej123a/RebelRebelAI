@@ -89,8 +89,8 @@
                 <textPath href="#rr-beer-badge-path">REBEL REBEL // BEER MENU // SKOPJE // FAT KITCHEN // </textPath>
             </text>
         </svg>
-        <svg class="rr-beer-badge-bolt" viewBox="0 0 100 100">
-            <use href="#rr-beer-bolt" />
+        <svg class="rs-bolt rr-beer-badge-bolt" viewBox="-8 -4 112 108">
+            <use href="#rs-bolt-sane" />
         </svg>
     </div>
 
@@ -151,7 +151,7 @@ else
                         class="rr-beer-filter"
                         aria-pressed="false"
                         data-beer-family="@family.Key"
-                        style="--chip-bg: @family.Glow; --chip-ink: #0B0B0B; --chip-glow: @family.Glow;">
+                        style="--chip-bg: @family.Background; --chip-ink: @family.Ink; --chip-dot: @family.Glow;">
                     <i aria-hidden="true"></i>
                     @family.Label
                     <span>@tracks.Count(track => track.Family.Key == family.Key)</span>

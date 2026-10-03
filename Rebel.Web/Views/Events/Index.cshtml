@@ -13,10 +13,10 @@
 
     var tones = new[]
     {
-        "var(--rs-red-text)",
         "var(--rs-yellow)",
-        "var(--rs-orange)",
-        "var(--rs-paper)"
+        "var(--rs-flame)",
+        "var(--rs-sky)",
+        "var(--rs-bone)"
     };
 }
 
@@ -51,14 +51,25 @@
 
 <section class="rs-events">
 
-    <header class="rs-section rs-events-hero">
+    <header class="rs-chapter rs-chapter--teal rs-events-hero" data-rs-stardust>
+        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+
+        @if (nextEvent != null)
+        {
+            <span class="rs-chapter-num rs-events-num" aria-hidden="true" data-rs-drift="0.16">@nextEvent.Date.ToString("dd")</span>
+        }
+        else
+        {
+            <svg class="rs-bolt rs-events-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.12"><use href="#rs-bolt-sane" /></svg>
+        }
+
         <div class="rs-container rs-events-hero-grid @(nextEvent == null ? "has-no-feature" : string.Empty)">
             <div>
-                <p class="rs-kicker rs-kicker--red">Rebel Rebel events</p>
+                <p class="rs-chapter-tag"><b>Events</b> Rebel Rebel nights</p>
 
                 <h1 class="rs-display rs-display--xl" aria-label="The night starts here.">
                     The <span class="rs-accent">night</span>
-                    <span class="rs-outline-text rs-events-here">starts here.</span>
+                    <span class="rs-events-here">starts here.</span>
                 </h1>
 
                 <p class="rs-lead">
@@ -130,7 +141,8 @@
 
     @if (events.Any())
     {
-        <div class="rs-marquee rs-marquee--small" aria-hidden="true">
+        <div class="rs-tapes" aria-hidden="true">
+        <div class="rs-marquee rs-marquee--small">
             <div class="rs-marquee-track">
                 @for (var copy = 0; copy < 2; copy++)
                 {
@@ -145,6 +157,7 @@
                     </div>
                 }
             </div>
+        </div>
         </div>
     }
 
@@ -262,7 +275,8 @@
         </div>
     </section>
 
-    <section class="rs-flood rs-flood--yellow rs-events-cta">
+    <section class="rs-chapter rs-chapter--jack rs-cut rs-events-cta">
+        <svg class="rs-bolt rs-events-cta-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.1"><use href="#rs-bolt-sane" /></svg>
         <div class="rs-container rs-events-cta-inner">
             <div>
                 <span class="rs-label">Walk-ins are brave.</span>
