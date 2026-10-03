@@ -30,6 +30,8 @@
    7. Header + #open menu + preloader
    8. Footer
    9. Pages (home, menu, events, bookings, contact, error)
+      9y. Bowie's looks and the Changes stage
+      9z. Space: the HUD, the constellation, Earth
    10. Motion
    ========================================================= */
 
@@ -1611,12 +1613,10 @@ a:focus-visible .rs-vhs img {
     text-transform: uppercase;
 }
 
+    /* Aladdin Sane's bolt. */
     .rs-open-toggle svg {
-        width: 30px;
+        width: 24px;
         height: 24px;
-        --ufo-beam: transparent;
-        --ufo-body: var(--z-blood);
-        --ufo-rim: var(--z-gold);
     }
 
     .rs-open-toggle:hover,
@@ -4033,14 +4033,13 @@ html.rs-open-lock body {
 
 /* ---------- lookup + confirmation ---------- */
 
+/* Major Tom (Views/Shared/Looks/_Tom), drifting past the tracking station. */
 .rs-booking-helmet {
     position: absolute;
     top: 6%;
-    right: 6%;
+    right: 5%;
     z-index: -1;
-    width: clamp(110px, 12vw, 190px);
-    fill: var(--z-cream);
-    --visor: var(--z-blue);
+    width: clamp(150px, 15vw, 240px);
     transform: rotate(14deg);
     translate: 0 var(--rs-drift, 0px);
     pointer-events: none;
@@ -4371,8 +4370,9 @@ html.rs-open-lock body {
     }
 
     .rs-booking-helmet {
-        top: 2%;
-        width: 80px;
+        top: 1%;
+        right: 2%;
+        width: 88px;
     }
 }
 
@@ -4615,13 +4615,11 @@ html.rs-open-lock body {
 
 .rs-error-tom {
     position: relative;
-    width: clamp(160px, 20vw, 280px);
+    width: clamp(180px, 22vw, 320px);
 }
 
-    .rs-error-tom svg {
-        width: 100%;
-        fill: var(--z-cream);
-        --visor: var(--z-blue);
+    /* Major Tom himself (Views/Shared/Looks/_Tom), tumbling away on his tether. */
+    .rs-error-tom .rs-look {
         transform: rotate(-16deg);
     }
 
@@ -4675,6 +4673,580 @@ html.rs-open-lock body {
 @media (max-width: 767.98px) {
     .rs-error-inner {
         grid-template-columns: minmax(0, 1fr);
+    }
+}
+/* =========================================================
+   9y. BOWIE'S LOOKS — the cast, printed like gig posters
+
+   Nine looks are drawn as inline SVG (Views/Shared/Looks):
+   flat colour plates printed a hair out of register, halftone
+   shading and an ink line that "boils" like hand-drawn
+   animation. The wobble is baked into the shapes (three
+   versions of the ink take turns), so no SVG filter runs
+   while the page moves.
+   ========================================================= */
+
+.rs-look {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+/* Colour a hair out of register with the ink, as on a cheap two-colour print. */
+.rs-look-print {
+    transform: translate(1.6px, -1.2px);
+}
+
+
+/* ---------- Ch-ch-changes: the home page's cast ---------- */
+
+/* Without the stage (no JS, or less motion asked for) this is a cast list:
+   one band per look, in that look's colours. */
+.rs-changes {
+    padding-block: 0;
+    background: var(--z-space);
+}
+
+.rs-changes-head {
+    width: min(1280px, calc(100% - 40px));
+    margin-inline: auto;
+    padding-block: clamp(72px, 10vw, 140px) clamp(36px, 5vw, 64px);
+}
+
+    .rs-changes-head .rs-kicker {
+        color: var(--z-blue);
+    }
+
+.rs-changes-title {
+    margin: 0;
+    color: var(--z-cream);
+    font-family: var(--rs-display);
+    font-size: clamp(48px, 7.4vw, 128px);
+    font-weight: 900;
+    line-height: 0.86;
+    text-transform: uppercase;
+}
+
+.rs-changes-lead {
+    max-width: 36ch;
+    margin: 18px 0 0;
+    color: rgba(255, 241, 220, 0.86);
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.rs-changes-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rs-changes-look {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
+    gap: clamp(20px, 4vw, 64px);
+    padding: clamp(40px, 6vw, 80px) max(20px, calc((100% - 1280px) / 2)) 0;
+    overflow: clip;
+    background: var(--look-stage);
+    color: var(--look-ink);
+}
+
+.rs-changes-art {
+    order: 2;
+    align-self: end;
+}
+
+    .rs-changes-art .rs-look {
+        width: min(100%, 460px);
+        margin-inline: auto;
+    }
+
+.rs-changes-copy {
+    padding-bottom: clamp(40px, 6vw, 80px);
+}
+
+.rs-changes-year {
+    display: block;
+    color: transparent;
+    font-family: var(--rs-display);
+    font-size: clamp(88px, 14vw, 240px);
+    font-weight: 900;
+    line-height: 0.8;
+    -webkit-text-stroke: 2px var(--look-hot);
+}
+
+.rs-changes-name {
+    margin: 12px 0 0;
+    color: var(--look-ink);
+    font-family: var(--rs-display);
+    font-size: clamp(44px, 6.2vw, 112px);
+    font-weight: 900;
+    line-height: 0.86;
+    text-transform: uppercase;
+}
+
+.rs-changes-song {
+    margin: 18px 0 0;
+    color: var(--look-hot);
+    font-family: var(--rs-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+    .rs-changes-song::before {
+        content: "\25B6\00a0\00a0";
+    }
+
+.rs-changes-line {
+    max-width: 40ch;
+    margin: 12px 0 0;
+    font-size: 1.02rem;
+    line-height: 1.6;
+}
+
+.rs-changes-roll,
+.rs-changes-count {
+    display: none;
+}
+
+/* Behind each look: its era's symbol, huge and faint, or the Earth, or Mars. */
+.rs-changes-back {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.rs-changes-art,
+.rs-changes-copy {
+    position: relative;
+    z-index: 1;
+}
+
+.rs-changes-sign {
+    position: absolute;
+    top: 50%;
+    right: 3%;
+    width: min(74vh, 48vw);
+    aspect-ratio: 1;
+    translate: 0 -50%;
+    color: var(--look-hot);
+    fill: var(--look-hot);
+    opacity: 0.2;
+}
+
+.rs-changes-look--sane .rs-changes-sign {
+    --bolt-a: var(--z-red);
+    --bolt-b: var(--z-blue);
+    opacity: 0.32;
+}
+
+.rs-changes-look--rebel .rs-changes-sign {
+    fill: #10223c;
+    opacity: 0.5;
+}
+
+.rs-changes-look--prophet .rs-changes-sign {
+    opacity: 0.12;
+}
+
+.rs-changes-look .rs-mars {
+    top: 9%;
+    right: 4%;
+    width: min(60vh, 40vw);
+}
+
+.rs-changes-look .rs-earth {
+    --earth: max(1500px, 150vw);
+    top: calc(100% - 16vh);
+}
+
+/* Ashes to Ashes: the look plays off a videotape. */
+.rs-changes-look--pierrot .rs-changes-back::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 4px);
+}
+
+/* The stage: pinned for the length of the cast, one look at a time (rebel-site.js). */
+.rs-changes.is-staged {
+    height: calc(var(--looks) * 64vh + 100vh);
+    background: none;
+}
+
+    .rs-changes.is-staged .rs-changes-stage {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        height: 100svh;
+        overflow: hidden;
+        background-color: var(--stage-bg, var(--z-space));
+        color: var(--stage-ink, var(--z-cream));
+        transition: background-color 0.7s var(--rs-ease), color 0.7s var(--rs-ease);
+    }
+
+    /* Printed matter: a fine halftone on the backdrop, under the looks. */
+    .rs-changes.is-staged .rs-changes-stage::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(rgba(26, 15, 13, 0.16) 0.9px, transparent 1.3px) 0 0 / 5px 5px;
+        mix-blend-mode: multiply;
+        pointer-events: none;
+    }
+
+    .rs-changes.is-staged .rs-changes-head {
+        position: absolute;
+        z-index: 3;
+        top: clamp(28px, 6vh, 64px);
+        left: max(72px, calc((100% - 1280px) / 2));
+        width: auto;
+        padding: 0;
+        pointer-events: none;
+    }
+
+        .rs-changes.is-staged .rs-changes-head .rs-kicker {
+            margin-bottom: 8px;
+            color: var(--stage-hot, var(--z-blue));
+            transition: color 0.7s var(--rs-ease);
+        }
+
+    .rs-changes.is-staged .rs-changes-title {
+        color: inherit;
+        font-size: clamp(24px, 2.4vw, 38px);
+    }
+
+    .rs-changes.is-staged .rs-changes-lead {
+        display: none;
+    }
+
+    .rs-changes.is-staged .rs-changes-list {
+        position: absolute;
+        inset: 0;
+    }
+
+    .rs-changes.is-staged .rs-changes-look {
+        position: absolute;
+        inset: 0;
+        align-items: center;
+        padding: 0 max(72px, calc((100% - 1280px) / 2));
+        background: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.45s var(--rs-ease), visibility 0s linear 0.45s;
+    }
+
+        .rs-changes.is-staged .rs-changes-look.is-current {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.45s var(--rs-ease), visibility 0s;
+        }
+
+    .rs-changes.is-staged .rs-changes-art {
+        align-self: end;
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        transform: translateY(9%);
+        transition: transform 0.9s var(--rs-ease);
+    }
+
+        .rs-changes.is-staged .rs-changes-art .rs-look {
+            width: auto;
+            height: min(88%, 860px);
+            max-width: 100%;
+            margin: 0;
+        }
+
+    .rs-changes.is-staged .is-current .rs-changes-art {
+        transform: none;
+    }
+
+    .rs-changes.is-staged .is-past .rs-changes-art {
+        transform: translateY(-5%) scale(0.96);
+    }
+
+    .rs-changes.is-staged .rs-changes-copy {
+        padding: 12vh 0 0;
+    }
+
+        .rs-changes.is-staged .rs-changes-copy > * {
+            transform: translateY(26px);
+            opacity: 0;
+            transition: transform 0.7s var(--rs-ease), opacity 0.7s var(--rs-ease);
+        }
+
+    .rs-changes.is-staged .is-current .rs-changes-copy > * {
+        transform: none;
+        opacity: 1;
+    }
+
+        .rs-changes.is-staged .is-current .rs-changes-copy > :nth-child(2) {
+            transition-delay: 0.08s;
+        }
+
+        .rs-changes.is-staged .is-current .rs-changes-copy > :nth-child(3) {
+            transition-delay: 0.16s;
+        }
+
+        .rs-changes.is-staged .is-current .rs-changes-copy > :nth-child(4) {
+            transition-delay: 0.24s;
+        }
+
+    /* The cast so far, as a row of years along the bottom. */
+    .rs-changes.is-staged .rs-changes-roll {
+        position: absolute;
+        z-index: 3;
+        bottom: clamp(18px, 4vh, 40px);
+        left: max(72px, calc((100% - 1280px) / 2));
+        display: flex;
+        gap: 4px;
+        font-family: var(--rs-mono);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+        .rs-changes.is-staged .rs-changes-roll a {
+            position: relative;
+            display: block;
+            padding: 8px 7px 10px;
+            color: inherit;
+            opacity: 0.55;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+            .rs-changes.is-staged .rs-changes-roll a::after {
+                content: "";
+                position: absolute;
+                right: 7px;
+                bottom: 2px;
+                left: 7px;
+                height: 2px;
+                background: var(--stage-hot, var(--z-gold));
+                transform: scaleX(0);
+                transition: transform 0.4s var(--rs-ease);
+            }
+
+            .rs-changes.is-staged .rs-changes-roll a:hover,
+            .rs-changes.is-staged .rs-changes-roll a:focus-visible,
+            .rs-changes.is-staged .rs-changes-roll a.is-past {
+                opacity: 0.85;
+            }
+
+            .rs-changes.is-staged .rs-changes-roll a.is-current {
+                opacity: 1;
+            }
+
+                .rs-changes.is-staged .rs-changes-roll a.is-current::after {
+                    transform: none;
+                }
+
+        .rs-changes.is-staged .rs-changes-roll span {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            white-space: nowrap;
+        }
+
+    .rs-changes.is-staged .rs-changes-count {
+        position: absolute;
+        z-index: 3;
+        top: clamp(34px, 6.6vh, 70px);
+        right: max(72px, calc((100% - 1280px) / 2));
+        display: block;
+        font-family: var(--rs-mono);
+        font-size: 12px;
+        letter-spacing: 0.18em;
+    }
+
+        .rs-changes.is-staged .rs-changes-count b {
+            color: var(--stage-hot, var(--z-gold));
+            transition: color 0.7s var(--rs-ease);
+        }
+
+@media (max-width: 760px) {
+    .rs-changes-look {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .rs-changes-art {
+        order: 0;
+    }
+
+        .rs-changes-art .rs-look {
+            width: min(82%, 360px);
+        }
+
+    .rs-changes-copy {
+        padding-top: 24px;
+    }
+
+    .rs-changes.is-staged {
+        height: calc(var(--looks) * 56vh + 100vh);
+    }
+
+        .rs-changes.is-staged .rs-changes-head {
+            top: 18px;
+            left: 20px;
+        }
+
+        .rs-changes.is-staged .rs-changes-look {
+            grid-template-rows: minmax(0, 1fr) auto;
+            align-items: stretch;
+            padding: 0 20px;
+        }
+
+        .rs-changes.is-staged .rs-changes-art {
+            order: 0;
+            align-self: stretch;
+            height: auto;
+            min-height: 0;
+            padding-top: 72px;
+        }
+
+            .rs-changes.is-staged .rs-changes-art .rs-look {
+                height: 100%;
+                max-height: 100%;
+            }
+
+        .rs-changes.is-staged .rs-changes-copy {
+            position: relative;
+            padding: 14px 0 92px;
+        }
+
+        .rs-changes.is-staged .rs-changes-year {
+            position: absolute;
+            right: 20px;
+            bottom: calc(100% + 8px);
+            font-size: 72px;
+        }
+
+        .rs-changes.is-staged .rs-changes-name {
+            margin: 0;
+            font-size: 40px;
+        }
+
+        .rs-changes.is-staged .rs-changes-line {
+            display: -webkit-box;
+            overflow: hidden;
+            font-size: 0.92rem;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+        }
+
+        /* The Open button lives down here on a phone; the count up top keeps the place. */
+        .rs-changes.is-staged .rs-changes-roll {
+            display: none;
+        }
+
+        .rs-changes-look .rs-earth {
+            top: calc(100% - 6vh);
+        }
+
+        .rs-changes.is-staged .rs-changes-count {
+            top: 24px;
+            right: 20px;
+            bottom: auto;
+        }
+}
+
+/* ---------- the looks around the site ---------- */
+
+/* Each page's era stands at the edge of its hero, cut off by the bottom like a
+   cutout, behind the type. */
+.rs-page-look {
+    position: absolute;
+    bottom: 0;
+    z-index: 0;
+    width: auto;
+    pointer-events: none;
+}
+
+/* Life on Mars? under the planet; Ziggy under the Starman. */
+.rs-page-look--menu {
+    right: -1vw;
+    height: min(76%, 560px);
+}
+
+.rr-menu-page--beer .rs-page-look--menu {
+    right: max(16px, 9vw);
+    height: min(92%, 700px);
+}
+
+/* Ziggy behind the bar's console, at the foot of the page. */
+.rs-page-look--guide {
+    right: -5vw;
+    z-index: -1;
+    height: min(50vh, 440px);
+}
+
+/* Pierrot between the headline and the flyer. */
+.rs-page-look--events {
+    right: 31vw;
+    height: min(74%, 540px);
+}
+
+/* The Duke smokes beside the departures board. */
+.rs-page-look--contact {
+    right: max(380px, calc((100% - 1280px) / 2 + 380px));
+    height: min(84%, 560px);
+}
+
+/* The Blind Prophet in front of the footer's black star. */
+.rs-footer-look {
+    position: absolute;
+    right: max(16px, 7vw);
+    bottom: 0;
+    z-index: 0;
+    width: clamp(150px, 17vw, 260px);
+    pointer-events: none;
+}
+
+.rs-error-tom .rs-look--tom.is-live {
+    animation: none;
+}
+
+@media (max-width: 991.98px) {
+    .rs-page-look {
+        opacity: 0.9;
+    }
+
+    .rs-page-look--menu,
+    .rr-menu-page--beer .rs-page-look--menu,
+    .rs-page-look--events,
+    .rs-page-look--contact {
+        right: -6vw;
+        height: min(52%, 360px);
+    }
+
+    .rs-page-look--guide {
+        height: 300px;
+        right: -10vw;
+    }
+
+    .rs-footer-look {
+        width: 130px;
+        right: 8px;
+    }
+}
+
+/* A phone's hero is all headline and buttons: the cast stays on the home stage. */
+@media (max-width: 760px) {
+    .rs-page-look,
+    .rs-footer-look {
+        display: none;
     }
 }
 
@@ -5162,6 +5734,174 @@ body:has(.rs-error-earth) .rs-footer {
     a:hover > .rs-vhs {
         animation: rs-tracking 0.45s steps(3) 1;
     }
+
+    /* ---------- Bowie's looks (only while one is on screen) ---------- */
+
+    /* The ink line boils: three wobbles taking turns, about seven times a second. */
+    .rs-look.is-live .rs-ink--a {
+        animation: rs-boil-a 0.42s steps(1) infinite;
+    }
+
+    .rs-look.is-live .rs-ink--b {
+        animation: rs-boil-b 0.42s steps(1) infinite;
+    }
+
+    .rs-look.is-live .rs-ink--c {
+        animation: rs-boil-c 0.42s steps(1) infinite;
+    }
+
+    /* The plates land in register when a look comes on. */
+    .rs-looks-on .rs-look .rs-look-print {
+        transition: transform 0.8s var(--rs-ease);
+    }
+
+    .rs-looks-on .rs-look .rs-look-ink {
+        transition: opacity 0.5s ease 0.15s;
+    }
+
+    .rs-looks-on .rs-look:not(.is-seen) .rs-look-print {
+        transform: translate(18px, -14px);
+    }
+
+    .rs-looks-on .rs-look:not(.is-seen) .rs-look-ink {
+        opacity: 0;
+    }
+
+    .rs-look .rs-look-fx > *,
+    .rs-look .rs-look-fx path,
+    .rs-look .rs-prophet-button {
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+
+    /* Major Tom floats, the sun flares in his visor, Ground Control blinks. */
+    .rs-look--tom.is-live {
+        animation: rs-float 11s ease-in-out infinite;
+    }
+
+        .rs-look--tom.is-live .rs-tom-star {
+            animation: rs-flare 4.2s ease-in-out infinite;
+        }
+
+        .rs-look--tom.is-live .rs-tom-glare {
+            animation: rs-glare 4.2s ease-in-out infinite;
+        }
+
+        .rs-look--tom.is-live .rs-tom-led {
+            animation: rs-blink 1.4s steps(1) infinite;
+        }
+
+        .rs-look--tom.is-live .rs-tom-led--b {
+            animation-delay: 0.45s;
+        }
+
+        .rs-look--tom.is-live .rs-tom-led--c {
+            animation-duration: 2.2s;
+            animation-delay: 0.9s;
+        }
+
+    /* Life on Mars?: a glance to the side now and then. */
+    .rs-look--mars.is-live .rs-mars-eyes {
+        animation: rs-glance 8s ease-in-out infinite;
+    }
+
+    /* Ziggy dances; the gold sphere on his forehead catches the light. */
+    .rs-look--ziggy.is-live {
+        transform-origin: 50% 96%;
+        animation: rs-sway 3.6s ease-in-out infinite;
+    }
+
+        .rs-look--ziggy.is-live .rs-zig-glint {
+            animation: rs-glint 3.6s ease-in-out infinite;
+        }
+
+    /* Aladdin Sane breathes; the bolt strikes. */
+    .rs-look--sane.is-live {
+        transform-origin: 50% 100%;
+        animation: rs-breathe 6s ease-in-out infinite;
+    }
+
+        .rs-look--sane.is-live .rs-sane-strike {
+            filter: drop-shadow(0 0 6px #fff6d8);
+            animation: rs-strike 7s steps(1) infinite;
+        }
+
+        .rs-look--sane.is-live .rs-sane-glint {
+            animation: rs-glint 5s ease-in-out infinite;
+        }
+
+    /* Rebel Rebel winks his one eye and buzzes like an amp turned up. */
+    .rs-look--rebel.is-live {
+        animation: rs-buzz 6.5s steps(1) infinite;
+    }
+
+        .rs-look--rebel.is-live .rs-rebel-lid {
+            animation: rs-wink 5.2s steps(1) infinite;
+        }
+
+    /* Halloween Jack shifts his weight from one platform to the other. */
+    .rs-look--jack.is-live {
+        transform-origin: 46% 98%;
+        animation: rs-shift 5.4s ease-in-out infinite;
+    }
+
+    /* The Duke smokes. */
+    .rs-look--duke.is-live .rs-duke-puff {
+        transform-origin: 50% 100%;
+        animation: rs-smoke 5.4s ease-in infinite;
+    }
+
+        .rs-look--duke.is-live .rs-duke-puff--b {
+            animation-delay: -1.8s;
+        }
+
+        .rs-look--duke.is-live .rs-duke-puff--c {
+            animation-duration: 6.6s;
+            animation-delay: -3.6s;
+        }
+
+        .rs-look--duke.is-live .rs-duke-ember {
+            animation: rs-ember 2.6s ease-in-out infinite;
+        }
+
+    /* Pierrot: the sequins take turns to catch the light, and the tape slips now and then. */
+    .rs-look--pierrot.is-live {
+        animation: rs-slip 9s steps(1) infinite;
+    }
+
+        .rs-look--pierrot.is-live .rs-pierrot-sequins {
+            animation: rs-sparkle 0.8s steps(1) infinite;
+        }
+
+        .rs-look--pierrot.is-live .rs-pierrot-sequins--b {
+            animation-delay: -0.4s;
+        }
+
+    /* The Blind Prophet's button eyes turn; the black star turns slower. */
+    .rs-look--prophet.is-live .rs-prophet-button {
+        animation: rs-spin 16s linear infinite;
+    }
+
+    .rs-look--prophet.is-live .rs-prophet-button--b {
+        animation-direction: reverse;
+    }
+
+    .rs-look--prophet.is-live .rs-prophet-star {
+        animation: rs-spin 40s linear infinite;
+    }
+
+    /* On the Changes stage the symbol behind the look turns; the record spins at 45. */
+    .rs-changes.is-staged .is-current .rs-changes-sign {
+        animation: rs-spin 90s linear infinite;
+    }
+
+    .rs-changes.is-staged .rs-changes-look--rebel.is-current .rs-changes-sign {
+        animation-duration: 6s;
+    }
+
+    .rs-changes.is-staged .rs-changes-look--sane.is-current .rs-changes-sign {
+        animation: rs-strike-sign 7s steps(1) infinite;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5251,5 +5991,279 @@ body:has(.rs-error-earth) .rs-footer {
         clip-path: inset(0 0 0 0);
         transform: none;
         filter: none;
+    }
+}
+
+@keyframes rs-boil-a {
+    0% {
+        opacity: 1;
+    }
+
+    33.333%, 100% {
+        opacity: 0;
+    }
+}
+
+@keyframes rs-boil-b {
+    0%, 66.666%, 100% {
+        opacity: 0;
+    }
+
+    33.333% {
+        opacity: 1;
+    }
+}
+
+@keyframes rs-boil-c {
+    0%, 33.333% {
+        opacity: 0;
+    }
+
+    66.666%, 100% {
+        opacity: 1;
+    }
+}
+
+@keyframes rs-float {
+    0%, 100% {
+        translate: 0 0;
+        rotate: -1.2deg;
+    }
+
+    50% {
+        translate: 0 -14px;
+        rotate: 1.4deg;
+    }
+}
+
+@keyframes rs-flare {
+    0%, 100% {
+        opacity: 0.8;
+        scale: 0.8;
+        rotate: 0deg;
+    }
+
+    50% {
+        opacity: 1;
+        scale: 1.25;
+        rotate: 22deg;
+    }
+}
+
+@keyframes rs-glare {
+    0%, 100% {
+        opacity: 0.65;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes rs-glance {
+    0%, 40%, 100% {
+        translate: 0 0;
+    }
+
+    46%, 62% {
+        translate: -3px 0;
+    }
+
+    68%, 82% {
+        translate: 3px 0;
+    }
+}
+
+@keyframes rs-sway {
+    0%, 100% {
+        rotate: -1.6deg;
+    }
+
+    50% {
+        rotate: 1.6deg;
+    }
+}
+
+@keyframes rs-shift {
+    0%, 100% {
+        rotate: -0.8deg;
+    }
+
+    50% {
+        rotate: 0.9deg;
+    }
+}
+
+@keyframes rs-breathe {
+    0%, 100% {
+        scale: 1;
+    }
+
+    50% {
+        scale: 1.018;
+    }
+}
+
+@keyframes rs-glint {
+    0%, 45%, 60%, 100% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0.9;
+    }
+}
+
+/* A strike, a flicker, a second strike, then nothing for a while. */
+@keyframes rs-strike {
+    0%, 70% {
+        opacity: 0;
+    }
+
+    71% {
+        opacity: 0.95;
+    }
+
+    72% {
+        opacity: 0.1;
+    }
+
+    73% {
+        opacity: 0.85;
+    }
+
+    75%, 86% {
+        opacity: 0;
+    }
+
+    87% {
+        opacity: 0.7;
+    }
+
+    88%, 100% {
+        opacity: 0;
+    }
+}
+
+@keyframes rs-wink {
+    0%, 61% {
+        opacity: 0;
+    }
+
+    62%, 64% {
+        opacity: 1;
+    }
+
+    65%, 88% {
+        opacity: 0;
+    }
+
+    89%, 90% {
+        opacity: 1;
+    }
+
+    91%, 100% {
+        opacity: 0;
+    }
+}
+
+@keyframes rs-buzz {
+    0%, 79%, 85%, 100% {
+        translate: 0 0;
+    }
+
+    80% {
+        translate: 1px -1px;
+    }
+
+    81% {
+        translate: -1px 1px;
+    }
+
+    82% {
+        translate: 2px 0;
+    }
+
+    83% {
+        translate: -1px -1px;
+    }
+
+    84% {
+        translate: 1px 1px;
+    }
+}
+
+@keyframes rs-smoke {
+    0% {
+        opacity: 0;
+        translate: 0 6px;
+        scale: 0.9 1;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        translate: 0 -46px;
+        scale: 1.25 1;
+    }
+}
+
+@keyframes rs-ember {
+    0%, 100% {
+        opacity: 0.2;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes rs-sparkle {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.25;
+    }
+}
+
+/* Videotape: the picture slips sideways and changes colour for a moment. */
+@keyframes rs-slip {
+    0%, 90%, 94%, 100% {
+        translate: 0 0;
+        filter: none;
+    }
+
+    91% {
+        translate: -8px 0;
+        filter: hue-rotate(40deg) saturate(1.5);
+    }
+
+    92% {
+        translate: 6px 0;
+        filter: hue-rotate(-30deg);
+    }
+
+    93% {
+        translate: -2px 0;
+    }
+}
+
+/* The big bolt behind Aladdin Sane lights up with the one on his face. */
+@keyframes rs-strike-sign {
+    0%, 70%, 75%, 86%, 88%, 100% {
+        opacity: 0.32;
+    }
+
+    71%, 73% {
+        opacity: 0.9;
+    }
+
+    87% {
+        opacity: 0.7;
     }
 }

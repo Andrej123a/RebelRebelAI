@@ -55,6 +55,14 @@
         _ => ("Food with", "bad intentions")
     };
 
+    // The look for this era: Life on Mars? over the food, Ziggy over the beer.
+    var heroLook = selectedSection switch
+    {
+        "beer" => "ziggy",
+        "drink" => null,
+        _ => "mars"
+    };
+
     var heroIcon = selectedSection switch
     {
         "beer" => "star",
@@ -97,6 +105,11 @@
         else
         {
             <svg class="rs-menu-icon rs-menu-icon--@heroIcon" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-@heroIcon" /></svg>
+        }
+
+        @if (heroLook != null)
+        {
+            <partial name="_Look" model='new LookModel(heroLook, "hero", "rs-page-look rs-page-look--menu")' />
         }
 
         <div class="rs-container rs-menu-hero-inner">

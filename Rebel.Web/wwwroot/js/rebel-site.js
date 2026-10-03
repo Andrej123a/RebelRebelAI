@@ -3,7 +3,9 @@
 // - the full-screen #open menu,
 // - blocks marked data-rs-reveal come into focus as they scroll in,
 // - blocks marked data-rs-drift move at their own speed while scrolling,
-// - the HUD readouts: mission clock, altitude and speed.
+// - the HUD readouts: mission clock, altitude and speed,
+// - Bowie's looks (Views/Shared/Looks) come alive while on screen,
+// - the home page's Changes stage, one look at a time while you scroll.
 // The night sky, falling stars and stardust live in rebel-sky.js.
 // Without JS or with reduced motion everything is simply shown.
 (() => {
@@ -270,6 +272,138 @@
                 requestAnimationFrame(update);
             }
         };
+
+        window.addEventListener("scroll", queue, { passive: true });
+        window.addEventListener("resize", queue);
+        update();
+    }
+
+    // ---------- Bowie's looks: the ink boils only while a look is on screen ----------
+
+    const looks = Array.from(document.querySelectorAll(".rs-look"));
+    const onScreen = new Set();
+    let refreshLooks = () => {};
+
+    if (looks.length && "IntersectionObserver" in window) {
+        root.classList.add("rs-looks-on");
+
+        // On the Changes stage only the look in the spotlight is live, and its plates
+        // land again every time it comes back; elsewhere they land once.
+        const refresh = (look) => {
+            const slot = look.closest("[data-rs-look]");
+            const staged = Boolean(slot && slot.closest(".is-staged"));
+            const live = onScreen.has(look) && (!staged || slot.classList.contains("is-current"));
+
+            look.classList.toggle("is-live", live);
+
+            if (staged) {
+                look.classList.toggle("is-seen", live);
+            } else if (live) {
+                look.classList.add("is-seen");
+            }
+        };
+
+        const watcher = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        onScreen.add(entry.target);
+                    } else {
+                        onScreen.delete(entry.target);
+                    }
+
+                    refresh(entry.target);
+                });
+            },
+            { rootMargin: "40px" });
+
+        looks.forEach((look) => watcher.observe(look));
+        refreshLooks = () => looks.forEach(refresh);
+    }
+
+    // ---------- Ch-ch-changes: the cast takes the stage one look at a time ----------
+
+    const changes = document.querySelector("[data-rs-changes]");
+
+    if (changes) {
+        const slots = Array.from(changes.querySelectorAll("[data-rs-look]"));
+        const roll = Array.from(changes.querySelectorAll("[data-rs-roll]"));
+        const counter = changes.querySelector("[data-rs-changes-now]");
+        const stage = changes.querySelector(".rs-changes-stage");
+        let current = -1;
+        let queued = false;
+
+        changes.classList.add("is-staged");
+
+        const travel = () => Math.max(1, changes.offsetHeight - window.innerHeight);
+
+        const show = (index) => {
+            if (index === current) {
+                return;
+            }
+
+            current = index;
+
+            slots.forEach((slot, i) => {
+                slot.classList.toggle("is-current", i === index);
+                slot.classList.toggle("is-past", i < index);
+            });
+
+            roll.forEach((link, i) => {
+                link.classList.toggle("is-current", i === index);
+                link.classList.toggle("is-past", i < index);
+            });
+
+            // The stage takes the look's colours: its backdrop, its ink, its accent.
+            const slot = slots[index];
+            stage.style.setProperty("--stage-bg", slot.style.getPropertyValue("--look-stage"));
+            stage.style.setProperty("--stage-ink", slot.style.getPropertyValue("--look-ink"));
+            stage.style.setProperty("--stage-hot", slot.style.getPropertyValue("--look-hot"));
+
+            if (counter) {
+                counter.textContent = String(index + 1).padStart(2, "0");
+            }
+
+            refreshLooks();
+        };
+
+        const update = () => {
+            queued = false;
+            const progress = Math.min(1, Math.max(0, -changes.getBoundingClientRect().top / travel()));
+            show(Math.min(slots.length - 1, Math.floor(progress * slots.length)));
+        };
+
+        const queue = () => {
+            if (!queued) {
+                queued = true;
+                requestAnimationFrame(update);
+            }
+        };
+
+        // A year on the roll (or a #look-… link) goes to the middle of that look's stretch.
+        const goTo = (index, behavior) => {
+            const top = changes.getBoundingClientRect().top + window.scrollY + travel() * (index + 0.5) / slots.length;
+            window.scrollTo({ top, behavior });
+        };
+
+        roll.forEach((link, i) => {
+            link.addEventListener("click", (event) => {
+                event.preventDefault();
+                goTo(i, "smooth");
+            });
+        });
+
+        const followHash = () => {
+            const linked = slots.findIndex((slot) => "#" + slot.id === location.hash);
+
+            if (linked >= 0) {
+                goTo(linked, "auto");
+            }
+        };
+
+        // After the browser's own jump to the anchor, which lands on the top of the stage.
+        window.addEventListener("load", () => requestAnimationFrame(followHash));
+        window.addEventListener("hashchange", followHash);
 
         window.addEventListener("scroll", queue, { passive: true });
         window.addEventListener("resize", queue);

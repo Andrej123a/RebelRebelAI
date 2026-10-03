@@ -13,12 +13,15 @@
 <div class="rr-guide-page" data-rs-stardust>
     <span class="rs-stars"></span>
 
-    <partial name="_Era" model='new EraModel("1972", "ufo", "Starman")' />
+    <partial name="_Era" model='new EraModel("1972", "star", "Starman")' />
 
     <partial name="_Hud" model='new HudModel("RR-72", "Starman · listening")' />
 
     <span class="rr-guide-waves" aria-hidden="true"></span>
     <div class="rs-starman rr-guide-starman" aria-hidden="true"><span>Starman · waiting in the sky</span></div>
+
+    @* Ziggy, the starman himself, behind the bar's console. *@
+    <partial name="_Look" model='new LookModel("ziggy", "guide", "rs-page-look rs-page-look--guide")' />
 
     <main class="rr-guide-workspace rr-guide-workspace-chat-only"
           data-active-tool="chat">

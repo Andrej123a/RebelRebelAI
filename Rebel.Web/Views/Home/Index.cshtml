@@ -180,6 +180,73 @@
         </div>
     </div>
 
+    @* Ch-ch-changes: every look takes the stage in turn while you scroll, like the
+       characters on the Heroes longread. Without JS, or with less motion, it is a cast list. *@
+    <section class="rs-chapter rs-changes" id="changes" aria-labelledby="rs-changes-title" data-rs-changes style="--looks: @BowieCast.All.Count;">
+        <div class="rs-changes-stage">
+            <header class="rs-changes-head">
+                <p class="rs-kicker">Ch-ch-ch-ch-changes</p>
+                <h2 id="rs-changes-title" class="rs-changes-title">Nine Bowies, one&nbsp;bar.</h2>
+                <p class="rs-changes-lead">Every look drawn by hand for Rebel Rebel. Keep scrolling and he changes.</p>
+            </header>
+
+            <ol class="rs-changes-list">
+                @for (var i = 0; i < BowieCast.All.Count; i++)
+                {
+                    var look = BowieCast.All[i];
+
+                    <li class="rs-changes-look rs-changes-look--@look.Key"
+                        id="look-@look.Key"
+                        style="--look-stage: @look.Stage; --look-ink: @look.Ink; --look-hot: @look.Hot;"
+                        data-rs-look>
+                        <div class="rs-changes-back" aria-hidden="true">
+                            @switch (look.Backdrop)
+                            {
+                                case "earth":
+                                    <div class="rs-earth"><i></i></div>
+                                    break;
+                                case "mars":
+                                    <div class="rs-mars"></div>
+                                    break;
+                                default:
+                                    <svg class="rs-changes-sign" viewBox="0 0 100 100"><use href="#rs-@look.Backdrop" /></svg>
+                                    break;
+                            }
+                        </div>
+
+                        <div class="rs-changes-art">
+                            <partial name="_Look" model='new LookModel(look.Key, "changes")' />
+                        </div>
+
+                        <div class="rs-changes-copy">
+                            <span class="rs-changes-year" aria-hidden="true">@look.Year</span>
+                            <h3 class="rs-changes-name">
+                                @look.Name
+                                <span class="visually-hidden">, @look.Year</span>
+                            </h3>
+                            <p class="rs-changes-song">@look.Song</p>
+                            <p class="rs-changes-line">@look.Line</p>
+                        </div>
+                    </li>
+                }
+            </ol>
+
+            <nav class="rs-changes-roll" aria-label="Bowie's looks">
+                @for (var i = 0; i < BowieCast.All.Count; i++)
+                {
+                    var look = BowieCast.All[i];
+
+                    <a href="#look-@look.Key" data-rs-roll="@i">
+                        <b>&rsquo;@look.Year[2..]</b>
+                        <span>@look.Name</span>
+                    </a>
+                }
+            </nav>
+
+            <span class="rs-changes-count" aria-hidden="true"><b data-rs-changes-now>01</b> / @BowieCast.All.Count.ToString("00")</span>
+        </div>
+    </section>
+
     <section class="rs-chapter rs-chapter--gold rs-torn rs-home-beer">
         <partial name="_Era" model='new EraModel("1973", "bolt-sane", "Aladdin Sane")' />
 

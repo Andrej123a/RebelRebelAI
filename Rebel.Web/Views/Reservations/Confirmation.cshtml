@@ -9,7 +9,10 @@
 
     <partial name="_Hud" model='new HudModel("RR-69", "Lift-off · request received")' />
 
-    <svg class="rs-booking-helmet" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.16"><use href="#rs-helmet" /></svg>
+    @* Major Tom, drifting past the tracking station. *@
+    <span class="rs-booking-helmet" aria-hidden="true" data-rs-drift="-0.16">
+        <partial name="_Look" model='new LookModel("tom", "booking")' />
+    </span>
 
     <div class="rs-container rs-booking-inner">
         <header class="rs-confirm-head">
