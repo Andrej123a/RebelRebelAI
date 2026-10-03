@@ -281,6 +281,11 @@ else
                                 {
                                     <span class="rr-beer-flag">Promo</span>
                                 }
+
+                                @if (BowieCast.PickFor(track.Name) is { } pick)
+                                {
+                                    <span class="rr-beer-flag rr-beer-flag--pick">@pick.Who's pick</span>
+                                }
                             </div>
 
                             <div class="rr-beer-track-body">

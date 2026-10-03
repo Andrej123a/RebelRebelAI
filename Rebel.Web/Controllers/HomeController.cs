@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Rebel.Domain.Entities;
+using Rebel.Domain.Enums;
 using Rebel.Infrastructure.Data;
 using Rebel.Web.Models;
 using System.Diagnostics;
@@ -55,9 +57,35 @@ namespace Rebel.Web.Controllers
                 .ThenBy(eventItem => eventItem.StartTime)
                 .FirstOrDefaultAsync(cancellationToken);
 
+            // For the crew on the home page: the dish Life on Mars? orders today and
+            // the astronaut beers the spacemen drink.
+            var onTheMenu = await _context.Products
+                .AsNoTracking()
+                .Include(product => product.Category)
+                .Where(product =>
+                    !product.IsDeleted &&
+                    product.IsAvailable &&
+                    product.Category != null &&
+                    !product.Category.IsDeleted &&
+                    (product.Category.Type == CategoryType.Food ||
+                     product.Category.Type == CategoryType.Beer))
+                .ToListAsync(cancellationToken);
+
+            var picks = new Dictionary<string, Product>();
+
+            foreach (var pick in BowieCast.Picks)
+            {
+                if (BowieCast.FindPick(onTheMenu, pick.LookKey) is { } beer)
+                {
+                    picks[pick.LookKey] = beer;
+                }
+            }
+
             var model = new HomeViewModel
             {
-                FeaturedEvent = featuredEvent
+                FeaturedEvent = featuredEvent,
+                DishOfTheDay = BowieCast.DishOfTheDay(onTheMenu, skopjeNow),
+                Picks = picks
             };
 
             return View(model);

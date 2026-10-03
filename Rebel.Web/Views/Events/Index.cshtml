@@ -60,8 +60,15 @@
 
         <svg class="rs-events-tape" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-tape" /></svg>
 
-        @* Pierrot, from the Ashes to Ashes video. *@
+        @* Pierrot, from the Ashes to Ashes video, hosts the nights. *@
         <partial name="_Look" model='new LookModel("pierrot", "hero", "rs-page-look rs-page-look--events")' />
+
+        @if (nextEvent != null)
+        {
+            <a class="rs-look-tag rs-look-tag--events" asp-controller="Events" asp-action="Details" asp-route-id="@nextEvent.Id">
+                <b>Pierrot presents</b> @nextEvent.Title <i aria-hidden="true">&rarr;</i>
+            </a>
+        }
 
         <div class="rs-container rs-events-hero-grid @(nextEvent == null ? "has-no-feature" : string.Empty)">
             <div>
@@ -262,7 +269,7 @@
             else
             {
                 <div class="rs-events-empty">
-                    <span class="rs-kicker">Currently quiet</span>
+                    <span class="rs-kicker">Pierrot is between tapes</span>
                     <h3 class="rs-display rs-display--sm">No upcoming events right now.</h3>
                     <p>
                         The speakers are resting, but not for long.

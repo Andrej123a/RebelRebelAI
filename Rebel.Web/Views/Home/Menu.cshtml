@@ -110,6 +110,22 @@
         @if (heroLook != null)
         {
             <partial name="_Look" model='new LookModel(heroLook, "hero", "rs-page-look rs-page-look--menu")' />
+
+            @* What he orders: today's dish for Life on Mars?, his astronaut beer for Ziggy. *@
+            var skopjeToday = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje"));
+
+            if (heroLook == "mars" && BowieCast.DishOfTheDay(Model, skopjeToday) is { } dish)
+            {
+                <a class="rs-look-tag rs-look-tag--menu" href="#dish-@dish.Id">
+                    <b>Today he's having</b> @dish.Name <i aria-hidden="true">&darr;</i>
+                </a>
+            }
+            else if (heroLook == "ziggy" && BowieCast.FindPick(Model, "ziggy") is { } ziggyBeer)
+            {
+                <a class="rs-look-tag rs-look-tag--menu" href="#@(BeerMenuPresenter.CreateAnchor(ziggyBeer.Name, 0, new HashSet<string>()))">
+                    <b>Ziggy's pick</b> @ziggyBeer.Name <i aria-hidden="true">&darr;</i>
+                </a>
+            }
         }
 
         <div class="rs-container rs-menu-hero-inner">
@@ -283,6 +299,7 @@
                                     }.Where(tag => !string.IsNullOrWhiteSpace(tag)));
 
                                 <article class="rs-clip rs-food-card @(!product.IsAvailable ? "is-unavailable" : "")"
+                                         id="dish-@product.Id"
                                          data-menu-item
                                          data-search="@searchableText"
                                          data-tags="@tagData">

@@ -7,6 +7,7 @@
 
     var featuredEvent = Model.FeaturedEvent;
     var showDrinks = Configuration.GetValue<bool>("Menu:ShowDrinks");
+    var hideAiFeatures = bool.TryParse(Configuration["Presentation:HideAiFeatures"], out var hideAi) && hideAi;
 }
 
 @functions {
@@ -23,6 +24,11 @@
             .ConvertTimeFromUtc(utcDate, timeZone)
             .Date;
     }
+
+    // A beer's own track on the beer menu.
+    public string BeerTrackUrl(Rebel.Domain.Entities.Product beer) =>
+        Url.Action("Menu", "Home", new { section = "beer" }) + "#" +
+        Rebel.Web.Services.BeerMenuPresenter.CreateAnchor(beer.Name, 0, new HashSet<string>());
 
     public string FormatEventDate(DateTime date)
     {
@@ -186,14 +192,22 @@
         <div class="rs-changes-stage">
             <header class="rs-changes-head">
                 <p class="rs-kicker">Ch-ch-ch-ch-changes</p>
-                <h2 id="rs-changes-title" class="rs-changes-title">Nine Bowies, one&nbsp;bar.</h2>
-                <p class="rs-changes-lead">Every look drawn by hand for Rebel Rebel. Keep scrolling and he changes.</p>
+                <h2 id="rs-changes-title" class="rs-changes-title">Nine Bowies run this&nbsp;bar.</h2>
+                <p class="rs-changes-lead">Every look has a job here, from the bookings desk to the last call. Keep scrolling and he changes.</p>
             </header>
 
             <ol class="rs-changes-list">
                 @for (var i = 0; i < BowieCast.All.Count; i++)
                 {
                     var look = BowieCast.All[i];
+                    var job = look.Job;
+                    var line = look.Line;
+
+                    if (look.Key == "prophet" && hideAiFeatures)
+                    {
+                        job = "Last call";
+                        line = "Blackstar was his last record. Ours is at one in the morning, every night.";
+                    }
 
                     <li class="rs-changes-look rs-changes-look--@look.Key"
                         id="look-@look.Key"
@@ -220,12 +234,141 @@
 
                         <div class="rs-changes-copy">
                             <span class="rs-changes-year" aria-hidden="true">@look.Year</span>
+                            <p class="rs-changes-song">@look.Song</p>
                             <h3 class="rs-changes-name">
                                 @look.Name
                                 <span class="visually-hidden">, @look.Year</span>
                             </h3>
-                            <p class="rs-changes-song">@look.Song</p>
-                            <p class="rs-changes-line">@look.Line</p>
+                            <p class="rs-changes-job">@job</p>
+                            <p class="rs-changes-line">@line</p>
+
+                            @* His desk: what he looks after here, live from the bar, and where it leads. *@
+                            <div class="rs-changes-desk">
+                                @switch (look.Key)
+                                {
+                                    case "tom":
+                                        if (Model.Picks.TryGetValue("tom", out var tomBeer))
+                                        {
+                                            <a class="rs-changes-order" href="@BeerTrackUrl(tomBeer)">
+                                                <span class="rs-changes-order-label">His drink</span>
+                                                <strong>@tomBeer.Name</strong>
+                                                <span>@(string.Join(" · ", new[] { tomBeer.BeerStyle, tomBeer.AlcoholByVolume is { } abv ? $"{abv:0.#}%" : null, tomBeer.OriginCountry }.Where(part => !string.IsNullOrWhiteSpace(part))))</span>
+                                                <b>@tomBeer.Price.ToString("0.##")<small>ден</small></b>
+                                            </a>
+                                        }
+
+                                        <div class="rs-changes-actions">
+                                            <a asp-controller="Reservations" asp-action="Create" class="rs-btn rs-btn--primary">Book a table <i aria-hidden="true">&rarr;</i></a>
+                                            <a asp-controller="Reservations" asp-action="Lookup" class="rs-btn rs-btn--ghost">Find my booking</a>
+                                        </div>
+                                        break;
+
+                                    case "mars":
+                                        if (Model.DishOfTheDay is { } dish)
+                                        {
+                                            <a class="rs-changes-order" asp-controller="Home" asp-action="Menu" asp-route-section="food">
+                                                <span class="rs-changes-order-label">Today he's having</span>
+                                                <strong>@dish.Name</strong>
+                                                <span>@(dish.Category?.Name)</span>
+                                                <b>@dish.Price.ToString("0.##")<small>ден</small></b>
+                                            </a>
+                                        }
+
+                                        <div class="rs-changes-actions">
+                                            <a asp-controller="Home" asp-action="Menu" asp-route-section="food" class="rs-btn rs-btn--primary">See the food <i aria-hidden="true">&rarr;</i></a>
+                                        </div>
+                                        break;
+
+                                    case "ziggy":
+                                        if (Model.Picks.TryGetValue("ziggy", out var ziggyBeer))
+                                        {
+                                            <a class="rs-changes-order" href="@BeerTrackUrl(ziggyBeer)">
+                                                <span class="rs-changes-order-label">His drink</span>
+                                                <strong>@ziggyBeer.Name</strong>
+                                                <span>@(string.Join(" · ", new[] { ziggyBeer.BeerStyle, ziggyBeer.AlcoholByVolume is { } abv ? $"{abv:0.#}%" : null, ziggyBeer.OriginCountry }.Where(part => !string.IsNullOrWhiteSpace(part))))</span>
+                                                <b>@ziggyBeer.Price.ToString("0.##")<small>ден</small></b>
+                                            </a>
+                                        }
+
+                                        <div class="rs-changes-actions">
+                                            <a asp-controller="Home" asp-action="Menu" asp-route-section="beer" class="rs-btn rs-btn--primary">Play the beer tracklist <i aria-hidden="true">&rarr;</i></a>
+                                        </div>
+                                        break;
+
+                                    case "sane":
+                                        <div class="rs-changes-actions">
+                                            <a href="#the-room" class="rs-btn rs-btn--primary">See the room <i aria-hidden="true">&darr;</i></a>
+                                        </div>
+                                        break;
+
+                                    case "rebel":
+                                        <dl class="rs-changes-facts">
+                                            <div><dt>Since</dt><dd>May 2025</dd></div>
+                                            <div><dt>Where</dt><dd>Skopje</dd></div>
+                                            <div><dt>Kitchen</dt><dd>Fat Kitchen</dd></div>
+                                        </dl>
+                                        break;
+
+                                    case "jack":
+                                        <dl class="rs-changes-facts">
+                                            <div><dt>Open</dt><dd>12:00</dd></div>
+                                            <div><dt>Close</dt><dd>01:00</dd></div>
+                                            <div><dt>Days</dt><dd>Every one</dd></div>
+                                        </dl>
+
+                                        <div class="rs-changes-actions">
+                                            <a asp-controller="Home" asp-action="Contact" class="rs-btn rs-btn--ghost">Hours &amp; contact</a>
+                                        </div>
+                                        break;
+
+                                    case "duke":
+                                        <div class="rs-changes-actions">
+                                            <a href="https://www.google.com/maps/search/?api=1&amp;query=Naum+Naumovski+Borce+62+Skopje" class="rs-btn rs-btn--primary" target="_blank" rel="noopener">Open directions <i aria-hidden="true">&nearr;</i></a>
+                                            <a asp-controller="Home" asp-action="Contact" class="rs-btn rs-btn--ghost">Contact</a>
+                                        </div>
+                                        break;
+
+                                    case "pierrot":
+                                        if (featuredEvent != null)
+                                        {
+                                            <a class="rs-changes-order" asp-controller="Events" asp-action="Details" asp-route-id="@featuredEvent.Id">
+                                                <span class="rs-changes-order-label">Next on tape</span>
+                                                <strong>@featuredEvent.Title</strong>
+                                                <span>@FormatEventDate(featuredEvent.Date)@(featuredEvent.StartTime.HasValue ? " · " + featuredEvent.StartTime.Value.ToString(@"hh\:mm") : "")</span>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <p class="rs-changes-order rs-changes-order--empty">
+                                                <span class="rs-changes-order-label">Next on tape</span>
+                                                <strong>No tape in the machine yet.</strong>
+                                                <span>New nights are on the way.</span>
+                                            </p>
+                                        }
+
+                                        <div class="rs-changes-actions">
+                                            <a asp-controller="Events" asp-action="Index" class="rs-btn rs-btn--primary">See the lineup <i aria-hidden="true">&rarr;</i></a>
+                                        </div>
+                                        break;
+
+                                    case "prophet":
+                                        if (!hideAiFeatures)
+                                        {
+                                            <form class="rs-changes-ask" asp-controller="BeerGuide" asp-action="Index" method="get">
+                                                <label class="rs-changes-order-label" for="rs-changes-ask-input">Tell the Prophet</label>
+                                                <input id="rs-changes-ask-input" name="prompt" type="text" maxlength="400" placeholder="Something cold, a bit fruity, not too strong" />
+                                                <button type="submit" class="rs-btn rs-btn--primary">Ask him <i aria-hidden="true">&rarr;</i></button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <div class="rs-changes-actions">
+                                                <a asp-controller="Reservations" asp-action="Create" class="rs-btn rs-btn--primary">Book a table <i aria-hidden="true">&rarr;</i></a>
+                                            </div>
+                                        }
+                                        break;
+                                }
+                            </div>
                         </div>
                     </li>
                 }
@@ -331,7 +474,7 @@
         </div>
     </section>
 
-    <section class="rs-chapter rs-chapter--concrete rs-torn rs-home-gallery">
+    <section class="rs-chapter rs-chapter--concrete rs-torn rs-home-gallery" id="the-room">
         <partial name="_Era" model='new EraModel("1977", "wall", "Heroes")' />
 
         <div class="rs-container">

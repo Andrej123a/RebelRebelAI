@@ -4809,6 +4809,183 @@ html.rs-open-lock body {
     line-height: 1.6;
 }
 
+/* His job at the bar, the point of the whole thing. */
+.rs-changes-job {
+    margin: 14px 0 0;
+    color: var(--look-hot);
+    font-family: var(--rs-display);
+    font-size: clamp(22px, 2.2vw, 32px);
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+/* His desk: what he looks after, live from the bar, and the way there. Buttons take the look's colours. */
+.rs-changes-look {
+    --ch-ink: var(--look-ink);
+    --ch-bg: var(--look-solid, var(--look-stage));
+    --ch-btn: var(--look-btn, var(--z-gold));
+    --ch-btn-ink: var(--look-btn-ink, var(--z-ink));
+}
+
+.rs-changes-look--tom {
+    --look-solid: var(--z-space);
+}
+
+.rs-changes-look--ziggy,
+.rs-changes-look--prophet {
+    --look-btn: var(--z-ink);
+    --look-btn-ink: var(--z-gold);
+}
+
+.rs-changes-look--sane {
+    --look-btn: var(--z-red);
+    --look-btn-ink: var(--z-cream);
+}
+
+.rs-changes-look--duke {
+    --look-btn: var(--z-red-hot);
+    --look-btn-ink: var(--z-cream);
+}
+
+.rs-changes-look--pierrot {
+    --look-btn: var(--z-blue);
+}
+
+.rs-changes-desk {
+    display: grid;
+    justify-items: start;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.rs-changes-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+    .rs-changes-actions .rs-btn {
+        min-height: 46px;
+        padding: 11px 22px;
+        font-size: 18px;
+    }
+
+/* A bar tab: what he drinks or eats, or what is on next. */
+.rs-changes-order {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 2px 18px;
+    min-width: min(100%, 300px);
+    max-width: 420px;
+    padding: 10px 16px 11px;
+    border: 1.5px solid currentColor;
+    border-left: 6px solid var(--look-hot);
+    color: inherit;
+    text-decoration: none;
+    transition: transform 0.25s var(--rs-ease);
+}
+
+    a.rs-changes-order:hover,
+    a.rs-changes-order:focus-visible {
+        transform: translateX(4px) rotate(-1deg);
+    }
+
+    .rs-changes-order strong {
+        grid-column: 1;
+        font-family: var(--rs-display);
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+    .rs-changes-order span:not(.rs-changes-order-label) {
+        grid-column: 1;
+        font-size: 13px;
+        opacity: 0.86;
+    }
+
+    .rs-changes-order b {
+        grid-row: 2 / span 2;
+        grid-column: 2;
+        font-family: var(--rs-display);
+        font-size: 26px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+        .rs-changes-order b small {
+            margin-left: 2px;
+            font-size: 0.5em;
+        }
+
+.rs-changes-order-label {
+    grid-column: 1 / -1;
+    color: var(--look-hot);
+    font-family: var(--rs-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.rs-changes-order--empty {
+    margin: 0;
+}
+
+.rs-changes-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    margin: 0;
+}
+
+    .rs-changes-facts dt {
+        color: var(--look-hot);
+        font-family: var(--rs-mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    .rs-changes-facts dd {
+        margin: 2px 0 0;
+        font-family: var(--rs-display);
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+/* Ask the Prophet right here; Rebel AI takes it from there. */
+.rs-changes-ask {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 10px;
+    width: min(100%, 460px);
+}
+
+    .rs-changes-ask input {
+        min-height: 46px;
+        padding: 0 16px;
+        border: 2px solid var(--z-ink);
+        border-radius: 999px;
+        background: var(--z-ink);
+        color: var(--z-cream);
+        font: inherit;
+        font-size: 15px;
+    }
+
+    .rs-changes-ask .rs-btn {
+        min-height: 46px;
+        padding: 11px 22px;
+        font-size: 18px;
+    }
+
 .rs-changes-roll,
 .rs-changes-count {
     display: none;
@@ -4975,8 +5152,21 @@ html.rs-open-lock body {
     }
 
     .rs-changes.is-staged .rs-changes-copy {
-        padding: 12vh 0 0;
+        padding: 9vh 0 0;
     }
+
+        .rs-changes.is-staged .rs-changes-year {
+            font-size: clamp(64px, 14vh, 190px);
+        }
+
+        .rs-changes.is-staged .rs-changes-name {
+            margin-top: 6px;
+            font-size: clamp(40px, 8.4vh, 104px);
+        }
+
+        .rs-changes.is-staged .rs-changes-song {
+            margin-top: 10px;
+        }
 
         .rs-changes.is-staged .rs-changes-copy > * {
             transform: translateY(26px);
@@ -4999,6 +5189,14 @@ html.rs-open-lock body {
 
         .rs-changes.is-staged .is-current .rs-changes-copy > :nth-child(4) {
             transition-delay: 0.24s;
+        }
+
+        .rs-changes.is-staged .is-current .rs-changes-copy > :nth-child(5) {
+            transition-delay: 0.32s;
+        }
+
+        .rs-changes.is-staged .is-current .rs-changes-copy > :nth-child(n + 6) {
+            transition-delay: 0.4s;
         }
 
     /* The cast so far, as a row of years along the bottom. */
@@ -5139,11 +5337,41 @@ html.rs-open-lock body {
         }
 
         .rs-changes.is-staged .rs-changes-line {
-            display: -webkit-box;
-            overflow: hidden;
-            font-size: 0.92rem;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 3;
+            display: none;
+        }
+
+        .rs-changes.is-staged .rs-changes-song {
+            display: none;
+        }
+
+        .rs-changes.is-staged .rs-changes-job {
+            margin-top: 8px;
+            font-size: 20px;
+        }
+
+        .rs-changes.is-staged .rs-changes-desk {
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .rs-changes.is-staged .rs-changes-order {
+            min-width: 0;
+            width: 100%;
+            padding: 8px 12px;
+        }
+
+            .rs-changes.is-staged .rs-changes-order strong {
+                font-size: 20px;
+            }
+
+        .rs-changes.is-staged .rs-changes-actions .rs-btn {
+            min-height: 42px;
+            padding: 9px 18px;
+            font-size: 16px;
+        }
+
+        .rs-changes.is-staged .rs-changes-facts dd {
+            font-size: 22px;
         }
 
         /* The Open button lives down here on a phone; the count up top keeps the place. */
@@ -5163,6 +5391,77 @@ html.rs-open-lock body {
 }
 
 /* ---------- the looks around the site ---------- */
+
+/* What a look is doing on this page, pinned beside him like a label on a record sleeve. */
+.rs-look-tag {
+    position: absolute;
+    z-index: 2;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    max-width: min(340px, 80vw);
+    padding: 9px 14px 10px;
+    border-left: 4px solid var(--z-gold);
+    background: rgba(14, 8, 7, 0.86);
+    color: var(--z-cream);
+    font-family: var(--rs-display);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.05;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.25s var(--rs-ease);
+}
+
+    .rs-look-tag b {
+        flex-basis: 100%;
+        color: var(--z-gold);
+        font-family: var(--rs-mono);
+        font-size: 10px;
+        letter-spacing: 0.18em;
+    }
+
+    .rs-look-tag i {
+        font-style: normal;
+    }
+
+    .rs-look-tag:hover,
+    .rs-look-tag:focus-visible {
+        background: var(--z-gold);
+        color: var(--z-ink);
+        transform: rotate(-2deg);
+    }
+
+        .rs-look-tag:hover b,
+        .rs-look-tag:focus-visible b {
+            color: var(--z-red);
+        }
+
+.rs-look-tag--menu {
+    right: max(16px, 21vw);
+    bottom: 12%;
+}
+
+.rr-menu-page--beer .rs-look-tag--menu {
+    right: max(16px, 25vw);
+    bottom: 16%;
+}
+
+.rs-look-tag--contact {
+    right: max(16px, calc((100% - 1280px) / 2 + 600px));
+    bottom: 9%;
+}
+
+.rs-look-tag--events {
+    right: 46vw;
+    bottom: 22%;
+}
+
+.rs-look-tag--footer {
+    right: max(16px, calc(7vw + 150px));
+    bottom: 40px;
+}
 
 /* Each page's era stands at the edge of its hero, cut off by the bottom like a
    cutout, behind the type. */
@@ -5245,7 +5544,8 @@ html.rs-open-lock body {
 /* A phone's hero is all headline and buttons: the cast stays on the home stage. */
 @media (max-width: 760px) {
     .rs-page-look,
-    .rs-footer-look {
+    .rs-footer-look,
+    .rs-look-tag {
         display: none;
     }
 }

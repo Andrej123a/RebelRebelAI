@@ -321,9 +321,9 @@
                        class="rs-open-link"
                        aria-current="@(IsActive("BeerGuide") == "active" ? "page" : null)"
                        data-rs-preview="ai">
-                        <span class="rs-open-num">&rsquo;72</span>
+                        <span class="rs-open-num">&rsquo;16</span>
                         <span class="rs-open-word">Rebel AI</span>
-                        <small>Starman</small>
+                        <small>The Blind Prophet</small>
                     </a>
                 }
 
@@ -391,8 +391,15 @@
 
         <svg class="rs-footer-star" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-blackstar" /></svg>
 
-        @* The last look, the Blind Prophet, standing in front of the black star. *@
+        @* The last look, the Blind Prophet, standing in front of the black star; he runs Rebel AI. *@
         <partial name="_Look" model='new LookModel("prophet", "footer", "rs-footer-look")' />
+
+        @if (!hideAiFeatures)
+        {
+            <a class="rs-look-tag rs-look-tag--footer" asp-controller="BeerGuide" asp-action="Index">
+                <b>Can't decide?</b> Ask the Prophet <i aria-hidden="true">&rarr;</i>
+            </a>
+        }
 
         <div class="rs-container rs-footer-main">
             <div class="rs-footer-brand">
