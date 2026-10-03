@@ -1,47 +1,40 @@
-/* An Aladdin Sane chapter: teal flood, flame clouds, a giant bolt behind the chat. */
+/* Starman '72: the red sky, a UFO and a few stars behind the chat. */
 .rr-guide-page {
     position: relative;
     isolation: isolate;
     overflow: clip;
     min-height: 100vh;
-    color: #f2f2f2;
+    color: #fff1dc;
     background:
-        radial-gradient(ellipse 40% 34% at 12% 18%, rgba(24, 82, 103, 0.95), transparent 70%),
-        radial-gradient(ellipse 36% 30% at 88% 82%, rgba(255, 73, 45, 0.55), transparent 70%),
-        #26738e;
+        var(--z-clouds) center / cover no-repeat,
+        var(--z-shadows) center / cover no-repeat,
+        linear-gradient(180deg, #7d0d06 0%, #bb150b 30%, #c4180c 70%, #b2140a 100%);
 }
 
-    .rr-guide-page::before {
-        content: "";
-        position: absolute;
-        top: 4%;
-        right: -6%;
-        z-index: -1;
-        width: clamp(320px, 46vw, 760px);
-        aspect-ratio: 0.84;
-        background: #ff492d;
-        box-shadow: none;
-        clip-path: polygon(60% 0, 18% 57%, 45% 57%, 31% 100%, 84% 38%, 56% 38%, 72% 0);
-        opacity: 0.9;
-        transform: rotate(10deg);
-        pointer-events: none;
-    }
+.rr-guide-ufo {
+    position: absolute;
+    top: 10%;
+    right: 6%;
+    z-index: -1;
+    width: clamp(130px, 15vw, 240px);
+    transform: rotate(-12deg);
+    pointer-events: none;
+}
 
-    .rr-guide-page::after {
-        content: "AI";
-        position: absolute;
-        bottom: -0.12em;
-        left: -0.04em;
-        z-index: -1;
-        color: #ffd43d;
-        font-family: "Hanken Grotesk", sans-serif;
-        font-size: clamp(220px, 34vw, 560px);
-        font-weight: 100;
-        letter-spacing: -0.06em;
-        line-height: 0.8;
-        opacity: 0.85;
-        pointer-events: none;
-    }
+/* Radio waves from the saucer: the only light blue on the page. */
+.rr-guide-waves {
+    position: absolute;
+    top: 9%;
+    right: 3%;
+    z-index: -1;
+    width: clamp(220px, 24vw, 380px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, transparent 0 26px, rgba(154, 211, 240, 0.45) 26px 28px);
+    -webkit-mask-image: radial-gradient(circle, #000 30%, transparent 70%);
+    mask-image: radial-gradient(circle, #000 30%, transparent 70%);
+    pointer-events: none;
+}
 
 .rr-guide-header,
 .rr-guide-workspace,
@@ -68,7 +61,7 @@
     left: 32px;
     width: 88px;
     height: 5px;
-    background: #ff492d;
+    background: #e2401a;
     content: "";
     transform: rotate(-1.5deg);
 }
@@ -81,8 +74,8 @@
     justify-content: space-between;
     padding: 12px 18px;
     border: 0;
-    border: 1px solid rgba(242, 242, 242, 0.24);
-    background: rgba(23, 23, 23, 0.78);
+    border: 1px solid rgba(255, 241, 220, 0.24);
+    background: rgba(21, 11, 9, 0.78);
     color: #8f8980;
     font-family: "Hanken Grotesk", sans-serif;
     font-weight: 700;
@@ -92,16 +85,16 @@
 
 .rr-guide-tool-tabs button:last-child {
     margin-top: 9px;
-    border: 1px dashed rgba(242, 242, 242, 0.32);
+    border: 1px dashed rgba(255, 241, 220, 0.32);
     transform: rotate(0.7deg);
 }
 
 .rr-guide-tool-tabs button[aria-selected="true"] {
     background:
         linear-gradient(84deg, transparent 0 5%, rgba(255, 255, 255, 0.13) 5.2% 5.8%, transparent 6% 100%),
-        #ff492d;
-    color: #171717;
-    box-shadow: 7px 7px 0 #c51f05, inset 0 -4px 0 rgba(255, 202, 40, 0.68);
+        #e2401a;
+    color: #150b09;
+    box-shadow: 7px 7px 0 #bb150b, inset 0 -4px 0 rgba(255, 202, 40, 0.68);
     transform: rotate(-0.8deg);
 }
 
@@ -109,7 +102,7 @@
 .rr-guide-chat-reset:focus-visible,
 .rr-guide-chat-prompts button:focus-visible,
 .rr-guide-chat-form button:focus-visible {
-    outline: 2px solid #ffd43d;
+    outline: 2px solid #f2c23a;
     outline-offset: 3px;
 }
 
@@ -130,14 +123,14 @@
     gap: 40px;
     align-items: end;
     padding: 72px 0 42px;
-    border-bottom: 1px solid rgba(242, 242, 242, 0.22);
+    border-bottom: 1px solid rgba(255, 241, 220, 0.22);
 }
 
 .rr-guide-kicker,
 .rr-guide-step legend,
 .rr-guide-results > header > span,
 .rr-guide-result-label {
-    color: #ff492d;
+    color: #e2401a;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.74rem;
     font-weight: 700;
@@ -148,8 +141,8 @@
 .rr-guide-header h1,
 .rr-guide-results h2 {
     margin: 8px 0 12px;
-    font-family: "Anton", sans-serif;
-    font-weight: 400;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
     line-height: 0.9;
     letter-spacing: 0;
     text-transform: uppercase;
@@ -161,9 +154,9 @@
 
 .rr-guide-header h1 em {
     position: relative;
-    color: #ff492d;
+    color: #e2401a;
     font-style: normal;
-    text-shadow: 7px 7px 0 #c51f05;
+    text-shadow: 7px 7px 0 #bb150b;
 }
 
 .rr-guide-header h1 em::after {
@@ -191,13 +184,14 @@
     gap: 12px;
     align-items: center;
     padding: 13px 18px 10px;
-    border: 2px solid #ff492d;
-    box-shadow: 6px 6px 0 #c51f05;
+    border: 2px solid #e2401a;
+    box-shadow: 6px 6px 0 #bb150b;
     transform: rotate(2deg);
 }
 
 .rr-guide-count strong {
-    font-family: "Anton", sans-serif;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
     font-size: 3.2rem;
     line-height: 1;
 }
@@ -243,14 +237,14 @@
     bottom: 9px;
     width: min(26vw, 290px);
     height: 8px;
-    background: #ff492d;
-    box-shadow: 26px 10px 0 #c51f05;
+    background: #e2401a;
+    box-shadow: 26px 10px 0 #bb150b;
     content: "";
     transform: rotate(-2.5deg);
 }
 
 .rr-guide-chat-heading > div > span {
-    color: #ff492d;
+    color: #e2401a;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
@@ -259,9 +253,9 @@
 
 .rr-guide-chat-heading h2 {
     margin: 5px 0 0;
-    font-family: "Anton", sans-serif;
+    font-family: "Big Shoulders Display", sans-serif;
     font-size: clamp(2.8rem, 5vw, 5.2rem);
-    font-weight: 400;
+    font-weight: 900;
     line-height: 0.9;
     text-transform: uppercase;
     text-shadow: 4px 4px 0 rgba(143, 16, 32, 0.55);
@@ -274,18 +268,18 @@
     height: 48px;
     flex: 0 0 48px;
     place-items: center;
-    border: 2px solid #ff492d;
+    border: 2px solid #e2401a;
     border-radius: 0;
-    background: #1a1a1a;
-    color: #f2f2f2;
+    background: #1a0f0d;
+    color: #fff1dc;
     font-size: 1.35rem;
-    box-shadow: 5px 5px 0 #c51f05;
+    box-shadow: 5px 5px 0 #bb150b;
     transform: rotate(5deg);
 }
 
 .rr-guide-chat-reset:hover {
-    border-color: #ff492d;
-    color: #ff492d;
+    border-color: #e2401a;
+    color: #e2401a;
 }
 
 .rr-guide-chat-shell {
@@ -303,7 +297,7 @@
     right: auto;
     width: 5px;
     height: 78%;
-    background: #ff492d;
+    background: #e2401a;
     content: "";
     transform: rotate(0.5deg);
 }
@@ -322,7 +316,7 @@
 
 .rr-guide-preference-strip > span {
     flex: 0 0 auto;
-    color: #ffd43d;
+    color: #f2c23a;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.58rem;
     font-weight: 700;
@@ -338,8 +332,8 @@
 
 .rr-guide-preference-strip > div span {
     padding: 4px 7px;
-    border-left: 2px solid #ff492d;
-    background: rgba(255, 73, 45, 0.08);
+    border-left: 2px solid #e2401a;
+    background: rgba(226, 64, 26, 0.08);
     color: #d6d6d6;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.76rem;
@@ -353,7 +347,7 @@
     gap: 30px;
     overflow-y: auto;
     padding: 28px 22px 34px 26px;
-    scrollbar-color: #ff492d #111;
+    scrollbar-color: #e2401a #111;
 }
 
 .rr-guide-chat-thread:has(.rr-guide-message:nth-child(2)) {
@@ -377,10 +371,10 @@
 .rr-guide-message-user .rr-guide-message-speaker {
     grid-column: 2;
     grid-row: 1;
-    border-color: #ff492d;
-    color: #f2f2f2;
-    background: #c51f05;
-    box-shadow: 4px 4px 0 #ff492d;
+    border-color: #e2401a;
+    color: #fff1dc;
+    background: #bb150b;
+    box-shadow: 4px 4px 0 #e2401a;
 }
 
 .rr-guide-message-user .rr-guide-message-content {
@@ -397,9 +391,9 @@
     width: 42px;
     height: 42px;
     place-items: center;
-    border: 2px solid #ff492d;
+    border: 2px solid #e2401a;
     border-radius: 50%;
-    color: #ff492d;
+    color: #e2401a;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.64rem;
     font-weight: 700;
@@ -409,9 +403,9 @@
     width: 76px;
     height: 76px;
     overflow: visible;
-    border: 3px solid #ff492d;
-    background: #171717;
-    box-shadow: 7px 7px 0 #c51f05, -3px -3px 0 rgba(255, 202, 40, 0.8);
+    border: 3px solid #e2401a;
+    background: #150b09;
+    box-shadow: 7px 7px 0 #bb150b, -3px -3px 0 rgba(255, 202, 40, 0.8);
     transform: rotate(-2deg);
 }
 
@@ -439,8 +433,8 @@
     left: 9px;
     width: 54px;
     height: 2px;
-    background: #ff492d;
-    box-shadow: 0 0 8px #ff492d, 0 0 14px rgba(255, 202, 40, 0.75);
+    background: #e2401a;
+    box-shadow: 0 0 8px #e2401a, 0 0 14px rgba(255, 202, 40, 0.75);
     transform: rotate(-7deg);
 }
 
@@ -451,7 +445,7 @@
     height: 34px;
     background: #ff6a2f;
     clip-path: polygon(45% 0, 100% 0, 63% 42%, 100% 42%, 20% 100%, 40% 55%, 0 55%);
-    filter: drop-shadow(0 0 5px rgba(255, 73, 45, 0.9));
+    filter: drop-shadow(0 0 5px rgba(226, 64, 26, 0.9));
     transform: rotate(9deg);
 }
 
@@ -459,17 +453,17 @@
     position: relative;
     min-width: 0;
     padding: 15px 18px;
-    border: 1px solid rgba(242, 242, 242, 0.2);
-    background: #1c1c1c;
+    border: 1px solid rgba(255, 241, 220, 0.2);
+    background: #1c0e0b;
 }
 
 .rr-guide-message-assistant .rr-guide-message-content {
     margin-top: 12px;
     border: 0;
-    border-left: 5px solid #ff492d;
+    border-left: 5px solid #e2401a;
     background:
-        linear-gradient(92deg, rgba(255, 73, 45, 0.09), transparent 24%),
-        #1c1c1c;
+        linear-gradient(92deg, rgba(226, 64, 26, 0.09), transparent 24%),
+        #1c0e0b;
     box-shadow: none;
     transform: rotate(-0.25deg);
 }
@@ -494,17 +488,17 @@
     right: 18px;
     width: 38px;
     height: 3px;
-    background: #ff492d;
+    background: #e2401a;
     content: "";
     transform: rotate(-2deg);
 }
 
 .rr-guide-message-user .rr-guide-message-content {
     padding: 14px 20px;
-    border: 1px solid #ff492d;
-    border-right: 7px solid #ff492d;
+    border: 1px solid #e2401a;
+    border-right: 7px solid #e2401a;
     background:
-        repeating-linear-gradient(-12deg, transparent 0 18px, rgba(255, 73, 45, 0.04) 19px 20px),
+        repeating-linear-gradient(-12deg, transparent 0 18px, rgba(226, 64, 26, 0.04) 19px 20px),
         rgba(143, 16, 32, 0.14);
     box-shadow: -7px 7px 0 rgba(0, 0, 0, 0.82);
     transform: rotate(0.7deg);
@@ -540,18 +534,18 @@
 
 @keyframes rr-guide-thinking {
     50% {
-        border-color: #ff492d;
+        border-color: #e2401a;
     }
 }
 
 @keyframes rr-guide-ziggy-signal {
     0%, 100% {
-        border-color: rgba(255, 73, 45, 0.72);
+        border-color: rgba(226, 64, 26, 0.72);
         box-shadow: 3px 3px 0 rgba(200, 32, 45, 0.35);
     }
     50% {
-        border-color: #ffd43d;
-        box-shadow: 3px 3px 0 #c8202d, 0 0 15px rgba(255, 73, 45, 0.5);
+        border-color: #f2c23a;
+        box-shadow: 3px 3px 0 #c8202d, 0 0 15px rgba(226, 64, 26, 0.5);
     }
 }
 
@@ -588,8 +582,8 @@
     grid-template-rows: 160px minmax(0, 1fr);
     min-width: 0;
     overflow: hidden;
-    border: 1px solid rgba(242, 242, 242, 0.24);
-    background: #171717;
+    border: 1px solid rgba(255, 241, 220, 0.24);
+    background: #150b09;
 }
 
 .rr-guide-chat-beer:nth-child(2) {
@@ -606,8 +600,9 @@
     place-items: center;
     overflow: hidden;
     background: #19130f;
-    color: #ff492d;
-    font-family: "Anton", sans-serif;
+    color: #e2401a;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
     font-size: 2.5rem;
 }
 
@@ -627,14 +622,14 @@
 .rr-guide-chat-beer-copy h3 {
     margin: 0 0 5px;
     overflow-wrap: anywhere;
-    font-family: "Anton", sans-serif;
+    font-family: "Big Shoulders Display", sans-serif;
     font-size: 1.65rem;
-    font-weight: 400;
+    font-weight: 900;
     line-height: 1;
 }
 
 .rr-guide-chat-beer-facts {
-    color: #ffd43d;
+    color: #f2c23a;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.57rem;
     font-weight: 700;
@@ -661,15 +656,15 @@
 }
 
 .rr-guide-chat-beer-footer a {
-    color: #ffd43d;
+    color: #f2c23a;
     text-decoration: none;
 }
 
 .rr-guide-compare-button {
     min-height: 28px;
     padding: 4px 7px;
-    color: #f2f2f2;
-    border: 1px solid rgba(255, 73, 45, 0.52);
+    color: #fff1dc;
+    border: 1px solid rgba(226, 64, 26, 0.52);
     border-radius: 2px;
     background: transparent;
     font: 700 0.55rem "Hanken Grotesk", sans-serif;
@@ -679,9 +674,9 @@
 .rr-guide-compare-button:hover,
 .rr-guide-compare-button:focus-visible,
 .rr-guide-compare-button[aria-pressed="true"] {
-    color: #171717;
-    border-color: #ffd43d;
-    background: #ffd43d;
+    color: #150b09;
+    border-color: #f2c23a;
+    background: #f2c23a;
 }
 
 .rr-guide-comparison {
@@ -689,8 +684,8 @@
     gap: 10px;
     margin-top: 14px;
     padding: 14px;
-    border: 1px solid rgba(255, 73, 45, 0.55);
-    border-left: 4px solid #ff492d;
+    border: 1px solid rgba(226, 64, 26, 0.55);
+    border-left: 4px solid #e2401a;
     background: #0b0a09;
 }
 
@@ -703,7 +698,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    color: #ffd43d;
+    color: #f2c23a;
     font-family: "Hanken Grotesk", sans-serif;
     text-transform: uppercase;
 }
@@ -720,7 +715,7 @@
 .rr-guide-comparison-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-top: 1px solid rgba(242, 242, 242, 0.16);
+    border-top: 1px solid rgba(255, 241, 220, 0.16);
 }
 
 .rr-guide-comparison-beer {
@@ -729,13 +724,13 @@
 }
 
 .rr-guide-comparison-beer:first-child {
-    border-right: 1px solid rgba(242, 242, 242, 0.16);
+    border-right: 1px solid rgba(255, 241, 220, 0.16);
 }
 
 .rr-guide-comparison-beer h4 {
     margin: 0 0 10px;
     overflow-wrap: anywhere;
-    font: 400 1.4rem/1 "Anton", sans-serif;
+    font: 900 1.4rem/1 "Big Shoulders Display", sans-serif;
 }
 
 .rr-guide-comparison-row {
@@ -743,7 +738,7 @@
     grid-template-columns: 76px minmax(0, 1fr);
     gap: 8px;
     padding: 5px 0;
-    border-top: 1px solid rgba(242, 242, 242, 0.08);
+    border-top: 1px solid rgba(255, 241, 220, 0.08);
 }
 
 .rr-guide-comparison-row span {
@@ -762,8 +757,8 @@
 .rr-guide-comparison-verdict {
     margin: 0;
     padding: 10px 12px;
-    color: #f2f2f2;
-    border-left: 2px solid #ffd43d;
+    color: #fff1dc;
+    border-left: 2px solid #f2c23a;
     background: rgba(255, 202, 40, 0.06);
     font: 0.75rem/1.5 "Hanken Grotesk", sans-serif;
 }
@@ -796,8 +791,8 @@
     padding: 0 11px;
     border: 1px solid rgba(239, 235, 225, 0.22);
     border-radius: 2px;
-    color: #f2f2f2;
-    background: #1a1a1a;
+    color: #fff1dc;
+    background: #1a0f0d;
     font: 700 0.64rem "Hanken Grotesk", sans-serif;
     text-transform: uppercase;
 }
@@ -839,10 +834,10 @@
     max-width: 980px;
     margin: 0 auto;
     padding: clamp(18px, 3vw, 32px);
-    border: 1px solid rgba(242, 242, 242, 0.2);
+    border: 1px solid rgba(255, 241, 220, 0.2);
     background:
-        linear-gradient(112deg, rgba(255, 73, 45, 0.09), transparent 34%),
-        rgba(23, 23, 23, 0.76);
+        linear-gradient(112deg, rgba(226, 64, 26, 0.09), transparent 34%),
+        rgba(21, 11, 9, 0.76);
     box-shadow: 7px 7px 0 rgba(143, 16, 32, 0.62);
 }
 
@@ -852,7 +847,7 @@
     right: 8%;
     width: 90px;
     height: 5px;
-    background: #ffd43d;
+    background: #f2c23a;
     content: "";
     transform: rotate(-1deg);
 }
@@ -863,7 +858,7 @@
     gap: 20px;
     align-items: start;
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(242, 242, 242, 0.15);
+    border-bottom: 1px solid rgba(255, 241, 220, 0.15);
 }
 
 .rr-guide-ai-portrait {
@@ -871,8 +866,8 @@
     width: 126px;
     height: 150px;
     overflow: hidden;
-    border: 3px solid #ff492d;
-    box-shadow: 8px 8px 0 #c51f05, -4px -4px 0 #ffd43d;
+    border: 3px solid #e2401a;
+    box-shadow: 8px 8px 0 #bb150b, -4px -4px 0 #f2c23a;
     transform: rotate(-1.5deg);
 }
 
@@ -886,21 +881,21 @@
 
 .rr-guide-ai-stage-copy > span,
 .rr-guide-chat-input-heading span {
-    color: #ff492d;
+    color: #e2401a;
     font: 700 0.65rem "Hanken Grotesk", sans-serif;
     text-transform: uppercase;
 }
 
 .rr-guide-ai-stage-copy h2 {
     margin: 6px 0 8px;
-    font: 400 clamp(2.7rem, 5vw, 4.5rem)/0.92 "Anton", sans-serif;
+    font: 900 clamp(2.7rem, 5vw, 4.5rem)/0.92 "Big Shoulders Display", sans-serif;
     text-transform: uppercase;
 }
 
 .rr-guide-ai-stage-copy h2 em {
-    color: #ff492d;
+    color: #e2401a;
     font-style: normal;
-    text-shadow: 5px 5px 0 #c51f05;
+    text-shadow: 5px 5px 0 #bb150b;
 }
 
 .rr-guide-ai-stage-copy p {
@@ -926,10 +921,10 @@
 .rr-guide-ai-stage .rr-guide-chat-controls {
     margin: 0;
     padding: 13px;
-    border: 1px solid rgba(255, 73, 45, 0.52);
-    border-top: 6px solid #ff492d;
-    background: #171717;
-    box-shadow: 4px 4px 0 #c51f05;
+    border: 1px solid rgba(226, 64, 26, 0.52);
+    border-top: 6px solid #e2401a;
+    background: #150b09;
+    box-shadow: 4px 4px 0 #bb150b;
     transform: none;
 }
 
@@ -946,30 +941,30 @@
 }
 
 .rr-guide-chat-input-heading strong {
-    color: #f2f2f2;
-    font: 400 1.45rem "Anton", sans-serif;
+    color: #fff1dc;
+    font: 900 1.45rem "Big Shoulders Display", sans-serif;
     letter-spacing: 0.7px;
     text-transform: uppercase;
 }
 
 .rr-guide-ai-stage .rr-guide-chat-form textarea {
     min-height: 68px;
-    border: 1px solid rgba(242, 242, 242, 0.24);
-    border-left: 4px solid #ff492d;
-    border-bottom: 3px solid #f2f2f2;
+    border: 1px solid rgba(255, 241, 220, 0.24);
+    border-left: 4px solid #e2401a;
+    border-bottom: 3px solid #fff1dc;
     background: #050505;
 }
 
 .rr-guide-ai-stage .rr-guide-chat-form button {
     min-height: 68px;
-    color: #171717;
-    background: #ff492d;
-    box-shadow: 6px 6px 0 #ffd43d;
+    color: #150b09;
+    background: #e2401a;
+    box-shadow: 6px 6px 0 #f2c23a;
     transform: none;
 }
 
 .rr-guide-ai-stage .rr-guide-chat-form button b {
-    color: #171717;
+    color: #150b09;
 }
 
 @media (max-width: 700px) {
@@ -983,7 +978,7 @@
         width: 76px;
         height: 96px;
         border-width: 2px;
-        box-shadow: 5px 5px 0 #c51f05, -2px -2px 0 #ffd43d;
+        box-shadow: 5px 5px 0 #bb150b, -2px -2px 0 #f2c23a;
     }
 
     .rr-guide-ai-stage-copy h2 {
@@ -1021,11 +1016,11 @@
     margin-top: 14px;
     padding-top: 12px;
     gap: 8px;
-    border-top: 1px solid rgba(242, 242, 242, 0.16);
+    border-top: 1px solid rgba(255, 241, 220, 0.16);
 }
 
 .rr-guide-recovery-actions > span {
-    color: #ffd43d;
+    color: #f2c23a;
     font: 700 0.57rem "Hanken Grotesk", sans-serif;
     text-transform: uppercase;
 }
@@ -1039,18 +1034,18 @@
 .rr-guide-recovery-actions button {
     min-height: 36px;
     padding: 7px 10px;
-    color: #f2f2f2;
-    border: 1px solid rgba(255, 73, 45, 0.48);
+    color: #fff1dc;
+    border: 1px solid rgba(226, 64, 26, 0.48);
     border-radius: 2px;
-    background: #1a1a1a;
+    background: #1a0f0d;
     font: 700 0.58rem "Hanken Grotesk", sans-serif;
     text-transform: uppercase;
 }
 
 .rr-guide-recovery-actions button:hover,
 .rr-guide-recovery-actions button:focus-visible {
-    color: #ffd43d;
-    border-color: #ffd43d;
+    color: #f2c23a;
+    border-color: #f2c23a;
 }
 
 .rr-guide-recovery-actions button:disabled {
@@ -1061,12 +1056,12 @@
     position: relative;
     margin: 8px 0 0 92px;
     padding: 18px 20px 20px;
-    border-top: 7px solid #ff492d;
-    border-right: 3px solid #c51f05;
+    border-top: 7px solid #e2401a;
+    border-right: 3px solid #bb150b;
     background:
-        linear-gradient(93deg, rgba(255, 73, 45, 0.12), transparent 38%),
-        rgba(23, 23, 23, 0.9);
-    box-shadow: 10px 10px 0 #c51f05, -5px 5px 0 rgba(255, 73, 45, 0.18);
+        linear-gradient(93deg, rgba(226, 64, 26, 0.12), transparent 38%),
+        rgba(21, 11, 9, 0.9);
+    box-shadow: 10px 10px 0 #bb150b, -5px 5px 0 rgba(226, 64, 26, 0.18);
     transform: rotate(-0.25deg);
 }
 
@@ -1076,7 +1071,7 @@
     right: 10%;
     width: 86px;
     height: 15px;
-    background: #f2f2f2;
+    background: #fff1dc;
     content: "";
     transform: rotate(2deg);
 }
@@ -1092,8 +1087,8 @@
 .rr-guide-chat-prompts button {
     min-height: 38px;
     padding: 7px 11px;
-    border: 1px solid rgba(255, 73, 45, 0.62);
-    background: #171717;
+    border: 1px solid rgba(226, 64, 26, 0.62);
+    background: #150b09;
     color: #c5bdb2;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.62rem;
@@ -1107,7 +1102,7 @@
 
 .rr-guide-chat-prompts button:nth-child(2) {
     margin-top: 4px;
-    border-color: rgba(242, 242, 242, 0.58);
+    border-color: rgba(255, 241, 220, 0.58);
     transform: rotate(0.8deg);
 }
 
@@ -1116,9 +1111,9 @@
 }
 
 .rr-guide-chat-prompts button:hover {
-    border-color: #ff492d;
-    background: rgba(255, 73, 45, 0.1);
-    color: #f2f2f2;
+    border-color: #e2401a;
+    background: rgba(226, 64, 26, 0.1);
+    color: #fff1dc;
 }
 
 .rr-guide-chat-prompts button:disabled {
@@ -1140,18 +1135,18 @@
     resize: vertical;
     padding: 12px 14px;
     border: 0;
-    border-bottom: 3px solid #f2f2f2;
-    border-left: 3px solid #ff492d;
+    border-bottom: 3px solid #fff1dc;
+    border-left: 3px solid #e2401a;
     border-radius: 0;
     background: rgba(0, 0, 0, 0.58);
-    color: #f2f2f2;
+    color: #fff1dc;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.8rem;
 }
 
 .rr-guide-chat-form textarea:focus {
-    border-color: #ff492d;
-    outline: 2px solid rgba(255, 73, 45, 0.2);
+    border-color: #e2401a;
+    outline: 2px solid rgba(226, 64, 26, 0.2);
     outline-offset: 0;
 }
 
@@ -1162,15 +1157,15 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 15px;
-    border: 2px solid #ff492d;
+    border: 2px solid #e2401a;
     background:
-        linear-gradient(103deg, transparent 0 62%, rgba(255, 73, 45, 0.17) 62.5% 64%, transparent 64.5%),
-        #171717;
-    box-shadow: 7px 7px 0 #ff492d;
-    color: #f2f2f2;
-    font-family: "Anton", sans-serif;
+        linear-gradient(103deg, transparent 0 62%, rgba(226, 64, 26, 0.17) 62.5% 64%, transparent 64.5%),
+        #150b09;
+    box-shadow: 7px 7px 0 #e2401a;
+    color: #fff1dc;
+    font-family: "Big Shoulders Display", sans-serif;
     font-size: 1.25rem;
-    font-weight: 700;
+    font-weight: 900;
     text-transform: uppercase;
     transform: rotate(-1.2deg);
 }
@@ -1181,28 +1176,29 @@
     left: 14px;
     width: 42px;
     height: 5px;
-    background: #f2f2f2;
+    background: #fff1dc;
     content: "";
     transform: rotate(3deg);
 }
 
 .rr-guide-chat-form button b {
-    color: #ff492d;
-    font-family: "Anton", sans-serif;
+    color: #e2401a;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
     font-size: 2rem;
     line-height: 1;
     transform: rotate(-8deg);
 }
 
 .rr-guide-chat-form button:hover:not(:disabled) {
-    background: #ff492d;
-    color: #171717;
-    box-shadow: 7px 7px 0 #c51f05;
+    background: #e2401a;
+    color: #150b09;
+    box-shadow: 7px 7px 0 #bb150b;
     transform: rotate(0.4deg) translate(-2px, -2px);
 }
 
 .rr-guide-chat-form button:hover:not(:disabled) b {
-    color: #171717;
+    color: #150b09;
 }
 
 .rr-guide-chat-form button:disabled,
@@ -1225,7 +1221,7 @@
 .rr-guide-step legend {
     width: 100%;
     margin-bottom: 12px;
-    color: #f2f2f2;
+    color: #fff1dc;
 }
 
 .rr-guide-mode-switch,
@@ -1271,8 +1267,8 @@
     justify-content: center;
     padding: 10px 13px;
     overflow-wrap: anywhere;
-    border: 1px solid rgba(242, 242, 242, 0.2);
-    background: rgba(23, 23, 23, 0.78);
+    border: 1px solid rgba(255, 241, 220, 0.2);
+    background: rgba(21, 11, 9, 0.78);
     color: #c6beb2;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.72rem;
@@ -1299,10 +1295,10 @@
 .rr-guide-mode-switch input:checked + span,
 .rr-guide-choice-grid input:checked + span,
 .rr-guide-intensity-row input:checked + span {
-    border-color: #ff492d;
-    background: #ff492d;
-    color: #171717;
-    box-shadow: 4px 4px 0 #c51f05;
+    border-color: #e2401a;
+    background: #e2401a;
+    color: #150b09;
+    box-shadow: 4px 4px 0 #bb150b;
 }
 
 .rr-guide-mode-switch input:checked + span small,
@@ -1313,7 +1309,7 @@
 .rr-guide-mode-switch input:focus-visible + span,
 .rr-guide-choice-grid input:focus-visible + span,
 .rr-guide-intensity-row input:focus-visible + span {
-    outline: 2px solid #ffd43d;
+    outline: 2px solid #f2c23a;
     outline-offset: 3px;
 }
 
@@ -1321,10 +1317,10 @@
     width: 100%;
     min-height: 58px;
     padding: 0 16px;
-    border: 1px solid rgba(242, 242, 242, 0.28);
+    border: 1px solid rgba(255, 241, 220, 0.28);
     border-radius: 0;
-    background: #1a1a1a;
-    color: #f2f2f2;
+    background: #1a0f0d;
+    color: #fff1dc;
     color-scheme: dark;
     font-family: "Hanken Grotesk", sans-serif;
     font-weight: 700;
@@ -1338,9 +1334,9 @@
     justify-content: space-between;
     padding: 0 20px;
     border: 0;
-    background: #ffd43d;
-    box-shadow: 7px 7px 0 #ff492d;
-    color: #171717;
+    background: #f2c23a;
+    box-shadow: 7px 7px 0 #e2401a;
+    color: #150b09;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.82rem;
     font-weight: 700;
@@ -1349,7 +1345,7 @@
 
 .rr-guide-submit:hover {
     transform: translate(2px, 2px);
-    box-shadow: 5px 5px 0 #ff492d;
+    box-shadow: 5px 5px 0 #e2401a;
 }
 
 .rr-guide-field-error,
@@ -1364,7 +1360,7 @@
 .rr-guide-results {
     min-width: 0;
     padding-left: 30px;
-    border-left: 1px solid rgba(242, 242, 242, 0.2);
+    border-left: 1px solid rgba(255, 241, 220, 0.2);
 }
 
 .rr-guide-results h2 {
@@ -1381,8 +1377,8 @@
     grid-template-columns: 140px minmax(0, 1fr);
     min-height: 210px;
     overflow: hidden;
-    border: 1px solid rgba(242, 242, 242, 0.22);
-    background: rgba(23, 23, 23, 0.84);
+    border: 1px solid rgba(255, 241, 220, 0.22);
+    background: rgba(21, 11, 9, 0.84);
 }
 
 .rr-guide-result:nth-child(2) {
@@ -1399,8 +1395,9 @@
     place-items: center;
     overflow: hidden;
     background: #17120f;
-    color: #ff492d;
-    font-family: "Anton", sans-serif;
+    color: #e2401a;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
     font-size: 3rem;
 }
 
@@ -1420,7 +1417,8 @@
 .rr-guide-result-copy h3 {
     margin: 4px 0 6px;
     overflow-wrap: anywhere;
-    font-family: "Anton", sans-serif;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
     font-size: 2.15rem;
     line-height: 1;
     letter-spacing: 0;
@@ -1430,7 +1428,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px 12px;
-    color: #ffd43d;
+    color: #f2c23a;
     font-family: "Hanken Grotesk", sans-serif;
     font-size: 0.65rem;
     font-weight: 700;
@@ -1457,7 +1455,7 @@
 
 .rr-guide-result-footer a,
 .rr-guide-empty-result a {
-    color: #ffd43d;
+    color: #f2c23a;
     text-decoration: none;
 }
 
@@ -1467,7 +1465,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 22px;
-    border: 1px solid #ff492d;
+    border: 1px solid #e2401a;
 }
 
 @media (max-width: 900px) {
@@ -1482,7 +1480,7 @@
     .rr-guide-results {
         padding-top: 36px;
         padding-left: 0;
-        border-top: 1px solid rgba(242, 242, 242, 0.2);
+        border-top: 1px solid rgba(255, 241, 220, 0.2);
         border-left: 0;
     }
 
@@ -1585,7 +1583,7 @@
         width: 52px;
         height: 52px;
         border-width: 2px;
-        box-shadow: 4px 4px 0 #c51f05, -1px -1px 0 rgba(255, 202, 40, 0.72);
+        box-shadow: 4px 4px 0 #bb150b, -1px -1px 0 rgba(255, 202, 40, 0.72);
     }
 
     .rr-guide-ziggy::before {
@@ -1631,7 +1629,7 @@
 
     .rr-guide-comparison-beer:first-child {
         border-right: 0;
-        border-bottom: 1px solid rgba(242, 242, 242, 0.16);
+        border-bottom: 1px solid rgba(255, 241, 220, 0.16);
     }
 
     .rr-guide-chat-prompts {
@@ -1668,7 +1666,7 @@
     .rr-guide-chat-controls {
         margin-left: 14px;
         padding: 16px 12px 15px;
-        box-shadow: 5px 6px 0 #c51f05;
+        box-shadow: 5px 6px 0 #bb150b;
     }
 }
 
@@ -1684,22 +1682,40 @@
 }
 
 /* =========================================================
-   HEROES: the chat stage is a charcoal block dropped on the
-   teal, printed slightly out of register.
+   STARMAN: the chat stage is a dark console under the red sky.
    ========================================================= */
 
 .rr-guide-ai-stage {
-    border: 0;
-    background: #202020;
-    box-shadow: -16px 16px 0 #ff492d, 16px -14px 0 #ffd43d;
-    transform: rotate(-0.6deg);
+    border: 1.5px solid rgba(154, 211, 240, 0.32);
+    background: #0d0605;
+    box-shadow: 0 30px 60px rgba(74, 8, 3, 0.45);
 }
 
 .rr-guide-ai-stage-copy h2 {
-    text-shadow: -0.04em 0.035em 0 #2abdeb, 0.04em -0.02em 0 #c51f05;
+    color: #f2c23a;
+    letter-spacing: 0.01em;
 }
 
 .rr-guide-ai-stage-copy p {
-    color: rgba(242, 242, 242, 0.78);
+    color: rgba(255, 241, 220, 0.82);
     font-weight: 500;
+}
+
+.rr-guide-ai-stage-copy > span {
+    color: #9ad3f0;
+    font-family: "Space Mono", monospace;
+    letter-spacing: 0.14em;
+}
+
+/* Leave room for the timeline when the screen is too narrow to hold it in the margin. */
+@media (min-width: 992px) and (max-width: 1439.98px) {
+    .rr-guide-page:has(> .rs-era) .rr-guide-workspace {
+        padding-left: 76px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .rr-guide-page > .rs-era {
+        margin-top: 28px;
+    }
 }

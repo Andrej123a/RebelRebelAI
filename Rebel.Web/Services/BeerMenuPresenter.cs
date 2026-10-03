@@ -9,33 +9,34 @@ namespace Rebel.Web.Services;
 
 public static partial class BeerMenuPresenter
 {
-    private const string DarkInk = "#0B0B0B";
-    private const string Charcoal = "#202020";
-    private const string LightInk = "#F2F2F2";
-    private const string SoldOutBackground = "#1C1C1C";
+    private const string DarkInk = "#0E0807";
+    private const string Ink = "#1A0F0D";
+    private const string LightInk = "#FFF1DC";
+    private const string SoldOutBackground = "#2A1310";
 
-    // Every style family floods the stage with one of the site's chapter colours;
-    // the glow is the second colour, used on the disc, name shadow and sliders.
+    // Every style family floods the stage with one of the site's colours:
+    // mostly Ziggy red and gold, with light blue kept for the rare wildcard.
+    // The glow is the second colour, used on the disc, name shadow and sliders.
     public static readonly BeerMenuFamily Hoppy =
-        new("hoppy", "Hoppy & Hazy", "#FF492D", Charcoal, "#FFD43D");
+        new("hoppy", "Hoppy & Hazy", "#BB150B", LightInk, "#F2C23A");
 
     public static readonly BeerMenuFamily Crisp =
-        new("crisp", "Crisp & Golden", "#FFC700", Charcoal, "#C51F05");
+        new("crisp", "Crisp & Golden", "#F2C23A", Ink, "#BB150B");
 
     public static readonly BeerMenuFamily Sour =
-        new("sour", "Sour & Fruity", "#26738E", LightInk, "#FFD43D");
+        new("sour", "Sour & Fruity", "#E2401A", "#120806", "#FFF1DC");
 
     public static readonly BeerMenuFamily Dark =
-        new("dark", "Dark & Roasty", Charcoal, LightInk, "#F34429");
+        new("dark", "Dark & Roasty", Ink, LightInk, "#F2C23A");
 
     public static readonly BeerMenuFamily Amber =
-        new("amber", "Amber & Malty", "#C51F05", LightInk, "#FFD43D");
+        new("amber", "Amber & Malty", "#7D0D06", LightInk, "#F2C23A");
 
     public static readonly BeerMenuFamily Belgian =
-        new("belgian", "Belgian & Wheat", LightInk, Charcoal, "#C51F05");
+        new("belgian", "Belgian & Wheat", "#F1E8D6", Ink, "#BB150B");
 
     public static readonly BeerMenuFamily Wildcard =
-        new("wildcard", "Wildcards", "#0A0A0D", LightInk, "#2ABDEB");
+        new("wildcard", "Wildcards", "#9AD3F0", Ink, "#BB150B");
 
     private static readonly IReadOnlyList<BeerMenuFamily> FamilyOrder =
         [Hoppy, Crisp, Sour, Dark, Amber, Belgian, Wildcard];

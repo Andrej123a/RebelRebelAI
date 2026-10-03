@@ -1,5 +1,5 @@
 // Shared motion for the public pages:
-// - the count-up preloader (once per visit),
+// - the Space Oddity countdown preloader (once per visit),
 // - the full-screen #open menu,
 // - blocks marked data-rs-reveal come into focus as they scroll in,
 // - blocks marked data-rs-drift move at their own speed while scrolling,
@@ -10,12 +10,13 @@
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finePointer = window.matchMedia("(pointer: fine)").matches;
 
-    // ---------- preloader ----------
+    // ---------- preloader: a Space Oddity countdown ----------
 
     const preloader = document.querySelector("[data-rs-preloader]");
 
     if (preloader && !root.classList.contains("rs-seen")) {
         const counter = preloader.querySelector("[data-rs-count]");
+        const status = preloader.querySelector("[data-rs-status]");
         const finish = () => {
             preloader.classList.add("is-done");
             window.setTimeout(() => { preloader.hidden = true; }, 900);
@@ -25,16 +26,24 @@
             preloader.hidden = true;
         } else {
             const started = performance.now();
-            const duration = 1000;
+            const duration = 1100;
             const tick = (now) => {
-                const progress = Math.min(1, (now - started) / duration);
-                counter.textContent = String(Math.round(progress * progress * 100));
+                const progress = Math.min(1, Math.max(0, (now - started) / duration));
+                counter.textContent = String(10 - Math.floor(progress * 10));
 
                 if (progress < 1) {
                     requestAnimationFrame(tick);
-                } else {
-                    window.setTimeout(finish, 140);
+                    return;
                 }
+
+                counter.textContent = "0";
+
+                if (status) {
+                    status.textContent = "Lift-off";
+                }
+
+                preloader.classList.add("is-lift");
+                window.setTimeout(finish, 380);
             };
 
             requestAnimationFrame(tick);

@@ -18,7 +18,7 @@ The goal is to replace disconnected messages, notebooks and separate tools with 
 ### Public Website
 
 - Branded responsive home page.
-- One shared look across every guest page, built like a longread on Bowie's personas: each page runs as chapters that flood the screen with Bowie red, the Aladdin Sane flame and teal, Halloween Jack yellow or charcoal, with huge Anton against thin Hanken Grotesk, lightning bolts, misprinted colour blocks behind photos, film grain, a full-screen `#open` menu and a count-up preloader (`wwwroot/css/site.css`, `wwwroot/js/rebel-site.js`). Photos keep their original files and crops.
+- One shared look across every guest page, told as David Bowie's career: each page is an era on a thin yellow timeline (Space Oddity '69 bookings as Ground Control, Life on Mars? '71 fanzine menu, Ziggy Stardust '72 beer tracklist, Aladdin Sane '73 lightning-split photos, Rebel Rebel '74 home, Station to Station '76 contact, Heroes '77 black-and-white gallery, Ashes to Ashes '80 videotape event posters, Blackstar 2016 footer). Red and yellow lead under a red sky, light blue stays small; Big Shoulders Display, Hanken Grotesk, Space Mono and Playfair (`wwwroot/css/site.css`, `wwwroot/js/rebel-site.js`). Photos keep their original files and crops; the era treatments are CSS on top.
 - Food menu with search, prices, descriptions, availability and dietary tags.
 - Beer menu laid out as a tracklist: every beer gets its own colour-flooded section with style, ABV, origin, price, flavour notes, pairings and taste sliders built from the stored beer profile, plus style filters, search and shareable links to a single beer.
 - Upcoming events with posters, details, dates and start/end times.

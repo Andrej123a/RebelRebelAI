@@ -10,7 +10,14 @@
     var initialChatPrompt = JsonSerializer.Serialize(Model.InitialChatPrompt);
 }
 
-<div class="rr-guide-page">
+<div class="rr-guide-page" data-rs-stardust>
+    <span class="rs-stars"></span>
+
+    <partial name="_Era" model='new EraModel("1972", "ufo", "Starman")' />
+
+    <span class="rr-guide-waves" aria-hidden="true"></span>
+    <svg class="rr-guide-ufo" viewBox="0 0 120 96" aria-hidden="true"><use href="#rs-ufo" /></svg>
+
     <main class="rr-guide-workspace rr-guide-workspace-chat-only"
           data-active-tool="chat">
         <section id="rr-guide-chat"

@@ -8,14 +8,18 @@
         ViewData.ModelState[nameof(Model.Note)]?.Errors.Count > 0;
 }
 
-<section class="rs-chapter rs-chapter--jack rs-reserve">
-    <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+<section class="rs-chapter rs-chapter--sky rs-reserve">
+    <span class="rs-stars rs-reserve-stars"></span>
+
+    <partial name="_Era" model='new EraModel("1969", "rocket", "Space Oddity")' />
 
     <div class="rs-container rs-reserve-grid">
         <aside class="rs-reserve-art" aria-label="Rebel Rebel">
-            <img class="rs-reserve-art-photo"
-                 src="~/images/rebel-bowie-logo-room.webp"
-                 alt="Bowie artwork inside Rebel Rebel" />
+            <span class="rs-split rs-reserve-art-photo">
+                <img src="~/images/rebel-bowie-logo-room.webp"
+                     alt="Bowie artwork inside Rebel Rebel" />
+                <img src="~/images/rebel-bowie-logo-room.webp" alt="" aria-hidden="true" />
+            </span>
 
             <div class="rs-reserve-art-copy">
                 <img src="~/images/logo.jpg"
@@ -29,11 +33,20 @@
         <form asp-controller="Reservations"
               asp-action="Create"
               method="post"
-              class="rs-card rs-reserve-form">
+              class="rs-console rs-reserve-form">
             <input asp-for="EventId" type="hidden" />
 
+            <div class="rs-console-bar">
+                <span>Ground Control · Table request</span>
+                <span class="rs-console-lights">
+                    <span><i class="rs-led"></i>Bar open</span>
+                    <span><i class="rs-led rs-led--gold rs-led--blink"></i>Awaiting your request</span>
+                </span>
+            </div>
+
+            <div class="rs-reserve-body">
             <header>
-                <p class="rs-kicker">Book a table</p>
+                <p class="rs-kicker">Mission: book a table</p>
                 <h1 class="rs-display rs-display--md" aria-label="Pick your arrival.">
                     Pick your <span class="rs-accent">arrival.</span>
                 </h1>
@@ -55,7 +68,7 @@
 
             <div class="rs-reserve-row rs-reserve-row--two">
                 <label class="rs-field">
-                    <span>Date</span>
+                    <span><b>01</b> Date</span>
                     <input asp-for="ReservationDate"
                            type="date"
                            min="@ViewBag.MinimumReservationDate" />
@@ -63,7 +76,7 @@
                 </label>
 
                 <label class="rs-field">
-                    <span>Arrival time</span>
+                    <span><b>02</b> Arrival time</span>
                     <input asp-for="ReservationTime"
                            type="time"
                            min="10:00"
@@ -73,12 +86,13 @@
             </div>
 
             <p class="rs-reserve-hours">
+                <i class="rs-led rs-led--gold"></i>
                 Reservations from 10:00 to 22:00 // at least 2 hours ahead
             </p>
 
             <div class="rs-reserve-row rs-reserve-row--three">
                 <label class="rs-field">
-                    <span>Guests</span>
+                    <span><b>03</b> Guests</span>
                     <input asp-for="NumberOfGuests"
                            type="number"
                            inputmode="numeric"
@@ -88,7 +102,7 @@
                 </label>
 
                 <label class="rs-field">
-                    <span>Full name</span>
+                    <span><b>04</b> Full name</span>
                     <input asp-for="FullName"
                            placeholder="Your name"
                            autocomplete="name" />
@@ -96,7 +110,7 @@
                 </label>
 
                 <label class="rs-field">
-                    <span>Phone</span>
+                    <span><b>05</b> Phone</span>
                     <input asp-for="PhoneNumber"
                            placeholder="+389..."
                            autocomplete="tel" />
@@ -115,11 +129,17 @@
                 </label>
             </details>
 
+            <p class="rs-reserve-table">
+                <i class="rs-led rs-led--off"></i>
+                Table: assigned by the crew when your request is approved
+            </p>
+
             <div class="rs-reserve-submit">
                 <button type="submit" class="rs-btn rs-btn--primary">
                     Request the table <i aria-hidden="true">&rarr;</i>
                 </button>
                 <p>No email needed. Keep the code shown after submitting.</p>
+            </div>
             </div>
         </form>
     </div>

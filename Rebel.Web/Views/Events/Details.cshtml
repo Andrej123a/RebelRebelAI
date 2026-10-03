@@ -12,10 +12,10 @@
     var endTime = Model.EndTime.HasValue ? Model.EndTime.Value.ToString(@"hh\:mm") : "LATE";
 }
 
-<section class="rs-chapter rs-chapter--char rs-event" data-rs-stardust>
-    <span class="rs-chapter-num rs-event-num" aria-hidden="true" data-rs-drift="0.14">@localEventDate.ToString("dd")</span>
+<section class="rs-chapter rs-chapter--deep rs-event" data-rs-stardust>
+    <span class="rs-stars rs-event-stars"></span>
 
-    <svg class="rs-bolt rs-event-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.1"><use href="#rs-bolt-sane" /></svg>
+    <partial name="_Era" model='new EraModel("1980", "tape", "Ashes to Ashes")' />
 
     <div class="rs-container">
         <a asp-controller="Events"
@@ -25,8 +25,10 @@
         </a>
 
         <article class="rs-event-grid">
-            <div class="rs-event-visual">
-                <div class="rs-event-poster">
+            <div class="rs-event-visual" data-rs-vhs>
+                <div class="rs-vhs rs-event-poster">
+                    <span class="rs-vhs-osd rs-vhs-osd--play">PLAY &#9654;</span>
+                    <span class="rs-vhs-osd rs-vhs-osd--time">SP @startTime:00</span>
                     @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
                     {
                         <img src="@Model.ImageUrl" alt="@Model.Title" />
@@ -42,7 +44,7 @@
             </div>
 
             <div class="rs-event-copy">
-                <p class="rs-chapter-tag"><b>No. @localEventDate.ToString("dd")</b> Rebel Rebel presents</p>
+                <p class="rs-kicker">Tape no. @localEventDate.ToString("dd") · Rebel Rebel presents</p>
 
                 <h1 class="rs-display rs-display--lg">@Model.Title</h1>
 
@@ -71,7 +73,7 @@
                         : Model.Description)
                 </p>
 
-                <div class="rs-event-callout rs-flood rs-flood--orange">
+                <div class="rs-event-callout rs-flood rs-flood--yellow">
                     <span class="rs-label">One night.</span>
                     <strong>Zero good excuses.</strong>
                 </div>

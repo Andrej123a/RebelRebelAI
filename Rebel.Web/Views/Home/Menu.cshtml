@@ -41,6 +41,27 @@
         _ => "Messy hands. Full stomach. No regrets."
     };
 
+    var era = selectedSection switch
+    {
+        "beer" => new EraModel("1972", "sun", "Ziggy Stardust"),
+        "drink" => new EraModel("1983", "record", "Let's Dance"),
+        _ => new EraModel("1971", "planet", "Life on Mars?")
+    };
+
+    var (titleTop, titleBottom) = selectedSection switch
+    {
+        "beer" => ("The beers", "from Mars"),
+        "drink" => ("Liquid", "courage"),
+        _ => ("Food with", "bad intentions")
+    };
+
+    var heroIcon = selectedSection switch
+    {
+        "beer" => "ufo",
+        "drink" => "record",
+        _ => "planet"
+    };
+
     var categoryTones = new[]
     {
         "var(--rs-yellow)",
@@ -58,17 +79,19 @@
 
 <div class="rs-menu-page@(selectedSection == "beer" ? " rr-menu-page--beer" : "")">
 
-    <header class="rs-chapter rs-chapter--ziggy rs-menu-hero" data-rs-stardust>
-        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+    <header class="rs-chapter rs-chapter--sky rs-menu-hero" data-rs-stardust>
+        <span class="rs-stars rs-menu-stars"></span>
 
-        <svg class="rs-bolt rs-menu-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.12"><use href="#rs-bolt-sane" /></svg>
+        <partial name="_Era" model="era" />
+
+        <svg class="rs-menu-icon rs-menu-icon--@heroIcon" viewBox="@(heroIcon == "ufo" ? "0 0 120 96" : "0 0 100 100")" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-@heroIcon" /></svg>
 
         <div class="rs-container rs-menu-hero-inner">
             <div>
-                <p class="rs-chapter-tag"><b>The menu</b> Food · Beer · Loud nights</p>
+                <p class="rs-kicker">Rebel Rebel menu · @era.Title &rsquo;@(era.Year[2..])</p>
 
-                <h1 class="rs-display rs-display--xl" aria-label="Rebel Rebel menu">
-                    Rebel <span class="rs-accent">Rebel</span>
+                <h1 class="rs-display rs-display--xl" aria-label="@titleTop @titleBottom">
+                    @titleTop <span class="rs-accent">@titleBottom</span>
                 </h1>
 
                 <p class="rs-lead">Come hungry. Leave louder.</p>
@@ -117,13 +140,17 @@
     else
     {
         <div class="rs-container rs-food">
-            <header class="rs-heading">
-                <div>
-                    <p class="rs-kicker rs-kicker--red">Currently serving</p>
-                    <h2 class="rs-display rs-display--lg">@sectionTitle</h2>
-                </div>
-
-                <p>@sectionMessage</p>
+            <header class="rs-clip rs-food-masthead">
+                <p class="rs-food-masthead-top">
+                    <span>Vol. 1 · Skopje</span>
+                    <span>Currently serving</span>
+                    <span>Price: one good night</span>
+                </p>
+                <h2>The Rebel Rebel Gazette</h2>
+                <p class="rs-food-masthead-sub">
+                    <strong>@sectionTitle</strong>
+                    <span>@sectionMessage</span>
+                </p>
             </header>
 
             <section class="rs-food-tools"
@@ -185,10 +212,10 @@
                              data-menu-category
                              style="--tone: @tone;">
                         <header class="rs-food-category-head">
-                            <span class="rs-food-category-num">@categoryNumber.ToString("00")</span>
-                            <h3>@group.Key</h3>
-                            <span class="rs-label">
-                                @group.Count() @(group.Count() == 1 ? "item" : "items")
+                            <span class="rs-food-category-num">Page @categoryNumber.ToString("00")</span>
+                            <h3><span>@group.Key</span></h3>
+                            <span class="rs-sticker rs-food-category-count" style="--size: 84px;">
+                                @group.Count()<small>@(group.Count() == 1 ? "item" : "items")</small>
                             </span>
                         </header>
 
@@ -229,7 +256,7 @@
                                         product.IsPromo ? "promo" : ""
                                     }.Where(tag => !string.IsNullOrWhiteSpace(tag)));
 
-                                <article class="rs-food-card @(!product.IsAvailable ? "is-unavailable" : "")"
+                                <article class="rs-clip rs-food-card @(!product.IsAvailable ? "is-unavailable" : "")"
                                          data-menu-item
                                          data-search="@searchableText"
                                          data-tags="@tagData">

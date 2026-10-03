@@ -3,14 +3,14 @@
 }
 
 <section class="rs-contact">
-    <header class="rs-chapter rs-chapter--flame rs-contact-hero" data-rs-stardust>
-        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+    <header class="rs-chapter rs-chapter--sky rs-contact-hero" data-rs-stardust>
+        <span class="rs-stars rs-contact-stars"></span>
 
-        <svg class="rs-bolt rs-contact-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.12"><use href="#rs-bolt-sane" /></svg>
+        <partial name="_Era" model='new EraModel("1976", "ticket", "Station to Station")' />
 
         <div class="rs-container rs-contact-hero-grid">
             <div>
-                <p class="rs-chapter-tag"><b>Contact</b> Skopje / Center / After dark</p>
+                <p class="rs-kicker">Next station · Skopje / Center / After dark</p>
 
                 <h1 class="rs-display rs-display--xl" aria-label="Find the Rebels.">
                     Find
@@ -23,23 +23,30 @@
                 </p>
             </div>
 
-            <aside class="rs-contact-hours rs-flood rs-flood--yellow" aria-label="Opening hours">
-                <span class="rs-label">Open every day</span>
-                <strong>12:00</strong>
-                <i>until</i>
-                <strong>01:00</strong>
-                <small>No dress code. No ceremony.</small>
+            <aside class="rs-board rs-contact-hours" aria-label="Opening hours: open every day from 12:00 until 01:00">
+                <p class="rs-board-label" aria-hidden="true">Departures · Rebel Rebel · every day</p>
+                <div class="rs-board-row" aria-hidden="true"><span class="rs-board-key">Open</span><span class="rs-flap">1</span><span class="rs-flap">2</span><span class="rs-flap">:</span><span class="rs-flap">0</span><span class="rs-flap">0</span></div>
+                <div class="rs-board-row" aria-hidden="true"><span class="rs-board-key">Closes</span><span class="rs-flap">0</span><span class="rs-flap">1</span><span class="rs-flap">:</span><span class="rs-flap">0</span><span class="rs-flap">0</span></div>
+                <p class="rs-board-note">No dress code. No ceremony.</p>
             </aside>
         </div>
     </header>
 
     <div class="rs-container">
         <section class="rs-contact-board" aria-label="Contact details">
-            <a class="rs-contact-place rs-flood rs-flood--orange"
+            <a class="rs-ticket rs-contact-place"
                href="https://www.google.com/maps/search/?api=1&amp;query=Naum+Naumovski+Borce+62+Skopje"
                target="_blank"
                rel="noopener noreferrer">
-                <span class="rs-label">Where to find us</span>
+                <span class="rs-contact-ticket-top">
+                    <span class="rs-label">Ticket · Station to Station</span>
+                    <span class="rs-label">Admit all</span>
+                </span>
+                <span class="rs-contact-ticket-route" aria-hidden="true">
+                    <span><small>From</small>Anywhere</span>
+                    <svg viewBox="0 0 100 100"><use href="#rs-bolt" /></svg>
+                    <span><small>To</small>Rebel Rebel</span>
+                </span>
                 <strong>
                     Naum Naumovski<br />
                     Borce 62, Skopje
@@ -47,7 +54,7 @@
                 <span class="rs-contact-place-link">Open directions <i aria-hidden="true">&nearr;</i></span>
             </a>
 
-            <div class="rs-card rs-contact-direct">
+            <div class="rs-console rs-contact-direct">
                 <span class="rs-kicker rs-kicker--red">Talk to us</span>
 
                 <a href="tel:+38970123456">
@@ -68,7 +75,7 @@
                 </a>
             </div>
 
-            <div class="rs-contact-walkin rs-flood rs-flood--bone">
+            <div class="rs-contact-walkin rs-flood rs-flood--yellow">
                 <span class="rs-label">Coming tonight?</span>
                 <strong>Walk in.<br />Or play it smart.</strong>
                 <a asp-controller="Reservations"
@@ -80,6 +87,7 @@
         </section>
 
         <section class="rs-section rs-contact-manifesto">
+            <svg class="rs-contact-star" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-star" /></svg>
             <h2 class="rs-display rs-display--lg" aria-label="Come thirsty. Leave louder.">
                 Come thirsty.<br />
                 <span class="rs-scrawl rs-display-scrawl">Leave louder.</span>

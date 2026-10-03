@@ -58,21 +58,41 @@
 
 <div class="rs-home">
 
-    <section class="rs-chapter rs-chapter--red rs-hero" data-rs-stardust>
-        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+    <section class="rs-chapter rs-chapter--sky rs-hero" data-rs-stardust>
+        <span class="rs-stars rs-hero-stars"></span>
 
-        <svg class="rs-bolt rs-hero-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-bolt-sane" /></svg>
+        <partial name="_Era" model='new EraModel("1974", "sun", "Rebel Rebel")' />
 
-        <span class="rs-chapter-num rs-hero-year" aria-hidden="true" data-rs-drift="0.2">2025</span>
+        <svg class="rs-hero-ufo" viewBox="0 0 120 96" aria-hidden="true" data-rs-drift="-0.18"><use href="#rs-ufo" /></svg>
+        <svg class="rs-sparkle" style="--s: 26px; top: 16%; left: 44%;" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-star" /></svg>
+        <svg class="rs-sparkle" style="--s: 14px; top: 62%; left: 6%;" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-star" /></svg>
+        <svg class="rs-sparkle" style="--s: 18px; top: 84%; left: 58%; --sparkle: var(--z-blue);" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-star" /></svg>
 
         <div class="rs-container rs-hero-grid">
-            <div class="rs-hero-copy">
-                <p class="rs-chapter-tag"><b>Chapter 01</b> Skopje / alternative pub / since May 2025</p>
+            <h1 class="rs-hero-title" aria-label="Meet the Rebels">
+                <span class="rs-hero-meet" aria-hidden="true">Meet the</span>
+                <span class="rs-hero-rebels" aria-hidden="true">Rebels</span>
+            </h1>
 
-                <h1 class="rs-hero-title" aria-label="Meet the Rebels">
-                    <span class="rs-hero-meet" aria-hidden="true">Meet the</span>
-                    <span class="rs-hero-rebels" aria-hidden="true">Rebels</span>
-                </h1>
+            <figure class="rs-hero-mural" data-rs-reveal>
+                <span class="rs-split rs-hero-mural-frame">
+                    <img src="~/images/rebel-bowie-mural.webp"
+                         alt="David Bowie portrait, the signature image of Rebel Rebel" />
+                    <img src="~/images/rebel-bowie-mural.webp" alt="" aria-hidden="true" />
+                </span>
+
+                <partial name="_RebelBadge" model='new RebelBadgeModel("rs-home-badge", "INSPIRED BY BOWIE // REBEL REBEL // SKOPJE // ", "rs-hero-badge")' />
+
+                <figcaption>
+                    <strong>Inspired by Bowie</strong>
+                    He is more than a picture on our wall. Bowie gave Rebel
+                    Rebel its name and its spirit: curious, bold and never
+                    too interested in fitting neatly into one box.
+                </figcaption>
+            </figure>
+
+            <div class="rs-hero-copy">
+                <p class="rs-hero-since">In May 2025, Rebel Rebel came along.</p>
 
                 <p class="rs-lead">
                     Rebel Rebel by Fat Kitchen is a small alternative pub in
@@ -100,24 +120,16 @@
                        class="rs-btn rs-btn--ghost">
                         See the menu
                     </a>
+
+                    <a asp-controller="Home"
+                       asp-action="Menu"
+                       asp-route-section="beer"
+                       class="rs-play">
+                        <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-play" /></svg>
+                        Play the beer tracklist
+                    </a>
                 </div>
             </div>
-
-            <figure class="rs-photo rs-hero-mural" data-rs-reveal>
-                <div class="rs-misprint rs-hero-mural-frame">
-                    <img src="~/images/rebel-bowie-mural.webp"
-                         alt="David Bowie portrait, the signature image of Rebel Rebel" />
-                </div>
-
-                <partial name="_RebelBadge" model='new RebelBadgeModel("rs-home-badge", "INSPIRED BY BOWIE // REBEL REBEL // SKOPJE // ", "rs-hero-badge")' />
-
-                <figcaption>
-                    <strong class="rs-scrawl">Inspired by Bowie</strong>
-                    He is more than a picture on our wall. Bowie gave Rebel
-                    Rebel its name and its spirit: curious, bold and never
-                    too interested in fitting neatly into one box.
-                </figcaption>
-            </figure>
         </div>
     </section>
 
@@ -127,47 +139,31 @@
                 @for (var copy = 0; copy < 2; copy++)
                 {
                     <div class="rs-marquee-group">
-                        <span class="rs-marquee-item">Cold beer</span>
-                        <span class="rs-marquee-item">Loud records</span>
-                        <span class="rs-marquee-item">Fat Kitchen</span>
-                        <span class="rs-marquee-item">Rare bottles</span>
-                        <span class="rs-marquee-item">Skopje after dark</span>
-                        <span class="rs-marquee-item">Rebel Rebel</span>
-                        <span class="rs-marquee-item">Wings</span>
-                        <span class="rs-marquee-item">No bad decisions</span>
-                    </div>
-                }
-            </div>
-        </div>
-
-        <div class="rs-marquee rs-marquee--char rs-marquee--reverse">
-            <div class="rs-marquee-track">
-                @for (var copy = 0; copy < 2; copy++)
-                {
-                    <div class="rs-marquee-group">
-                        <span class="rs-marquee-item">Heroes</span>
-                        <span class="rs-marquee-item">Just for one night</span>
-                        <span class="rs-marquee-item">Space oddity</span>
-                        <span class="rs-marquee-item">Stardust</span>
-                        <span class="rs-marquee-item">Rebel Rebel</span>
-                        <span class="rs-marquee-item">Starman</span>
-                        <span class="rs-marquee-item">Changes</span>
-                        <span class="rs-marquee-item">Let's dance</span>
+                        <span class="rs-marquee-item">Space Oddity<small>&rsquo;69</small></span>
+                        <span class="rs-marquee-item">Life on Mars?<small>&rsquo;71</small></span>
+                        <span class="rs-marquee-item">Ziggy Stardust<small>&rsquo;72</small></span>
+                        <span class="rs-marquee-item">Aladdin Sane<small>&rsquo;73</small></span>
+                        <span class="rs-marquee-item">Rebel Rebel<small>&rsquo;74</small></span>
+                        <span class="rs-marquee-item">Station to Station<small>&rsquo;76</small></span>
+                        <span class="rs-marquee-item">Heroes<small>&rsquo;77</small></span>
+                        <span class="rs-marquee-item">Ashes to Ashes<small>&rsquo;80</small></span>
+                        <span class="rs-marquee-item">Let's Dance<small>&rsquo;83</small></span>
+                        <span class="rs-marquee-item">Blackstar<small>&rsquo;16</small></span>
                     </div>
                 }
             </div>
         </div>
     </div>
 
-    <section class="rs-chapter rs-chapter--flame rs-cut rs-home-beer">
-        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+    <section class="rs-chapter rs-chapter--gold rs-torn rs-home-beer">
+        <partial name="_Era" model='new EraModel("1973", "bolt-sane", "Aladdin Sane")' />
 
-        <span class="rs-chapter-num rs-home-beer-num" aria-hidden="true" data-rs-drift="0.16">50+</span>
+        <svg class="rs-bolt rs-home-beer-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.12"><use href="#rs-bolt-sane" /></svg>
 
         <div class="rs-container">
             <div class="rs-home-beer-head">
                 <div data-rs-reveal>
-                    <p class="rs-chapter-tag"><b>Chapter 02</b> The fridge</p>
+                    <p class="rs-kicker">The fridge</p>
 
                     <h2 class="rs-display rs-display--lg" aria-label="More than 50 beers.">
                         More than <span class="rs-home-fifty">50</span> beers.
@@ -203,11 +199,11 @@
                    asp-route-section="beer"
                    class="rs-home-trio-item"
                    aria-label="Open the beer menu"
-                   data-rs-reveal
-                   data-rs-drift="-0.05">
-                    <span class="rs-misprint rs-home-trio-photo">
+                   data-rs-reveal>
+                    <span class="rs-split rs-home-trio-photo">
                         <img src="~/images/rebel-six-beers.webp"
                              alt="Six imported craft beer cans lined up at Rebel Rebel" />
+                        <img src="~/images/rebel-six-beers.webp" alt="" aria-hidden="true" />
                     </span>
                     <span class="rs-home-trio-caption">Six cans. Six directions.</span>
                 </a>
@@ -217,14 +213,13 @@
                    asp-route-section="beer"
                    class="rs-home-trio-item"
                    aria-label="Open the beer menu"
-                   data-rs-reveal
-                   data-rs-drift="0.06">
-                    <span class="rs-misprint rs-home-trio-photo">
+                   data-rs-reveal>
+                    <span class="rs-split rs-split--b rs-home-trio-photo">
                         <img src="~/images/rebel-beers-bowie-sculpture.webp"
                              alt="Four craft beer cans beside the handmade Bowie sculpture at Rebel Rebel" />
+                        <img src="~/images/rebel-beers-bowie-sculpture.webp" alt="" aria-hidden="true" />
                     </span>
-                    <span class="rs-home-trio-note rs-scrawl" aria-hidden="true">the Bowie head, hand made</span>
-                    <span class="rs-home-trio-caption">Open beer menu &rarr;</span>
+                    <span class="rs-home-trio-caption">The Bowie head, hand made &rarr;</span>
                 </a>
 
                 <a asp-controller="Home"
@@ -232,28 +227,26 @@
                    asp-route-section="beer"
                    class="rs-home-trio-item"
                    aria-label="Open the beer menu"
-                   data-rs-reveal
-                   data-rs-drift="-0.03">
-                    <span class="rs-misprint rs-home-trio-photo">
+                   data-rs-reveal>
+                    <span class="rs-split rs-home-trio-photo">
                         <img src="~/images/rebel-liquid-cocaine-beers.webp"
                              alt="Three Liquid Cocaine craft beer cans on the bar at Rebel Rebel" />
+                        <img src="~/images/rebel-liquid-cocaine-beers.webp" alt="" aria-hidden="true" />
                     </span>
                     <span class="rs-home-trio-caption">Liquid lineup.</span>
                 </a>
-
-                <svg class="rs-bolt rs-sticker rs-home-trio-sticker" viewBox="-8 -4 112 108" aria-hidden="true"><use href="#rs-bolt-sane" /></svg>
             </div>
         </div>
     </section>
 
-    <section class="rs-chapter rs-chapter--char rs-cut rs-home-gallery">
-        <span class="rs-chapter-num rs-home-gallery-num" aria-hidden="true" data-rs-drift="0.12">03</span>
+    <section class="rs-chapter rs-chapter--concrete rs-torn rs-home-gallery">
+        <partial name="_Era" model='new EraModel("1977", "wall", "Heroes")' />
 
         <div class="rs-container">
             <header class="rs-heading" data-rs-reveal>
                 <div>
-                    <p class="rs-chapter-tag"><b>Chapter 03</b> Inside the room</p>
-                    <h2 class="rs-display rs-display--lg">The <span class="rs-accent">evidence.</span></h2>
+                    <p class="rs-kicker">Inside the room</p>
+                    <h2 class="rs-display rs-display--lg">The evidence.</h2>
                 </div>
 
                 <p>
@@ -263,25 +256,24 @@
             </header>
 
             <div class="rs-home-gallery-grid">
-                <figure class="rs-home-gallery-item rs-home-gallery-one" data-rs-reveal>
+                <figure class="rs-bw rs-home-gallery-item rs-home-gallery-one" data-rs-reveal>
                     <img src="~/images/rebel-exterior-yugo-night.webp"
                          alt="Rebel Rebel in Skopje on a rainy night, with a light-blue Yugo parked outside" />
                     <figcaption>Wet streets. Warm lights. Skopje.</figcaption>
                 </figure>
 
-                <figure class="rs-home-gallery-item rs-home-gallery-two" data-rs-reveal>
+                <figure class="rs-bw rs-home-gallery-item rs-home-gallery-two" data-rs-reveal>
                     <img src="~/images/rebel-bowie-logo-room.webp"
                          alt="The Bowie mural and Rebel Rebel wall inside the Skopje pub" />
-                    <span class="rs-home-gallery-note rs-scrawl" aria-hidden="true">he's watching</span>
                 </figure>
 
-                <div class="rs-home-gallery-card rs-flood rs-flood--orange" data-rs-reveal>
-                    <svg class="rs-bolt" viewBox="-8 -4 112 108" aria-hidden="true"><use href="#rs-bolt-sane" /></svg>
-                    <span class="rs-label">Warning</span>
-                    <strong>Perfectly imperfect. Properly alive.</strong>
+                <div class="rs-home-gallery-card" data-rs-reveal>
+                    <span class="rs-label">Heroes</span>
+                    <strong>Just for one night.</strong>
+                    <span class="rs-home-gallery-card-note">Perfectly imperfect. Properly alive.</span>
                 </div>
 
-                <figure class="rs-home-gallery-item rs-home-gallery-three" data-rs-reveal>
+                <figure class="rs-bw rs-home-gallery-item rs-home-gallery-three" data-rs-reveal>
                     <img src="~/images/rebel-liquid-cocaine-mural-room.webp"
                          alt="The Liquid Cocaine beer mural and seating inside Rebel Rebel" />
                 </figure>
@@ -289,14 +281,16 @@
         </div>
     </section>
 
-    <section class="rs-chapter rs-chapter--jack rs-cut rs-home-menu">
-        <div class="rs-aura" aria-hidden="true"><span></span><span></span></div>
+    <section class="rs-chapter rs-chapter--sky rs-torn rs-home-menu">
+        <partial name="_Era" model='new EraModel("1971", "planet", "Life on Mars?")' />
+
+        <svg class="rs-home-mars" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-planet" /></svg>
 
         <div class="rs-container">
             <header class="rs-heading" data-rs-reveal>
                 <div>
-                    <p class="rs-chapter-tag"><b>Chapter 04</b> Fat Kitchen + the fridge</p>
-                    <h2 class="rs-display rs-display--lg">Pick your <span class="rs-accent">poison.</span></h2>
+                    <p class="rs-kicker">Fat Kitchen + the fridge</p>
+                    <h2 class="rs-home-headline">Pick your poison.</h2>
                 </div>
 
                 <p>
@@ -309,43 +303,47 @@
                 <a asp-controller="Home"
                    asp-action="Menu"
                    asp-route-section="food"
-                   class="rs-home-panel"
-                   style="--tone: var(--rs-flame);" data-rs-reveal>
+                   class="rs-clip rs-home-panel"
+                   data-rs-reveal>
+                    <span class="rs-home-panel-top">
+                        <span>Section A · Kitchen</span>
+                        <span>Skopje edition</span>
+                    </span>
+                    <strong class="rs-home-panel-head">Food with bad intentions.</strong>
                     <span class="rs-home-rotator" aria-hidden="true">
                         <img src="https://imageproxy.wolt.com/assets/6a02e61c938b4b58b5c33754?w=960" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/6a03117d3f815eb3031bd7ba?w=960" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/6a02e63b938b4b58b5c33760?w=960" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/6a02e5bc95fd7fae364fccb1?w=960" alt="" />
                     </span>
-
-                    <span class="rs-home-panel-num">01</span>
-
-                    <span class="rs-home-panel-body">
+                    <span class="rs-home-panel-foot">
                         <span class="rs-label">Wings · Burgers · Pizza · Finger food</span>
-                        <strong>Food with<br />bad intentions.</strong>
                         <span class="rs-home-panel-action">See the food <i aria-hidden="true">&rarr;</i></span>
                     </span>
+                    <span class="rs-sticker" style="--size: 92px;">Extra<br />hot!</span>
                 </a>
 
                 <a asp-controller="Home"
                    asp-action="Menu"
                    asp-route-section="beer"
-                   class="rs-home-panel"
-                   style="--tone: var(--rs-yellow);" data-rs-reveal>
+                   class="rs-clip rs-home-panel"
+                   data-rs-reveal>
+                    <span class="rs-home-panel-top">
+                        <span>Section B · The fridge</span>
+                        <span>50+ in stock</span>
+                    </span>
+                    <strong class="rs-home-panel-head">Beer beyond the usual.</strong>
                     <span class="rs-home-rotator" aria-hidden="true">
                         <img src="https://imageproxy.wolt.com/assets/699da1e53eb3341f036f3ee9?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf30?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf40?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                         <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf39?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                     </span>
-
-                    <span class="rs-home-panel-num">02</span>
-
-                    <span class="rs-home-panel-body">
+                    <span class="rs-home-panel-foot">
                         <span class="rs-label">Bottles · Draft · Rare finds</span>
-                        <strong>Beer beyond<br />the usual.</strong>
                         <span class="rs-home-panel-action">Open the beer list <i aria-hidden="true">&rarr;</i></span>
                     </span>
+                    <span class="rs-sticker" style="--size: 92px;">Ice<br />cold</span>
                 </a>
 
                 @if (showDrinks)
@@ -353,13 +351,15 @@
                     <a asp-controller="Home"
                        asp-action="Menu"
                        asp-route-section="drink"
-                       class="rs-home-panel"
-                       style="--tone: var(--rs-duke);" data-rs-reveal>
-                        <span class="rs-home-panel-num">03</span>
-
-                        <span class="rs-home-panel-body">
+                       class="rs-clip rs-home-panel"
+                       data-rs-reveal>
+                        <span class="rs-home-panel-top">
+                            <span>Section C · The bar</span>
+                            <span>Late edition</span>
+                        </span>
+                        <strong class="rs-home-panel-head">Liquid courage.</strong>
+                        <span class="rs-home-panel-foot">
                             <span class="rs-label">Spirits · Cocktails · Shots</span>
-                            <strong>Liquid<br />courage.</strong>
                             <span class="rs-home-panel-action">View drinks <i aria-hidden="true">&rarr;</i></span>
                         </span>
                     </a>
@@ -368,29 +368,44 @@
         </div>
     </section>
 
-    <section class="rs-chapter rs-chapter--teal rs-cut rs-home-cta" data-rs-stardust>
-        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+    <section class="rs-chapter rs-chapter--space rs-torn rs-home-cta" data-rs-stardust>
+        <span class="rs-stars"></span>
 
-        <svg class="rs-bolt rs-home-cta-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.1"><use href="#rs-bolt-sane" /></svg>
+        <partial name="_Era" model='new EraModel("1969", "rocket", "Space Oddity")' />
 
-        <div class="rs-container rs-home-cta-inner">
-            <div data-rs-reveal>
-                <p class="rs-chapter-tag"><b>Chapter 05</b> Tonight</p>
-                <h2 class="rs-display rs-display--xl">Your table<br /><span class="rs-accent">is waiting.</span></h2>
-            </div>
+        <svg class="rs-home-moon" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-moon" /></svg>
+        <svg class="rs-home-rocket" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.25"><use href="#rs-rocket" /></svg>
 
-            <div class="rs-home-cta-actions">
-                <a asp-controller="Reservations"
-                   asp-action="Create"
-                   class="rs-btn rs-btn--primary">
-                    Book a table <i aria-hidden="true">&rarr;</i>
-                </a>
+        <div class="rs-container">
+            <div class="rs-console rs-home-console" data-rs-reveal>
+                <div class="rs-console-bar">
+                    <span>Ground Control · Rebel Rebel</span>
+                    <span class="rs-console-lights">
+                        <span><i class="rs-led"></i>Bar open</span>
+                        <span><i class="rs-led rs-led--gold"></i>Kitchen on</span>
+                        <span><i class="rs-led"></i>Tables go</span>
+                    </span>
+                </div>
 
-                <a asp-controller="Reservations"
-                   asp-action="Lookup"
-                   class="rs-btn rs-btn--ghost">
-                    Find my booking
-                </a>
+                <div class="rs-home-console-body">
+                    <h2 class="rs-display rs-display--xl">Your table<br /><span class="rs-accent">is waiting.</span></h2>
+
+                    <div class="rs-home-cta-actions">
+                        <p class="rs-home-console-line">T-minus: whenever you are ready.</p>
+
+                        <a asp-controller="Reservations"
+                           asp-action="Create"
+                           class="rs-btn rs-btn--primary">
+                            Book a table <i aria-hidden="true">&rarr;</i>
+                        </a>
+
+                        <a asp-controller="Reservations"
+                           asp-action="Lookup"
+                           class="rs-btn rs-btn--ghost">
+                            Find my booking
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

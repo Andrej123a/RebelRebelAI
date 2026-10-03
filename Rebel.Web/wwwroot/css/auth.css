@@ -38,12 +38,7 @@ body.rr-auth::before {
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    opacity: 0.28;
-    background:
-        repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255, 255, 255, 0.035) 4px),
-        url("../images/rebel-paper-texture.jpg") center / 680px 680px repeat;
-    filter: contrast(1.2);
-    mix-blend-mode: screen;
+    display: none;
 }
 
 body.rr-auth::after {
@@ -53,7 +48,8 @@ body.rr-auth::after {
     bottom: -0.22em;
     z-index: -1;
     color: rgba(242, 242, 242, 0.025);
-    font-family: "Anton", sans-serif;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
     font-size: 22rem;
     line-height: 1;
     pointer-events: none;
@@ -103,7 +99,8 @@ a {
 }
 
 .rr-auth-brand strong {
-    font-family: "Anton", sans-serif;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
     font-size: 1.75rem;
     line-height: 0.95;
     letter-spacing: 1px;
@@ -168,9 +165,9 @@ a {
 
 .rr-login-copy h1 {
     margin: 14px 0 20px;
-    font-family: "Anton", sans-serif;
+    font-family: "Big Shoulders Display", sans-serif;
     font-size: 7.2rem;
-    font-weight: 400;
+    font-weight: 900;
     line-height: 0.78;
     letter-spacing: 0;
     text-transform: uppercase;
@@ -264,7 +261,8 @@ a {
 
 .rr-login-form h2 {
     margin: 7px 0 0;
-    font-family: "Anton", sans-serif;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
     font-size: 3.8rem;
     line-height: 1;
     letter-spacing: 1px;
@@ -556,112 +554,108 @@ a {
 }
 
 /* =========================================================
-   HEROES: the staff door is Bowie red, like the public
-   site's #open menu, with the form as a charcoal block
-   printed slightly out of register.
+   THE THIN WHITE DUKE '76: the staff door is black and
+   white, with one red accent. No texture.
    ========================================================= */
 
 body.rr-auth {
-    background:
-        radial-gradient(ellipse 42% 36% at 82% 30%, rgba(255, 212, 61, 0.28), transparent 70%),
-        radial-gradient(ellipse 40% 40% at 8% 90%, rgba(122, 16, 2, 0.8), transparent 70%),
-        #c51f05;
+    background: #0e0807;
 }
 
-    body.rr-auth::before {
-        opacity: 0.12;
-    }
-
     body.rr-auth::after {
-        color: rgba(255, 212, 61, 0.55);
-        font-family: "Hanken Grotesk", sans-serif;
-        font-weight: 100;
-        letter-spacing: -0.06em;
+        content: "1976";
+        color: rgba(255, 241, 220, 0.05);
+        font-family: "Big Shoulders Display", sans-serif;
+        font-weight: 900;
     }
 
 .rr-auth-header,
 .rr-auth-footer {
-    border-color: rgba(242, 242, 242, 0.32);
-}
-
-.rr-auth-logo {
-    box-shadow: -5px 5px 0 #2abdeb, 5px -4px 0 #ffd43d;
-    transform: rotate(-5deg);
+    border-color: rgba(255, 241, 220, 0.18);
 }
 
 .rr-auth-brand small,
 .rr-auth-door,
 .rr-auth-footer,
-.rr-auth-footer a {
-    color: #f2f2f2;
+.rr-auth-footer a,
+.rr-login-eyebrow,
+.rr-login-form header span,
+.rr-login-field label,
+.rr-login-stamp {
+    color: #fff1dc;
+    font-family: "Space Mono", monospace;
 }
 
 .rr-auth-door::before {
-    background: #ffd43d;
+    background: #fff1dc;
 }
 
 .rr-auth-footer a {
-    text-decoration-color: #ffd43d;
+    text-decoration-color: #e2401a;
 }
 
-.rr-login-eyebrow {
-    color: #f2f2f2;
+.rr-login-copy h1 {
+    color: #fff1dc;
 }
 
-.rr-login-copy h1 span {
-    display: inline-block;
-    color: #ffd43d;
-    text-shadow: -0.04em 0.035em 0 #2abdeb, 0.04em -0.02em 0 #202020;
-    transform: rotate(-4deg);
-}
+    /* The one red thing on the page. */
+    .rr-login-copy h1 span {
+        color: #e2401a;
+        text-shadow: none;
+    }
 
 .rr-login-copy p {
-    color: #f2f2f2;
+    color: rgba(255, 241, 220, 0.8);
 }
 
-.rr-login-signal span:first-child {
-    background: #202020;
-}
-
+.rr-login-signal span,
+.rr-login-signal span:first-child,
+.rr-login-signal span:nth-child(2),
 .rr-login-signal span:last-child {
-    background: #2abdeb;
+    background: #fff1dc;
 }
 
 .rr-login-form-wrap {
-    background: #202020;
-    box-shadow: -16px 16px 0 #2abdeb, 16px -14px 0 #ffd43d;
-    transform: rotate(1deg);
+    border: 1.5px solid rgba(255, 241, 220, 0.24);
+    background: #150b09;
+    box-shadow: none;
 }
 
     .rr-login-form-wrap::before {
-        background: #ffd43d;
+        background: #fff1dc;
     }
 
-.rr-login-field input:focus {
-    border-color: #ffd43d;
-    box-shadow: -5px 5px 0 #2abdeb;
+.rr-login-stamp {
+    border-color: #fff1dc;
 }
 
+.rr-login-field input {
+    border-color: rgba(255, 241, 220, 0.24);
+    background: #0e0807;
+}
+
+    .rr-login-field input:focus {
+        border-color: #fff1dc;
+        box-shadow: 0 0 0 3px rgba(154, 211, 240, 0.35);
+    }
+
 .rr-login-check input:checked + span::after {
-    background: #ffd43d;
+    background: #fff1dc;
 }
 
 .rr-login-submit {
     border-radius: 999px;
-    background: #ffd43d;
-    color: #202020;
-    box-shadow: -5px 5px 0 #2abdeb, 5px -4px 0 #ff492d;
-    font-weight: 800;
+    background: #fff1dc;
+    color: #0e0807;
+    box-shadow: none;
+    font-family: "Big Shoulders Display", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
 }
 
     .rr-login-submit:hover {
-        background: #ffd43d;
-        box-shadow: -8px 8px 0 #2abdeb, 8px -6px 0 #ff492d;
-        transform: rotate(-2deg) scale(1.02);
+        background: #fff1dc;
+        box-shadow: none;
+        transform: rotate(-2deg);
     }
-
-@media (max-width: 760px) {
-    .rr-login-form-wrap {
-        transform: none;
-    }
-}

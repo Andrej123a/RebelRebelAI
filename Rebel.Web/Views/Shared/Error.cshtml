@@ -5,15 +5,21 @@
     ViewData["MetaDescription"] = "Rebel Rebel by Fat Kitchen could not load this page. Return home, view the menu, or book a table.";
 }
 
-<section class="rs-chapter rs-chapter--void rs-error" data-rs-stardust>
+<section class="rs-chapter rs-chapter--space rs-error" data-rs-stardust>
+    <span class="rs-stars"></span>
+
+    <partial name="_Era" model='new EraModel("1969", "helmet", "Major Tom")' />
+
+    <svg class="rs-error-planet" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-planet" /></svg>
+
     <div class="rs-container rs-error-inner">
-        <div class="rs-error-burst" aria-hidden="true">
-            <svg viewBox="0 0 200 200"><use href="#rs-burst" /></svg>
-            <svg class="rs-bolt rs-error-bolt" viewBox="-8 -4 112 108"><use href="#rs-bolt-sane" /></svg>
+        <div class="rs-error-tom" aria-hidden="true">
+            <svg viewBox="0 0 100 100"><use href="#rs-helmet" /></svg>
+            <span class="rs-error-tether"></span>
         </div>
 
         <div>
-            <p class="rs-kicker rs-kicker--red">Signal lost</p>
+            <p class="rs-kicker">Ground Control · Signal lost</p>
 
             <h1 class="rs-display rs-display--lg">Something went sideways.</h1>
 

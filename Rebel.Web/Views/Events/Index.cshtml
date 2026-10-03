@@ -13,10 +13,10 @@
 
     var tones = new[]
     {
-        "var(--rs-yellow)",
-        "var(--rs-flame)",
-        "var(--rs-sky)",
-        "var(--rs-bone)"
+        "var(--z-gold)",
+        "var(--z-cream)",
+        "var(--z-blue)",
+        "var(--z-yellow)"
     };
 }
 
@@ -51,21 +51,16 @@
 
 <section class="rs-events">
 
-    <header class="rs-chapter rs-chapter--teal rs-events-hero" data-rs-stardust>
-        <div class="rs-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+    <header class="rs-chapter rs-chapter--sky rs-events-hero" data-rs-stardust>
+        <span class="rs-stars rs-events-stars"></span>
 
-        @if (nextEvent != null)
-        {
-            <span class="rs-chapter-num rs-events-num" aria-hidden="true" data-rs-drift="0.16">@nextEvent.Date.ToString("dd")</span>
-        }
-        else
-        {
-            <svg class="rs-bolt rs-events-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.12"><use href="#rs-bolt-sane" /></svg>
-        }
+        <partial name="_Era" model='new EraModel("1980", "tape", "Ashes to Ashes")' />
+
+        <svg class="rs-events-tape" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-tape" /></svg>
 
         <div class="rs-container rs-events-hero-grid @(nextEvent == null ? "has-no-feature" : string.Empty)">
             <div>
-                <p class="rs-chapter-tag"><b>Events</b> Rebel Rebel nights</p>
+                <p class="rs-kicker">Rebel Rebel nights · Recorded live</p>
 
                 <h1 class="rs-display rs-display--xl" aria-label="The night starts here.">
                     The <span class="rs-accent">night</span>
@@ -103,8 +98,11 @@
                    asp-action="Details"
                    asp-route-id="@nextEvent.Id"
                    class="rs-events-feature"
-                   aria-label="View next event: @nextEvent.Title">
-                    <span class="rs-events-feature-poster">
+                   aria-label="View next event: @nextEvent.Title"
+                   data-rs-vhs>
+                    <span class="rs-vhs rs-events-feature-poster">
+                        <span class="rs-vhs-osd rs-vhs-osd--play">PLAY &#9654;</span>
+                        <span class="rs-vhs-osd rs-vhs-osd--time">SP @(nextEvent.StartTime.HasValue ? FormatTime(nextEvent.StartTime.Value) : "--:--"):00</span>
                         @if (!string.IsNullOrWhiteSpace(nextEvent.ImageUrl))
                         {
                             <img src="@Url.Content(nextEvent.ImageUrl)" alt="" />
@@ -184,7 +182,7 @@
                     {
                         var e = events[i];
 
-                        <li class="rs-events-row" style="--tone: @tones[i % tones.Length];" data-rs-reveal>
+                        <li class="rs-events-row" style="--tone: @tones[i % tones.Length];" data-rs-reveal data-rs-vhs>
                             <div class="rs-events-date">
                                 <strong>@e.Date.ToString("dd")</strong>
                                 <span>@e.Date.ToString("MMM", CultureInfo.InvariantCulture)</span>
@@ -194,9 +192,10 @@
                             <a asp-controller="Events"
                                asp-action="Details"
                                asp-route-id="@e.Id"
-                               class="rs-events-poster"
+                               class="rs-vhs rs-events-poster"
                                tabindex="-1"
                                aria-hidden="true">
+                                <span class="rs-vhs-osd rs-vhs-osd--play">&#9654;</span>
                                 @if (!string.IsNullOrWhiteSpace(e.ImageUrl))
                                 {
                                     <img src="@e.ImageUrl" alt="" loading="lazy" draggable="false" />
@@ -275,8 +274,8 @@
         </div>
     </section>
 
-    <section class="rs-chapter rs-chapter--jack rs-cut rs-events-cta">
-        <svg class="rs-bolt rs-events-cta-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.1"><use href="#rs-bolt-sane" /></svg>
+    <section class="rs-chapter rs-chapter--gold rs-torn rs-events-cta">
+        <svg class="rs-events-cta-tape" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.1"><use href="#rs-tape" /></svg>
         <div class="rs-container rs-events-cta-inner">
             <div>
                 <span class="rs-label">Walk-ins are brave.</span>
