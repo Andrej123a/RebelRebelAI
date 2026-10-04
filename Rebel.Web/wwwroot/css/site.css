@@ -2399,9 +2399,11 @@ html.rs-open-lock body {
     opacity: 0.45;
 }
 
+/* The headline at the left, the next night's flyer at the right, and Pierrot between
+   them, in front, at the flyer's edge. */
 .rs-events-hero-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+    grid-template-columns: minmax(0, 1fr) min(420px, 30vw);
     align-items: center;
     gap: clamp(48px, 7vw, 110px);
 }
@@ -2646,9 +2648,10 @@ html.rs-open-lock body {
         grid-template-columns: minmax(0, 1fr);
     }
 
+    /* The flyer at the left, so Pierrot can stand at the right. */
     .rs-events-feature {
         width: min(100% - 28px, 440px);
-        justify-self: center;
+        justify-self: start;
     }
 }
 
@@ -2760,217 +2763,488 @@ html.rs-open-lock body {
     opacity: 0.45;
 }
 
-.rs-reserve-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-    gap: clamp(36px, 4vw, 64px);
-    align-items: stretch;
-}
-
-.rs-reserve-art {
+/* Booking is a talk with Major Tom, who climbs out of his tin can far above the world
+   (Art/Ships) while he asks you one thing at a time (rebel-booking.js). */
+.rs-flight {
     position: relative;
-    min-height: 560px;
+    overflow: clip;
+    min-height: calc(100vh - 80px);
+    padding-block: clamp(32px, 5vw, 72px) clamp(150px, 16vw, 240px);
 }
 
-.rs-reserve-art-photo {
-    position: absolute;
-    inset: 0;
+.rs-flight-earth {
+    top: calc(100% - clamp(120px, 12vw, 190px));
 }
 
-    .rs-reserve-art-photo img {
-        filter: saturate(0.85) contrast(1.06);
-    }
-
-.rs-reserve-art::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(180deg, transparent 42%, rgba(14, 8, 7, 0.9));
-    pointer-events: none;
-}
-
-.rs-reserve-art-copy {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 2;
+.rs-flight-grid {
     display: grid;
-    justify-items: start;
-    gap: 12px;
-    padding: clamp(24px, 3vw, 40px);
-    color: var(--z-cream);
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: start;
+    gap: clamp(32px, 5vw, 80px);
 }
 
-    .rs-reserve-art-copy .rs-label {
-        color: var(--z-yellow);
-    }
-
-    .rs-reserve-art-copy strong {
-        color: var(--z-gold);
-        font-family: var(--rs-display);
-        font-size: clamp(46px, 4.6vw, 76px);
-        font-weight: 900;
-        line-height: 0.92;
-        text-transform: none;
-    }
-
-.rs-reserve-logo {
-    width: 76px;
-    height: 76px;
-    object-fit: cover;
-    transform: rotate(-6deg);
+.rs-flight-scene {
+    position: sticky;
+    top: 32px;
 }
 
-.rs-reserve-form {
+/* The capsule drifts, tipped over a little; he leans out of the doorway. */
+.rs-flight-craft {
+    position: relative;
+    width: min(100%, 460px);
+    aspect-ratio: 400 / 520;
+    margin-inline: auto;
+    rotate: -6deg;
+}
+
+    .rs-flight-craft::after {
+        content: "";
+        position: absolute;
+        inset: 10% -10% 4%;
+        z-index: -1;
+        background: radial-gradient(closest-side, rgba(154, 211, 240, 0.16), transparent);
+    }
+
+.rs-flight-can {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* The doorway: what is below its bottom edge is inside the capsule. */
+.rs-flight-hatch {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 75.58%;
+    overflow: hidden;
+}
+
+.rs-flight-tom {
+    position: absolute;
+    bottom: -4.4%;
+    left: 26.25%;
+    width: 47.5%;
+    height: auto;
+    transform-origin: 50% 100%;
+}
+
+/* ---------- the talk ---------- */
+
+.rs-flight-talk {
     display: grid;
     align-content: start;
-}
-
-.rs-reserve-body {
-    display: grid;
     gap: 22px;
-    padding: clamp(24px, 3.4vw, 48px);
+    padding: clamp(22px, 3vw, 40px);
+    background: rgba(13, 6, 5, 0.86);
 }
 
-    .rs-reserve-body header {
-        margin-bottom: 4px;
-    }
+.rs-flight-head {
+    display: grid;
+    gap: 14px;
+}
 
-    .rs-reserve-body h1 {
+    .rs-flight-head h1 {
+        margin: 0;
         color: var(--z-gold);
     }
 
-        .rs-reserve-body h1 .rs-accent {
+        .rs-flight-head h1 .rs-accent {
             color: var(--z-cream);
         }
 
-.rs-reserve-intro {
-    max-width: 52ch;
-    margin: 16px 0 0;
-    color: rgba(255, 241, 220, 0.82);
-}
-
-/* Numbered steps on the field labels, like a checklist on the console. */
-.rs-field > span b {
-    display: inline-grid;
-    place-items: center;
-    min-width: 26px;
-    margin-right: 6px;
-    padding: 2px 4px;
-    border: 1.5px solid currentColor;
-    font-weight: 700;
-}
-
-.rs-reserve-event {
-    display: grid;
-    gap: 4px;
-    padding: 16px 20px;
-    background: var(--z-gold);
-    color: var(--z-ink);
-}
-
-    .rs-reserve-event strong {
-        font-family: var(--rs-display);
-        font-size: 28px;
-        font-weight: 900;
-        line-height: 1;
-        text-transform: none;
-    }
-
-.rs-reserve-row {
-    display: grid;
-    gap: 18px;
-}
-
-.rs-reserve-row--two {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.rs-reserve-row--three {
-    grid-template-columns: minmax(90px, 0.5fr) minmax(0, 1.2fr) minmax(0, 1fr);
-}
-
-.rs-reserve-hours,
-.rs-reserve-table {
+.rs-flight-channel {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: -6px 0 0;
-    color: rgba(255, 241, 220, 0.8);
+    margin: 0;
+    color: var(--z-blue);
     font-family: var(--rs-mono);
     font-size: 11px;
-    letter-spacing: 0.1em;
+    font-weight: 700;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
 }
 
-.rs-reserve-table {
+/* For screen readers: his newest question. */
+.rs-talk-said {
+    position: absolute;
+    width: 1px;
+    height: 1px;
     margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }
 
-.rs-reserve-note {
-    border-block: 1.5px solid rgba(154, 211, 240, 0.22);
+.rs-talk {
+    display: grid;
+    gap: 22px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
-    .rs-reserve-note summary {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 16px 0;
+.rs-talk-step {
+    display: grid;
+    gap: 12px;
+}
+
+/* What he says: a cream bubble, his face beside it. */
+.rs-talk-tom {
+    position: relative;
+    justify-self: start;
+    max-width: 540px;
+    margin: 0 0 0 60px;
+    padding: 12px 18px 14px;
+    border-radius: 20px 20px 20px 6px;
+    background: var(--z-cream);
+    box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.42);
+    color: var(--z-ink);
+    font-family: var(--rs-display);
+    font-size: clamp(18px, 1.5vw, 21px);
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.3;
+    text-transform: none;
+    letter-spacing: 0;
+    rotate: -0.6deg;
+}
+
+    .rs-talk-tom::before {
+        content: "";
+        position: absolute;
+        bottom: 6px;
+        left: -11px;
+        width: 14px;
+        height: 16px;
+        background: inherit;
+        clip-path: polygon(100% 0, 0 100%, 100% 70%);
+    }
+
+    .rs-talk-tom::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: -60px;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        background: url("../art/faces/tom.webp") 50% 40% / 120% no-repeat, radial-gradient(circle at 34% 28%, #d9f0ff, #9ad3f0 46%, #2c4f69);
+        box-shadow: 0 0 0 2px var(--z-ink), 0 6px 14px rgba(0, 0, 0, 0.45);
+    }
+
+/* When the server sent the booking back, he says what the trouble was. */
+.rs-talk-trouble {
+    margin-top: -4px;
+    background: var(--z-yellow);
+}
+
+    .rs-talk-trouble::after {
+        display: none;
+    }
+
+.is-talking .rs-talk-step:not(.is-current) .rs-talk-trouble {
+    display: none;
+}
+
+.rs-talk-big {
+    display: none;
+}
+
+.rs-talk-step.is-big .rs-talk-usual {
+    display: none;
+}
+
+.rs-talk-step.is-big .rs-talk-big {
+    display: inline;
+}
+
+.rs-talk-step.is-big .rs-talk-skip {
+    display: none;
+}
+
+.rs-talk-dots {
+    display: none;
+}
+
+/* What you answer, on your side of the log. */
+.rs-talk-answer {
+    display: grid;
+    justify-items: end;
+    gap: 10px;
+    padding-left: 60px;
+}
+
+.rs-talk-picks,
+.rs-talk-send,
+.rs-talk-skip,
+.rs-talk-another {
+    display: none;
+}
+
+.rs-talk-picks {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.rs-talk .rs-chip {
+    --face: rgba(255, 241, 220, 0.1);
+    --face-ink: var(--z-cream);
+    padding: 11px 15px 10px;
+    font-size: 12.5px;
+}
+
+    .rs-talk .rs-chip:hover,
+    .rs-talk .rs-chip:focus-visible {
+        --face: rgba(255, 241, 220, 0.2);
+    }
+
+    .rs-talk .rs-chip.is-picked {
+        --face: var(--z-gold);
+        --face-ink: var(--z-ink);
+    }
+
+    .rs-talk .rs-chip:disabled {
+        cursor: not-allowed;
+        opacity: 0.28;
+    }
+
+.rs-talk-other {
+    display: grid;
+    justify-items: end;
+    gap: 10px;
+    width: min(100%, 340px);
+}
+
+    .rs-talk-other .rs-field {
+        width: 100%;
+    }
+
+.rs-talk-type {
+    display: grid;
+    justify-items: end;
+    gap: 10px;
+    width: min(100%, 460px);
+}
+
+    .rs-talk-type input,
+    .rs-talk-type textarea {
+        width: 100%;
+        min-height: 54px;
+        padding: 12px 16px;
+        border: 1.5px solid rgba(154, 211, 240, 0.35);
+        border-radius: 0;
+        background: #0d0605;
         color: var(--z-cream);
-        font-family: var(--rs-mono);
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        cursor: pointer;
-        list-style: none;
+        font-family: var(--rs-body);
+        font-size: 18px;
+        font-weight: 500;
     }
 
-        .rs-reserve-note summary::-webkit-details-marker {
-            display: none;
+    .rs-talk-type textarea {
+        min-height: 96px;
+        resize: vertical;
+    }
+
+        .rs-talk-type input:focus,
+        .rs-talk-type textarea:focus {
+            border-color: var(--z-gold);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(154, 211, 240, 0.35);
         }
 
-        .rs-reserve-note summary::before {
-            content: "+";
-            display: grid;
-            place-items: center;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            background: var(--z-gold);
-            color: var(--z-ink);
-            font-size: 17px;
-            transition: transform 0.3s var(--rs-ease);
-        }
-
-    .rs-reserve-note[open] summary::before {
-        transform: rotate(45deg);
-    }
-
-    .rs-reserve-note summary span {
-        color: rgba(255, 241, 220, 0.62);
-        font-weight: 400;
-    }
-
-    .rs-reserve-note .rs-field {
-        padding-bottom: 18px;
-    }
-
-.rs-reserve-submit {
+.rs-talk-replies {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 16px 24px;
+    justify-content: flex-end;
+    gap: 8px;
 }
 
-    .rs-reserve-submit p {
-        max-width: 32ch;
-        margin: 0;
-        color: rgba(255, 241, 220, 0.75);
-        font-size: 14px;
+.rs-talk-error {
+    color: var(--z-yellow);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* Your answer, read back in the log: tap it to change it. */
+.rs-talk-you {
+    display: none;
+    justify-self: end;
+    align-items: baseline;
+    gap: 12px;
+    max-width: min(100%, 460px);
+    padding: 10px 16px 11px;
+    border: 0;
+    border-radius: 20px 20px 6px 20px;
+    background: var(--z-gold);
+    box-shadow: -4px 5px 0 rgba(0, 0, 0, 0.42);
+    color: var(--z-ink);
+    font-family: var(--rs-body);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    rotate: 0.6deg;
+}
+
+    .rs-talk-you small {
+        flex: none;
+        font-family: var(--rs-mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        opacity: 0.6;
+        text-transform: uppercase;
     }
+
+    .rs-talk-you:hover small,
+    .rs-talk-you:focus-visible small {
+        opacity: 1;
+        text-decoration: underline;
+    }
+
+/* Your last answer sends it up. */
+.rs-talk .rs-talk-launch,
+.rs-talk .rs-talk-launch:hover,
+.rs-talk .rs-talk-launch:focus-visible {
+    --face: var(--z-gold);
+    --face-ink: var(--z-ink);
+    padding: 15px 22px 14px;
+    font-size: 14px;
+}
+
+.rs-talk-small {
+    max-width: 44ch;
+    margin: 0;
+    color: rgba(255, 241, 220, 0.72);
+    font-size: 13px;
+    text-align: right;
+}
+
+/* ---------- with the script: one question at a time ---------- */
+
+.is-talking .rs-talk-step:not(.is-current):not(.is-answered) {
+    display: none;
+}
+
+.is-talking .rs-talk-step.is-answered:not(.is-current) .rs-talk-answer {
+    display: none;
+}
+
+.is-talking .rs-talk-step.is-answered:not(.is-current) .rs-talk-you {
+    display: inline-flex;
+}
+
+.is-talking .rs-talk-picks {
+    display: flex;
+}
+
+.is-talking .rs-talk-picks--times {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+    width: 100%;
+}
+
+.is-talking :is(.rs-talk-send, .rs-talk-skip, .rs-talk-another) {
+    display: inline-flex;
+}
+
+.is-talking .rs-talk-other {
+    display: none;
+}
+
+.is-talking .is-other .rs-talk-other {
+    display: grid;
+}
+
+/* The answered questions step back a little, so the one he is asking stands out. */
+.is-talking .rs-talk-step.is-answered:not(.is-current) .rs-talk-tom {
+    opacity: 0.62;
+}
+
+/* He takes a moment before he says it. */
+.is-talking .is-typing .rs-talk-words,
+.is-talking .is-typing .rs-talk-answer {
+    display: none;
+}
+
+.is-talking .is-typing .rs-talk-dots {
+    display: inline-flex;
+    gap: 5px;
+    padding: 6px 2px;
+}
+
+    .rs-talk-dots i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+        opacity: 0.35;
+        animation: rs-talk-dot 0.9s ease-in-out infinite;
+    }
+
+        .rs-talk-dots i:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .rs-talk-dots i:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+@keyframes rs-talk-dot {
+    50% {
+        opacity: 1;
+        translate: 0 -3px;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    /* The capsule drifts; he climbs out of the doorway, then sways as he floats. */
+    .rs-flight-craft {
+        animation: rs-flight-drift 14s ease-in-out infinite;
+    }
+
+    .rs-flight-tom {
+        animation:
+            rs-flight-climb 1.8s var(--rs-ease) 0.5s both,
+            rs-flight-sway 6s ease-in-out 2.3s infinite;
+    }
+
+    .is-talking .rs-talk-step.is-current .rs-talk-tom {
+        animation: rs-says-pop 0.4s var(--rs-ease);
+    }
+}
+
+@keyframes rs-flight-drift {
+    0%, 100% {
+        rotate: -6deg;
+        translate: 0 0;
+    }
+
+    50% {
+        rotate: -3.5deg;
+        translate: 0 -14px;
+    }
+}
+
+@keyframes rs-flight-climb {
+    from {
+        translate: 0 62%;
+    }
+}
+
+@keyframes rs-flight-sway {
+    0%, 100% {
+        rotate: -2deg;
+    }
+
+    50% {
+        rotate: 2.5deg;
+    }
+}
 
 /* ---------- lookup + confirmation ---------- */
 
@@ -3265,16 +3539,19 @@ html.rs-open-lock body {
 }
 
 @media (max-width: 991.98px) {
-    .rs-reserve-grid,
+    .rs-flight-grid,
     .rs-confirm-grid,
     .rs-booking-search {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .rs-reserve-art {
-        min-height: 340px;
-        width: calc(100% - 24px);
-        margin-inline: auto;
+    .rs-flight-scene {
+        position: relative;
+        top: 0;
+    }
+
+    .rs-flight-craft {
+        width: min(62vw, 300px);
     }
 
     .rs-booking-search .rs-ego {
@@ -3283,8 +3560,20 @@ html.rs-open-lock body {
 }
 
 @media (max-width: 639.98px) {
-    .rs-reserve-row--two,
-    .rs-reserve-row--three,
+    .rs-talk-tom {
+        margin-left: 48px;
+    }
+
+        .rs-talk-tom::after {
+            left: -48px;
+            width: 38px;
+            height: 38px;
+        }
+
+    .rs-talk-answer {
+        padding-left: 0;
+    }
+
     .rs-confirm-next ol {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -3314,9 +3603,27 @@ html.rs-open-lock body {
 
 .rs-contact-hero-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
     gap: 40px;
+}
+
+    /* "Find the" over "Rebels.", leaving the right of the hero to the Duke. */
+    .rs-contact-hero-grid h1 {
+        max-width: min(100%, 7.6ch);
+    }
+
+/* What the Duke says, and the departures board beside it, clear of him on the right. */
+.rs-contact-hero-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 32px 40px;
+}
+
+@media (max-width: 1299.98px) {
+    .rs-contact-hero-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }
 
 .rs-contact-hours {
@@ -3441,7 +3748,6 @@ html.rs-open-lock body {
     }
 
 @media (max-width: 991.98px) {
-    .rs-contact-hero-grid,
     .rs-contact-board {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -4236,11 +4542,12 @@ html.rs-open-lock body {
     writing-mode: vertical-rl;
 }
 
-/* The look stands at the edge of the hero, cut off by the bottom, behind the type. */
+/* The look stands at the edge of the hero, cut off by the bottom, in front of
+   everything (each hero leaves him room, so he covers none of the words). */
 .rs-page-look {
     position: absolute;
     bottom: 0;
-    z-index: 0;
+    z-index: 2;
     width: auto;
     pointer-events: none;
 }
@@ -4258,17 +4565,17 @@ html.rs-open-lock body {
     height: min(92%, 700px);
 }
 
-/* Pierrot between the headline and the flyer. */
+/* Pierrot between the headline and the flyer, his shoulder over its edge. */
 .rs-page-look--events {
     --look-rim: #ffb35c;
-    right: 31vw;
-    height: min(74%, 540px);
+    right: calc(max(20px, (100% - 1280px) / 2) + min(420px, 30vw) - clamp(30px, 5vw, 72px));
+    height: min(70%, 520px, 40vw);
 }
 
-/* The Duke smokes beside the departures board. */
+/* The Duke smokes at the right, looking back at the departures board. */
 .rs-page-look--contact {
     --look-rim: #a9c4f5;
-    right: max(380px, calc((100% - 1280px) / 2 + 380px));
+    right: max(0px, calc((100% - 1280px) / 2 - 40px));
     height: min(84%, 560px);
 }
 

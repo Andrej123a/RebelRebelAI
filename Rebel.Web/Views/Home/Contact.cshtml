@@ -10,16 +10,17 @@
         <partial name="_Photo" model='new PhotoModel("duke", "rs-page-photo rs-page-photo--contact", "(max-width: 760px) 100vw, 60vw")' />
         <partial name="_Look" model='new LookModel("duke", "rs-page-look rs-page-look--contact")' />
 
+        @* The headline, then what the Duke says beside the departures board; he stands at
+           the right, in front of Saturn. *@
         <div class="rs-container rs-contact-hero-grid">
-            <div>
-                <h1 class="rs-display rs-display--xl" aria-label="Find the Rebels.">
-                    Find
-                    <span class="rs-accent">the Rebels.</span>
-                </h1>
+            <h1 class="rs-display rs-display--xl" aria-label="Find the Rebels.">
+                Find
+                <span class="rs-accent">the Rebels.</span>
+            </h1>
 
-                @* The Duke goes station to station: he walks you here. *@
-                <partial name="_Ego" model='BowieCalls.GetHere("rs-ego--big rs-contact-duke")' />
-            </div>
+            <div class="rs-contact-hero-row">
+            @* The Duke goes station to station: he walks you here. *@
+            <partial name="_Ego" model='BowieCalls.GetHere("rs-ego--big rs-contact-duke")' />
 
             <aside class="rs-board rs-contact-hours" aria-label="Opening hours: open every day from 12:00 until 01:00">
                 <p class="rs-board-label" aria-hidden="true">Open every day</p>
@@ -27,6 +28,7 @@
                 <div class="rs-board-row" aria-hidden="true"><span class="rs-board-key">Closes</span><span class="rs-flap">0</span><span class="rs-flap">1</span><span class="rs-flap">:</span><span class="rs-flap">0</span><span class="rs-flap">0</span></div>
                 <p class="rs-board-note">No dress code.</p>
             </aside>
+            </div>
         </div>
     </header>
 

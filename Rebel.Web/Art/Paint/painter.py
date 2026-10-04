@@ -9,7 +9,9 @@ from PIL import Image
 KEY = sys.argv[1]
 OUT = sys.argv[2] if len(sys.argv) > 2 else f'out/{KEY}.png'
 RIM = {'tom': '#8fc4ff', 'mars': '#ff9a5c', 'ziggy': '#c2a4ff', 'sane': '#ffb070', 'rebel': '#9db8ff',
-       'jack': '#8fe0ff', 'duke': '#f0dcb0', 'pierrot': '#c79cff', 'prophet': '#ffc070'}
+       'jack': '#8fe0ff', 'duke': '#f0dcb0', 'pierrot': '#c79cff', 'prophet': '#ffc070',
+       # the craft (Art/Ships), lit by the blue planet below
+       'tincan': '#9ad3f0'}
 # face boxes (x0, y0, x1, y1 in the 400 x 520 drawing); front faces share one template
 FRONT = (134, 148, 265, 342)
 FACES = {'mars': FRONT, 'sane': FRONT, 'rebel': FRONT, 'pierrot': (134, 150, 265, 342),

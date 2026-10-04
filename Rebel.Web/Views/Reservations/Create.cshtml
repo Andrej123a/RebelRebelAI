@@ -1,136 +1,231 @@
 @model Rebel.Web.Models.ReservationCreateViewModel
+@using System.Globalization
+@using Rebel.Web.Services
 
 @{
     ViewData["Title"] = "Book a Table";
 
-    var showNote =
-        !string.IsNullOrWhiteSpace(Model.Note) ||
-        ViewData.ModelState[nameof(Model.Note)]?.Errors.Count > 0;
+    string minimumDate = ViewBag.MinimumReservationDate ?? DateTime.Today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+    string earliestArrival = ViewBag.EarliestArrival ?? string.Empty;
+    var firstNight = DateTime.ParseExact(minimumDate, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+    var forEvent = !string.IsNullOrWhiteSpace(Model.EventTitle);
+
+    // The nights he offers: the next week, or the event's own night.
+    var nights = forEvent
+        ? new[] { Model.ReservationDate.Date }
+        : Enumerable.Range(0, 7).Select(day => firstNight.AddDays(day)).ToArray();
+
+    string NightName(DateTime night) =>
+        night == firstNight ? "Today"
+        : night == firstNight.AddDays(1) ? "Tomorrow"
+        : night.ToString("ddd d MMM", CultureInfo.InvariantCulture);
+
+    var dateLine = forEvent
+        ? $"You're coming for {Model.EventTitle}, on {Model.ReservationDate.ToString("dddd d MMMM", CultureInfo.InvariantCulture)}. I'll keep that night for you."
+        : "Ground Control to you. Which night are you coming down to Rebel?";
+
+    var showNote = !string.IsNullOrWhiteSpace(Model.Note);
 }
 
-<section class="rs-chapter rs-chapter--sky rs-reserve">
+<section class="rs-chapter rs-chapter--sky rs-flight">
     <span class="rs-stars rs-reserve-stars"></span>
+    <div class="rs-earth rs-flight-earth" aria-hidden="true"><i></i></div>
 
-    <div class="rs-container rs-reserve-grid">
-        <aside class="rs-reserve-art" aria-label="Rebel Rebel">
-            <span class="rs-split rs-reserve-art-photo">
-                <img src="~/images/rebel-bowie-logo-room.webp"
-                     alt="Bowie artwork inside Rebel Rebel" />
-                <img src="~/images/rebel-bowie-logo-room.webp" alt="" aria-hidden="true" />
-            </span>
-
-            <div class="rs-reserve-art-copy">
-                <img src="~/images/logo.jpg"
-                     alt="Rebel Rebel by Fat Kitchen"
-                     class="rs-reserve-logo" />
+    <div class="rs-container rs-flight-grid">
+        @* Major Tom, climbing out of his tin can far above the world (Art/Ships). *@
+        <div class="rs-flight-scene" aria-hidden="true">
+            <div class="rs-flight-craft">
+                <img class="rs-flight-can" src="~/art/ships/tincan.webp" asp-append-version="true" width="400" height="520" alt="" decoding="async" />
+                <span class="rs-flight-hatch">
+                    <img class="rs-flight-tom" src="~/art/looks/tom.webp" asp-append-version="true" width="400" height="520" alt="" decoding="async" />
+                </span>
             </div>
-        </aside>
+        </div>
 
+        @* Booking is a talk with him: he asks one thing at a time and you answer
+           (wwwroot/js/rebel-booking.js). The answers fill the form's own fields, so the
+           server checks them as before. Without the script every question is open at once. *@
         <form asp-controller="Reservations"
               asp-action="Create"
               method="post"
-              class="rs-console rs-reserve-form">
+              class="rs-console rs-flight-talk"
+              data-rs-talk
+              data-rs-earliest="@earliestArrival">
             <input asp-for="EventId" type="hidden" />
 
-            <div class="rs-reserve-body">
-            <header>
-                <h1 class="rs-display rs-display--md" aria-label="Pick your arrival.">
-                    Pick your <span class="rs-accent">arrival.</span>
+            <header class="rs-flight-head">
+                <p class="rs-flight-channel"><i class="rs-led rs-led--gold"></i> Ground Control &middot; channel one</p>
+                <h1 class="rs-display rs-display--md" aria-label="Book a table with Major Tom.">
+                    Book a table <span class="rs-accent">with Major Tom.</span>
                 </h1>
-                <p class="rs-reserve-intro">
-                    Choose the exact date and time. We will give you a code to track the request.
-                </p>
             </header>
 
-            <div asp-validation-summary="ModelOnly"
-                 class="rs-errors"></div>
+            <div asp-validation-summary="ModelOnly" class="rs-errors"></div>
 
-            @if (!string.IsNullOrWhiteSpace(Model.EventTitle))
-            {
-                <div class="rs-reserve-event">
-                    <span class="rs-label">Event</span>
-                    <strong>@Model.EventTitle</strong>
-                </div>
-            }
+            <p class="rs-talk-said" aria-live="polite" data-rs-said></p>
 
-            <div class="rs-reserve-row rs-reserve-row--two">
-                <label class="rs-field">
-                    <span>Date</span>
-                    <input asp-for="ReservationDate"
-                           type="date"
-                           min="@ViewBag.MinimumReservationDate" />
-                    <span asp-validation-for="ReservationDate"></span>
-                </label>
+            <ol class="rs-talk">
+                <li class="rs-talk-step" data-rs-step="date">
+                    <p class="rs-talk-tom" id="talk-date"><span class="rs-talk-words">@dateLine</span><span class="rs-talk-dots" aria-hidden="true"><i></i><i></i><i></i></span></p>
 
-                <label class="rs-field">
-                    <span>Arrival time</span>
-                    <input asp-for="ReservationTime"
-                           type="time"
-                           min="10:00"
-                           max="22:00" />
-                    <span asp-validation-for="ReservationTime"></span>
-                </label>
-            </div>
+                    <div class="rs-talk-answer" role="group" aria-labelledby="talk-date">
+                        <div class="rs-talk-picks">
+                            @foreach (var night in nights)
+                            {
+                                <button type="button" class="rs-chip" data-rs-pick="@night.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" aria-pressed="false">@NightName(night)</button>
+                            }
 
-            <p class="rs-reserve-hours">
-                <i class="rs-led rs-led--gold"></i>
-                Reservations from 10:00 to 22:00, at least 2 hours ahead
-            </p>
+                            @if (!forEvent)
+                            {
+                                <button type="button" class="rs-chip rs-talk-another" data-rs-other>Another night</button>
+                            }
+                        </div>
 
-            <div class="rs-reserve-row rs-reserve-row--three">
-                <label class="rs-field">
-                    <span>Guests</span>
-                    <input asp-for="NumberOfGuests"
-                           type="number"
-                           inputmode="numeric"
-                           min="1"
-                           max="20" />
-                    <span asp-validation-for="NumberOfGuests"></span>
-                </label>
+                        <div class="rs-talk-other">
+                            <label class="rs-field">
+                                <span>Date</span>
+                                <input asp-for="ReservationDate"
+                                       type="date"
+                                       min="@minimumDate" />
+                                <span asp-validation-for="ReservationDate"></span>
+                            </label>
+                            <button type="button" class="rs-chip rs-talk-send" data-rs-send>That night</button>
+                        </div>
+                    </div>
 
-                <label class="rs-field">
-                    <span>Full name</span>
-                    <input asp-for="FullName"
-                           placeholder="Your name"
-                           autocomplete="name" />
-                    <span asp-validation-for="FullName"></span>
-                </label>
+                    <button type="button" class="rs-talk-you" data-rs-you><span data-rs-you-said></span><small>change</small></button>
+                </li>
 
-                <label class="rs-field">
-                    <span>Phone</span>
-                    <input asp-for="PhoneNumber"
-                           placeholder="+389..."
-                           autocomplete="tel" />
-                    <span asp-validation-for="PhoneNumber"></span>
-                </label>
-            </div>
+                <li class="rs-talk-step" data-rs-step="time">
+                    <p class="rs-talk-tom" id="talk-time"><span class="rs-talk-words">What time do you land? Any time from 10:00 to 22:00, at least two hours from now.</span><span class="rs-talk-dots" aria-hidden="true"><i></i><i></i><i></i></span></p>
 
-            <details class="rs-reserve-note" open="@showNote">
-                <summary>Add a note <span>optional</span></summary>
-                <label class="rs-field">
-                    <span>Note</span>
-                    <textarea asp-for="Note"
-                              rows="3"
-                              placeholder="Birthday, accessibility, seating..."></textarea>
-                    <span asp-validation-for="Note"></span>
-                </label>
-            </details>
+                    <div class="rs-talk-answer" role="group" aria-labelledby="talk-time">
+                        <div class="rs-talk-picks rs-talk-picks--times">
+                            @foreach (var slot in ReservationPolicy.GetOnlineSlots())
+                            {
+                                <button type="button" class="rs-chip" data-rs-pick="@slot.ToString(@"hh\:mm")" aria-pressed="false">@slot.ToString(@"hh\:mm")</button>
+                            }
+                        </div>
 
-            <p class="rs-reserve-table">
-                <i class="rs-led rs-led--off"></i>
-                Your table is assigned by staff when your request is approved
-            </p>
+                        <div class="rs-talk-other">
+                            <label class="rs-field">
+                                <span>Arrival time</span>
+                                <input asp-for="ReservationTime"
+                                       type="time"
+                                       min="10:00"
+                                       max="22:00" />
+                                <span asp-validation-for="ReservationTime"></span>
+                            </label>
+                            <button type="button" class="rs-chip rs-talk-send" data-rs-send>That time</button>
+                        </div>
+                    </div>
 
-            <div class="rs-reserve-submit">
-                @* Major Tom sends it up to Ground Control. *@
-                <partial name="_Ego" model='new EgoCall("tom", "Send it up to Ground Control. I\u2019ll radio back a code so you can follow it.", [new("Request the table")], "rs-ego--big", Button: "submit")' />
-                <p>No email needed. Keep the code shown after submitting.</p>
-            </div>
-            </div>
+                    <button type="button" class="rs-talk-you" data-rs-you><span data-rs-you-said></span><small>change</small></button>
+                </li>
+
+                <li class="rs-talk-step" data-rs-step="crew">
+                    <p class="rs-talk-tom" id="talk-crew"><span class="rs-talk-words">How big is your crew?</span><span class="rs-talk-dots" aria-hidden="true"><i></i><i></i><i></i></span></p>
+
+                    <div class="rs-talk-answer" role="group" aria-labelledby="talk-crew">
+                        <div class="rs-talk-picks">
+                            @for (var crew = 1; crew <= 8; crew++)
+                            {
+                                <button type="button" class="rs-chip" data-rs-pick="@crew" aria-pressed="false">@(crew == 1 ? "Just me" : crew.ToString(CultureInfo.InvariantCulture))</button>
+                            }
+                            <button type="button" class="rs-chip rs-talk-another" data-rs-other>More of us</button>
+                        </div>
+
+                        <div class="rs-talk-other">
+                            <label class="rs-field">
+                                <span>Guests</span>
+                                <input asp-for="NumberOfGuests"
+                                       type="number"
+                                       inputmode="numeric"
+                                       min="1"
+                                       max="20" />
+                                <span asp-validation-for="NumberOfGuests"></span>
+                            </label>
+                            <button type="button" class="rs-chip rs-talk-send" data-rs-send>That many</button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="rs-talk-you" data-rs-you><span data-rs-you-said></span><small>change</small></button>
+                </li>
+
+                <li class="rs-talk-step" data-rs-step="name">
+                    <label class="rs-talk-tom" for="FullName"><span class="rs-talk-words">Who's flying? A name for the log.</span><span class="rs-talk-dots" aria-hidden="true"><i></i><i></i><i></i></span></label>
+
+                    <div class="rs-talk-answer">
+                        <div class="rs-talk-type">
+                            <input asp-for="FullName"
+                                   placeholder="Your name"
+                                   autocomplete="name" />
+                            <button type="button" class="rs-chip rs-talk-send" data-rs-send>That's me</button>
+                        </div>
+                        <span asp-validation-for="FullName" class="rs-talk-error"></span>
+                    </div>
+
+                    <button type="button" class="rs-talk-you" data-rs-you><span data-rs-you-said></span><small>change</small></button>
+                </li>
+
+                <li class="rs-talk-step" data-rs-step="phone">
+                    <label class="rs-talk-tom" for="PhoneNumber"><span class="rs-talk-words">And a number Ground Control can reach you on?</span><span class="rs-talk-dots" aria-hidden="true"><i></i><i></i><i></i></span></label>
+
+                    <div class="rs-talk-answer">
+                        <div class="rs-talk-type">
+                            <input asp-for="PhoneNumber"
+                                   type="tel"
+                                   placeholder="+389..."
+                                   autocomplete="tel" />
+                            <button type="button" class="rs-chip rs-talk-send" data-rs-send>Call me on that</button>
+                        </div>
+                        <span asp-validation-for="PhoneNumber" class="rs-talk-error"></span>
+                    </div>
+
+                    <button type="button" class="rs-talk-you" data-rs-you><span data-rs-you-said></span><small>change</small></button>
+                </li>
+
+                <li class="rs-talk-step" data-rs-step="note">
+                    <label class="rs-talk-tom" for="Note">
+                        <span class="rs-talk-words">
+                            <span class="rs-talk-usual">Anything else for Ground Control? A birthday, access, where you'd like to sit.</span>
+                            <span class="rs-talk-big">A crew that big needs a word or two: tell us about it so we can seat you all.</span>
+                        </span><span class="rs-talk-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                    </label>
+
+                    <div class="rs-talk-answer">
+                        <div class="rs-talk-type rs-talk-type--note">
+                            <textarea asp-for="Note"
+                                      rows="3"
+                                      placeholder="Birthday, accessibility, seating..."></textarea>
+                            <span class="rs-talk-replies">
+                                <button type="button" class="rs-chip rs-talk-skip" data-rs-skip>No, that's all</button>
+                                <button type="button" class="rs-chip rs-talk-send" data-rs-send>Tell him</button>
+                            </span>
+                        </div>
+                        <span asp-validation-for="Note" class="rs-talk-error"></span>
+                    </div>
+
+                    <button type="button" class="rs-talk-you" data-rs-you><span data-rs-you-said>@(showNote ? Model.Note : "")</span><small>change</small></button>
+                </li>
+
+                <li class="rs-talk-step rs-talk-step--send" data-rs-step="send">
+                    <p class="rs-talk-tom" id="talk-send"><span class="rs-talk-words" data-rs-plan>Send it up to Ground Control? I'll radio back a code so you can follow it.</span><span class="rs-talk-dots" aria-hidden="true"><i></i><i></i><i></i></span></p>
+
+                    <div class="rs-talk-answer">
+                        <button type="submit" class="rs-chip rs-talk-launch">Send it up to Ground Control</button>
+                        <p class="rs-talk-small">
+                            No email needed: keep the code you get after sending. Staff give you a table
+                            when they approve the request.
+                        </p>
+                    </div>
+                </li>
+            </ol>
         </form>
     </div>
 </section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/rebel-booking.js" asp-append-version="true"></script>
 }

@@ -1,0 +1,70 @@
+<!-- Major Tom's capsule, the tin can far above the world, its hatch open so he can climb out. Original artwork, painted for Rebel Rebel. The site shows wwwroot/art/ships/tincan.webp, painted from this drawing by Art/Paint (ships.sh). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520" width="400" height="520">
+  <defs />
+  <g>
+    <g class="rs-look-print">
+      <!-- antenna and its light -->
+      <rect x="197.5" y="24" width="5" height="40" fill="#c9ced5" />
+      <circle cx="200" cy="20" r="11" fill="#ff9a7a" opacity="0.45" />
+      <circle cx="200" cy="20" r="6.5" fill="#ff5233" />
+      <!-- the housing on top -->
+      <rect x="164" y="62" width="72" height="44" rx="4" fill="#3f3f48" />
+      <path d="M216 62 L230 62 L230 106 L216 106Z" fill="#555561" />
+      <ellipse cx="200" cy="62" rx="36" ry="7" fill="#5f5f6b" />
+      <rect x="144" y="104" width="112" height="10" fill="#8d939b" />
+      <!-- the neck -->
+      <path d="M140 164 L146 112 L254 112 L260 164Z" fill="#34343c" />
+      <path d="M222 112 L234 112 L240 164 L226 164Z" fill="#4c4c57" />
+      <path d="M140 164 L146 112 L160 112 L156 164Z" fill="#26262d" />
+      <rect x="124" y="162" width="152" height="18" fill="#9aa0a8" />
+      <rect x="124" y="173" width="152" height="7" fill="#6d737b" />
+      <!-- the cone, in black shingles -->
+      <path d="M44 440 L130 178 L270 178 L356 440 Q200 468 44 440Z" fill="#3b3b44" />
+      <path d="M44 440 L130 178 L158 178 L94 445 Q68 443 44 440Z" fill="#2a2a31" />
+      <path d="M244 178 L258 178 L334 447 Q324 448 312 449Z" fill="#575763" />
+      <path d="M262 178 L270 178 L356 440 Q349 441 341 443Z" fill="#2f2f37" />
+      <!-- the heat shield underneath -->
+      <path d="M36 444 Q200 476 364 444 L360 458 Q200 494 40 458Z" fill="#7a5232" />
+      <path d="M40 458 Q200 494 360 458 L350 470 Q200 506 50 470Z" fill="#4d321e" />
+      <!-- a porthole -->
+      <circle cx="166" cy="208" r="15" fill="#9aa0a8" />
+      <circle cx="166" cy="208" r="11" fill="#73cdf5" />
+      <ellipse cx="162" cy="204" rx="4" ry="3" fill="#e9f8ff" />
+      <!-- the badge: Tom's bolt -->
+      <circle cx="84" cy="404" r="16" fill="#c8361f" />
+      <path d="M88 391 L78 406 L85 406 L80 419 L93 401 L86 401 L91 391Z" fill="#f2c23a" />
+      <!-- the hatch: a metal frame round a dark doorway, warm light inside -->
+      <rect x="104" y="236" width="192" height="168" rx="34" fill="#a3a9b1" />
+      <path d="M104 330 L296 330 L296 370 Q296 404 262 404 L138 404 Q104 404 104 370Z" fill="#8a9098" />
+      <rect x="116" y="248" width="168" height="144" rx="26" fill="#0f0c10" />
+      <ellipse cx="200" cy="286" rx="72" ry="32" fill="#3d2616" />
+      <ellipse cx="200" cy="276" rx="40" ry="14" fill="#6a3f1f" />
+      <rect x="132" y="262" width="10" height="5" fill="#f2c23a" />
+      <rect x="146" y="262" width="10" height="5" fill="#5cd68a" />
+      <rect x="246" y="262" width="10" height="5" fill="#ff5a3c" />
+      <rect x="260" y="262" width="10" height="5" fill="#f2c23a" />
+      <!-- the hatch door, swung open on its hinge -->
+      <path d="M296 242 L340 222 Q350 312 340 412 L296 398Z" fill="#8f959e" />
+      <path d="M326 228 L340 222 Q350 312 340 412 L326 407Z" fill="#b2b8c0" />
+      <ellipse cx="316" cy="276" rx="7" ry="12" fill="#6fc4ef" />
+    </g>
+    <g class="rs-look-ink" fill="#1a0f0d">
+      <g fill="none" stroke="#1a0f0d" stroke-width="1.4" stroke-opacity="0.5"><path d="M70.0 444.0 L141.7 178" /><path d="M96.0 444.0 L153.3 178" /><path d="M122.0 448.0 L165.0 178" /><path d="M148.0 448.0 L176.7 178" /><path d="M174.0 448.0 L188.3 178" /><path d="M200.0 448.0 L200.0 178" /><path d="M226.0 448.0 L211.7 178" /><path d="M252.0 448.0 L223.3 178" /><path d="M278.0 448.0 L235.0 178" /><path d="M304.0 444.0 L246.7 178" /><path d="M330.0 444.0 L258.3 178" /></g>
+      <g fill="none" stroke="#1a0f0d" stroke-width="2.4" stroke-linejoin="round">
+        <path d="M44 440 L130 178 L270 178 L356 440 Q200 468 44 440Z" />
+        <path d="M36 444 Q200 476 364 444 L360 458 Q200 494 40 458Z" />
+        <path d="M140 164 L146 112 L254 112 L260 164Z" />
+        <rect x="124" y="162" width="152" height="18" />
+        <rect x="164" y="62" width="72" height="44" rx="4" />
+        <rect x="104" y="236" width="192" height="168" rx="34" />
+        <rect x="116" y="248" width="168" height="144" rx="26" />
+        <path d="M296 242 L340 222 Q350 312 340 412 L296 398Z" />
+        <circle cx="166" cy="208" r="15" />
+        <circle cx="84" cy="404" r="16" />
+      </g>
+      <rect x="318" y="300" width="6" height="30" rx="2" />
+      <g><circle cx="292.0" cy="320.0" r="2.2" /><circle cx="285.0" cy="350.6" r="2.2" /><circle cx="265.1" cy="376.6" r="2.2" /><circle cx="235.2" cy="393.9" r="2.2" /><circle cx="200.0" cy="400.0" r="2.2" /><circle cx="164.8" cy="393.9" r="2.2" /><circle cx="134.9" cy="376.6" r="2.2" /><circle cx="115.0" cy="350.6" r="2.2" /><circle cx="108.0" cy="320.0" r="2.2" /><circle cx="115.0" cy="289.4" r="2.2" /><circle cx="134.9" cy="263.4" r="2.2" /><circle cx="164.8" cy="246.1" r="2.2" /><circle cx="200.0" cy="240.0" r="2.2" /><circle cx="235.2" cy="246.1" r="2.2" /><circle cx="265.1" cy="263.4" r="2.2" /><circle cx="285.0" cy="289.4" r="2.2" /></g>
+    </g>
+    <g class="rs-look-fx" />
+  </g>
+</svg>

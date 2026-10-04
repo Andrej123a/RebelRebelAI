@@ -649,6 +649,14 @@ namespace Rebel.Web.Controllers
         {
             ViewBag.MinimumReservationDate =
                 nowInSkopje.ToString("yyyy-MM-dd");
+
+            // Major Tom greys out the arrival times that are too soon.
+            ViewBag.EarliestArrival =
+                nowInSkopje
+                    .Add(ReservationPolicy.MinimumLeadTime)
+                    .ToString(
+                        "yyyy-MM-ddTHH:mm",
+                        System.Globalization.CultureInfo.InvariantCulture);
         }
 
         private static DateTime GetSuggestedArrival(
