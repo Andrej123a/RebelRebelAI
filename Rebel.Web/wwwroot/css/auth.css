@@ -153,7 +153,6 @@ a {
     position: relative;
 }
 
-.rr-login-eyebrow,
 .rr-login-form header span {
     color: var(--auth-orange);
     font-family: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
@@ -188,34 +187,6 @@ a {
     line-height: 1.7;
 }
 
-.rr-login-signal {
-    display: flex;
-    width: 190px;
-    margin-top: 34px;
-    gap: 7px;
-    transform: rotate(-2deg);
-}
-
-.rr-login-signal span {
-    display: block;
-    height: 8px;
-    background: var(--auth-red);
-}
-
-.rr-login-signal span:first-child {
-    width: 76px;
-}
-
-.rr-login-signal span:nth-child(2) {
-    width: 34px;
-    background: var(--auth-orange);
-}
-
-.rr-login-signal span:last-child {
-    flex: 1;
-    background: var(--auth-yellow);
-}
-
 .rr-login-form-wrap {
     position: relative;
     border: 1px solid var(--auth-line);
@@ -232,22 +203,6 @@ a {
     height: 16px;
     background: var(--auth-orange);
     transform: rotate(2deg);
-}
-
-.rr-login-stamp {
-    position: absolute;
-    top: 34px;
-    right: -18px;
-    z-index: 2;
-    padding: 7px 12px;
-    color: var(--auth-cream);
-    border: 2px solid var(--auth-red);
-    font-family: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    transform: rotate(7deg);
 }
 
 .rr-login-form {
@@ -526,10 +481,6 @@ a {
         gap: 14px;
     }
 
-    .rr-login-stamp {
-        right: -8px;
-    }
-
     .rr-auth-footer {
         min-height: 88px;
         align-items: flex-start;
@@ -578,10 +529,8 @@ body.rr-auth {
 .rr-auth-door,
 .rr-auth-footer,
 .rr-auth-footer a,
-.rr-login-eyebrow,
 .rr-login-form header span,
-.rr-login-field label,
-.rr-login-stamp {
+.rr-login-field label {
     color: #fff1dc;
     font-family: "Space Mono", monospace;
 }
@@ -608,13 +557,6 @@ body.rr-auth {
     color: rgba(255, 241, 220, 0.8);
 }
 
-.rr-login-signal span,
-.rr-login-signal span:first-child,
-.rr-login-signal span:nth-child(2),
-.rr-login-signal span:last-child {
-    background: #fff1dc;
-}
-
 .rr-login-form-wrap {
     border: 1.5px solid rgba(255, 241, 220, 0.24);
     background: #150b09;
@@ -624,10 +566,6 @@ body.rr-auth {
     .rr-login-form-wrap::before {
         background: #fff1dc;
     }
-
-.rr-login-stamp {
-    border-color: #fff1dc;
-}
 
 .rr-login-field input {
     border-color: rgba(255, 241, 220, 0.24);

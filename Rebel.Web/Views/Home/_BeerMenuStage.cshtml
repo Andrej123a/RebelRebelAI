@@ -1,4 +1,3 @@
-@using System.Globalization
 @model Rebel.Web.Models.BeerMenuViewModel
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
@@ -8,98 +7,24 @@
 
     var tracks = Model.Tracks.ToList();
     var firstTrack = tracks.FirstOrDefault();
-
-    var marqueeWords = tracks
-        .Where(track => track.IsAvailable)
-        .Select(track => track.Name)
-        .DefaultIfEmpty("Cold")
-        .Take(14)
-        .ToList();
-
-    // Each half of the loop has to be wider than the screen for the marquee to stay seamless.
-    if (marqueeWords.Count < 10)
-    {
-        marqueeWords.AddRange(new[] { "Cold", "Loud", "Hazy", "Bitter", "Strange", "Dark", "Sour", "No bad decisions" });
-    }
-
-    // The orbit ring is a 73-unit radius circle; Space Mono advances 0.6em per glyph.
-    const double OrbitLength = 2 * Math.PI * 73;
-
-    (string Text, string FontSize) OrbitText(Rebel.Web.Models.BeerMenuTrack track)
-    {
-        var phrase = $"TRACK {track.NumberLabel} // {track.Name.ToUpperInvariant()} // REBEL REBEL // ";
-        var text = phrase;
-
-        while (text.Length < 44)
-        {
-            text += phrase;
-        }
-
-        var fontSize = Math.Clamp(OrbitLength / (text.Length * 0.6), 7.5, 16);
-
-        return (text, fontSize.ToString("0.##", CultureInfo.InvariantCulture));
-    }
 }
 
 <svg class="rr-beer-defs" aria-hidden="true" focusable="false">
     <symbol id="rr-beer-burst" viewBox="0 0 200 200">
         <polygon points="100.0,0.0 111.2,14.7 125.9,3.4 132.9,20.5 150.0,13.4 152.4,31.8 170.7,29.3 168.2,47.6 186.6,50.0 179.5,67.1 196.6,74.1 185.3,88.8 200.0,100.0 185.3,111.2 196.6,125.9 179.5,132.9 186.6,150.0 168.2,152.4 170.7,170.7 152.4,168.2 150.0,186.6 132.9,179.5 125.9,196.6 111.2,185.3 100.0,200.0 88.8,185.3 74.1,196.6 67.1,179.5 50.0,186.6 47.6,168.2 29.3,170.7 31.8,152.4 13.4,150.0 20.5,132.9 3.4,125.9 14.7,111.2 0.0,100.0 14.7,88.8 3.4,74.1 20.5,67.1 13.4,50.0 31.8,47.6 29.3,29.3 47.6,31.8 50.0,13.4 67.1,20.5 74.1,3.4 88.8,14.7" />
     </symbol>
-    <symbol id="rr-beer-bolt" viewBox="0 0 100 100">
-        <path d="M60 0 18 57h27L31 100l53-62H56L72 0Z" />
-    </symbol>
 </svg>
-
-<div class="rr-beer-marquee" aria-hidden="true">
-    <div class="rr-beer-marquee-track">
-        @for (var copy = 0; copy < 2; copy++)
-        {
-            <div class="rr-beer-marquee-group">
-                @foreach (var word in marqueeWords)
-                {
-                    <span class="rr-beer-marquee-item">@word</span>
-                }
-            </div>
-        }
-    </div>
-</div>
 
 <section class="rr-beer-intro" aria-labelledby="beerMenuTitle">
     <div class="rr-beer-intro-copy">
-        <p class="rr-beer-kicker">Tonight's tracklist</p>
-
-        <h2 id="beerMenuTitle" class="rr-beer-intro-title">
-            Beer <span>Menu</span>
-        </h2>
-
-        <p class="rr-beer-intro-text">
-            @Model.TotalCount @(Model.TotalCount == 1 ? "beer" : "beers") on the record,
-            @Model.AvailableCount pouring right now.
-            Scroll slowly. The light shifts with every track.
-        </p>
-    </div>
-
-    <div class="rr-beer-badge" aria-hidden="true">
-        <svg class="rr-beer-badge-ring" viewBox="0 0 200 200">
-            <defs>
-                <path id="rr-beer-badge-path"
-                      d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0" />
-            </defs>
-            <text>
-                <textPath href="#rr-beer-badge-path">REBEL REBEL // BEER MENU // SKOPJE // FAT KITCHEN // </textPath>
-            </text>
-        </svg>
-        <svg class="rs-bolt rr-beer-badge-bolt" viewBox="-8 -4 112 108">
-            <use href="#rs-bolt-sane" />
-        </svg>
+        <h2 id="beerMenuTitle" class="visually-hidden">Beer menu</h2>
     </div>
 
     @if (!hideAiFeatures)
     {
         <aside class="rr-beer-callout">
             <div>
-                <span>Can't pick?</span>
-                <strong>Let Rebel AI narrow the fridge.</strong>
+                <strong>Can't decide? Rebel AI knows the whole fridge.</strong>
             </div>
 
             <a asp-controller="BeerGuide" asp-action="Index">
@@ -113,9 +38,7 @@
 {
     <div class="rs-container">
         <div class="rs-food-nothing">
-            <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-bolt" /></svg>
-            <h3 class="rs-display rs-display--sm">Nothing here yet.</h3>
-            <p>The rebels are still working on this part of the menu.</p>
+            <h3 class="rs-display rs-display--sm">Nothing on this menu yet.</h3>
         </div>
     </div>
 }
@@ -185,14 +108,12 @@ else
         <nav class="rr-beer-rail"
              aria-label="Beer tracklist"
              data-beer-rail-scroller>
-            <p class="rr-beer-rail-title">Tracklist</p>
+            <p class="rr-beer-rail-title">All beers</p>
 
             @foreach (var side in Model.Sides)
             {
                 <div class="rr-beer-rail-group" data-beer-rail-group>
-                    <p class="rr-beer-rail-side">
-                        @side.Label <span>@side.CategoryName</span>
-                    </p>
+                    <p class="rr-beer-rail-side">@side.CategoryName</p>
 
                     <ol class="rr-beer-rail-list">
                         @foreach (var track in side.Tracks)
@@ -201,7 +122,6 @@ else
                                 class="@(!track.IsAvailable ? "is-sold-out" : null)"
                                 style="--dot: @track.Family.Glow;">
                                 <a href="#@track.Anchor">
-                                    <span class="rr-beer-rail-number">@track.NumberLabel</span>
                                     <span class="rr-beer-rail-name">@track.Name</span>
                                     <span class="rr-beer-rail-abv">
                                         @(track.IsAvailable
@@ -225,16 +145,11 @@ else
                          aria-labelledby="@sideId"
                          data-beer-side>
                     <header class="rr-beer-side-head">
-                        <span class="rr-beer-side-label">@side.Label</span>
                         <h3 id="@sideId">@side.CategoryName</h3>
-                        <span class="rr-beer-side-count">
-                            @side.Tracks.Count @(side.Tracks.Count == 1 ? "track" : "tracks")
-                        </span>
                     </header>
 
                     @foreach (var track in side.Tracks)
                     {
-                        var orbit = OrbitText(track);
                         var nameId = $"{track.Anchor}-name";
                         var trackClasses = string.Join(
                             " ",
@@ -258,7 +173,6 @@ else
                                  style="--track-bg: @track.StageBackground; --track-ink: @track.StageInk; --track-accent: @track.Accent;">
 
                             <div class="rr-beer-track-meta">
-                                <span class="rr-beer-track-number">Track @track.NumberLabel</span>
                                 <span class="rr-beer-track-rule" aria-hidden="true"></span>
                                 <span>@track.Family.Label</span>
 
@@ -280,11 +194,6 @@ else
                                 @if (track.IsPromo)
                                 {
                                     <span class="rr-beer-flag">Promo</span>
-                                }
-
-                                @if (BowieCast.PickFor(track.Name) is { } pick)
-                                {
-                                    <span class="rr-beer-flag rr-beer-flag--pick">@pick.Who's pick</span>
                                 }
                             </div>
 
@@ -326,16 +235,6 @@ else
                                         <use href="#rr-beer-burst" />
                                     </svg>
 
-                                    <svg class="rr-beer-orbit" viewBox="0 0 200 200" aria-hidden="true">
-                                        <defs>
-                                            <path id="@track.Anchor-orbit"
-                                                  d="M100,100 m-73,0 a73,73 0 1,1 146,0 a73,73 0 1,1 -146,0" />
-                                        </defs>
-                                        <text style="font-size: @(orbit.FontSize)px">
-                                            <textPath href="#@track.Anchor-orbit">@orbit.Text</textPath>
-                                        </text>
-                                    </svg>
-
                                     <div class="rr-beer-photo">
                                         @if (track.ImageUrl != null)
                                         {
@@ -346,12 +245,7 @@ else
                                         }
                                         else
                                         {
-                                            <div class="rr-beer-photo-placeholder" aria-hidden="true">
-                                                <svg viewBox="0 0 100 100">
-                                                    <use href="#rr-beer-bolt" />
-                                                </svg>
-                                                <span>No photo.<br />Still cold.</span>
-                                            </div>
+                                            <div class="rr-beer-photo-placeholder" aria-hidden="true"></div>
                                         }
                                     </div>
 
@@ -433,7 +327,6 @@ else
     </div>
 
     <section class="rr-beer-outro" aria-label="After the last track">
-        <p class="rr-beer-kicker">End of the record</p>
         <h2>Still thirsty?</h2>
 
         <div class="rr-beer-outro-actions">
@@ -449,7 +342,7 @@ else
             }
 
             <a href="#beerMenuTitle">
-                Back to the tracklist
+                Back to the top
             </a>
         </div>
     </section>

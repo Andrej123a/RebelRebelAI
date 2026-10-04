@@ -5,10 +5,6 @@
 <section class="rs-chapter rs-chapter--sky rs-booking">
     <span class="rs-stars rs-booking-stars"></span>
 
-    <partial name="_Rail" model='new RailModel("06", "Bookings")' />
-
-    <partial name="_Hud" />
-
     @* Major Tom, drifting past the tracking station. *@
     <span class="rs-booking-helmet" aria-hidden="true" data-rs-drift="-0.16">
         <partial name="_Look" model='new LookModel("tom", "booking")' />
@@ -16,13 +12,7 @@
 
     <div class="rs-container rs-booking-inner">
         <header class="rs-confirm-head">
-            <div class="rs-confirm-mark" aria-hidden="true">
-                <svg class="rs-confirm-rocket" viewBox="0 0 100 100"><use href="#rs-rocket" /></svg>
-            </div>
-
             <div>
-                <p class="rs-kicker">Lift-off · Request received</p>
-
                 <h1 class="rs-display rs-display--lg">
                     Thanks, @ViewBag.ReservationName.
                 </h1>
@@ -35,7 +25,7 @@
 
         <div class="rs-confirm-grid">
             <div class="rs-confirm-ticket rs-ticket">
-                <span class="rs-label">Mission code</span>
+                <span class="rs-label">Reservation code</span>
                 <strong id="reservationCodeValue">@ViewBag.ReservationCode</strong>
                 <button type="button"
                         id="copyReservationCode"

@@ -1,56 +1,14 @@
 // Shared motion for the public pages:
-// - the Space Oddity countdown preloader (once per visit),
 // - the full-screen #open menu,
 // - blocks marked data-rs-reveal come into focus as they scroll in,
 // - blocks marked data-rs-drift move at their own speed while scrolling,
-// - the HUD: the mission clock and the altitude tape,
-// - Bowie's looks (Views/Shared/Looks) come alive while on screen,
-// - the home page's Changes stage, one look at a time while you scroll.
+// - the drawings (Views/Shared/Looks) come alive while on screen,
+// - the home page's "How Rebel works" stage, one character at a time while you scroll.
 // The night sky, falling stars and stardust live in rebel-sky.js.
 // Without JS or with reduced motion everything is simply shown.
 (() => {
     const root = document.documentElement;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // ---------- preloader: a Space Oddity countdown ----------
-
-    const preloader = document.querySelector("[data-rs-preloader]");
-
-    if (preloader && !root.classList.contains("rs-seen")) {
-        const counter = preloader.querySelector("[data-rs-count]");
-        const status = preloader.querySelector("[data-rs-status]");
-        const finish = () => {
-            preloader.classList.add("is-done");
-            window.setTimeout(() => { preloader.hidden = true; }, 900);
-        };
-
-        if (reducedMotion || !counter) {
-            preloader.hidden = true;
-        } else {
-            const started = performance.now();
-            const duration = 1100;
-            const tick = (now) => {
-                const progress = Math.min(1, Math.max(0, (now - started) / duration));
-                counter.textContent = String(10 - Math.floor(progress * 10));
-
-                if (progress < 1) {
-                    requestAnimationFrame(tick);
-                    return;
-                }
-
-                counter.textContent = "0";
-
-                if (status) {
-                    status.textContent = "Lift-off";
-                }
-
-                preloader.classList.add("is-lift");
-                window.setTimeout(finish, 380);
-            };
-
-            requestAnimationFrame(tick);
-        }
-    }
 
     // ---------- #open menu ----------
 
@@ -171,52 +129,6 @@
         targets.forEach((target) => observer.observe(target));
     }
 
-    // ---------- HUD: the mission clock and the altitude tape ----------
-
-    const clocks = document.querySelectorAll("[data-rs-clock]");
-
-    if (clocks.length) {
-        // The clock runs from the first page of the visit, like a mission clock from lift-off.
-        let launched = Date.now();
-
-        try {
-            launched = Number(sessionStorage.getItem("rs-t0")) || launched;
-            sessionStorage.setItem("rs-t0", String(launched));
-        } catch {
-            // Private mode: the clock starts on every page instead.
-        }
-
-        const two = (n) => String(n).padStart(2, "0");
-        const tick = () => {
-            const s = Math.max(0, Math.floor((Date.now() - launched) / 1000));
-            const text = `${two(Math.floor(s / 3600))}:${two(Math.floor(s / 60) % 60)}:${two(s % 60)}`;
-            clocks.forEach((clock) => { clock.textContent = text; });
-        };
-
-        tick();
-        window.setInterval(tick, 1000);
-
-        // The tape's marker climbs as you scroll down the page. Set on the HUDs only, so
-        // a scroll restyles them and not the whole page.
-        const huds = document.querySelectorAll(".rs-hud");
-        let pending = false;
-
-        const climb = () => {
-            pending = false;
-            const travel = Math.max(1, root.scrollHeight - window.innerHeight);
-            const height = (Math.min(1, window.scrollY / travel)).toFixed(3);
-            huds.forEach((hud) => hud.style.setProperty("--hud-tape", height));
-        };
-
-        window.addEventListener("scroll", () => {
-            if (!pending) {
-                pending = true;
-                requestAnimationFrame(climb);
-            }
-        }, { passive: true });
-        climb();
-    }
-
     if (reducedMotion) {
         return;
     }
@@ -306,8 +218,6 @@
 
     if (changes) {
         const slots = Array.from(changes.querySelectorAll("[data-rs-look]"));
-        const roll = Array.from(changes.querySelectorAll("[data-rs-roll]"));
-        const counter = changes.querySelector("[data-rs-changes-now]");
         const stage = changes.querySelector(".rs-changes-stage");
         let current = -1;
         let queued = false;
@@ -328,20 +238,11 @@
                 slot.classList.toggle("is-past", i < index);
             });
 
-            roll.forEach((link, i) => {
-                link.classList.toggle("is-current", i === index);
-                link.classList.toggle("is-past", i < index);
-            });
-
             // The stage takes the look's colours: its backdrop, its ink, its accent.
             const slot = slots[index];
             stage.style.setProperty("--stage-bg", slot.style.getPropertyValue("--look-stage"));
             stage.style.setProperty("--stage-ink", slot.style.getPropertyValue("--look-ink"));
             stage.style.setProperty("--stage-hot", slot.style.getPropertyValue("--look-hot"));
-
-            if (counter) {
-                counter.textContent = String(index + 1).padStart(2, "0");
-            }
 
             refreshLooks();
         };
@@ -359,18 +260,11 @@
             }
         };
 
-        // A year on the roll (or a #look-… link) goes to the middle of that look's stretch.
+        // A #look-… link goes to the middle of that character's stretch.
         const goTo = (index, behavior) => {
             const top = changes.getBoundingClientRect().top + window.scrollY + travel() * (index + 0.5) / slots.length;
             window.scrollTo({ top, behavior });
         };
-
-        roll.forEach((link, i) => {
-            link.addEventListener("click", (event) => {
-                event.preventDefault();
-                goTo(i, "smooth");
-            });
-        });
 
         const followHash = () => {
             const linked = slots.findIndex((slot) => "#" + slot.id === location.hash);

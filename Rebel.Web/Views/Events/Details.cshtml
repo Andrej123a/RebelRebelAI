@@ -15,10 +15,6 @@
 <section class="rs-chapter rs-chapter--deep rs-event" data-rs-stardust>
     <span class="rs-stars rs-event-stars"></span>
 
-    <partial name="_Rail" model='new RailModel("04", "Nights")' />
-
-    <partial name="_Hud" />
-
     <div class="rs-container">
         <a asp-controller="Events"
            asp-action="Index"
@@ -29,25 +25,18 @@
         <article class="rs-event-grid">
             <div class="rs-event-visual" data-rs-vhs>
                 <div class="rs-vhs rs-event-poster">
-                    <span class="rs-vhs-osd rs-vhs-osd--play">PLAY &#9654;</span>
-                    <span class="rs-vhs-osd rs-vhs-osd--time">SP @startTime:00</span>
                     @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
                     {
                         <img src="@Model.ImageUrl" alt="@Model.Title" />
                     }
                     else
                     {
-                        <div class="rs-events-placeholder">
-                            <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-bolt" /></svg>
-                            No poster. Still a good night.
-                        </div>
+                        <div class="rs-events-placeholder"></div>
                     }
                 </div>
             </div>
 
             <div class="rs-event-copy">
-                <p class="rs-kicker">Tape no. @localEventDate.ToString("dd") · Rebel Rebel presents</p>
-
                 <h1 class="rs-display rs-display--lg">@Model.Title</h1>
 
                 <dl class="rs-stats rs-event-stats">
@@ -69,29 +58,19 @@
                     </div>
                 </dl>
 
-                <p class="rs-lead">
-                    @(string.IsNullOrWhiteSpace(Model.Description)
-                        ? "One more reason to cancel your quiet night at home."
-                        : Model.Description)
-                </p>
-
-                <div class="rs-event-callout rs-flood rs-flood--yellow">
-                    <span class="rs-label">One night.</span>
-                    <strong>Zero good excuses.</strong>
-                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <p class="rs-lead">@Model.Description</p>
+                }
 
                 <div class="rs-event-actions">
                     <a asp-controller="Reservations"
                        asp-action="Create"
                        asp-route-eventId="@Model.Id"
                        class="rs-btn rs-btn--primary">
-                        Claim your table <i aria-hidden="true">&rarr;</i>
+                        Reserve a table <i aria-hidden="true">&rarr;</i>
                     </a>
-
-                    <span class="rs-pill">Wanted after @startTime</span>
                 </div>
-
-                <span class="rs-event-stamp" aria-hidden="true">Guilty of<br />good times</span>
             </div>
         </article>
     </div>

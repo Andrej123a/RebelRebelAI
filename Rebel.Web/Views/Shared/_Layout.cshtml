@@ -60,17 +60,6 @@
     <script>
         (function (root) {
             root.classList.add("rs-js");
-
-            // The launch countdown plays once per visit.
-            try {
-                if (sessionStorage.getItem("rs-seen")) {
-                    root.classList.add("rs-seen");
-                } else {
-                    sessionStorage.setItem("rs-seen", "1");
-                }
-            } catch (e) {
-                root.classList.add("rs-seen");
-            }
         })(document.documentElement);
     </script>
 
@@ -155,13 +144,6 @@
         </symbol>
     </svg>
 
-    <div class="rs-preloader" aria-hidden="true" data-rs-preloader>
-        <canvas class="rs-preloader-warp" data-rs-warp></canvas>
-        <p class="rs-preloader-label">Ground Control · Rebel Rebel · Skopje</p>
-        <p class="rs-preloader-count" data-rs-count>10</p>
-        <p class="rs-preloader-status"><i class="rs-led"></i><span data-rs-status>Countdown</span></p>
-    </div>
-
     <header class="rs-header">
         <div class="rs-header-inner">
             <a asp-controller="Home"
@@ -226,7 +208,7 @@
                asp-action="Create"
                class="rs-ticket rs-header-book">
                 <span class="rs-ticket-main">Book a table</span>
-                <span class="rs-ticket-stub" aria-hidden="true">Admit<b>you</b></span>
+                <span class="rs-ticket-stub" aria-hidden="true">&rarr;</span>
             </a>
 
             @* The menu hides behind the bar's neon sign, with one tube on the blink. *@
@@ -252,8 +234,6 @@
 
         <div class="rs-open-inner">
             <div class="rs-open-top">
-                <span class="rs-open-label">Rebel Rebel · Skopje · since May 2025</span>
-
                 <a href="#" class="rs-open-close" data-rs-open-close>
                     Close <span aria-hidden="true">&times;</span>
                 </a>
@@ -265,9 +245,7 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Home", "Index") == "active" ? "page" : null)"
                    data-rs-preview="home">
-                    <span class="rs-open-num">01</span>
                     <span class="rs-open-word">Home</span>
-                    <small>The bar</small>
                 </a>
 
                 <a asp-controller="Home"
@@ -276,9 +254,7 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Home", "Menu") == "active" ? "page" : null)"
                    data-rs-preview="menu">
-                    <span class="rs-open-num">02</span>
                     <span class="rs-open-word">Menu</span>
-                    <small>Food, beer &amp; drinks</small>
                 </a>
 
                 @if (!hideAiFeatures)
@@ -288,9 +264,7 @@
                        class="rs-open-link"
                        aria-current="@(IsActive("BeerGuide") == "active" ? "page" : null)"
                        data-rs-preview="ai">
-                        <span class="rs-open-num">03</span>
                         <span class="rs-open-word">Rebel AI</span>
-                        <small>Can't decide?</small>
                     </a>
                 }
 
@@ -299,9 +273,7 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Events") == "active" ? "page" : null)"
                    data-rs-preview="events">
-                    <span class="rs-open-num">04</span>
                     <span class="rs-open-word">Events</span>
-                    <small>Live nights</small>
                 </a>
 
                 <a asp-controller="Home"
@@ -309,9 +281,7 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Home", "Contact") == "active" ? "page" : null)"
                    data-rs-preview="contact">
-                    <span class="rs-open-num">05</span>
                     <span class="rs-open-word">Contact</span>
-                    <small>Hours &amp; directions</small>
                 </a>
 
                 <a asp-controller="Reservations"
@@ -319,9 +289,7 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Reservations", "Lookup") == "active" ? "page" : null)"
                    data-rs-preview="booking">
-                    <span class="rs-open-num">06</span>
                     <span class="rs-open-word">My booking</span>
-                    <small>Check your table</small>
                 </a>
             </nav>
 
@@ -354,17 +322,8 @@
     <footer class="rs-footer" data-rs-stardust>
         <span class="rs-stars"></span>
 
-        <partial name="_Rail" model='new RailModel(null, "Last call · 01:00", "rs-rail--footer")' />
-
-        @* The Blind Prophet, the face of Rebel AI, sees you out. *@
+        @* The Blind Prophet, the face of Rebel AI. *@
         <partial name="_Look" model='new LookModel("prophet", "footer", "rs-footer-look")' />
-
-        @if (!hideAiFeatures)
-        {
-            <a class="rs-look-tag rs-look-tag--footer" asp-controller="BeerGuide" asp-action="Index">
-                <b>Can't decide?</b> Ask Rebel AI <i aria-hidden="true">&rarr;</i>
-            </a>
-        }
 
         <div class="rs-container rs-footer-main">
             <div class="rs-footer-brand">
@@ -372,22 +331,7 @@
                     Rebel
                     <span>Rebel</span>
                 </p>
-                <p class="rs-footer-note">Heroes, just for one night.</p>
             </div>
-
-            <nav class="rs-footer-col" aria-label="Footer">
-                <h2>Explore</h2>
-                <ul>
-                    <li><a asp-controller="Home" asp-action="Menu" asp-route-section="food">Food menu</a></li>
-                    <li><a asp-controller="Home" asp-action="Menu" asp-route-section="beer">Beer menu</a></li>
-                    <li><a asp-controller="Events" asp-action="Index">Events</a></li>
-                    @if (!hideAiFeatures)
-                    {
-                        <li><a asp-controller="BeerGuide" asp-action="Index">Rebel AI</a></li>
-                    }
-                    <li><a asp-controller="Reservations" asp-action="Lookup">My booking</a></li>
-                </ul>
-            </nav>
 
             <div class="rs-footer-col">
                 <h2>Visit</h2>
@@ -398,21 +342,11 @@
                 <p>Open every day<br />12:00 – 01:00</p>
                 <p><a asp-controller="Home" asp-action="Contact">Contact &amp; directions</a></p>
             </div>
-
-            <div class="rs-footer-cta">
-                <p>Walk in or play it smart.</p>
-                <a asp-controller="Reservations"
-                   asp-action="Create"
-                   class="rs-btn rs-btn--primary">
-                    Book a table <i aria-hidden="true">&rarr;</i>
-                </a>
-            </div>
         </div>
 
         <div class="rs-footer-bottom">
             <div class="rs-container">
                 <span>© 2026 Rebel Rebel by Fat Kitchen · Skopje</span>
-                <span>Cold beer // Loud records // Fat Kitchen food</span>
             </div>
         </div>
     </footer>

@@ -13,10 +13,6 @@
 <div class="rr-guide-page" data-rs-stardust>
     <span class="rs-stars"></span>
 
-    <partial name="_Rail" model='new RailModel("03", "Rebel AI")' />
-
-    <partial name="_Hud" />
-
     <span class="rr-guide-waves" aria-hidden="true"></span>
     <div class="rs-starman rr-guide-starman" aria-hidden="true"></div>
 
@@ -31,7 +27,6 @@
                  aria-labelledby="rr-guide-chat-title">
             <header class="rr-guide-ai-stage-head">
                 <div class="rr-guide-ai-stage-copy">
-                    <span>REBEL AI / ASK THE BAR</span>
                     <h2 id="rr-guide-chat-title">WHAT ARE YOU CRAVING?</h2>
                     <p>
                         Ask for food, beer, or a pairing in your own words.
@@ -82,7 +77,7 @@
                                   rows="2"
                                   placeholder="Spicy food and a cold beer under 250 MKD..."></textarea>
                         <button type="submit" data-chat-submit>
-                            <span>Shout it</span>
+                            <span>Ask</span>
                             <b aria-hidden="true">&rarr;</b>
                         </button>
                     </form>
@@ -882,7 +877,7 @@
                     activeChatRequest = null;
                     chatInput.disabled = false;
                     chatSubmit.disabled = false;
-                    chatSubmit.querySelector("span").textContent = "Shout it";
+                    chatSubmit.querySelector("span").textContent = "Ask";
                     promptButtons.forEach(button => button.disabled = false);
                     chatThread.setAttribute("aria-busy", "false");
                     chatInput.focus();
@@ -899,7 +894,7 @@
                         .forEach(item => item.remove());
                     chatInput.disabled = false;
                     chatSubmit.disabled = false;
-                    chatSubmit.querySelector("span").textContent = "Shout it";
+                    chatSubmit.querySelector("span").textContent = "Ask";
                     promptButtons.forEach(button => button.disabled = false);
                     chatThread?.setAttribute("aria-busy", "false");
                     chatInput.focus();

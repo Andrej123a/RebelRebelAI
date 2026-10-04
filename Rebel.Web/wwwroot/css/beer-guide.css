@@ -1708,20 +1708,6 @@
     letter-spacing: 0.14em;
 }
 
-/* Leave room for the timeline when the screen is too narrow to hold it in the margin. */
-@media (min-width: 992px) and (max-width: 1439.98px) {
-    .rr-guide-page:has(> .rs-rail) .rr-guide-workspace {
-        padding-left: 76px;
-    }
-}
-
-@media (max-width: 991.98px) {
-    /* Below the HUD's top readouts. */
-    .rr-guide-page > .rs-rail {
-        margin-top: 64px;
-    }
-}
-
 /* =========================================================
    CUT-UP — the Prophet's buttons are paper scraps like the
    rest of the site: cream paper cut with scissors over its
@@ -1822,8 +1808,6 @@
     font-weight: 900;
     letter-spacing: 0.05em;
 }
-
-
 
 .rr-guide-chat-prompts button:hover,
 .rr-guide-recovery-actions button:hover,

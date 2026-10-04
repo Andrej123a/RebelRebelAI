@@ -774,110 +774,11 @@ input[type="search"]::-webkit-search-cancel-button {
         line-height: 1.7;
     }
 
-/* ---------- marquee: what's on, on a strip of black gaffer tape ---------- */
-
-.rs-marquee {
-    position: relative;
-    z-index: 3;
-    overflow: hidden;
-    padding: 13px 0 11px;
-    background: var(--z-ink);
-    color: var(--z-cream);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-    transform: rotate(-1.4deg) scale(1.03);
-}
-
-.rs-marquee-track {
-    display: flex;
-    width: max-content;
-}
-
-.rs-marquee-group {
-    display: flex;
-    flex-shrink: 0;
-}
-
-.rs-marquee-item {
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: clamp(28px, 3.4vw, 50px);
-    font-weight: 900;
-    line-height: 1;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-    .rs-marquee-item small {
-        margin-left: 0.3em;
-        font-family: var(--rs-mono);
-        font-size: 0.34em;
-        font-weight: 700;
-        vertical-align: 0.9em;
-    }
-
-    .rs-marquee-item::after {
-        content: "";
-        display: inline-block;
-        width: 0.55em;
-        height: 0.55em;
-        margin: 0 0.6em;
-        background: var(--z-red);
-        clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
-        vertical-align: 0.06em;
-    }
-
-.rs-marquee--small .rs-marquee-item {
-    font-size: clamp(22px, 2.6vw, 36px);
-}
-
-.rs-tapes {
-    position: relative;
-    z-index: 4;
-    margin-block: -30px;
-}
-
-/* ---------- badge: text round a bolt ---------- */
-
-.rs-badge {
-    position: relative;
-    flex-shrink: 0;
-    width: clamp(130px, 14vw, 190px);
-    aspect-ratio: 1;
-    color: var(--ch-ink);
-    transform: rotate(-12deg);
-}
-
-    .rs-badge::before {
-        content: "";
-        position: absolute;
-        inset: 7%;
-        border: 1.5px dashed var(--z-blue);
-        border-radius: 50%;
-    }
-
-.rs-badge-ring {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    fill: currentColor;
-    font-family: var(--rs-mono);
-    font-weight: 700;
-    letter-spacing: 0.12em;
-}
-
 .rs-bolt {
     --bolt-a: var(--z-red-hot);
     --bolt-b: var(--z-blue);
     display: block;
     overflow: visible;
-}
-
-.rs-badge-bolt {
-    position: absolute;
-    inset: 28%;
-    --bolt-a: var(--z-gold);
-    --bolt-b: var(--z-blue);
-    transform: rotate(8deg);
 }
 
 /* ---------- forms ---------- */
@@ -1167,101 +1068,6 @@ input[type="search"]::-webkit-search-cancel-button {
     opacity: 0.9;
 }
 
-/* ---------- the rail ---------- */
-
-/* A thin line down the side of a chapter with the page's number and what this part
-   of Rebel is. */
-.rs-rail {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: clamp(14px, 2.7vw, 44px);
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    width: 64px;
-    margin-left: -32px;
-    color: var(--ch-rail);
-    pointer-events: none;
-}
-
-    .rs-rail::before,
-    .rs-rail::after {
-        content: "";
-        width: 2px;
-        background: var(--ch-rail);
-    }
-
-    .rs-rail::before {
-        flex: 0 0 84px;
-    }
-
-    .rs-rail::after {
-        flex: 1;
-    }
-
-.rs-rail-mark {
-    color: var(--ch-rail);
-    font-family: var(--rs-display);
-    font-size: clamp(30px, 2.6vw, 40px);
-    font-weight: 900;
-    line-height: 1;
-}
-
-.rs-rail-title {
-    color: var(--ch-ink);
-    font-family: var(--rs-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-}
-
-/* Leave room for the rail when the screen is too narrow to hold it in the margin. */
-@media (min-width: 992px) and (max-width: 1439.98px) {
-    .rs-chapter:has(> .rs-rail) > .rs-container,
-    .rs-footer:has(> .rs-rail) > .rs-container {
-        padding-left: 76px;
-    }
-}
-
-/* On small screens the rail becomes a line of type above the chapter. */
-@media (max-width: 991.98px) {
-    .rs-rail {
-        position: relative;
-        top: auto;
-        bottom: auto;
-        left: auto;
-        flex-direction: row;
-        gap: 10px;
-        width: min(1280px, calc(100% - 40px));
-        margin: 0 auto 26px;
-    }
-
-        .rs-rail::before {
-            display: none;
-        }
-
-        .rs-rail::after {
-            height: 1.5px;
-            opacity: 0.7;
-        }
-
-    .rs-rail-mark {
-        font-size: 30px;
-    }
-
-    .rs-rail-title {
-        writing-mode: horizontal-tb;
-        transform: none;
-    }
-}
-
 /* =========================================================
    5. PHOTO TREATMENTS — always CSS on the same image files
    ========================================================= */
@@ -1359,29 +1165,6 @@ a:focus-visible .rs-vhs img {
     filter: none;
 }
 
-/* The on-screen display of a VCR. */
-.rs-vhs-osd {
-    position: absolute;
-    z-index: 2;
-    color: #f4f4f4;
-    font-family: var(--rs-mono);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-shadow: 2px 0 0 rgba(226, 64, 26, 0.75), -2px 0 0 rgba(154, 211, 240, 0.75);
-    pointer-events: none;
-}
-
-.rs-vhs-osd--play {
-    top: 14px;
-    left: 16px;
-}
-
-.rs-vhs-osd--time {
-    right: 16px;
-    bottom: 14px;
-}
-
 /* Life on Mars?: a clipping cut out of a fanzine. */
 .rs-clip {
     --ch-bg: var(--z-news);
@@ -1394,26 +1177,6 @@ a:focus-visible .rs-vhs img {
     background: var(--z-news);
     color: var(--z-ink);
     clip-path: polygon(0 1%, 4% 0, 9% 1.2%, 15% 0.2%, 22% 1%, 30% 0, 38% 1.1%, 47% 0.1%, 55% 1%, 63% 0, 71% 1.2%, 79% 0.2%, 87% 1%, 94% 0, 100% 0.8%, 99.4% 9%, 100% 18%, 99.2% 28%, 100% 40%, 99.4% 52%, 100% 64%, 99.2% 76%, 100% 88%, 99.5% 99%, 93% 100%, 85% 99.1%, 76% 100%, 67% 99.2%, 58% 100%, 49% 99.1%, 40% 100%, 31% 99.2%, 22% 100%, 13% 99.1%, 5% 100%, 0 99.2%, 0.6% 88%, 0 76%, 0.8% 64%, 0 52%, 0.6% 40%, 0 28%, 0.8% 18%, 0 9%);
-}
-
-/* A sticker slapped on a clipping. */
-.rs-sticker {
-    position: absolute;
-    z-index: 4;
-    display: grid;
-    place-items: center;
-    width: var(--size, 96px);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--z-gold);
-    color: var(--z-ink);
-    font-family: var(--rs-display);
-    font-size: calc(var(--size, 96px) * 0.3);
-    font-weight: 900;
-    line-height: 0.9;
-    text-align: center;
-    text-transform: uppercase;
-    transform: rotate(-12deg);
 }
 
 /* =========================================================
@@ -1845,11 +1608,10 @@ a:focus-visible .rs-vhs img {
     transition: rotate 0.35s var(--rs-ease), translate 0.35s var(--rs-ease);
 }
 
-    .rs-ticket-stub b {
+    .rs-ticket-stub {
         font-family: var(--rs-stencil);
-        font-size: 17px;
-        font-weight: 900;
-        letter-spacing: 0.05em;
+        font-size: 22px;
+        letter-spacing: 0;
     }
 
 .rs-ticket:hover,
@@ -2133,17 +1895,8 @@ html.rs-open-lock body {
     grid-column: 1 / -1;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     min-height: 60px;
-}
-
-.rs-open-label {
-    color: var(--z-yellow);
-    font-family: var(--rs-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
 }
 
 .rs-open-close {
@@ -2191,13 +1944,6 @@ html.rs-open-lock body {
     gap: 16px;
     color: var(--z-gold);
     text-decoration: none;
-}
-
-.rs-open-num {
-    color: var(--z-cream);
-    font-family: var(--rs-mono);
-    font-size: clamp(13px, 1.2vw, 16px);
-    font-weight: 700;
 }
 
 .rs-open-word {
@@ -2326,83 +2072,6 @@ html.rs-open-lock body {
         }
 }
 
-/* ---------- preloader: the Space Oddity countdown, once per visit ---------- */
-
-.rs-preloader {
-    display: none;
-}
-
-.rs-js:not(.rs-seen) .rs-preloader {
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    display: grid;
-    place-content: center;
-    justify-items: center;
-    gap: 6px;
-    isolation: isolate;
-    background: var(--z-night);
-    color: var(--z-cream);
-    /* Falls away on its own if the script never runs. */
-    animation: rs-preloader-out 0.7s var(--rs-snap) 2.8s forwards;
-}
-
-    .rs-js:not(.rs-seen) .rs-preloader.is-done {
-        transform: translateY(-101%);
-        transition: transform 0.8s var(--rs-snap);
-    }
-
-.rs-preloader-label {
-    margin: 0;
-    color: var(--z-blue);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-}
-
-.rs-preloader-count {
-    min-width: 2ch;
-    margin: 0;
-    color: var(--z-gold);
-    font-family: var(--rs-display);
-    font-size: clamp(140px, 26vw, 360px);
-    font-weight: 900;
-    line-height: 0.86;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-}
-
-/* Warp speed: the starfield streaks past while the count runs down. */
-.rs-preloader-warp {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-}
-
-.rs-preloader-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin: 6px 0 0;
-    color: var(--z-cream);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-}
-
-@keyframes rs-preloader-out {
-    to {
-        transform: translateY(-101%);
-        visibility: hidden;
-    }
-}
-
 /* =========================================================
    8. FOOTER — Blackstar
    ========================================================= */
@@ -2435,7 +2104,8 @@ html.rs-open-lock body {
 
 .rs-footer-main {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, 0.75fr)) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: end;
     gap: 40px clamp(28px, 4vw, 64px);
     padding-block: clamp(72px, 9vw, 130px) 64px;
 }
@@ -2455,16 +2125,6 @@ html.rs-open-lock body {
         -webkit-text-fill-color: transparent;
         -webkit-text-stroke: 2px var(--z-yellow);
     }
-
-.rs-footer-note {
-    margin: 22px 0 0;
-    color: var(--z-cream);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
 
 .rs-footer-col h2 {
     margin: 0 0 18px;
@@ -2497,23 +2157,6 @@ html.rs-open-lock body {
         color: var(--z-yellow);
     }
 
-.rs-footer-cta {
-    display: grid;
-    align-content: start;
-    justify-items: start;
-    gap: 20px;
-}
-
-    .rs-footer-cta p {
-        margin: 0;
-        color: var(--z-cream);
-        font-family: var(--rs-display);
-        font-size: clamp(30px, 2.8vw, 44px);
-        font-weight: 900;
-        line-height: 0.95;
-        text-transform: uppercase;
-    }
-
 .rs-footer-bottom {
     background: var(--z-ink);
     color: var(--z-cream);
@@ -2539,10 +2182,6 @@ html.rs-open-lock body {
 
     .rs-footer-brand {
         grid-column: 1 / -1;
-    }
-
-    .rs-footer > .rs-rail {
-        margin-top: 48px;
     }
 }
 
@@ -2619,24 +2258,6 @@ html.rs-open-lock body {
     transform: rotate(2deg);
 }
 
-.rs-hero-badge {
-    position: absolute;
-    top: 46%;
-    left: -70px;
-    z-index: 5;
-    width: clamp(118px, 10vw, 150px);
-    color: var(--z-cream);
-}
-
-    .rs-hero-badge::after {
-        content: "";
-        position: absolute;
-        inset: 15%;
-        z-index: -1;
-        border-radius: 50%;
-        background: var(--z-red-deep);
-    }
-
 .rs-hero-mural figcaption {
     max-width: 430px;
     margin: 34px 0 0;
@@ -2660,13 +2281,6 @@ html.rs-open-lock body {
     padding-top: clamp(28px, 3.4vw, 56px);
 }
 
-.rs-hero-since {
-    margin: 0;
-    color: var(--z-yellow);
-    font-size: 18px;
-    font-weight: 600;
-}
-
 .rs-hero .rs-lead {
     margin-top: 18px;
 }
@@ -2685,82 +2299,6 @@ html.rs-open-lock body {
     align-items: center;
     gap: 18px 22px;
     margin-top: 40px;
-}
-
-/* ---------- 1973 · Aladdin Sane: the gold flood ---------- */
-
-.rs-home-beer {
-    padding-bottom: clamp(96px, 12vw, 170px);
-}
-
-.rs-home-beer-head {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-    align-items: end;
-    gap: 32px clamp(32px, 6vw, 96px);
-}
-
-.rs-home-fifty {
-    display: inline-block;
-    color: var(--z-red);
-    text-shadow: -0.05em 0.04em 0 var(--z-blue);
-    transform: rotate(-6deg);
-}
-
-.rs-home-beer-copy p {
-    margin: 0 0 16px;
-    color: var(--z-ink);
-    font-size: 17px;
-    font-weight: 500;
-    line-height: 1.7;
-}
-
-.rs-home-beer-copy .rs-btn {
-    margin-top: 14px;
-}
-
-.rs-home-trio {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: start;
-    gap: clamp(28px, 4vw, 64px);
-    margin-top: clamp(64px, 8vw, 112px);
-}
-
-.rs-home-trio-item {
-    display: grid;
-    gap: 22px;
-    color: var(--z-ink);
-    text-decoration: none;
-}
-
-    .rs-home-trio-item:hover {
-        color: var(--z-red);
-    }
-
-    .rs-home-trio-item:nth-child(2) {
-        margin-top: 64px;
-    }
-
-.rs-home-trio-photo {
-    aspect-ratio: 4 / 5;
-    transform: rotate(-2deg);
-}
-
-.rs-home-trio-item:nth-child(2) .rs-home-trio-photo {
-    transform: rotate(1.5deg);
-}
-
-.rs-home-trio-item:nth-child(3) .rs-home-trio-photo {
-    transform: rotate(-1deg);
-}
-
-.rs-home-trio-caption {
-    font-family: var(--rs-display);
-    font-size: clamp(24px, 2.2vw, 34px);
-    font-weight: 900;
-    line-height: 1;
-    text-transform: uppercase;
 }
 
 /* ---------- 1977 · Heroes: concrete and black-and-white ---------- */
@@ -2821,33 +2359,9 @@ html.rs-open-lock body {
     grid-area: three;
 }
 
-/* The one red thing in the chapter. */
+/* The hand-made Bowie head at the bar. */
 .rs-home-gallery-card {
     grid-area: card;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: clamp(20px, 2.4vw, 32px);
-    background: var(--z-red);
-    color: var(--z-cream);
-}
-
-    .rs-home-gallery-card .rs-label {
-        color: var(--z-yellow);
-    }
-
-    .rs-home-gallery-card strong {
-        font-family: var(--rs-display);
-        font-size: clamp(36px, 3.6vw, 60px);
-        font-weight: 900;
-        line-height: 0.9;
-        text-transform: uppercase;
-    }
-
-.rs-home-gallery-card-note {
-    font-size: 14px;
-    font-weight: 600;
 }
 
 /* ---------- Food & beer: the menus come down by cargo hauler ---------- */
@@ -2968,23 +2482,6 @@ html.rs-open-lock body {
             radial-gradient(circle 5px at 7px 7px, transparent 3px, #d9d2c6 3.4px, #d9d2c6 5px, transparent 5.4px) left / 14px 14px no-repeat,
             radial-gradient(circle 5px at 7px 7px, transparent 3px, #d9d2c6 3.4px, #d9d2c6 5px, transparent 5.4px) right / 14px 14px no-repeat;
         translate: 0 0;
-    }
-
-.rs-cargo-top {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 6px 12px;
-    color: var(--z-blue);
-    font-family: var(--rs-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
-
-    .rs-cargo-top span + span {
-        color: var(--z-gold);
     }
 
 .rs-cargo-head {
@@ -3131,16 +2628,6 @@ html.rs-open-lock body {
     gap: 16px;
 }
 
-.rs-home-console-line {
-    flex-basis: 100%;
-    margin: 0;
-    color: var(--z-blue);
-    font-family: var(--rs-mono);
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-}
-
 @media (max-width: 991.98px) {
     .rs-hero-grid {
         grid-template-columns: minmax(0, 1fr);
@@ -3156,11 +2643,6 @@ html.rs-open-lock body {
         margin-top: 28px;
     }
 
-    .rs-hero-badge {
-        left: -24px;
-    }
-
-    .rs-home-beer-head,
     .rs-heading {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -3185,17 +2667,6 @@ html.rs-open-lock body {
 
         .rs-home-mars::after {
             display: none;
-        }
-
-    .rs-home-trio {
-        grid-template-columns: minmax(0, 1fr);
-        width: min(calc(100% - 28px), 420px);
-        margin-inline: auto;
-        gap: 56px;
-    }
-
-        .rs-home-trio-item:nth-child(2) {
-            margin-top: 0;
         }
 
     .rs-home-gallery-grid {
@@ -3245,11 +2716,6 @@ html.rs-open-lock body {
 
 .rs-menu-hero h1 .rs-accent {
     display: block;
-}
-
-/* The planet, saucer or record already marks the corner. */
-.rs-menu-badge {
-    display: none;
 }
 
 .rs-menu-tabs {
@@ -3326,37 +2792,8 @@ html.rs-open-lock body {
         linear-gradient(180deg, rgba(12, 16, 28, 0.78), rgba(10, 7, 10, 0.66));
 }
 
-.rs-manifest-top {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 18px;
+.rs-manifest .rs-food-tools {
     margin: 0;
-    color: var(--z-blue);
-    font-family: var(--rs-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-}
-
-    .rs-manifest-top span + span {
-        color: var(--z-gold);
-    }
-
-.rs-manifest h2 {
-    margin: 12px 0 0;
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: clamp(56px, 8vw, 124px);
-    font-weight: 900;
-    line-height: 0.86;
-    text-transform: uppercase;
-}
-
-.rs-manifest-sub {
-    margin: 16px 0 0;
-    color: rgba(255, 241, 220, 0.85);
-    font-size: 1.05rem;
 }
 
 .rs-manifest .rs-manifest-courier {
@@ -3467,15 +2904,6 @@ html.rs-open-lock body {
         repeating-linear-gradient(90deg, rgba(154, 211, 240, 0.45) 0 1px, transparent 1px 24px) left bottom / 100% 8px no-repeat;
 }
 
-.rs-bay-num {
-    color: var(--z-gold);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-}
-
 .rs-bay-head h3 {
     margin: 0;
     color: var(--z-cream);
@@ -3483,16 +2911,6 @@ html.rs-open-lock body {
     font-size: clamp(44px, 5.6vw, 84px);
     font-weight: 900;
     line-height: 0.9;
-    text-transform: uppercase;
-}
-
-.rs-bay-count {
-    margin-left: auto;
-    color: var(--z-blue);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
     text-transform: uppercase;
 }
 
@@ -3637,30 +3055,6 @@ html.rs-open-lock body {
     padding: 16px 8px 18px;
 }
 
-.rs-crate-top {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6px 10px;
-}
-
-    .rs-crate-top .rs-label {
-        color: var(--z-blue);
-    }
-
-.rs-crate-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    color: rgba(255, 241, 220, 0.7);
-    font-family: var(--rs-mono);
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
 .rs-crate h4 {
     margin: 0;
     color: var(--z-cream);
@@ -3736,10 +3130,6 @@ html.rs-open-lock body {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .rs-menu-badge {
-        display: none;
-    }
-
     .rs-menu-tab {
         flex: 1 1 auto;
         justify-content: center;
@@ -3749,7 +3139,7 @@ html.rs-open-lock body {
 
     .rs-manifest {
         grid-template-columns: minmax(0, 1fr);
-        padding-right: 120px;
+        padding-top: 64px;
     }
 
     .rs-manifest .rs-manifest-courier {
@@ -3815,37 +3205,6 @@ html.rs-open-lock body {
     box-shadow: 0 0 0 10px #1c0e0b, 0 28px 50px rgba(74, 8, 3, 0.5);
     transform: rotate(2deg);
 }
-
-.rs-events-feature-date {
-    position: absolute;
-    top: -30px;
-    right: -24px;
-    z-index: 3;
-    display: grid;
-    place-items: center;
-    align-content: center;
-    width: 118px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--z-gold);
-    color: var(--z-ink);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    line-height: 1;
-    text-transform: uppercase;
-    transform: rotate(12deg);
-}
-
-    .rs-events-feature-date strong {
-        display: block;
-        margin-bottom: 2px;
-        font-family: var(--rs-display);
-        font-size: 54px;
-        font-weight: 900;
-        letter-spacing: 0;
-    }
 
 .rs-events-feature-copy {
     position: absolute;
@@ -4012,14 +3371,6 @@ html.rs-open-lock body {
         font-size: 15px;
     }
 
-.rs-events-meta {
-    color: rgba(255, 241, 220, 0.78);
-    font-family: var(--rs-mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-}
-
 .rs-events-actions {
     display: grid;
     gap: 10px;
@@ -4107,15 +3458,6 @@ html.rs-open-lock body {
     .rs-events-actions {
         grid-column: 1 / -1;
     }
-
-    .rs-events-feature-date {
-        right: -8px;
-        width: 96px;
-    }
-
-        .rs-events-feature-date strong {
-            font-size: 42px;
-        }
 }
 
 /* ---------- event details ---------- */
@@ -4170,22 +3512,6 @@ html.rs-open-lock body {
         font-size: clamp(28px, 2.8vw, 44px);
     }
 
-.rs-event-callout {
-    display: grid;
-    gap: 6px;
-    margin-top: 34px;
-    padding: 24px 28px;
-    transform: rotate(-1deg);
-}
-
-    .rs-event-callout strong {
-        font-family: var(--rs-display);
-        font-size: clamp(38px, 3.8vw, 60px);
-        font-weight: 900;
-        line-height: 0.9;
-        text-transform: uppercase;
-    }
-
 .rs-event-actions {
     display: flex;
     flex-wrap: wrap;
@@ -4197,22 +3523,6 @@ html.rs-open-lock body {
     .rs-event-actions .rs-pill {
         color: var(--z-yellow);
     }
-
-.rs-event-stamp {
-    position: absolute;
-    right: 0;
-    bottom: -88px;
-    padding: 8px 16px;
-    border: 3px solid var(--z-gold);
-    color: var(--z-gold);
-    font-family: var(--rs-display);
-    font-size: 24px;
-    font-weight: 900;
-    line-height: 1;
-    text-align: center;
-    text-transform: uppercase;
-    transform: rotate(-8deg);
-}
 
 @media (max-width: 991.98px) {
     .rs-event-grid {
@@ -4644,26 +3954,9 @@ html.rs-open-lock body {
 
 .rs-confirm-head {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     gap: clamp(24px, 4vw, 56px);
-}
-
-.rs-confirm-mark {
-    display: grid;
-    place-items: center;
-    width: clamp(110px, 13vw, 180px);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--z-gold);
-}
-
-.rs-confirm-rocket {
-    width: 56%;
-    fill: var(--z-ink);
-    --rocket-window: var(--z-blue);
-    --rocket-flame: var(--z-red);
-    transform: rotate(20deg);
 }
 
 .rs-confirm-grid {
@@ -4876,40 +4169,6 @@ html.rs-open-lock body {
         text-transform: uppercase;
     }
 
-.rs-contact-ticket-top {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 8px;
-    padding-bottom: 10px;
-    border-bottom: 2px dashed rgba(26, 15, 13, 0.5);
-    color: var(--z-red);
-}
-
-.rs-contact-ticket-route {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-family: var(--rs-display);
-    font-size: 26px;
-    font-weight: 900;
-    text-transform: uppercase;
-}
-
-    .rs-contact-ticket-route small {
-        display: block;
-        color: var(--z-red);
-        font-family: var(--rs-mono);
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-    }
-
-    .rs-contact-ticket-route svg {
-        width: 26px;
-        fill: var(--z-red);
-    }
-
 .rs-contact-place-link {
     color: var(--z-red);
     font-family: var(--rs-mono);
@@ -4961,24 +4220,8 @@ html.rs-open-lock body {
         text-transform: uppercase;
     }
 
-.rs-contact-manifesto {
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    align-items: center;
-    gap: 40px;
-}
-
-    .rs-contact-manifesto h2 {
-        color: var(--z-gold);
-    }
-
-    .rs-contact-manifesto .rs-display-scrawl {
-        color: var(--z-cream);
-    }
-
 .rs-contact-map-section {
-    padding-bottom: clamp(80px, 10vw, 150px);
+    padding-block: clamp(56px, 7vw, 100px) clamp(80px, 10vw, 150px);
 }
 
 .rs-contact-map {
@@ -4997,8 +4240,7 @@ html.rs-open-lock body {
 
 @media (max-width: 991.98px) {
     .rs-contact-hero-grid,
-    .rs-contact-board,
-    .rs-contact-manifesto {
+    .rs-contact-board {
         grid-template-columns: minmax(0, 1fr);
     }
 
@@ -5109,7 +4351,6 @@ html.rs-open-lock body {
     transform: translate(1.6px, -1.2px);
 }
 
-
 /* ---------- Ch-ch-changes: the home page's cast ---------- */
 
 /* Without the stage (no JS, or less motion asked for) this is a cast list:
@@ -5177,16 +4418,6 @@ html.rs-open-lock body {
 
 .rs-changes-copy {
     padding-bottom: clamp(40px, 6vw, 80px);
-}
-
-.rs-changes-num {
-    display: block;
-    color: transparent;
-    font-family: var(--rs-display);
-    font-size: clamp(88px, 14vw, 240px);
-    font-weight: 900;
-    line-height: 0.8;
-    -webkit-text-stroke: 2px var(--look-hot);
 }
 
 .rs-changes-job {
@@ -5325,31 +4556,6 @@ html.rs-open-lock body {
     margin: 0;
 }
 
-.rs-changes-facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 26px;
-    margin: 0;
-}
-
-    .rs-changes-facts dt {
-        color: var(--look-hot);
-        font-family: var(--rs-mono);
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-    }
-
-    .rs-changes-facts dd {
-        margin: 2px 0 0;
-        font-family: var(--rs-display);
-        font-size: 28px;
-        font-weight: 800;
-        line-height: 1;
-        text-transform: uppercase;
-    }
-
 /* Ask the Prophet right here; Rebel AI takes it from there. */
 .rs-changes-ask {
     display: grid;
@@ -5374,11 +4580,6 @@ html.rs-open-lock body {
         padding: 11px 22px;
         font-size: 18px;
     }
-
-.rs-changes-roll,
-.rs-changes-count {
-    display: none;
-}
 
 /* Behind each look: its era's symbol, huge and faint, or the Earth, or Mars. */
 .rs-changes-back {
@@ -5517,10 +4718,6 @@ html.rs-open-lock body {
         padding: 9vh 0 0;
     }
 
-        .rs-changes.is-staged .rs-changes-num {
-            font-size: clamp(64px, 14vh, 190px);
-        }
-
         .rs-changes.is-staged .rs-changes-job {
             margin-top: 6px;
             font-size: clamp(40px, 8.4vh, 104px);
@@ -5555,80 +4752,6 @@ html.rs-open-lock body {
 
         .rs-changes.is-staged .is-current .rs-changes-copy > :nth-child(n + 6) {
             transition-delay: 0.4s;
-        }
-
-    /* The cast so far, as a row of years along the bottom. */
-    .rs-changes.is-staged .rs-changes-roll {
-        position: absolute;
-        z-index: 3;
-        bottom: clamp(18px, 4vh, 40px);
-        left: max(72px, calc((100% - 1280px) / 2));
-        display: flex;
-        gap: 4px;
-        font-family: var(--rs-mono);
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-        .rs-changes.is-staged .rs-changes-roll a {
-            position: relative;
-            display: block;
-            padding: 8px 7px 10px;
-            color: inherit;
-            opacity: 0.55;
-            text-decoration: none;
-            transition: opacity 0.3s ease;
-        }
-
-            .rs-changes.is-staged .rs-changes-roll a::after {
-                content: "";
-                position: absolute;
-                right: 7px;
-                bottom: 2px;
-                left: 7px;
-                height: 2px;
-                background: var(--stage-hot, var(--z-gold));
-                transform: scaleX(0);
-                transition: transform 0.4s var(--rs-ease);
-            }
-
-            .rs-changes.is-staged .rs-changes-roll a:hover,
-            .rs-changes.is-staged .rs-changes-roll a:focus-visible,
-            .rs-changes.is-staged .rs-changes-roll a.is-past {
-                opacity: 0.85;
-            }
-
-            .rs-changes.is-staged .rs-changes-roll a.is-current {
-                opacity: 1;
-            }
-
-                .rs-changes.is-staged .rs-changes-roll a.is-current::after {
-                    transform: none;
-                }
-
-        .rs-changes.is-staged .rs-changes-roll span {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-            clip: rect(0 0 0 0);
-            white-space: nowrap;
-        }
-
-    .rs-changes.is-staged .rs-changes-count {
-        position: absolute;
-        z-index: 3;
-        top: clamp(34px, 6.6vh, 70px);
-        right: max(72px, calc((100% - 1280px) / 2));
-        display: block;
-        font-family: var(--rs-mono);
-        font-size: 12px;
-        letter-spacing: 0.18em;
-    }
-
-        .rs-changes.is-staged .rs-changes-count b {
-            color: var(--stage-hot, var(--z-gold));
-            transition: color 0.7s var(--rs-ease);
         }
 
 @media (max-width: 760px) {
@@ -5682,13 +4805,6 @@ html.rs-open-lock body {
             padding: 14px 0 92px;
         }
 
-        .rs-changes.is-staged .rs-changes-num {
-            position: absolute;
-            right: 20px;
-            bottom: calc(100% + 8px);
-            font-size: 72px;
-        }
-
         .rs-changes.is-staged .rs-changes-job {
             margin: 0;
             font-size: 40px;
@@ -5724,97 +4840,9 @@ html.rs-open-lock body {
             font-size: 16px;
         }
 
-        .rs-changes.is-staged .rs-changes-facts dd {
-            font-size: 22px;
-        }
-
-        /* The Open button lives down here on a phone; the count up top keeps the place. */
-        .rs-changes.is-staged .rs-changes-roll {
-            display: none;
-        }
-
         .rs-changes-look .rs-earth {
             top: calc(100% - 6vh);
         }
-
-        .rs-changes.is-staged .rs-changes-count {
-            top: 24px;
-            right: 20px;
-            bottom: auto;
-        }
-}
-
-/* ---------- the looks around the site ---------- */
-
-/* What a look is doing on this page, pinned beside him like a label on a record sleeve. */
-.rs-look-tag {
-    position: absolute;
-    z-index: 2;
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 10px;
-    max-width: min(340px, 80vw);
-    padding: 9px 14px 10px;
-    border-left: 4px solid var(--z-gold);
-    background: rgba(14, 8, 7, 0.86);
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: 18px;
-    font-weight: 800;
-    line-height: 1.05;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.25s var(--rs-ease);
-}
-
-    .rs-look-tag b {
-        flex-basis: 100%;
-        color: var(--z-gold);
-        font-family: var(--rs-mono);
-        font-size: 10px;
-        letter-spacing: 0.18em;
-    }
-
-    .rs-look-tag i {
-        font-style: normal;
-    }
-
-    .rs-look-tag:hover,
-    .rs-look-tag:focus-visible {
-        background: var(--z-gold);
-        color: var(--z-ink);
-        transform: rotate(-2deg);
-    }
-
-        .rs-look-tag:hover b,
-        .rs-look-tag:focus-visible b {
-            color: var(--z-red);
-        }
-
-.rs-look-tag--menu {
-    right: max(16px, 21vw);
-    bottom: 12%;
-}
-
-.rr-menu-page--beer .rs-look-tag--menu {
-    right: max(16px, 25vw);
-    bottom: 16%;
-}
-
-.rs-look-tag--contact {
-    right: max(16px, calc((100% - 1280px) / 2 + 600px));
-    bottom: 9%;
-}
-
-.rs-look-tag--events {
-    right: 46vw;
-    bottom: 22%;
-}
-
-.rs-look-tag--footer {
-    right: max(16px, calc(7vw + 150px));
-    bottom: 40px;
 }
 
 /* Each page's era stands at the edge of its hero, cut off by the bottom like a
@@ -5898,8 +4926,7 @@ html.rs-open-lock body {
 /* A phone's hero is all headline and buttons: the cast stays on the home stage. */
 @media (max-width: 760px) {
     .rs-page-look,
-    .rs-footer-look,
-    .rs-look-tag {
+    .rs-footer-look {
         display: none;
     }
 }
@@ -5918,176 +4945,6 @@ html.rs-open-lock body {
     transform-origin: 50% 0;
 }
 
-/* =========================================================
-   9z. SPACE — Ground Control's HUD, the bolt constellation, Earth
-
-   Space is drawn as instruments would draw it: hairlines, ticks
-   and one mono readout over a real-looking sky
-   (rebel-sky.js), not as cartoons.
-   ========================================================= */
-
-/* ---------- the HUD frame over a chapter ---------- */
-
-.rs-hud {
-    --hud: rgba(154, 211, 240, 0.5);
-    --hud-arm: 22px;
-    position: absolute;
-    inset: clamp(12px, 1.6vw, 22px);
-    z-index: 0;
-    pointer-events: none;
-    background:
-        linear-gradient(var(--hud), var(--hud)) top left / var(--hud-arm) 1px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) top left / 1px var(--hud-arm) no-repeat,
-        linear-gradient(var(--hud), var(--hud)) top right / var(--hud-arm) 1px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) top right / 1px var(--hud-arm) no-repeat,
-        linear-gradient(var(--hud), var(--hud)) bottom left / var(--hud-arm) 1px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) bottom left / 1px var(--hud-arm) no-repeat,
-        linear-gradient(var(--hud), var(--hud)) bottom right / var(--hud-arm) 1px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) bottom right / 1px var(--hud-arm) no-repeat;
-}
-
-/* Clear the timeline that runs down the left on wide screens. */
-@media (min-width: 992px) {
-    .rs-hud {
-        left: 86px;
-    }
-}
-
-/* The mission clock, top right. */
-.rs-hud-read {
-    position: absolute;
-    top: 7px;
-    right: 32px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: rgba(154, 211, 240, 0.8);
-    font-family: var(--rs-mono);
-    font-size: 10px;
-    font-weight: 400;
-    letter-spacing: 0.16em;
-    line-height: 1.3;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-    .rs-hud-read b {
-        color: var(--z-gold);
-        font-weight: 700;
-        font-variant-numeric: tabular-nums;
-    }
-
-/* The altitude tape down the right edge; its marker follows the scroll. */
-.rs-hud-tape {
-    position: absolute;
-    top: 50%;
-    right: 0;
-    width: 12px;
-    height: min(42%, 280px);
-    translate: 0 -50%;
-    background:
-        repeating-linear-gradient(180deg, var(--hud) 0 1px, transparent 1px 10px) right / 5px 100% no-repeat,
-        repeating-linear-gradient(180deg, var(--z-gold) 0 1px, transparent 1px 50px) right / 11px 100% no-repeat;
-}
-
-    .rs-hud-tape::after {
-        content: "";
-        position: absolute;
-        top: calc(var(--hud-tape, 0) * 100%);
-        right: 14px;
-        border: 4px solid transparent;
-        border-right: 0;
-        border-left: 6px solid var(--z-gold);
-        translate: 0 -50%;
-    }
-
-/* A reticle, as if Ground Control is watching this patch of sky. */
-.rs-hud-cross {
-    position: absolute;
-    top: 13%;
-    right: 27%;
-    width: 46px;
-    height: 46px;
-    border: 1px dashed rgba(154, 211, 240, 0.45);
-    border-radius: 50%;
-    background:
-        linear-gradient(var(--hud), var(--hud)) center / 1px 66px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) center / 66px 1px no-repeat;
-}
-
-@media (max-width: 767.98px) {
-    .rs-hud {
-        --hud-arm: 14px;
-    }
-
-    .rs-hud-cross,
-    .rs-hud-tape {
-        display: none;
-    }
-
-    .rs-hud-read {
-        right: 20px;
-    }
-}
-
-/* ---------- Ziggy's bolt, charted as a constellation ---------- */
-
-.rs-constellation {
-    position: absolute;
-    top: clamp(8px, 2.6vw, 40px);
-    left: 51%;
-    z-index: -1;
-    width: clamp(190px, 22vw, 330px);
-    height: auto;
-    overflow: visible;
-    translate: 0 var(--rs-drift, 0px);
-    pointer-events: none;
-}
-
-.rs-constellation-grid {
-    fill: none;
-    stroke: rgba(154, 211, 240, 0.18);
-    stroke-dasharray: 2 6;
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-}
-
-.rs-constellation-grid--ra {
-    stroke-dasharray: 1 9;
-}
-
-.rs-constellation-line {
-    fill: none;
-    stroke: rgba(154, 211, 240, 0.75);
-    stroke-linejoin: round;
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-}
-
-.rs-constellation-line--faint {
-    stroke: rgba(154, 211, 240, 0.35);
-    stroke-dasharray: 0.02 0.022;
-}
-
-.rs-constellation-stars circle {
-    fill: #fff6ea;
-    filter: drop-shadow(0 0 2px rgba(255, 216, 106, 0.95)) drop-shadow(0 0 7px rgba(255, 216, 106, 0.5));
-}
-
-    .rs-constellation-stars circle.rs-constellation-dim {
-        fill: rgba(255, 244, 234, 0.7);
-        filter: none;
-    }
-
-@media (max-width: 991.98px) {
-    .rs-constellation {
-        top: 40px;
-        right: 4%;
-        left: auto;
-        width: clamp(120px, 30vw, 200px);
-        opacity: 0.85;
-    }
-}
 
 /* ---------- "Planet Earth is blue": the planet's edge from orbit ---------- */
 
@@ -6243,17 +5100,6 @@ html.rs-open-lock body {
    ========================================================= */
 
 @media (prefers-reduced-motion: no-preference) {
-    .rs-marquee-track {
-        animation: rs-marquee 44s linear infinite;
-    }
-
-    .rs-marquee:hover .rs-marquee-track {
-        animation-play-state: paused;
-    }
-
-    .rs-badge-ring {
-        animation: rs-spin 28s linear infinite;
-    }
 
     .rs-led--blink {
         animation: rs-blink 1.2s steps(1) infinite;
@@ -6271,36 +5117,6 @@ html.rs-open-lock body {
             opacity: 1;
             filter: none;
             translate: 0 0;
-        }
-
-    /* The constellation is charted line by line, once. */
-    .rs-constellation-line:not(.rs-constellation-line--faint) {
-        stroke-dasharray: 1;
-        animation: rs-chart 2.6s var(--rs-ease) 0.5s both;
-    }
-
-    .rs-constellation-line--faint {
-        animation: rs-fade-in 1.2s ease 2.4s both;
-    }
-
-    .rs-constellation-stars circle {
-        animation: rs-fade-in 0.8s ease both;
-    }
-
-        .rs-constellation-stars circle:nth-child(2) {
-            animation-delay: 0.9s;
-        }
-
-        .rs-constellation-stars circle:nth-child(3) {
-            animation-delay: 1.5s;
-        }
-
-        .rs-constellation-stars circle:nth-child(4) {
-            animation-delay: 2.2s;
-        }
-
-        .rs-constellation-stars circle:nth-child(n + 5) {
-            animation-delay: 2.6s;
         }
 
     /* Ashes to Ashes: a tape rolling into place. */
@@ -6525,11 +5341,6 @@ html.rs-open-lock body {
         animation: none;
     }
 
-    .rs-preloader,
-    .rs-js:not(.rs-seen) .rs-preloader {
-        display: none;
-    }
-
     .rs-open,
     .rs-open:target,
     .rs-open.is-open {
@@ -6541,31 +5352,9 @@ html.rs-open-lock body {
     }
 }
 
-@keyframes rs-marquee {
-    to {
-        transform: translate3d(-50%, 0, 0);
-    }
-}
-
 @keyframes rs-spin {
     to {
         transform: rotate(360deg);
-    }
-}
-
-@keyframes rs-chart {
-    from {
-        stroke-dashoffset: 1;
-    }
-
-    to {
-        stroke-dashoffset: 0;
-    }
-}
-
-@keyframes rs-fade-in {
-    from {
-        opacity: 0;
     }
 }
 

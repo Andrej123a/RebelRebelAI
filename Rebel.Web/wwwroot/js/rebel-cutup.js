@@ -31,7 +31,7 @@
         ".rr-guide-compare-button",
     ].join(", ");
 
-    const PRESSABLE = SCRAPS + ", .rs-ticket, .rs-nav-link, .rs-open-toggle, .rs-look-tag";
+    const PRESSABLE = SCRAPS + ", .rs-ticket, .rs-nav-link, .rs-open-toggle";
     const SCRAMBLED = ".rs-btn, .rs-ticket-main, .rr-beer-action, .rr-guide-chat-form button, .rr-guide-submit";
     const MAGNETIC = ".rs-btn, .rs-ticket, .rr-beer-action, .rr-guide-chat-form button, .rr-guide-submit";
 

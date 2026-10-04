@@ -7,7 +7,6 @@
 // - a flare wherever someone clicks the sky,
 // - Ziggy's stardust trailing the pointer inside [data-rs-stardust],
 // - "Tin can": a satellite crossing now and then, in Ground Control's brackets,
-// - a warp-speed starfield behind the countdown preloader.
 // - the way down: --dusk and --dawn follow how far down the page you are, and the
 //   .rs-sky-warm layer turns space violet and then Ziggy red, rising like a sunrise.
 // The sky is seeded, so it is the same on every visit. With reduced motion it is
@@ -812,80 +811,4 @@
             meteor(event.clientX, event.clientY, live() * TAU, { speed: 500 + live() * 500, length: 50 + live() * 90, life: 0.35 + live() * 0.35 });
         }
     }, { passive: true });
-
-    // ---------- warp: the starfield behind the countdown ----------
-
-    const warpCanvas = document.querySelector("[data-rs-warp]");
-    const preloader = warpCanvas && warpCanvas.closest("[data-rs-preloader]");
-
-    if (warpCanvas && preloader && !root.classList.contains("rs-seen")) {
-        const w = warpCanvas.getContext("2d");
-        const rand = seeded(1969);
-        const stars = Array.from({ length: 260 }, () => ({
-            x: (rand() - 0.5) * 2,
-            y: (rand() - 0.5) * 2,
-            z: rand(),
-            colour: pick(rand, STAR_COLOURS)
-        }));
-        const started = performance.now();
-        let pw = 0;
-        let ph = 0;
-
-        const warp = (now) => {
-            if (preloader.hidden) {
-                return;
-            }
-
-            const width = warpCanvas.clientWidth;
-            const height = warpCanvas.clientHeight;
-
-            if (width !== pw || height !== ph) {
-                pw = width;
-                ph = height;
-                warpCanvas.width = Math.round(width * dpr);
-                warpCanvas.height = Math.round(height * dpr);
-            }
-
-            const elapsed = (now - started) / 1000;
-            const lift = preloader.classList.contains("is-lift") || preloader.classList.contains("is-done");
-            const speed = lift ? 3.2 : 0.08 + Math.min(1, elapsed / 1.1) * 0.9;
-            const cx = width / 2;
-            const cy = height / 2;
-            const scale = Math.max(width, height) * 0.5;
-
-            w.setTransform(dpr, 0, 0, dpr, 0, 0);
-            w.clearRect(0, 0, width, height);
-            w.globalCompositeOperation = "lighter";
-            w.lineCap = "round";
-
-            for (const s of stars) {
-                const pz = s.z;
-                s.z -= speed * 0.016;
-
-                if (s.z <= 0.02) {
-                    s.x = (rand() - 0.5) * 2;
-                    s.y = (rand() - 0.5) * 2;
-                    s.z = 1;
-                    continue;
-                }
-
-                const x = cx + (s.x / s.z) * scale * 0.5;
-                const y = cy + (s.y / s.z) * scale * 0.5;
-                const px = cx + (s.x / pz) * scale * 0.5;
-                const py = cy + (s.y / pz) * scale * 0.5;
-                const near = 1 - s.z;
-
-                w.strokeStyle = rgba(s.colour, Math.min(1, near * 1.4));
-                w.lineWidth = 0.4 + near * 2;
-                w.beginPath();
-                w.moveTo(px, py);
-                w.lineTo(x, y);
-                w.stroke();
-            }
-
-            requestAnimationFrame(warp);
-        };
-
-        requestAnimationFrame(warp);
-    }
 })();

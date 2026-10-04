@@ -27,27 +27,6 @@
         _ => CategoryType.Food
     };
 
-    var sectionTitle = selectedSection switch
-    {
-        "beer" => "Beer Menu",
-        "drink" => "Drinks Menu",
-        _ => "Food Menu"
-    };
-
-    var sectionMessage = selectedSection switch
-    {
-        "beer" => "Cold bottles, fresh pours and zero bad decisions.",
-        "drink" => "Pick your poison. We are not here to judge.",
-        _ => "Messy hands. Full stomach. No regrets."
-    };
-
-    var rail = selectedSection switch
-    {
-        "beer" => new RailModel("02", "The fridge"),
-        "drink" => new RailModel("02", "The bar"),
-        _ => new RailModel("02", "The kitchen")
-    };
-
     var (titleTop, titleBottom) = selectedSection switch
     {
         "beer" => ("The beers", "from Mars"),
@@ -82,10 +61,6 @@
     <header class="rs-chapter rs-chapter--sky rs-menu-hero" data-rs-stardust>
         <span class="rs-stars rs-menu-stars"></span>
 
-        <partial name="_Rail" model="rail" />
-
-        <partial name="_Hud" />
-
         @if (heroIcon == "planet")
         {
             <div class="rs-mars rs-menu-mars" aria-hidden="true" data-rs-drift="-0.1"></div>
@@ -98,22 +73,6 @@
         @if (heroLook != null)
         {
             <partial name="_Look" model='new LookModel(heroLook, "hero", "rs-page-look rs-page-look--menu")' />
-
-            @* What he orders: today's dish for Life on Mars?, his astronaut beer for Ziggy. *@
-            var skopjeToday = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Europe/Skopje"));
-
-            if (heroLook == "mars" && BowieCast.DishOfTheDay(Model, skopjeToday) is { } dish)
-            {
-                <a class="rs-look-tag rs-look-tag--menu" href="#dish-@dish.Id">
-                    <b>Today he's having</b> @dish.Name <i aria-hidden="true">&darr;</i>
-                </a>
-            }
-            else if (heroLook == "ziggy" && BowieCast.FindPick(Model, "ziggy") is { } ziggyBeer)
-            {
-                <a class="rs-look-tag rs-look-tag--menu" href="#@(BeerMenuPresenter.CreateAnchor(ziggyBeer.Name, 0, new HashSet<string>()))">
-                    <b>Ziggy's pick</b> @ziggyBeer.Name <i aria-hidden="true">&darr;</i>
-                </a>
-            }
         }
 
         <div class="rs-container rs-menu-hero-inner">
@@ -121,11 +80,7 @@
                 <h1 class="rs-display rs-display--xl" aria-label="@titleTop @titleBottom">
                     @titleTop <span class="rs-accent">@titleBottom</span>
                 </h1>
-
-                <p class="rs-lead">Come hungry. Leave louder.</p>
             </div>
-
-            <partial name="_RebelBadge" model='new RebelBadgeModel("rs-menu-badge", "EST. SKOPJE // FOOD // BEER // LOUD NIGHTS // ", "rs-menu-badge")' />
         </div>
 
         <nav class="rs-container rs-menu-tabs" aria-label="Menu sections">
@@ -135,7 +90,7 @@
                class="rs-menu-tab @(selectedSection == "food" ? "is-active" : "")"
                aria-current="@(selectedSection == "food" ? "page" : null)"
                style="--tone: var(--rs-yellow);">
-                <span>01</span> Food
+                Food
             </a>
 
             <a asp-controller="Home"
@@ -144,7 +99,7 @@
                class="rs-menu-tab @(selectedSection == "beer" ? "is-active" : "")"
                aria-current="@(selectedSection == "beer" ? "page" : null)"
                style="--tone: var(--rs-yellow);">
-                <span>02</span> Beer
+                Beer
             </a>
 
             @if (showDrinksMenu)
@@ -155,7 +110,7 @@
                    class="rs-menu-tab @(selectedSection == "drink" ? "is-active" : "")"
                    aria-current="@(selectedSection == "drink" ? "page" : null)"
                    style="--tone: var(--rs-red);">
-                    <span>03</span> Drinks
+                    Drinks
                 </a>
             }
         </nav>
@@ -168,79 +123,65 @@
     else
     {
         <div class="rs-container rs-food">
-            @* The manifest of what came down from the kitchen, and the courier bringing it. *@
-            <header class="rs-manifest">
-                <div class="rs-manifest-copy">
-                    <p class="rs-manifest-top">
-                        <span>Cargo manifest</span>
-                        <span>@(selectedSection == "drink" ? "The bar" : "Fat Kitchen") &rarr; your table</span>
-                    </p>
-                    <h2>@sectionTitle</h2>
-                    <p class="rs-manifest-sub">@sectionMessage</p>
-                </div>
+            @* The courier floats in with the menu: search and filters. *@
+            <div class="rs-manifest">
+                <section class="rs-food-tools"
+                         aria-label="Menu search and filters">
+                    <div class="rs-field rs-food-search">
+                        <label for="menuSearchInput">Find your order</label>
+                        <input id="menuSearchInput"
+                               type="search"
+                               placeholder="Search burgers, spicy, vegan..."
+                               autocomplete="off" />
+                    </div>
+
+                    <div class="rs-food-chips"
+                         role="group"
+                         aria-label="Menu tag filters">
+                        <button type="button" class="rs-chip is-active" aria-pressed="true" data-filter="all">All</button>
+                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="available"><i aria-hidden="true"></i>Available</button>
+                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="popular"><i aria-hidden="true"></i>Popular</button>
+                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="spicy"><i aria-hidden="true"></i>Spicy</button>
+                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="sweet"><i aria-hidden="true"></i>Sweet</button>
+                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegan"><i aria-hidden="true"></i>Vegan</button>
+                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegetarian"><i aria-hidden="true"></i>Vegetarian</button>
+                    </div>
+
+                    <p id="menuFilterSummary"
+                       class="rs-food-summary"
+                       aria-live="polite"></p>
+
+                    <div id="menuFilterEmpty"
+                         class="rs-food-empty"
+                         hidden>
+                        <strong>No matching menu items.</strong>
+                        <span>Try another search or clear the filters.</span>
+                        <button type="button"
+                                id="menuFilterClear"
+                                class="rs-btn rs-btn--small rs-btn--paper">
+                            Clear filters
+                        </button>
+                    </div>
+                </section>
 
                 <partial name="_Look" model='new LookModel("courier", "manifest", "rs-manifest-courier")' />
-            </header>
-
-            <section class="rs-food-tools"
-                     aria-label="Menu search and filters">
-                <div class="rs-field rs-food-search">
-                    <label for="menuSearchInput">Find your order</label>
-                    <input id="menuSearchInput"
-                           type="search"
-                           placeholder="Search burgers, spicy, vegan..."
-                           autocomplete="off" />
-                </div>
-
-                <div class="rs-food-chips"
-                     role="group"
-                     aria-label="Menu tag filters">
-                    <button type="button" class="rs-chip is-active" aria-pressed="true" data-filter="all">All</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="available"><i aria-hidden="true"></i>Available</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="popular"><i aria-hidden="true"></i>Popular</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="spicy"><i aria-hidden="true"></i>Spicy</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="sweet"><i aria-hidden="true"></i>Sweet</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegan"><i aria-hidden="true"></i>Vegan</button>
-                    <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegetarian"><i aria-hidden="true"></i>Vegetarian</button>
-                </div>
-
-                <p id="menuFilterSummary"
-                   class="rs-food-summary"
-                   aria-live="polite"></p>
-
-                <div id="menuFilterEmpty"
-                     class="rs-food-empty"
-                     hidden>
-                    <strong>No matching menu items.</strong>
-                    <span>Try another search or clear the filters.</span>
-                    <button type="button"
-                            id="menuFilterClear"
-                            class="rs-btn rs-btn--small rs-btn--paper">
-                        Clear filters
-                    </button>
-                </div>
-            </section>
+            </div>
 
             @if (!menuGroups.Any())
             {
                 <div class="rs-food-nothing">
-                    <h3 class="rs-display rs-display--sm">Nothing aboard yet.</h3>
-                    <p>This bay is still being loaded. Try the other menus in the meantime.</p>
+                    <h3 class="rs-display rs-display--sm">Nothing on this menu yet.</h3>
                 </div>
             }
             else
             {
-                var categoryNumber = 1;
-
                 @foreach (var group in menuGroups)
                 {
                     <section class="rs-food-category"
                              data-menu-category>
                         @* Each category is a cargo bay. *@
                         <header class="rs-bay-head">
-                            <span class="rs-bay-num">Bay @categoryNumber.ToString("00")</span>
                             <h3>@group.Key</h3>
-                            <span class="rs-bay-count">@group.Count().ToString("00") aboard</span>
                         </header>
 
                         <div class="rs-food-grid">
@@ -294,9 +235,7 @@
                                         }
                                         else
                                         {
-                                            <div class="rs-crate-placeholder" aria-hidden="true">
-                                                <span>No photo.<br />Still tastes good.</span>
-                                            </div>
+                                            <div class="rs-crate-placeholder" aria-hidden="true"></div>
                                         }
 
                                         <span class="rs-crate-price">
@@ -310,13 +249,6 @@
                                     </div>
 
                                     <div class="rs-crate-body">
-                                        <div class="rs-crate-top">
-                                            <span class="rs-label">@group.Key</span>
-                                            <span class="rs-crate-status">
-                                                <i class="rs-led @(product.IsAvailable ? "" : "rs-led--red")" aria-hidden="true"></i>
-                                                @(product.IsAvailable ? "Available" : "Unavailable")
-                                            </span>
-                                        </div>
 
                                         <h4>@product.Name</h4>
 
@@ -386,8 +318,6 @@
                             }
                         </div>
                     </section>
-
-                    categoryNumber++;
                 }
             }
         </div>

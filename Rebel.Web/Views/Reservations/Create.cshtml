@@ -11,10 +11,6 @@
 <section class="rs-chapter rs-chapter--sky rs-reserve">
     <span class="rs-stars rs-reserve-stars"></span>
 
-    <partial name="_Rail" model='new RailModel("06", "Bookings")' />
-
-    <partial name="_Hud" />
-
     <div class="rs-container rs-reserve-grid">
         <aside class="rs-reserve-art" aria-label="Rebel Rebel">
             <span class="rs-split rs-reserve-art-photo">
@@ -27,7 +23,6 @@
                 <img src="~/images/logo.jpg"
                      alt="Rebel Rebel by Fat Kitchen"
                      class="rs-reserve-logo" />
-                <strong>Come as<br />you are.</strong>
             </div>
         </aside>
 
@@ -36,10 +31,6 @@
               method="post"
               class="rs-console rs-reserve-form">
             <input asp-for="EventId" type="hidden" />
-
-            <div class="rs-console-bar">
-                <span>Ground Control · Table request</span>
-            </div>
 
             <div class="rs-reserve-body">
             <header>
@@ -64,7 +55,7 @@
 
             <div class="rs-reserve-row rs-reserve-row--two">
                 <label class="rs-field">
-                    <span><b>01</b> Date</span>
+                    <span>Date</span>
                     <input asp-for="ReservationDate"
                            type="date"
                            min="@ViewBag.MinimumReservationDate" />
@@ -72,7 +63,7 @@
                 </label>
 
                 <label class="rs-field">
-                    <span><b>02</b> Arrival time</span>
+                    <span>Arrival time</span>
                     <input asp-for="ReservationTime"
                            type="time"
                            min="10:00"
@@ -83,12 +74,12 @@
 
             <p class="rs-reserve-hours">
                 <i class="rs-led rs-led--gold"></i>
-                Reservations from 10:00 to 22:00 // at least 2 hours ahead
+                Reservations from 10:00 to 22:00, at least 2 hours ahead
             </p>
 
             <div class="rs-reserve-row rs-reserve-row--three">
                 <label class="rs-field">
-                    <span><b>03</b> Guests</span>
+                    <span>Guests</span>
                     <input asp-for="NumberOfGuests"
                            type="number"
                            inputmode="numeric"
@@ -98,7 +89,7 @@
                 </label>
 
                 <label class="rs-field">
-                    <span><b>04</b> Full name</span>
+                    <span>Full name</span>
                     <input asp-for="FullName"
                            placeholder="Your name"
                            autocomplete="name" />
@@ -106,7 +97,7 @@
                 </label>
 
                 <label class="rs-field">
-                    <span><b>05</b> Phone</span>
+                    <span>Phone</span>
                     <input asp-for="PhoneNumber"
                            placeholder="+389..."
                            autocomplete="tel" />
@@ -117,7 +108,7 @@
             <details class="rs-reserve-note" open="@showNote">
                 <summary>Add a note <span>optional</span></summary>
                 <label class="rs-field">
-                    <span>For the crew</span>
+                    <span>Note</span>
                     <textarea asp-for="Note"
                               rows="3"
                               placeholder="Birthday, accessibility, seating..."></textarea>
@@ -127,7 +118,7 @@
 
             <p class="rs-reserve-table">
                 <i class="rs-led rs-led--off"></i>
-                Table: assigned by the crew when your request is approved
+                Your table is assigned by staff when your request is approved
             </p>
 
             <div class="rs-reserve-submit">

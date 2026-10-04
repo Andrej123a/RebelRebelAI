@@ -6,19 +6,8 @@
     <header class="rs-chapter rs-chapter--sky rs-contact-hero" data-rs-stardust>
         <span class="rs-stars rs-contact-stars"></span>
 
-        <partial name="_Rail" model='new RailModel("05", "Find us")' />
-
-        <partial name="_Hud" />
-
-        @* The Thin White Duke, smoking by the departures board, points the way. *@
+        @* The Thin White Duke, by the opening hours. *@
         <partial name="_Look" model='new LookModel("duke", "hero", "rs-page-look rs-page-look--contact")' />
-
-        <a class="rs-look-tag rs-look-tag--contact"
-           href="https://www.google.com/maps/search/?api=1&amp;query=Naum+Naumovski+Borce+62+Skopje"
-           target="_blank"
-           rel="noopener">
-            <b>Next station</b> Naum Naumovski Borce 62 <i aria-hidden="true">&nearr;</i>
-        </a>
 
         <div class="rs-container rs-contact-hero-grid">
             <div>
@@ -27,17 +16,13 @@
                     <span class="rs-accent">the Rebels.</span>
                 </h1>
 
-                <p class="rs-lead">
-                    Cold beer, loud records and Fat Kitchen food.<br />
-                    You bring the people.
-                </p>
             </div>
 
             <aside class="rs-board rs-contact-hours" aria-label="Opening hours: open every day from 12:00 until 01:00">
-                <p class="rs-board-label" aria-hidden="true">Departures · Rebel Rebel · every day</p>
+                <p class="rs-board-label" aria-hidden="true">Open every day</p>
                 <div class="rs-board-row" aria-hidden="true"><span class="rs-board-key">Open</span><span class="rs-flap">1</span><span class="rs-flap">2</span><span class="rs-flap">:</span><span class="rs-flap">0</span><span class="rs-flap">0</span></div>
                 <div class="rs-board-row" aria-hidden="true"><span class="rs-board-key">Closes</span><span class="rs-flap">0</span><span class="rs-flap">1</span><span class="rs-flap">:</span><span class="rs-flap">0</span><span class="rs-flap">0</span></div>
-                <p class="rs-board-note">No dress code. No ceremony.</p>
+                <p class="rs-board-note">No dress code.</p>
             </aside>
         </div>
     </header>
@@ -48,15 +33,6 @@
                href="https://www.google.com/maps/search/?api=1&amp;query=Naum+Naumovski+Borce+62+Skopje"
                target="_blank"
                rel="noopener noreferrer">
-                <span class="rs-contact-ticket-top">
-                    <span class="rs-label">Ticket · Rebel Rebel, Skopje</span>
-                    <span class="rs-label">Admit all</span>
-                </span>
-                <span class="rs-contact-ticket-route" aria-hidden="true">
-                    <span><small>From</small>Anywhere</span>
-                    <svg viewBox="0 0 100 100"><use href="#rs-bolt" /></svg>
-                    <span><small>To</small>Rebel Rebel</span>
-                </span>
                 <strong>
                     Naum Naumovski<br />
                     Borce 62, Skopje
@@ -65,8 +41,6 @@
             </a>
 
             <div class="rs-console rs-contact-direct">
-                <span class="rs-kicker rs-kicker--red">Talk to us</span>
-
                 <a href="tel:+38970123456">
                     <small>Phone</small>
                     +389 70 123 456
@@ -86,8 +60,7 @@
             </div>
 
             <div class="rs-contact-walkin rs-flood rs-flood--yellow">
-                <span class="rs-label">Coming tonight?</span>
-                <strong>Walk in.<br />Or play it smart.</strong>
+                <strong>Walk-ins welcome.</strong>
                 <a asp-controller="Reservations"
                    asp-action="Create"
                    class="rs-btn rs-btn--night">
@@ -96,35 +69,7 @@
             </div>
         </section>
 
-        <section class="rs-section rs-contact-manifesto">
-            <h2 class="rs-display rs-display--lg" aria-label="Come thirsty. Leave louder.">
-                Come thirsty.<br />
-                <span class="rs-scrawl rs-display-scrawl">Leave louder.</span>
-            </h2>
-
-            <div class="rs-copy">
-                <p>
-                    Rebel Rebel is a small alternative pub for beer lovers,
-                    hungry tables and people who prefer their nights with a
-                    little character.
-                </p>
-                <p>
-                    Drop by for one drink, stay for the food, and let the
-                    playlist rearrange the rest of your plans.
-                </p>
-            </div>
-        </section>
-
         <section class="rs-contact-map-section">
-            <header class="rs-heading">
-                <div>
-                    <p class="rs-kicker rs-kicker--red">Naum Naumovski Borce 62</p>
-                    <h2 class="rs-display rs-display--md">You're almost here.</h2>
-                </div>
-
-                <p>Skopje 1000 / North Macedonia</p>
-            </header>
-
             <div class="rs-contact-map">
                 <iframe src="https://www.google.com/maps?q=Naum%20Naumovski%20Borce%2062,%20Skopje&amp;output=embed"
                         title="Map showing Rebel Rebel by Fat Kitchen in Skopje"

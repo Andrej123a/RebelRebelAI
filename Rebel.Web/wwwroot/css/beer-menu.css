@@ -36,57 +36,6 @@
 }
 
 /* =========================================================
-   MARQUEE
-========================================================= */
-
-/* A strip of yellow tape across the top of the record. */
-.rr-beer-marquee {
-    position: relative;
-    z-index: 3;
-    overflow: hidden;
-    margin-top: -30px;
-    padding: 14px 0 12px;
-    background: var(--beer-yellow);
-    transform: rotate(-1.6deg) scale(1.03);
-}
-
-.rr-beer-marquee-track {
-    display: flex;
-    width: max-content;
-}
-
-.rr-beer-marquee-group {
-    display: flex;
-    flex-shrink: 0;
-}
-
-.rr-beer-marquee-item {
-    color: var(--beer-night);
-    font-family: var(--beer-display);
-    font-weight: 900;
-    font-size: clamp(30px, 4.4vw, 64px);
-    line-height: 1;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-    .rr-beer-marquee-item::after {
-        content: "";
-        display: inline-block;
-        width: 0.5em;
-        height: 0.7em;
-        margin: 0 0.55em;
-        background: currentColor;
-        clip-path: polygon(62% 0, 8% 58%, 44% 58%, 28% 100%, 92% 38%, 56% 38%);
-        vertical-align: 0.02em;
-    }
-
-    .rr-beer-marquee-item:nth-child(3n + 2) {
-        -webkit-text-fill-color: transparent;
-        -webkit-text-stroke: 1.5px var(--beer-night);
-    }
-
-/* =========================================================
    INTRO
 ========================================================= */
 
@@ -99,78 +48,6 @@
     width: min(1280px, calc(100% - 40px));
     margin: 0 auto;
     padding: clamp(56px, 9vw, 120px) 0 40px;
-}
-
-.rr-beer-kicker {
-    margin: 0 0 14px;
-    color: var(--beer-yellow);
-    font-family: var(--beer-mono);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.26em;
-    text-transform: uppercase;
-}
-
-.rr-beer-intro-title {
-    margin: 0;
-    color: var(--beer-paper);
-    font-family: var(--beer-display);
-    font-size: clamp(72px, 12vw, 190px);
-    font-weight: 900;
-    line-height: 0.84;
-    text-transform: uppercase;
-}
-
-    .rr-beer-intro-title span {
-        display: block;
-        width: fit-content;
-        margin-left: 0.4em;
-        color: var(--beer-yellow);
-        text-shadow: -0.04em 0.035em 0 var(--beer-sky), 0.04em -0.02em 0 var(--beer-night);
-        transform: rotate(-4deg);
-    }
-
-.rr-beer-intro-text {
-    max-width: 560px;
-    margin: 24px 0 0;
-    color: rgba(255, 241, 220, 0.8);
-    font-family: var(--beer-body);
-    font-size: 18px;
-    font-weight: 500;
-    line-height: 1.55;
-}
-
-.rr-beer-badge {
-    position: relative;
-    width: clamp(140px, 15vw, 200px);
-    aspect-ratio: 1;
-    transform: rotate(-12deg);
-}
-
-    .rr-beer-badge::before {
-        content: "";
-        position: absolute;
-        inset: 6%;
-        border: 2px dashed var(--beer-yellow);
-        border-radius: 50%;
-    }
-
-.rr-beer-badge-ring {
-    width: 100%;
-    height: 100%;
-    fill: var(--beer-paper);
-    font-family: var(--beer-ring);
-    font-size: 13.4px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-}
-
-.rr-beer-badge-bolt {
-    position: absolute;
-    inset: 28%;
-    --bolt-a: var(--beer-yellow);
-    --bolt-b: var(--beer-sky);
-    transform: rotate(8deg);
 }
 
 .rr-beer-callout {
@@ -640,14 +517,6 @@
         opacity: 0.4;
     }
 
-.rr-beer-side-label {
-    grid-area: label;
-}
-
-.rr-beer-side-count {
-    grid-area: count;
-}
-
 .rr-beer-side-head h3 {
     grid-area: title;
     margin: 8px 0 0;
@@ -709,10 +578,6 @@
     text-transform: uppercase;
 }
 
-.rr-beer-track-number {
-    font-weight: 700;
-}
-
 .rr-beer-track-rule {
     flex: 0 1 120px;
     height: 1px;
@@ -726,13 +591,6 @@
     border-radius: 999px;
     font-weight: 800;
     letter-spacing: 0.1em;
-}
-
-/* The astronaut beers: what Ziggy and Major Tom drink (Models/BowieCast). */
-.rr-beer-flag--pick {
-    border-color: var(--track-ink);
-    background: var(--track-ink);
-    color: var(--track-bg);
 }
 
 .rr-beer-track-body {
@@ -1025,8 +883,7 @@
     margin: 0;
 }
 
-.rr-beer-burst,
-.rr-beer-orbit {
+.rr-beer-burst {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -1036,17 +893,6 @@
 .rr-beer-burst {
     fill: var(--track-accent);
 }
-
-.rr-beer-orbit {
-    color: var(--stage-bg);
-    transition: color 0.8s var(--beer-ease);
-}
-
-    .rr-beer-orbit text {
-        fill: currentColor;
-        font-family: var(--beer-ring);
-        font-weight: 700;
-    }
 
 .rr-beer-photo {
     position: absolute;
@@ -1187,13 +1033,6 @@
 ========================================================= */
 
 @media (prefers-reduced-motion: no-preference) {
-    .rr-beer-marquee-track {
-        animation: rr-beer-marquee 40s linear infinite;
-    }
-
-    .rr-beer-marquee:hover .rr-beer-marquee-track {
-        animation-play-state: paused;
-    }
 
     .rr-beer-stage.is-live .rr-taste-fill {
         transform: translateY(-50%) scaleX(0);
@@ -1213,13 +1052,6 @@
         left: var(--pos);
     }
 }
-
-@keyframes rr-beer-marquee {
-    to {
-        transform: translate3d(-50%, 0, 0);
-    }
-}
-
 
 /* =========================================================
    SMALLER SCREENS: the rail becomes a sticky strip
@@ -1330,13 +1162,6 @@
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .rr-beer-badge {
-        position: absolute;
-        top: 28px;
-        right: 0;
-        width: 104px;
-    }
-
     .rr-beer-callout {
         flex-direction: column;
         align-items: flex-start;
@@ -1348,10 +1173,6 @@
 
     .rr-beer-summary {
         justify-self: start;
-    }
-
-    .rr-beer-intro-text {
-        font-size: 16px;
     }
 }
 
@@ -1472,11 +1293,6 @@
     .rr-beer-flag:nth-child(even) {
         rotate: 1deg;
     }
-
-.rr-beer-flag--pick {
-    background: var(--beer-red);
-    color: var(--beer-paper);
-}
 
 /* A switch is a switch: square, with a square knob. */
 .rr-beer-toggle input,

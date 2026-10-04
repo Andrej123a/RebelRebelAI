@@ -25,11 +25,6 @@
             .Date;
     }
 
-    // A beer's own track on the beer menu.
-    public string BeerTrackUrl(Rebel.Domain.Entities.Product beer) =>
-        Url.Action("Menu", "Home", new { section = "beer" }) + "#" +
-        Rebel.Web.Services.BeerMenuPresenter.CreateAnchor(beer.Name, 0, new HashSet<string>());
-
     public string FormatEventDate(DateTime date)
     {
         var timeZone =
@@ -67,29 +62,6 @@
     <section class="rs-chapter rs-chapter--sky rs-hero" data-rs-stardust>
         <span class="rs-stars rs-hero-stars"></span>
 
-        <partial name="_Rail" model='new RailModel("01", "Rebel Rebel · Skopje")' />
-
-        <partial name="_Hud" />
-
-        @* Ziggy's lightning bolt, charted as a constellation. *@
-        <svg class="rs-constellation" viewBox="0 0 320 440" aria-hidden="true" data-rs-drift="-0.06">
-            <path class="rs-constellation-grid" d="M-60 330A380 380 0 0 1 330 -40" />
-            <path class="rs-constellation-grid" d="M0 450A330 330 0 0 1 330 60" />
-            <path class="rs-constellation-grid rs-constellation-grid--ra" d="M150 -10L120 450M262 -10L246 450" />
-            <polyline class="rs-constellation-line" points="226,22 122,204 214,198 66,414" pathLength="1" />
-            <polyline class="rs-constellation-line rs-constellation-line--faint" points="226,22 282,92 214,198" pathLength="1" />
-            <g class="rs-constellation-stars">
-                <circle cx="226" cy="22" r="3.6" />
-                <circle cx="122" cy="204" r="2.6" />
-                <circle cx="214" cy="198" r="3" />
-                <circle cx="66" cy="414" r="4" />
-                <circle cx="282" cy="92" r="1.8" />
-                <circle class="rs-constellation-dim" cx="170" cy="110" r="1.2" />
-                <circle class="rs-constellation-dim" cx="40" cy="300" r="1" />
-                <circle class="rs-constellation-dim" cx="268" cy="300" r="1.3" />
-                <circle class="rs-constellation-dim" cx="98" cy="70" r="1" />
-            </g>
-        </svg>
 
         <div class="rs-container rs-hero-grid">
             <h1 class="rs-hero-title" aria-label="Meet the Rebels">
@@ -104,8 +76,6 @@
                     <img src="~/images/rebel-bowie-mural.webp" alt="" aria-hidden="true" />
                 </span>
 
-                <partial name="_RebelBadge" model='new RebelBadgeModel("rs-home-badge", "INSPIRED BY BOWIE // REBEL REBEL // SKOPJE // ", "rs-hero-badge")' />
-
                 <figcaption>
                     <strong>Inspired by Bowie</strong>
                     He is more than a picture on our wall. Bowie gave Rebel
@@ -115,8 +85,6 @@
             </figure>
 
             <div class="rs-hero-copy">
-                <p class="rs-hero-since">In May 2025, Rebel Rebel came along.</p>
-
                 <p class="rs-lead">
                     Rebel Rebel by Fat Kitchen is a small alternative pub in
                     Skopje, opened in May 2025 for people who wanted something
@@ -126,8 +94,6 @@
                 <p class="rs-hero-more">
                     It is built around good music, casual tables, honest food
                     and the feeling that the place has already lived a little.
-                    Come for one drink, stay for a second, and let the night
-                    become less planned.
                 </p>
 
                 <div class="rs-home-actions">
@@ -143,37 +109,10 @@
                        class="rs-btn rs-btn--ghost">
                         See the menu
                     </a>
-
-                    <a asp-controller="Home"
-                       asp-action="Menu"
-                       asp-route-section="beer"
-                       class="rs-play">
-                        <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-play" /></svg>
-                        Play the beer tracklist
-                    </a>
                 </div>
             </div>
         </div>
     </section>
-
-    <div class="rs-tapes" aria-hidden="true">
-        <div class="rs-marquee">
-            <div class="rs-marquee-track">
-                @for (var copy = 0; copy < 2; copy++)
-                {
-                    <div class="rs-marquee-group">
-                        <span class="rs-marquee-item">Cold beer<small>50+</small></span>
-                        <span class="rs-marquee-item">Fat Kitchen food</span>
-                        <span class="rs-marquee-item">Loud records</span>
-                        <span class="rs-marquee-item">Live nights</span>
-                        <span class="rs-marquee-item">Open every day<small>12&ndash;01</small></span>
-                        <span class="rs-marquee-item">Naum Naumovski Borce 62</span>
-                        <span class="rs-marquee-item">Rebel Rebel<small>since &rsquo;25</small></span>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
 
     @* How Rebel works, one part at a time while you scroll, each looked after by one of
        Bowie's characters (the pub is named after his song). Without JS, or with less
@@ -181,9 +120,8 @@
     <section class="rs-chapter rs-changes" id="changes" aria-labelledby="rs-changes-title" data-rs-changes style="--looks: @BowieCast.All.Count;">
         <div class="rs-changes-stage">
             <header class="rs-changes-head">
-                <p class="rs-kicker">Rebel, start to finish</p>
-                <h2 id="rs-changes-title" class="rs-changes-title">How Rebel works, in nine&nbsp;changes.</h2>
-                <p class="rs-changes-lead">We are named after a Bowie song, so his characters help out around here. Keep scrolling: each one looks after a part of the pub.</p>
+                <h2 id="rs-changes-title" class="rs-changes-title">How Rebel works</h2>
+                <p class="rs-changes-lead">We are named after a Bowie song, so his characters help out around here.</p>
             </header>
 
             <ol class="rs-changes-list">
@@ -198,7 +136,7 @@
                     {
                         job = "Last call";
                         role = "turns the lights down";
-                        line = "Last orders at one in the morning, every night. Finish your drink, the sun is coming up somewhere.";
+                        line = "Last orders at 01:00, every night.";
                     }
 
                     <li class="rs-changes-look rs-changes-look--@look.Key"
@@ -222,26 +160,15 @@
                         </div>
 
                         <div class="rs-changes-copy">
-                            <span class="rs-changes-num" aria-hidden="true">@((i + 1).ToString("00"))</span>
                             <h3 class="rs-changes-job">@job</h3>
                             <p class="rs-changes-who"><b>@look.Name</b> @role</p>
                             <p class="rs-changes-line">@line</p>
 
-                            @* His desk: what he looks after here, live from the bar, and where it leads. *@
+                            @* Where it leads, and the next night for Pierrot. *@
                             <div class="rs-changes-desk">
                                 @switch (look.Key)
                                 {
                                     case "tom":
-                                        if (Model.Picks.TryGetValue("tom", out var tomBeer))
-                                        {
-                                            <a class="rs-changes-order" href="@BeerTrackUrl(tomBeer)">
-                                                <span class="rs-changes-order-label">His drink</span>
-                                                <strong>@tomBeer.Name</strong>
-                                                <span>@(string.Join(" · ", new[] { tomBeer.BeerStyle, tomBeer.AlcoholByVolume is { } abv ? $"{abv:0.#}%" : null, tomBeer.OriginCountry }.Where(part => !string.IsNullOrWhiteSpace(part))))</span>
-                                                <b>@tomBeer.Price.ToString("0.##")<small>ден</small></b>
-                                            </a>
-                                        }
-
                                         <div class="rs-changes-actions">
                                             <a asp-controller="Reservations" asp-action="Create" class="rs-btn rs-btn--primary">Book a table <i aria-hidden="true">&rarr;</i></a>
                                             <a asp-controller="Reservations" asp-action="Lookup" class="rs-btn rs-btn--ghost">Find my booking</a>
@@ -249,34 +176,14 @@
                                         break;
 
                                     case "mars":
-                                        if (Model.DishOfTheDay is { } dish)
-                                        {
-                                            <a class="rs-changes-order" asp-controller="Home" asp-action="Menu" asp-route-section="food">
-                                                <span class="rs-changes-order-label">Today he's having</span>
-                                                <strong>@dish.Name</strong>
-                                                <span>@(dish.Category?.Name)</span>
-                                                <b>@dish.Price.ToString("0.##")<small>ден</small></b>
-                                            </a>
-                                        }
-
                                         <div class="rs-changes-actions">
                                             <a asp-controller="Home" asp-action="Menu" asp-route-section="food" class="rs-btn rs-btn--primary">See the food <i aria-hidden="true">&rarr;</i></a>
                                         </div>
                                         break;
 
                                     case "ziggy":
-                                        if (Model.Picks.TryGetValue("ziggy", out var ziggyBeer))
-                                        {
-                                            <a class="rs-changes-order" href="@BeerTrackUrl(ziggyBeer)">
-                                                <span class="rs-changes-order-label">His drink</span>
-                                                <strong>@ziggyBeer.Name</strong>
-                                                <span>@(string.Join(" · ", new[] { ziggyBeer.BeerStyle, ziggyBeer.AlcoholByVolume is { } abv ? $"{abv:0.#}%" : null, ziggyBeer.OriginCountry }.Where(part => !string.IsNullOrWhiteSpace(part))))</span>
-                                                <b>@ziggyBeer.Price.ToString("0.##")<small>ден</small></b>
-                                            </a>
-                                        }
-
                                         <div class="rs-changes-actions">
-                                            <a asp-controller="Home" asp-action="Menu" asp-route-section="beer" class="rs-btn rs-btn--primary">Play the beer tracklist <i aria-hidden="true">&rarr;</i></a>
+                                            <a asp-controller="Home" asp-action="Menu" asp-route-section="beer" class="rs-btn rs-btn--primary">See the beers <i aria-hidden="true">&rarr;</i></a>
                                         </div>
                                         break;
 
@@ -286,30 +193,9 @@
                                         </div>
                                         break;
 
-                                    case "rebel":
-                                        <dl class="rs-changes-facts">
-                                            <div><dt>Since</dt><dd>May 2025</dd></div>
-                                            <div><dt>Where</dt><dd>Skopje</dd></div>
-                                            <div><dt>Kitchen</dt><dd>Fat Kitchen</dd></div>
-                                        </dl>
-                                        break;
-
-                                    case "jack":
-                                        <dl class="rs-changes-facts">
-                                            <div><dt>Open</dt><dd>12:00</dd></div>
-                                            <div><dt>Close</dt><dd>01:00</dd></div>
-                                            <div><dt>Days</dt><dd>Every one</dd></div>
-                                        </dl>
-
-                                        <div class="rs-changes-actions">
-                                            <a asp-controller="Home" asp-action="Contact" class="rs-btn rs-btn--ghost">Hours &amp; contact</a>
-                                        </div>
-                                        break;
-
                                     case "duke":
                                         <div class="rs-changes-actions">
                                             <a href="https://www.google.com/maps/search/?api=1&amp;query=Naum+Naumovski+Borce+62+Skopje" class="rs-btn rs-btn--primary" target="_blank" rel="noopener">Open directions <i aria-hidden="true">&nearr;</i></a>
-                                            <a asp-controller="Home" asp-action="Contact" class="rs-btn rs-btn--ghost">Contact</a>
                                         </div>
                                         break;
 
@@ -317,22 +203,14 @@
                                         if (featuredEvent != null)
                                         {
                                             <a class="rs-changes-order" asp-controller="Events" asp-action="Details" asp-route-id="@featuredEvent.Id">
-                                                <span class="rs-changes-order-label">Next on tape</span>
+                                                <span class="rs-changes-order-label">Next night</span>
                                                 <strong>@featuredEvent.Title</strong>
                                                 <span>@FormatEventDate(featuredEvent.Date)@(featuredEvent.StartTime.HasValue ? " · " + featuredEvent.StartTime.Value.ToString(@"hh\:mm") : "")</span>
                                             </a>
                                         }
-                                        else
-                                        {
-                                            <p class="rs-changes-order rs-changes-order--empty">
-                                                <span class="rs-changes-order-label">Next on tape</span>
-                                                <strong>No tape in the machine yet.</strong>
-                                                <span>New nights are on the way.</span>
-                                            </p>
-                                        }
 
                                         <div class="rs-changes-actions">
-                                            <a asp-controller="Events" asp-action="Index" class="rs-btn rs-btn--primary">See the lineup <i aria-hidden="true">&rarr;</i></a>
+                                            <a asp-controller="Events" asp-action="Index" class="rs-btn rs-btn--primary">See all events <i aria-hidden="true">&rarr;</i></a>
                                         </div>
                                         break;
 
@@ -340,16 +218,10 @@
                                         if (!hideAiFeatures)
                                         {
                                             <form class="rs-changes-ask" asp-controller="BeerGuide" asp-action="Index" method="get">
-                                                <label class="rs-changes-order-label" for="rs-changes-ask-input">Tell the Prophet</label>
+                                                <label class="rs-changes-order-label" for="rs-changes-ask-input">Ask Rebel AI</label>
                                                 <input id="rs-changes-ask-input" name="prompt" type="text" maxlength="400" placeholder="Something cold, a bit fruity, not too strong" />
-                                                <button type="submit" class="rs-btn rs-btn--primary">Ask him <i aria-hidden="true">&rarr;</i></button>
+                                                <button type="submit" class="rs-btn rs-btn--primary">Ask <i aria-hidden="true">&rarr;</i></button>
                                             </form>
-                                        }
-                                        else
-                                        {
-                                            <div class="rs-changes-actions">
-                                                <a asp-controller="Reservations" asp-action="Create" class="rs-btn rs-btn--primary">Book a table <i aria-hidden="true">&rarr;</i></a>
-                                            </div>
                                         }
                                         break;
                                 }
@@ -358,119 +230,20 @@
                     </li>
                 }
             </ol>
-
-            <nav class="rs-changes-roll" aria-label="How Rebel works">
-                @for (var i = 0; i < BowieCast.All.Count; i++)
-                {
-                    var look = BowieCast.All[i];
-
-                    <a href="#look-@look.Key" data-rs-roll="@i">
-                        <b>@((i + 1).ToString("00"))</b>
-                        <span>@(look.Key == "prophet" && hideAiFeatures ? "Last call" : look.Job)</span>
-                    </a>
-                }
-            </nav>
-
-            <span class="rs-changes-count" aria-hidden="true"><b data-rs-changes-now>01</b> / @BowieCast.All.Count.ToString("00")</span>
-        </div>
-    </section>
-
-    <section class="rs-chapter rs-chapter--gold rs-torn rs-home-beer">
-        <partial name="_Rail" model='new RailModel(null, "The fridge")' />
-
-
-        <div class="rs-container">
-            <div class="rs-home-beer-head">
-                <div data-rs-reveal>
-                    <p class="rs-kicker">The fridge</p>
-
-                    <h2 class="rs-display rs-display--lg" aria-label="More than 50 beers.">
-                        More than <span class="rs-home-fifty">50</span> beers.
-                    </h2>
-                </div>
-
-                <div class="rs-home-beer-copy" data-rs-reveal>
-                    <p>
-                        In the beer menu you can find Hungarian, Belgian, German,
-                        Czech and local beers, plus familiar choices for the easy
-                        nights and stranger bottles for when you want to try
-                        something new.
-                    </p>
-
-                    <p>
-                        Food comes from Fat Kitchen: burgers, wings, pizza, finger
-                        food and plates made for sharing while the table is still
-                        deciding what to drink next.
-                    </p>
-
-                    <a asp-controller="Home"
-                       asp-action="Menu"
-                       asp-route-section="beer"
-                       class="rs-btn rs-btn--primary">
-                        Open the beer menu <i aria-hidden="true">&rarr;</i>
-                    </a>
-                </div>
-            </div>
-
-            <div class="rs-home-trio">
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="beer"
-                   class="rs-home-trio-item"
-                   aria-label="Open the beer menu"
-                   data-rs-reveal>
-                    <span class="rs-split rs-home-trio-photo">
-                        <img src="~/images/rebel-six-beers.webp"
-                             alt="Six imported craft beer cans lined up at Rebel Rebel" />
-                        <img src="~/images/rebel-six-beers.webp" alt="" aria-hidden="true" />
-                    </span>
-                    <span class="rs-home-trio-caption">Six cans. Six directions.</span>
-                </a>
-
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="beer"
-                   class="rs-home-trio-item"
-                   aria-label="Open the beer menu"
-                   data-rs-reveal>
-                    <span class="rs-split rs-split--b rs-home-trio-photo">
-                        <img src="~/images/rebel-beers-bowie-sculpture.webp"
-                             alt="Four craft beer cans beside the handmade Bowie sculpture at Rebel Rebel" />
-                        <img src="~/images/rebel-beers-bowie-sculpture.webp" alt="" aria-hidden="true" />
-                    </span>
-                    <span class="rs-home-trio-caption">The Bowie head, hand made &rarr;</span>
-                </a>
-
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="beer"
-                   class="rs-home-trio-item"
-                   aria-label="Open the beer menu"
-                   data-rs-reveal>
-                    <span class="rs-split rs-home-trio-photo">
-                        <img src="~/images/rebel-liquid-cocaine-beers.webp"
-                             alt="Three Liquid Cocaine craft beer cans on the bar at Rebel Rebel" />
-                        <img src="~/images/rebel-liquid-cocaine-beers.webp" alt="" aria-hidden="true" />
-                    </span>
-                    <span class="rs-home-trio-caption">Liquid lineup.</span>
-                </a>
-            </div>
         </div>
     </section>
 
     <section class="rs-chapter rs-chapter--sky rs-torn rs-home-gallery" id="the-room">
-        <partial name="_Rail" model='new RailModel(null, "The room")' />
 
         <div class="rs-container">
             <header class="rs-heading" data-rs-reveal>
                 <div>
-                    <p class="rs-kicker">Inside the room</p>
-                    <h2 class="rs-display rs-display--lg">The evidence.</h2>
+                    <h2 class="rs-display rs-display--lg">The room</h2>
                 </div>
 
                 <p>
-                    No showroom polish. Just corners, posters, cold bottles
-                    and the kind of room that gets better after the first round.
+                    The Bowie murals, the Liquid Cocaine wall, the hand-made Bowie
+                    head at the bar and a light-blue Yugo parked outside.
                 </p>
             </header>
 
@@ -478,7 +251,6 @@
                 <figure class="rs-bw rs-home-gallery-item rs-home-gallery-one" data-rs-reveal>
                     <img src="~/images/rebel-exterior-yugo-night.webp"
                          alt="Rebel Rebel in Skopje on a rainy night, with a light-blue Yugo parked outside" />
-                    <figcaption>Wet streets. Warm lights. Skopje.</figcaption>
                 </figure>
 
                 <figure class="rs-bw rs-home-gallery-item rs-home-gallery-two" data-rs-reveal>
@@ -486,11 +258,10 @@
                          alt="The Bowie mural and Rebel Rebel wall inside the Skopje pub" />
                 </figure>
 
-                <div class="rs-home-gallery-card" data-rs-reveal>
-                    <span class="rs-label">Heroes</span>
-                    <strong>Just for one night.</strong>
-                    <span class="rs-home-gallery-card-note">Perfectly imperfect. Properly alive.</span>
-                </div>
+                <figure class="rs-bw rs-home-gallery-item rs-home-gallery-card" data-rs-reveal>
+                    <img src="~/images/rebel-beers-bowie-sculpture.webp"
+                         alt="The hand-made Bowie head on the bar at Rebel Rebel, beside four craft beer cans" />
+                </figure>
 
                 <figure class="rs-bw rs-home-gallery-item rs-home-gallery-three" data-rs-reveal>
                     <img src="~/images/rebel-liquid-cocaine-mural-room.webp"
@@ -501,21 +272,14 @@
     </section>
 
     <section class="rs-chapter rs-chapter--sky rs-torn rs-home-menu">
-        <partial name="_Rail" model='new RailModel(null, "Food & beer")' />
 
         <div class="rs-mars rs-home-mars" aria-hidden="true" data-rs-drift="-0.1"></div>
 
         <div class="rs-container">
             <header class="rs-heading" data-rs-reveal>
                 <div>
-                    <p class="rs-kicker">Fat Kitchen + the fridge</p>
                     <h2 class="rs-display rs-display--lg">Pick your poison.</h2>
                 </div>
-
-                <p>
-                    Fat Kitchen plates for the hungry table and beer worth
-                    slowing down for. The menus are on their way down.
-                </p>
             </header>
 
             @* The menus come down by cargo hauler, each one lowered on two cables. *@
@@ -529,7 +293,6 @@
                         <partial name="_Look" model='new LookModel("hauler", "kitchen", "rs-cargo-ship")' />
                         <svg class="rs-cargo-cables" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 0 L4 100 M50 0 L96 100" /></svg>
                         <span class="rs-cargo-pod">
-                            <span class="rs-cargo-top"><span>Cargo 01 · Kitchen</span><span>Contents: hot</span></span>
                             <strong class="rs-cargo-head">Food with bad intentions.</strong>
                             <span class="rs-cargo-window rs-home-rotator" aria-hidden="true">
                                 <img src="https://imageproxy.wolt.com/assets/6a02e61c938b4b58b5c33754?w=960" alt="" />
@@ -554,7 +317,6 @@
                         <partial name="_Look" model='new LookModel("hauler", "fridge", "rs-cargo-ship")' />
                         <svg class="rs-cargo-cables" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 0 L4 100 M50 0 L96 100" /></svg>
                         <span class="rs-cargo-pod">
-                            <span class="rs-cargo-top"><span>Cargo 02 · The fridge</span><span>Kept at 4&deg;C</span></span>
                             <strong class="rs-cargo-head">Beer beyond the usual.</strong>
                             <span class="rs-cargo-window rs-home-rotator" aria-hidden="true">
                                 <img src="https://imageproxy.wolt.com/assets/699da1e53eb3341f036f3ee9?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
@@ -581,7 +343,6 @@
                             <partial name="_Look" model='new LookModel("hauler", "bar", "rs-cargo-ship")' />
                             <svg class="rs-cargo-cables" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 0 L4 100 M50 0 L96 100" /></svg>
                             <span class="rs-cargo-pod">
-                                <span class="rs-cargo-top"><span>Cargo 03 · The bar</span><span>Handle with care</span></span>
                                 <strong class="rs-cargo-head">Liquid courage.</strong>
                                 <span class="rs-cargo-foot">
                                     <span class="rs-label">Spirits · Cocktails · Shots</span>
@@ -598,23 +359,15 @@
     <section class="rs-chapter rs-chapter--space rs-torn rs-home-cta" data-rs-stardust>
         <span class="rs-stars"></span>
 
-        <partial name="_Rail" model='new RailModel(null, "Your table")' />
-
         @* The bottom of the page: the sun coming up over the planet's edge. *@
         <div class="rs-earth rs-earth--dawn" aria-hidden="true"><i></i></div>
 
         <div class="rs-container">
             <div class="rs-console rs-home-console" data-rs-reveal>
-                <div class="rs-console-bar">
-                    <span>Ground Control · Rebel Rebel</span>
-                </div>
-
                 <div class="rs-home-console-body">
                     <h2 class="rs-display rs-display--xl">Your table<br /><span class="rs-accent">is waiting.</span></h2>
 
                     <div class="rs-home-cta-actions">
-                        <p class="rs-home-console-line">T-minus: whenever you are ready.</p>
-
                         <a asp-controller="Reservations"
                            asp-action="Create"
                            class="rs-btn rs-btn--primary">

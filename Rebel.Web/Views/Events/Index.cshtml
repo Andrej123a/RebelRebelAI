@@ -54,20 +54,9 @@
     <header class="rs-chapter rs-chapter--sky rs-events-hero" data-rs-stardust>
         <span class="rs-stars rs-events-stars"></span>
 
-        <partial name="_Rail" model='new RailModel("04", "Nights")' />
-
-        <partial name="_Hud" />
-
-
         @* Pierrot, from the Ashes to Ashes video, hosts the nights. *@
         <partial name="_Look" model='new LookModel("pierrot", "hero", "rs-page-look rs-page-look--events")' />
 
-        @if (nextEvent != null)
-        {
-            <a class="rs-look-tag rs-look-tag--events" asp-controller="Events" asp-action="Details" asp-route-id="@nextEvent.Id">
-                <b>Pierrot presents</b> @nextEvent.Title <i aria-hidden="true">&rarr;</i>
-            </a>
-        }
 
         <div class="rs-container rs-events-hero-grid @(nextEvent == null ? "has-no-feature" : string.Empty)">
             <div>
@@ -76,15 +65,8 @@
                     <span class="rs-events-here">starts here.</span>
                 </h1>
 
-                <p class="rs-lead">
-                    Live music, loud nights, cold beer and the kind of stories
-                    that should probably stay at the pub.
-                </p>
-
-                @* The next night is on the tape to the right; the count rides on the button. *@
                 <a href="#upcoming-events" class="rs-btn rs-btn--ghost rs-events-scroll">
-                    @(events.Count switch { 0 => "Explore the lineup", 1 => "One night ahead", _ => $"{events.Count} nights ahead" })
-                    <i aria-hidden="true">&darr;</i>
+                    See all events <i aria-hidden="true">&darr;</i>
                 </a>
             </div>
 
@@ -97,24 +79,14 @@
                    aria-label="View next event: @nextEvent.Title"
                    data-rs-vhs>
                     <span class="rs-vhs rs-events-feature-poster">
-                        <span class="rs-vhs-osd rs-vhs-osd--play">PLAY &#9654;</span>
-                        <span class="rs-vhs-osd rs-vhs-osd--time">SP @(nextEvent.StartTime.HasValue ? FormatTime(nextEvent.StartTime.Value) : "--:--"):00</span>
                         @if (!string.IsNullOrWhiteSpace(nextEvent.ImageUrl))
                         {
                             <img src="@Url.Content(nextEvent.ImageUrl)" alt="" />
                         }
                         else
                         {
-                            <span class="rs-events-placeholder">
-                                <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-bolt" /></svg>
-                                The next night awaits.
-                            </span>
+                            <span class="rs-events-placeholder"></span>
                         }
-                    </span>
-
-                    <span class="rs-events-feature-date">
-                        <strong>@nextEvent.Date.ToString("dd")</strong>
-                        @nextEvent.Date.ToString("MMM", CultureInfo.InvariantCulture)
                     </span>
 
                     <span class="rs-events-feature-copy">
@@ -133,42 +105,14 @@
         </div>
     </header>
 
-    @if (events.Any())
-    {
-        <div class="rs-tapes" aria-hidden="true">
-        <div class="rs-marquee rs-marquee--small">
-            <div class="rs-marquee-track">
-                @for (var copy = 0; copy < 2; copy++)
-                {
-                    <div class="rs-marquee-group">
-                        @for (var repeat = 0; repeat < (events.Count < 4 ? 3 : 1); repeat++)
-                        {
-                            @foreach (var e in events)
-                            {
-                                <span class="rs-marquee-item">@e.Title</span>
-                            }
-                        }
-                    </div>
-                }
-            </div>
-        </div>
-        </div>
-    }
-
     <section class="rs-section rs-events-lineup" id="upcoming-events">
         <div class="rs-container">
             <header class="rs-heading">
                 <div>
-                    <p class="rs-kicker rs-kicker--red">Don't miss out</p>
                     <h2 class="rs-display rs-display--lg" aria-label="Upcoming nights">
                         Upcoming <span class="rs-scrawl rs-display-scrawl">nights</span>
                     </h2>
                 </div>
-
-                <p>
-                    Every night on one list, like the back of a tour shirt.
-                    Pick the night and claim your table.
-                </p>
             </header>
 
             @if (events.Any())
@@ -191,28 +135,21 @@
                                class="rs-vhs rs-events-poster"
                                tabindex="-1"
                                aria-hidden="true">
-                                <span class="rs-vhs-osd rs-vhs-osd--play">&#9654;</span>
                                 @if (!string.IsNullOrWhiteSpace(e.ImageUrl))
                                 {
                                     <img src="@e.ImageUrl" alt="" loading="lazy" draggable="false" />
                                 }
                                 else
                                 {
-                                    <span class="rs-events-placeholder">
-                                        <svg viewBox="0 0 100 100"><use href="#rs-bolt" /></svg>
-                                        No poster. Still a good night.
-                                    </span>
+                                    <span class="rs-events-placeholder"></span>
                                 }
                             </a>
 
                             <div class="rs-events-copy">
-                                <span class="rs-label">
-                                    @FormatEventDate(e.Date)
-                                    @if (e.StartTime.HasValue)
-                                    {
-                                        <text> · @FormatTime(e.StartTime.Value)</text>
-                                    }
-                                </span>
+                                @if (e.StartTime.HasValue)
+                                {
+                                    <span class="rs-label">@FormatTime(e.StartTime.Value)</span>
+                                }
 
                                 <h3>
                                     <a asp-controller="Events"
@@ -220,15 +157,10 @@
                                        asp-route-id="@e.Id">@e.Title</a>
                                 </h3>
 
-                                <p>
-                                    @(string.IsNullOrWhiteSpace(e.Description)
-                                        ? "One more reason to cancel your quiet night at home."
-                                        : e.Description)
-                                </p>
-
-                                <span class="rs-events-meta">
-                                    @e.Date.ToString("dddd, dd MMMM yyyy", CultureInfo.InvariantCulture)
-                                </span>
+                                @if (!string.IsNullOrWhiteSpace(e.Description))
+                                {
+                                    <p>@e.Description</p>
+                                }
                             </div>
 
                             <div class="rs-events-actions">
@@ -253,17 +185,12 @@
             else
             {
                 <div class="rs-events-empty">
-                    <span class="rs-kicker">Pierrot is between tapes</span>
                     <h3 class="rs-display rs-display--sm">No upcoming events right now.</h3>
-                    <p>
-                        The speakers are resting, but not for long.
-                        Check back soon for new nights, live sets and special events.
-                    </p>
 
                     <a asp-controller="Home"
                        asp-action="Index"
                        class="rs-btn rs-btn--ghost">
-                        Back to the pub
+                        Back home
                     </a>
                 </div>
             }
@@ -273,8 +200,7 @@
     <section class="rs-chapter rs-chapter--gold rs-torn rs-events-cta">
         <div class="rs-container rs-events-cta-inner">
             <div>
-                <span class="rs-label">Walk-ins are brave.</span>
-                <h2 class="rs-display rs-display--lg">Reservations<br />are smarter.</h2>
+                <h2 class="rs-display rs-display--lg">Book a table<br />for the night.</h2>
             </div>
 
             <a asp-controller="Reservations"

@@ -226,7 +226,7 @@
 
         if (summary) {
             summary.textContent = visibleCount === tracks.length
-                ? `${tracks.length} ${tracks.length === 1 ? "beer" : "beers"} on the record`
+                ? `${tracks.length} ${tracks.length === 1 ? "beer" : "beers"}`
                 : `${visibleCount} of ${tracks.length} beers`;
         }
 
