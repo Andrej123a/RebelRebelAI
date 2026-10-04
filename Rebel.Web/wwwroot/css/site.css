@@ -93,6 +93,11 @@
     --ch-btn-ink: var(--z-ink);
     --ch-plate: rgba(0, 0, 0, 0.38);
 
+    /* One rhythm for every chapter: the space above and below its content, and the
+       soft overlap where one chapter fades into the next. */
+    --rs-pad: clamp(56px, 6.5vw, 96px);
+    --rs-seam: clamp(40px, 5vw, 80px);
+
     /* Older names, still read by the beer menu and Rebel AI sheets. */
     --rs-char: var(--z-ink);
     --rs-night: var(--z-ink);
@@ -281,7 +286,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-section {
     position: relative;
-    padding-block: clamp(72px, 10vw, 140px);
+    padding-block: var(--rs-pad);
 }
 
 .rs-defs {
@@ -764,14 +769,14 @@ input[type="search"]::-webkit-search-cancel-button {
     grid-template-columns: minmax(0, 1fr) minmax(240px, 420px);
     align-items: end;
     gap: 24px 48px;
-    margin-bottom: clamp(40px, 5vw, 72px);
+    margin-bottom: clamp(28px, 3.5vw, 48px);
 }
 
     .rs-heading p {
         margin: 0;
         color: var(--ch-soft);
-        font-size: 16px;
-        line-height: 1.7;
+        font-size: 18px;
+        line-height: 1.6;
     }
 
 .rs-bolt {
@@ -878,7 +883,7 @@ input[type="search"]::-webkit-search-cancel-button {
 .rs-chapter {
     isolation: isolate;
     overflow: clip;
-    padding-block: clamp(72px, 10vw, 140px);
+    padding-block: var(--rs-pad);
 }
 
 /* A window onto the sky behind the page: deep space at the top of the page, a red
@@ -973,9 +978,9 @@ input[type="search"]::-webkit-search-cancel-button {
 /* No hard edges between chapters: each one slides over the last and fades in, so one
    colour bleeds into the next. */
 .rs-torn {
-    --seam: clamp(70px, 9vw, 150px);
+    --seam: var(--rs-seam);
     margin-top: calc(var(--seam) * -1);
-    padding-top: calc(clamp(72px, 10vw, 140px) + var(--seam));
+    padding-top: calc(var(--rs-pad) + var(--seam));
     -webkit-mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.55) calc(var(--seam) * 0.55), #000 var(--seam));
     mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.55) calc(var(--seam) * 0.55), #000 var(--seam));
 }
@@ -984,7 +989,7 @@ input[type="search"]::-webkit-search-cancel-button {
    footer brings its own fade). */
 .rs-torn.rs-chapter--gold:has(+ .rs-chapter),
 .rs-torn.rs-chapter--concrete:has(+ .rs-chapter) {
-    padding-bottom: calc(clamp(96px, 12vw, 170px) + var(--seam) * 0.5);
+    padding-bottom: calc(var(--rs-pad) + var(--seam) * 0.5);
     -webkit-mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.55) calc(var(--seam) * 0.55), #000 var(--seam), #000 calc(100% - var(--seam)), transparent 100%);
     mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.55) calc(var(--seam) * 0.55), #000 var(--seam), #000 calc(100% - var(--seam)), transparent 100%);
 }
@@ -2085,7 +2090,7 @@ html.rs-open-lock body {
     --ch-rail: var(--z-yellow);
     --ch-btn: var(--z-cream);
     --ch-btn-ink: var(--z-ink);
-    --seam: clamp(80px, 10vw, 160px);
+    --seam: clamp(70px, 8vw, 130px);
     position: relative;
     z-index: 2;
     overflow: clip;
@@ -2102,19 +2107,22 @@ html.rs-open-lock body {
     z-index: 1;
 }
 
+/* The wordmark, where to find us and when, side by side; the Prophet stands at the
+   end of the row. */
 .rs-footer-main {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
     align-items: end;
-    gap: 40px clamp(28px, 4vw, 64px);
-    padding-block: clamp(72px, 9vw, 130px) 64px;
+    gap: 36px clamp(32px, 4.5vw, 72px);
+    padding-block: clamp(24px, 3vw, 44px) clamp(36px, 4vw, 56px);
+    padding-right: clamp(150px, 19vw, 280px);
 }
 
 .rs-footer-word {
     margin: 0;
     color: var(--z-yellow);
     font-family: var(--rs-display);
-    font-size: clamp(80px, 10vw, 168px);
+    font-size: clamp(72px, 8vw, 132px);
     font-weight: 900;
     line-height: 0.82;
     text-transform: uppercase;
@@ -2126,8 +2134,14 @@ html.rs-open-lock body {
         -webkit-text-stroke: 2px var(--z-yellow);
     }
 
+.rs-footer-col {
+    display: grid;
+    gap: 10px;
+    padding-bottom: 6px;
+}
+
 .rs-footer-col h2 {
-    margin: 0 0 18px;
+    margin: 0;
     color: var(--z-yellow);
     font-family: var(--rs-mono);
     font-size: 12px;
@@ -2148,14 +2162,36 @@ html.rs-open-lock body {
 .rs-footer-col p {
     margin: 0;
     color: var(--z-cream);
-    font-size: 15px;
-    line-height: 1.7;
+    font-size: 16px;
+    line-height: 1.6;
     text-decoration: none;
 }
 
-    .rs-footer-col a:hover {
-        color: var(--z-yellow);
+    .rs-footer-col a {
+        font-family: var(--rs-stencil);
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
     }
+
+        .rs-footer-col a:hover,
+        .rs-footer-col a:focus-visible {
+            color: var(--z-yellow);
+        }
+
+        .rs-footer-col a i {
+            font-style: normal;
+        }
+
+/* The facts themselves, set large. */
+.rs-footer-col .rs-footer-big {
+    font-family: var(--rs-display);
+    font-size: clamp(26px, 2.3vw, 38px);
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+}
 
 .rs-footer-bottom {
     background: var(--z-ink);
@@ -2185,6 +2221,12 @@ html.rs-open-lock body {
     }
 }
 
+@media (max-width: 760px) {
+    .rs-footer-main {
+        padding-right: 0;
+    }
+}
+
 @media (max-width: 575.98px) {
     .rs-footer-main {
         grid-template-columns: minmax(0, 1fr);
@@ -2198,7 +2240,7 @@ html.rs-open-lock body {
 /* ---------- 1974 · Rebel Rebel: the red sky ---------- */
 
 .rs-hero {
-    padding-block: clamp(36px, 5vw, 80px) clamp(110px, 12vw, 170px);
+    padding-block: clamp(36px, 5vw, 72px) var(--rs-pad);
 }
 
 .rs-hero-stars {
@@ -2254,27 +2296,10 @@ html.rs-open-lock body {
 }
 
 .rs-hero-mural-frame {
+    display: block;
     aspect-ratio: 4 / 5.15;
     transform: rotate(2deg);
 }
-
-.rs-hero-mural figcaption {
-    max-width: 430px;
-    margin: 34px 0 0;
-    color: var(--z-cream);
-    font-size: 15px;
-    line-height: 1.7;
-}
-
-    .rs-hero-mural figcaption strong {
-        display: block;
-        margin-bottom: 6px;
-        color: var(--z-yellow);
-        font-family: var(--rs-mono);
-        font-size: 12px;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-    }
 
 .rs-hero-copy {
     grid-area: copy;
@@ -2282,16 +2307,24 @@ html.rs-open-lock body {
 }
 
 .rs-hero .rs-lead {
-    margin-top: 18px;
+    max-width: 30ch;
+    margin-top: 0;
+    font-size: clamp(20px, 1.7vw, 26px);
+    line-height: 1.45;
 }
 
 .rs-hero-more {
-    max-width: 54ch;
-    margin: 16px 0 0;
-    color: var(--z-cream);
-    font-size: 16px;
-    line-height: 1.75;
+    max-width: 52ch;
+    margin: 18px 0 0;
+    color: rgba(255, 241, 220, 0.88);
+    font-size: 17px;
+    line-height: 1.65;
 }
+
+    .rs-hero-more strong {
+        color: var(--z-yellow);
+        font-weight: 700;
+    }
 
 .rs-home-actions {
     display: flex;
@@ -2608,24 +2641,37 @@ html.rs-open-lock body {
 
 /* ---------- 1969 · Space Oddity: Ground Control ---------- */
 
-.rs-home-console {
-    max-width: 1120px;
-}
-
+/* The headline on the left, the two ways in stacked on the right. */
 .rs-home-console-body {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 36px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 32px clamp(32px, 4vw, 64px);
     padding: clamp(28px, 4vw, 56px);
 }
 
+    .rs-home-console-body h2 {
+        margin: 0;
+    }
+
 .rs-home-cta-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 16px;
+    display: grid;
+    gap: 14px;
+}
+
+    .rs-home-cta-actions .rs-btn {
+        justify-content: space-between;
+        min-width: 260px;
+    }
+
+@media (max-width: 767.98px) {
+    .rs-home-console-body {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rs-home-cta-actions .rs-btn {
+        min-width: 0;
+    }
 }
 
 @media (max-width: 991.98px) {
@@ -2995,19 +3041,12 @@ html.rs-open-lock body {
     filter: grayscale(1) brightness(0.55);
 }
 
+/* No photo yet: the pub's logo stands in. */
 .rs-crate-placeholder {
-    display: grid;
-    place-items: center;
     height: 100%;
-    background: radial-gradient(circle at 50% 40%, #2a2122, #0c0809 70%);
-    color: rgba(255, 241, 220, 0.6);
-    font-family: var(--rs-mono);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    line-height: 1.6;
-    text-align: center;
-    text-transform: uppercase;
+    background:
+        url("../images/email/rebel-logo.png") center / 42% auto no-repeat,
+        radial-gradient(circle at 50% 45%, #2a2122, #0c0809 70%);
 }
 
 .rs-crate-price {
@@ -3241,31 +3280,17 @@ html.rs-open-lock body {
 }
 
 .rs-events-placeholder {
-    display: grid;
-    place-content: center;
-    justify-items: center;
-    gap: 14px;
+    display: block;
     width: 100%;
     height: 100%;
     min-height: 220px;
-    padding: 24px;
-    background: #1c0e0b;
-    color: var(--z-cream);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-align: center;
-    text-transform: uppercase;
+    background:
+        url("../images/email/rebel-logo.png") center / 46% auto no-repeat,
+        #1c0e0b;
 }
 
-    .rs-events-placeholder svg {
-        width: 64px;
-        fill: var(--tone, var(--z-gold));
-    }
-
 .rs-events-lineup {
-    padding-top: clamp(96px, 11vw, 160px);
+    padding-top: var(--rs-pad);
 }
 
 .rs-events-list {
@@ -4431,18 +4456,18 @@ html.rs-open-lock body {
 }
 
 .rs-changes-line {
-    max-width: 40ch;
-    margin: 12px 0 0;
-    font-size: 1.02rem;
-    line-height: 1.6;
+    max-width: 34ch;
+    margin: 18px 0 0;
+    font-size: clamp(18px, 1.5vw, 22px);
+    line-height: 1.5;
 }
 
 /* Who looks after it, and how. */
 .rs-changes-who {
-    margin: 14px 0 0;
+    margin: 16px 0 0;
     color: var(--look-hot);
     font-family: var(--rs-display);
-    font-size: clamp(22px, 2.2vw, 32px);
+    font-size: clamp(24px, 2.6vw, 40px);
     font-weight: 800;
     letter-spacing: 0.02em;
     line-height: 1;
@@ -4477,7 +4502,7 @@ html.rs-open-lock body {
     display: grid;
     justify-items: start;
     gap: 14px;
-    margin-top: 20px;
+    margin-top: 28px;
 }
 
 .rs-changes-actions {
@@ -4660,7 +4685,8 @@ html.rs-open-lock body {
 
     .rs-changes.is-staged .rs-changes-title {
         color: inherit;
-        font-size: clamp(24px, 2.4vw, 38px);
+        font-size: clamp(20px, 1.8vw, 28px);
+        opacity: 0.8;
     }
 
     .rs-changes.is-staged .rs-changes-lead {
@@ -4715,12 +4741,12 @@ html.rs-open-lock body {
     }
 
     .rs-changes.is-staged .rs-changes-copy {
-        padding: 9vh 0 0;
+        padding: 0;
     }
 
         .rs-changes.is-staged .rs-changes-job {
-            margin-top: 6px;
-            font-size: clamp(40px, 8.4vh, 104px);
+            margin-top: 0;
+            font-size: clamp(56px, 13vh, 150px);
         }
 
         .rs-changes.is-staged .rs-changes-copy > * {
@@ -4866,13 +4892,6 @@ html.rs-open-lock body {
     height: min(92%, 700px);
 }
 
-/* Ziggy behind the bar's console, at the foot of the page. */
-.rs-page-look--guide {
-    right: -5vw;
-    z-index: -1;
-    height: min(50vh, 440px);
-}
-
 /* Pierrot between the headline and the flyer. */
 .rs-page-look--events {
     right: 31vw;
@@ -4888,10 +4907,10 @@ html.rs-open-lock body {
 /* The Blind Prophet in front of the footer's black star. */
 .rs-footer-look {
     position: absolute;
-    right: max(16px, 7vw);
+    right: max(20px, calc((100% - 1280px) / 2));
     bottom: 0;
     z-index: 0;
-    width: clamp(150px, 17vw, 260px);
+    width: clamp(140px, 15vw, 230px);
     pointer-events: none;
 }
 
@@ -4910,11 +4929,6 @@ html.rs-open-lock body {
     .rs-page-look--contact {
         right: -6vw;
         height: min(52%, 360px);
-    }
-
-    .rs-page-look--guide {
-        height: 300px;
-        right: -10vw;
     }
 
     .rs-footer-look {
@@ -5011,7 +5025,7 @@ html.rs-open-lock body {
     }
 
 .rs-home-cta {
-    padding-bottom: clamp(170px, 17vw, 250px);
+    padding-bottom: clamp(130px, 12vw, 190px);
 }
 
 .rs-error-earth {

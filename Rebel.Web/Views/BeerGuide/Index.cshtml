@@ -16,11 +16,12 @@
     <span class="rr-guide-waves" aria-hidden="true"></span>
     <div class="rs-starman rr-guide-starman" aria-hidden="true"></div>
 
-    @* The Blind Prophet, the face of Rebel AI: he can't see a thing, but he knows the menu. *@
-    <partial name="_Look" model='new LookModel("prophet", "guide", "rs-page-look rs-page-look--guide")' />
-
     <main class="rr-guide-workspace rr-guide-workspace-chat-only"
           data-active-tool="chat">
+        @* The Blind Prophet, the face of Rebel AI, stands beside the chat: he can't see a
+           thing, but he knows the menu. *@
+        <partial name="_Look" model='new LookModel("prophet", "guide", "rr-guide-prophet")' />
+
         <section id="rr-guide-chat"
                  class="rr-guide-chat rr-guide-ai-stage"
                  data-guide-tool-panel="chat"

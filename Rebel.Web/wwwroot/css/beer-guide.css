@@ -824,16 +824,38 @@
 }
 
 /* Single-mode Rebel AI bar */
+/* The chat on the left, the Blind Prophet standing beside it on the right. */
 .rr-guide-workspace-chat-only {
-    display: block;
-    padding: clamp(34px, 6vw, 68px) 0 80px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(220px, 25vw, 360px);
+    align-items: end;
+    gap: clamp(24px, 3vw, 48px);
+    width: min(1280px, calc(100% - 40px));
+    padding: clamp(28px, 4vw, 56px) 0 var(--rs-pad, 72px);
+}
+
+    .rr-guide-workspace-chat-only .rr-guide-chat {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+.rr-guide-prophet {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    margin-bottom: calc(var(--rs-pad, 72px) * -1);
+}
+
+/* He is already on this page, so he sits out the footer. */
+body:has(.rr-guide-prophet) .rs-footer-look {
+    display: none;
 }
 
 .rr-guide-ai-stage {
     position: relative;
     overflow: hidden;
-    max-width: 980px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     padding: clamp(18px, 3vw, 32px);
     border: 1px solid rgba(255, 241, 220, 0.2);
     background:
@@ -915,6 +937,7 @@
 }
 
 .rr-guide-ai-stage .rr-guide-chat-thread {
+    min-height: clamp(220px, 32vh, 380px);
     max-height: 640px;
     padding: 18px 6px 20px;
 }
@@ -966,6 +989,16 @@
 
 .rr-guide-ai-stage .rr-guide-chat-form button b {
     color: #150b09;
+}
+
+@media (max-width: 860px) {
+    .rr-guide-workspace-chat-only {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rr-guide-prophet {
+        display: none;
+    }
 }
 
 @media (max-width: 700px) {
