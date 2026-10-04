@@ -67,7 +67,7 @@
     <section class="rs-chapter rs-chapter--sky rs-hero" data-rs-stardust>
         <span class="rs-stars rs-hero-stars"></span>
 
-        <partial name="_Era" model='new EraModel("1974", "sun", "Rebel Rebel")' />
+        <partial name="_Rail" model='new RailModel("01", "Rebel Rebel · Skopje")' />
 
         <partial name="_Hud" />
 
@@ -88,9 +88,6 @@
                 <circle class="rs-constellation-dim" cx="40" cy="300" r="1" />
                 <circle class="rs-constellation-dim" cx="268" cy="300" r="1.3" />
                 <circle class="rs-constellation-dim" cx="98" cy="70" r="1" />
-            </g>
-            <g class="rs-constellation-labels">
-                <text x="236" y="66">BOLT</text>
             </g>
         </svg>
 
@@ -165,30 +162,28 @@
                 @for (var copy = 0; copy < 2; copy++)
                 {
                     <div class="rs-marquee-group">
-                        <span class="rs-marquee-item">Space Oddity<small>&rsquo;69</small></span>
-                        <span class="rs-marquee-item">Life on Mars?<small>&rsquo;71</small></span>
-                        <span class="rs-marquee-item">Ziggy Stardust<small>&rsquo;72</small></span>
-                        <span class="rs-marquee-item">Aladdin Sane<small>&rsquo;73</small></span>
-                        <span class="rs-marquee-item">Rebel Rebel<small>&rsquo;74</small></span>
-                        <span class="rs-marquee-item">Station to Station<small>&rsquo;76</small></span>
-                        <span class="rs-marquee-item">Heroes<small>&rsquo;77</small></span>
-                        <span class="rs-marquee-item">Ashes to Ashes<small>&rsquo;80</small></span>
-                        <span class="rs-marquee-item">Let's Dance<small>&rsquo;83</small></span>
-                        <span class="rs-marquee-item">Blackstar<small>&rsquo;16</small></span>
+                        <span class="rs-marquee-item">Cold beer<small>50+</small></span>
+                        <span class="rs-marquee-item">Fat Kitchen food</span>
+                        <span class="rs-marquee-item">Loud records</span>
+                        <span class="rs-marquee-item">Live nights</span>
+                        <span class="rs-marquee-item">Open every day<small>12&ndash;01</small></span>
+                        <span class="rs-marquee-item">Naum Naumovski Borce 62</span>
+                        <span class="rs-marquee-item">Rebel Rebel<small>since &rsquo;25</small></span>
                     </div>
                 }
             </div>
         </div>
     </div>
 
-    @* Ch-ch-changes: every look takes the stage in turn while you scroll, like the
-       characters on the Heroes longread. Without JS, or with less motion, it is a cast list. *@
+    @* How Rebel works, one part at a time while you scroll, each looked after by one of
+       Bowie's characters (the pub is named after his song). Without JS, or with less
+       motion, it is a plain list. *@
     <section class="rs-chapter rs-changes" id="changes" aria-labelledby="rs-changes-title" data-rs-changes style="--looks: @BowieCast.All.Count;">
         <div class="rs-changes-stage">
             <header class="rs-changes-head">
-                <p class="rs-kicker">Ch-ch-ch-ch-changes</p>
-                <h2 id="rs-changes-title" class="rs-changes-title">Nine Bowies run this&nbsp;bar.</h2>
-                <p class="rs-changes-lead">Every look has a job here, from the bookings desk to the last call. Keep scrolling and he changes.</p>
+                <p class="rs-kicker">Rebel, start to finish</p>
+                <h2 id="rs-changes-title" class="rs-changes-title">How Rebel works, in nine&nbsp;changes.</h2>
+                <p class="rs-changes-lead">We are named after a Bowie song, so his characters help out around here. Keep scrolling: each one looks after a part of the pub.</p>
             </header>
 
             <ol class="rs-changes-list">
@@ -196,12 +191,14 @@
                 {
                     var look = BowieCast.All[i];
                     var job = look.Job;
+                    var role = look.Role;
                     var line = look.Line;
 
                     if (look.Key == "prophet" && hideAiFeatures)
                     {
                         job = "Last call";
-                        line = "Blackstar was his last record. Ours is at one in the morning, every night.";
+                        role = "turns the lights down";
+                        line = "Last orders at one in the morning, every night. Finish your drink, the sun is coming up somewhere.";
                     }
 
                     <li class="rs-changes-look rs-changes-look--@look.Key"
@@ -217,9 +214,6 @@
                                 case "mars":
                                     <div class="rs-mars"></div>
                                     break;
-                                default:
-                                    <svg class="rs-changes-sign" viewBox="0 0 100 100"><use href="#rs-@look.Backdrop" /></svg>
-                                    break;
                             }
                         </div>
 
@@ -228,13 +222,9 @@
                         </div>
 
                         <div class="rs-changes-copy">
-                            <span class="rs-changes-year" aria-hidden="true">@look.Year</span>
-                            <p class="rs-changes-song">@look.Song</p>
-                            <h3 class="rs-changes-name">
-                                @look.Name
-                                <span class="visually-hidden">, @look.Year</span>
-                            </h3>
-                            <p class="rs-changes-job">@job</p>
+                            <span class="rs-changes-num" aria-hidden="true">@((i + 1).ToString("00"))</span>
+                            <h3 class="rs-changes-job">@job</h3>
+                            <p class="rs-changes-who"><b>@look.Name</b> @role</p>
                             <p class="rs-changes-line">@line</p>
 
                             @* His desk: what he looks after here, live from the bar, and where it leads. *@
@@ -369,14 +359,14 @@
                 }
             </ol>
 
-            <nav class="rs-changes-roll" aria-label="Bowie's looks">
+            <nav class="rs-changes-roll" aria-label="How Rebel works">
                 @for (var i = 0; i < BowieCast.All.Count; i++)
                 {
                     var look = BowieCast.All[i];
 
                     <a href="#look-@look.Key" data-rs-roll="@i">
-                        <b>&rsquo;@look.Year[2..]</b>
-                        <span>@look.Name</span>
+                        <b>@((i + 1).ToString("00"))</b>
+                        <span>@(look.Key == "prophet" && hideAiFeatures ? "Last call" : look.Job)</span>
                     </a>
                 }
             </nav>
@@ -386,9 +376,8 @@
     </section>
 
     <section class="rs-chapter rs-chapter--gold rs-torn rs-home-beer">
-        <partial name="_Era" model='new EraModel("1973", "bolt-sane", "Aladdin Sane")' />
+        <partial name="_Rail" model='new RailModel(null, "The fridge")' />
 
-        <svg class="rs-bolt rs-home-beer-bolt" viewBox="-8 -4 112 108" aria-hidden="true" data-rs-drift="-0.12"><use href="#rs-bolt-sane" /></svg>
 
         <div class="rs-container">
             <div class="rs-home-beer-head">
@@ -469,8 +458,8 @@
         </div>
     </section>
 
-    <section class="rs-chapter rs-chapter--concrete rs-torn rs-home-gallery" id="the-room">
-        <partial name="_Era" model='new EraModel("1977", "wall", "Heroes")' />
+    <section class="rs-chapter rs-chapter--sky rs-torn rs-home-gallery" id="the-room">
+        <partial name="_Rail" model='new RailModel(null, "The room")' />
 
         <div class="rs-container">
             <header class="rs-heading" data-rs-reveal>
@@ -512,7 +501,7 @@
     </section>
 
     <section class="rs-chapter rs-chapter--sky rs-torn rs-home-menu">
-        <partial name="_Era" model='new EraModel("1971", "planet", "Life on Mars?")' />
+        <partial name="_Rail" model='new RailModel(null, "Food & beer")' />
 
         <div class="rs-mars rs-home-mars" aria-hidden="true" data-rs-drift="-0.1"></div>
 
@@ -601,10 +590,10 @@
     <section class="rs-chapter rs-chapter--space rs-torn rs-home-cta" data-rs-stardust>
         <span class="rs-stars"></span>
 
-        <partial name="_Era" model='new EraModel("1969", "rocket", "Space Oddity")' />
+        <partial name="_Rail" model='new RailModel(null, "Your table")' />
 
-        @* "Planet Earth is blue": the planet's edge seen from the tin can, the sun about to come up. *@
-        <div class="rs-earth" aria-hidden="true"><i></i></div>
+        @* The bottom of the page: the sun coming up over the planet's edge. *@
+        <div class="rs-earth rs-earth--dawn" aria-hidden="true"><i></i></div>
 
         <div class="rs-container">
             <div class="rs-console rs-home-console" data-rs-reveal>

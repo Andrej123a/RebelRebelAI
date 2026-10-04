@@ -1,13 +1,18 @@
-// The night sky behind every public page, drawn on one fixed canvas:
-// - a red nebula and the Milky Way, painted once and panned slowly down the page,
+// The sky behind every public page, drawn on one fixed canvas:
+// - deep space as a camera sees it: faint nebulae in their real colours (hydrogen red,
+//   oxygen teal, dust lit blue), the Milky Way with its dark rift, a couple of distant
+//   galaxies, painted once and panned slowly down the page,
 // - three depths of stars that twinkle and drift with the scroll and the pointer,
 // - falling stars all night long, now and then a whole shower,
 // - a flare wherever someone clicks the sky,
 // - Ziggy's stardust trailing the pointer inside [data-rs-stardust],
 // - "Tin can": a satellite crossing now and then, in Ground Control's brackets,
 // - a warp-speed starfield behind the countdown preloader.
+// - the way down: --dusk and --dawn follow how far down the page you are, and the
+//   .rs-sky-warm layer turns space violet and then Ziggy red, rising like a sunrise.
 // The sky is seeded, so it is the same on every visit. With reduced motion it is
-// painted once and holds still; without JS the canvas keeps its CSS starfield.
+// painted once and holds still (the colour still follows the scroll); without JS the
+// canvas keeps its CSS starfield and the page stays in space.
 (() => {
     const canvas = document.querySelector("[data-rs-sky]");
     const ctx = canvas && canvas.getContext ? canvas.getContext("2d") : null;
@@ -46,28 +51,29 @@
 
     const rgba = ([r, g, b], a) => `rgba(${r}, ${g}, ${b}, ${a})`;
 
-    // Real star colours, hot blue to cool orange, plus Ziggy's gold.
+    // Real star colours, hot blue to cool orange.
     const STAR_COLOURS = [
-        [[155, 176, 255], 0.08],
-        [[202, 215, 255], 0.2],
-        [[248, 247, 255], 0.3],
+        [[155, 176, 255], 0.09],
+        [[202, 215, 255], 0.21],
+        [[248, 247, 255], 0.32],
         [[255, 244, 234], 0.2],
         [[255, 226, 180], 0.12],
-        [[255, 196, 120], 0.05],
-        [[255, 216, 106], 0.05]
+        [[255, 196, 120], 0.06]
     ];
 
-    const RED = [187, 21, 11];
-    const HOT = [226, 64, 26];
-    const DEEP = [125, 13, 6];
-    const BLOOD = [96, 10, 8];
     const GOLD = [242, 194, 58];
     const BLUE = [154, 211, 240];
     const CREAM = [255, 241, 220];
     const MILK = [255, 232, 214];
 
-    const NEBULA_COLOURS = [[RED, 0.44], [HOT, 0.16], [DEEP, 0.22], [BLOOD, 0.1], [GOLD, 0.05], [BLUE, 0.03]];
-    const METEOR_COLOURS = [[CREAM, 0.68], [[255, 216, 106], 0.16], [BLUE, 0.1], [HOT, 0.06]];
+    // What a long exposure picks up: glowing hydrogen, oxygen, dust lit by blue stars.
+    const HYDROGEN = [176, 38, 66];
+    const PINK = [206, 88, 126];
+    const OXYGEN = [52, 142, 162];
+    const REFLECTION = [70, 102, 186];
+    const SMOKE = [138, 96, 70];
+    const NEBULA_COLOURS = [[HYDROGEN, 0.34], [PINK, 0.12], [OXYGEN, 0.2], [REFLECTION, 0.22], [SMOKE, 0.12]];
+    const METEOR_COLOURS = [[CREAM, 0.6], [[220, 232, 255], 0.3], [BLUE, 0.1]];
     const DUST_COLOURS = [[GOLD, 0.46], [[255, 216, 106], 0.22], [CREAM, 0.22], [BLUE, 0.1]];
 
     // Far stars are many and faint, near stars few and bright.
@@ -124,6 +130,7 @@
     const dust = [];
     const flares = [];
     let satellite = null;
+    let dawn = 0;
     let nextMeteor = 1.2;
     let nextShower = 9;
     let nextSatellite = 4;
@@ -165,13 +172,12 @@
         const g = deep.getContext("2d");
         g.clearRect(0, 0, width, height);
 
-        // Red nebula: a few clouds, each a heap of soft glows with threads through it.
+        // Faint nebulae: a few clouds, each a heap of soft glows with threads through it.
         const clouds = [
-            { x: 0.84, y: 0.1, r: 0.36 },
-            { x: 0.08, y: 0.36, r: 0.4 },
-            { x: 0.68, y: 0.62, r: 0.3 },
-            { x: 0.26, y: 0.9, r: 0.38 },
-            { x: 0.98, y: 0.86, r: 0.24 }
+            { x: 0.86, y: 0.12, r: 0.3 },
+            { x: 0.06, y: 0.42, r: 0.34 },
+            { x: 0.72, y: 0.7, r: 0.26 },
+            { x: 0.3, y: 0.94, r: 0.3 }
         ];
 
         g.globalCompositeOperation = "lighter";
@@ -181,22 +187,26 @@
             const cy = cloud.y * height;
             const spread = cloud.r * unit;
 
+            // Each cloud has a main colour with a little of the others at its edges.
+            const main = pick(rand, NEBULA_COLOURS);
+            const colour = () => (rand() < 0.7 ? main : pick(rand, NEBULA_COLOURS));
+
             for (let i = 0; i < 26; i++) {
                 blob(g,
                     cx + gauss(rand) * spread * 0.42,
                     cy + gauss(rand) * spread * 0.3,
                     spread * (0.22 + rand() * 0.5),
-                    pick(rand, NEBULA_COLOURS),
-                    0.03 + rand() * 0.07);
+                    colour(),
+                    0.018 + rand() * 0.045);
             }
 
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 6; i++) {
                 filament(g, rand,
                     cx + gauss(rand) * spread * 0.3,
                     cy + gauss(rand) * spread * 0.2,
-                    26, spread * 0.035, spread * 0.06,
-                    () => pick(rand, NEBULA_COLOURS),
-                    () => 0.04 + rand() * 0.07);
+                    28, spread * 0.032, spread * 0.05,
+                    colour,
+                    () => 0.03 + rand() * 0.05);
             }
         }
 
@@ -211,8 +221,8 @@
                     cloud.x * width + gauss(rand) * spread * 0.3,
                     cloud.y * height + gauss(rand) * spread * 0.2,
                     22, spread * 0.03, spread * 0.045,
-                    () => [10, 3, 4],
-                    () => 0.12 + rand() * 0.2);
+                    () => [3, 4, 9],
+                    () => 0.14 + rand() * 0.22);
             }
         }
 
@@ -231,9 +241,13 @@
 
         g.globalCompositeOperation = "lighter";
 
-        for (let i = 0; i < 80; i++) {
-            const [x, y] = along(rand(), gauss(rand) * band * 0.32);
-            blob(g, x, y, band * (0.55 + rand() * 0.8), rand() < 0.75 ? MILK : [255, 150, 128], 0.02 + rand() * 0.03);
+        // Warm and bright towards the core (bottom left), bluer and thinner further out.
+        for (let i = 0; i < 110; i++) {
+            const t = rand();
+            const [x, y] = along(t, gauss(rand) * band * 0.32);
+            const core = Math.max(0, 1 - t * 1.6);
+            const colour = rand() < 0.2 + core * 0.6 ? [255, 214, 170] : rand() < 0.5 ? MILK : [206, 218, 255];
+            blob(g, x, y, band * (0.5 + rand() * 0.8), colour, (0.016 + rand() * 0.026) * (1 + core * 0.9));
         }
 
         const grains = Math.round(width * height * 0.0032);
@@ -248,10 +262,45 @@
 
         g.globalCompositeOperation = "source-over";
 
-        for (let i = 0; i < 46; i++) {
+        for (let i = 0; i < 60; i++) {
             const [x, y] = along(rand(), band * 0.06 + gauss(rand) * band * 0.12);
-            blob(g, x, y, band * (0.07 + rand() * 0.18), [9, 3, 4], 0.18 + rand() * 0.3);
+            blob(g, x, y, band * (0.06 + rand() * 0.18), [3, 4, 9], 0.2 + rand() * 0.32);
         }
+
+        // Two distant galaxies, tilted discs with bright cores, too far to be more than smudges.
+        const galaxies = [
+            { x: 0.2, y: 0.16, r: 0.05, tilt: -0.5, flat: 0.32 },
+            { x: 0.78, y: 0.52, r: 0.028, tilt: 0.9, flat: 0.5 }
+        ];
+
+        g.globalCompositeOperation = "lighter";
+
+        for (const galaxy of galaxies) {
+            const r = galaxy.r * unit;
+            g.save();
+            g.translate(galaxy.x * width, galaxy.y * height);
+            g.rotate(galaxy.tilt);
+            g.scale(1, galaxy.flat);
+
+            const disc = g.createRadialGradient(0, 0, 0, 0, 0, r);
+            disc.addColorStop(0, "rgba(255, 238, 214, 0.5)");
+            disc.addColorStop(0.08, "rgba(255, 226, 196, 0.26)");
+            disc.addColorStop(0.35, "rgba(196, 206, 240, 0.08)");
+            disc.addColorStop(1, "rgba(160, 180, 240, 0)");
+            g.fillStyle = disc;
+            g.beginPath();
+            g.arc(0, 0, r, 0, TAU);
+            g.fill();
+
+            // A dust lane across the disc.
+            g.globalCompositeOperation = "source-over";
+            g.fillStyle = "rgba(3, 4, 9, 0.35)";
+            g.fillRect(-r * 0.8, r * 0.12, r * 1.6, r * 0.1);
+            g.globalCompositeOperation = "lighter";
+            g.restore();
+        }
+
+        g.globalCompositeOperation = "source-over";
     };
 
     // ---------- stars ----------
@@ -384,7 +433,7 @@
                 }
 
                 const twinkle = reducedMotion ? 1 : 1 - star.amp * (0.5 + 0.5 * Math.sin(t * star.speed + star.phase));
-                ctx.globalAlpha = star.alpha * twinkle;
+                ctx.globalAlpha = star.alpha * twinkle * (1 - dawn * 0.45);
 
                 if (star.r < 0.75) {
                     // Tiny stars stay a full pixel and get fainter instead of smaller.
@@ -667,6 +716,41 @@
             docH = root.scrollHeight;
         }).observe(document.body);
     }
+
+    // ---------- the way down: space, dusk, then dawn ----------
+
+    const smooth = (from, to, x) => {
+        const k = Math.min(1, Math.max(0, (x - from) / (to - from)));
+        return k * k * (3 - 2 * k);
+    };
+
+    // Set on the layer itself, not the root, so a scroll only restyles that one element.
+    const warmLayer = document.querySelector(".rs-sky-warm");
+    let warmQueued = false;
+
+    const warm = () => {
+        warmQueued = false;
+        const travel = Math.max(1, root.scrollHeight - window.innerHeight);
+        const p = Math.min(1, Math.max(0, window.scrollY / travel));
+        dawn = smooth(0.32, 0.94, p);
+        const dusk = smooth(0.06, 0.4, p) * (1 - smooth(0.6, 0.95, p)) * 0.9;
+
+        if (warmLayer) {
+            warmLayer.style.setProperty("--dusk", dusk.toFixed(3));
+            warmLayer.style.setProperty("--dawn", dawn.toFixed(3));
+        }
+    };
+
+    const queueWarm = () => {
+        if (!warmQueued) {
+            warmQueued = true;
+            requestAnimationFrame(warm);
+        }
+    };
+
+    window.addEventListener("scroll", queueWarm, { passive: true });
+    window.addEventListener("resize", queueWarm);
+    warm();
 
     root.classList.add("rs-sky-on");
     resize(true);

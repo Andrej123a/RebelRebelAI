@@ -41,11 +41,11 @@
         _ => "Messy hands. Full stomach. No regrets."
     };
 
-    var era = selectedSection switch
+    var rail = selectedSection switch
     {
-        "beer" => new EraModel("1972", "sun", "Ziggy Stardust"),
-        "drink" => new EraModel("1983", "record", "Let's Dance"),
-        _ => new EraModel("1971", "planet", "Life on Mars?")
+        "beer" => new RailModel("02", "The fridge"),
+        "drink" => new RailModel("02", "The bar"),
+        _ => new RailModel("02", "The kitchen")
     };
 
     var (titleTop, titleBottom) = selectedSection switch
@@ -55,7 +55,7 @@
         _ => ("Food with", "bad intentions")
     };
 
-    // The look for this era: Life on Mars? over the food, Ziggy over the beer.
+    // Who stands in the hero: Life on Mars? over the food, Ziggy over the beer.
     var heroLook = selectedSection switch
     {
         "beer" => "ziggy",
@@ -66,7 +66,7 @@
     var heroIcon = selectedSection switch
     {
         "beer" => "star",
-        "drink" => "record",
+        "drink" => null,
         _ => "planet"
     };
 
@@ -90,7 +90,7 @@
     <header class="rs-chapter rs-chapter--sky rs-menu-hero" data-rs-stardust>
         <span class="rs-stars rs-menu-stars"></span>
 
-        <partial name="_Era" model="era" />
+        <partial name="_Rail" model="rail" />
 
         <partial name="_Hud" />
 
@@ -101,10 +101,6 @@
         else if (heroIcon == "star")
         {
             <div class="rs-starman rs-menu-starman" aria-hidden="true" data-rs-drift="-0.1"></div>
-        }
-        else
-        {
-            <svg class="rs-menu-icon rs-menu-icon--@heroIcon" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-@heroIcon" /></svg>
         }
 
         @if (heroLook != null)

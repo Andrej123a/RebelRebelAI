@@ -4,7 +4,7 @@
 // - button labels shuffle their letters when the mouse comes over them,
 // - buttons lean towards a mouse pointer,
 // - pressing anything throws a handful of stars,
-// - the header nav is a ransom note: each letter cut out of a different magazine.
+// - the header nav is a ransom note: each letter cut out of a different newspaper.
 // The scraps keep the cut in the CSS without the script. With reduced motion they
 // are cut once and then left alone, and the ransom note stays still.
 (() => {
@@ -233,14 +233,13 @@
 
     // ---------- the ransom note ----------
 
+    // Newsprint only: cream, bone, grey and the odd black headline.
     const PAPERS = [
         ["var(--z-cream)", "var(--z-ink)"],
-        ["var(--z-gold)", "var(--z-ink)"],
-        ["var(--z-red)", "var(--z-cream)"],
-        ["var(--z-blue)", "var(--z-ink)"],
-        ["var(--z-news)", "var(--z-red)"],
-        ["var(--z-ink)", "var(--z-gold)"],
-        ["var(--z-yellow)", "var(--z-red-deep)"],
+        ["var(--z-news)", "var(--z-ink)"],
+        ["#e4ddd0", "var(--z-ink)"],
+        ["#cfc8bb", "var(--z-ink)"],
+        ["var(--z-ink)", "var(--z-cream)"],
     ];
 
     const FACES = [

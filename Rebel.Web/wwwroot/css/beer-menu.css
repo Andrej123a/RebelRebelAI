@@ -1414,7 +1414,7 @@
     font-size: 17px;
 }
 
-/* "Ask Rebel AI about this beer": a scrap in the track's ink over its accent plate. */
+/* "Ask Rebel AI about this beer": a scrap in the track's ink with a shadow under it. */
 .rr-beer-action {
     --cut: polygon(1% 9%, 31% 0, 64% 7%, 100% 1%, 97% 48%, 100% 97%, 66% 100%, 33% 93%, 0 100%, 3% 52%);
     position: relative;
@@ -1438,7 +1438,7 @@
     }
 
     .rr-beer-action::before {
-        background: var(--track-accent);
+        background: rgba(0, 0, 0, 0.3);
         translate: -5px 5px;
     }
 

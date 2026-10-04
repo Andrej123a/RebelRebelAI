@@ -123,6 +123,7 @@
     <a class="visually-hidden-focusable rs-skip" href="#main">Skip to content</a>
 
     <canvas class="rs-sky" data-rs-sky aria-hidden="true"></canvas>
+    <div class="rs-sky-warm" aria-hidden="true"></div>
 
     <svg class="rs-defs" aria-hidden="true" focusable="false">
         <!-- Halftone dots for Bowie's looks (Views/Shared/Looks). -->
@@ -139,36 +140,8 @@
             <path style="fill: var(--bolt-b, #9ad3f0)" transform="translate(-7 4)" d="M60 0 18 57h27L31 100l53-62H56L72 0Z" />
             <path style="fill: var(--bolt-a, #e2401a)" d="M60 0 18 57h27L31 100l53-62H56L72 0Z" />
         </symbol>
-        <symbol id="rs-burst" viewBox="0 0 200 200">
-            <polygon points="100.0,0.0 111.2,14.7 125.9,3.4 132.9,20.5 150.0,13.4 152.4,31.8 170.7,29.3 168.2,47.6 186.6,50.0 179.5,67.1 196.6,74.1 185.3,88.8 200.0,100.0 185.3,111.2 196.6,125.9 179.5,132.9 186.6,150.0 168.2,152.4 170.7,170.7 152.4,168.2 150.0,186.6 132.9,179.5 125.9,196.6 111.2,185.3 100.0,200.0 88.8,185.3 74.1,196.6 67.1,179.5 50.0,186.6 47.6,168.2 29.3,170.7 31.8,152.4 13.4,150.0 20.5,132.9 3.4,125.9 14.7,111.2 0.0,100.0 14.7,88.8 3.4,74.1 20.5,67.1 13.4,50.0 31.8,47.6 29.3,29.3 47.6,31.8 50.0,13.4 67.1,20.5 74.1,3.4 88.8,14.7" />
-        </symbol>
-        <!-- Ziggy's sun on the timeline. -->
-        <symbol id="rs-sun" viewBox="0 0 100 100">
-            <polygon points="50.0,0.0 53.5,19.2 61.1,1.3 60.2,20.7 71.7,5.0 66.5,23.8 81.2,10.9 71.9,28.1 89.1,18.8 76.2,33.5 95.0,28.3 79.3,39.8 98.7,38.9 80.8,46.5 100.0,50.0 80.8,53.5 98.7,61.1 79.3,60.2 95.0,71.7 76.2,66.5 89.1,81.2 71.9,71.9 81.2,89.1 66.5,76.2 71.7,95.0 60.2,79.3 61.1,98.7 53.5,80.8 50.0,100.0 46.5,80.8 38.9,98.7 39.8,79.3 28.3,95.0 33.5,76.2 18.8,89.1 28.1,71.9 10.9,81.2 23.8,66.5 5.0,71.7 20.7,60.2 1.3,61.1 19.2,53.5 0.0,50.0 19.2,46.5 1.3,38.9 20.7,39.8 5.0,28.3 23.8,33.5 10.9,18.8 28.1,28.1 18.8,10.9 33.5,23.8 28.3,5.0 39.8,20.7 38.9,1.3 46.5,19.2" />
-            <circle cx="50" cy="50" r="23" />
-        </symbol>
-        <symbol id="rs-blackstar" viewBox="0 0 100 100">
-            <polygon points="50.0,2.0 61.8,33.8 95.7,35.2 69.0,56.2 78.2,88.8 50.0,70.0 21.8,88.8 31.0,56.2 4.3,35.2 38.2,33.8" />
-        </symbol>
         <symbol id="rs-star" viewBox="0 0 100 100">
             <path d="M50 0C54 34 66 46 100 50C66 54 54 66 50 100C46 66 34 54 0 50C34 46 46 34 50 0Z" />
-        </symbol>
-        <!-- Starman: a saucer with a light beam. -->
-        <symbol id="rs-ufo" viewBox="0 0 120 96">
-            <polygon style="fill: var(--ufo-beam, rgba(255, 216, 106, 0.28))" points="47,44 73,44 104,96 16,96" />
-            <path style="fill: var(--ufo-dome, #9ad3f0)" d="M40 33C42 17 50 9 60 9s18 8 20 24Z" />
-            <ellipse style="fill: var(--ufo-body, #4a0803)" cx="60" cy="38" rx="56" ry="12" />
-            <ellipse style="fill: var(--ufo-rim, #e2401a)" cx="60" cy="34" rx="56" ry="6" />
-            <g style="fill: var(--ufo-lights, #ffd86a)">
-                <circle cx="22" cy="40" r="3" /><circle cx="41" cy="43" r="3" /><circle cx="60" cy="44" r="3" /><circle cx="79" cy="43" r="3" /><circle cx="98" cy="40" r="3" />
-            </g>
-        </symbol>
-        <!-- Life on Mars? -->
-        <symbol id="rs-planet" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="27" />
-            <ellipse cx="50" cy="50" rx="47" ry="11" transform="rotate(-18 50 50)" fill="none" stroke="currentColor" stroke-width="4" />
-            <circle cx="42" cy="42" r="4" style="fill: var(--crater, rgba(0, 0, 0, 0.25))" />
-            <circle cx="58" cy="58" r="6" style="fill: var(--crater, rgba(0, 0, 0, 0.25))" />
         </symbol>
         <!-- Space Oddity. -->
         <symbol id="rs-rocket" viewBox="0 0 100 100">
@@ -177,32 +150,8 @@
             <circle cx="50" cy="36" r="8" style="fill: var(--rocket-window, #9ad3f0)" />
             <path style="fill: var(--rocket-flame, #ffd86a)" d="M38 70h24l-4 14-8 14-8-14Z" />
         </symbol>
-        <!-- Major Tom's helmet. -->
-        <symbol id="rs-helmet" viewBox="0 0 100 100">
-            <path d="M50 6C26 6 12 24 12 46c0 20 12 34 24 38v10h28V84c12-4 24-18 24-38C88 24 74 6 50 6Z" />
-            <path style="fill: var(--visor, #9ad3f0)" d="M26 40c0-12 10-18 24-18s24 6 24 18-10 22-24 22-24-10-24-22Z" />
-            <path style="fill: rgba(255, 255, 255, 0.55)" d="M34 34c4-6 10-8 16-8-8 4-12 8-14 14Z" />
-        </symbol>
-        <!-- Ashes to Ashes: a videotape. -->
-        <symbol id="rs-tape" viewBox="0 0 100 100">
-            <path d="M8 24h84a4 4 0 0 1 4 4v44a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V28a4 4 0 0 1 4-4Zm16 14a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm52 0a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM36 42v12h28V42Z" fill-rule="evenodd" />
-        </symbol>
-        <!-- Station to Station: a ticket. -->
-        <symbol id="rs-ticket" viewBox="0 0 100 100">
-            <path d="M6 24h88v16a10 10 0 0 0 0 20v16H6V60a10 10 0 0 0 0-20Zm60 8v4h4v-4Zm0 10v4h4v-4Zm0 10v4h4v-4Zm0 10v4h4v-4Z" fill-rule="evenodd" />
-        </symbol>
-        <!-- Heroes: a slab of the wall. -->
-        <symbol id="rs-wall" viewBox="0 0 100 100">
-            <path d="M14 96V26C14 14 22 6 34 6h2c12 0 20 8 20 20v70Zm46 0V26c0-12 8-20 20-20h2c6 0 8 2 8 8v82Z" />
-        </symbol>
-        <symbol id="rs-record" viewBox="0 0 100 100">
-            <path d="M50 2a48 48 0 1 0 0 96 48 48 0 0 0 0-96Zm0 36a12 12 0 1 1 0 24 12 12 0 0 1 0-24Zm0 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill-rule="evenodd" />
-        </symbol>
         <symbol id="rs-play" viewBox="0 0 100 100">
             <path d="M18 8 92 50 18 92Z" />
-        </symbol>
-        <symbol id="rs-moon" viewBox="0 0 100 100">
-            <path d="M62 4A46 46 0 1 0 96 70 38 38 0 1 1 62 4Z" />
         </symbol>
     </svg>
 
@@ -316,9 +265,9 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Home", "Index") == "active" ? "page" : null)"
                    data-rs-preview="home">
-                    <span class="rs-open-num">&rsquo;74</span>
+                    <span class="rs-open-num">01</span>
                     <span class="rs-open-word">Home</span>
-                    <small>Rebel Rebel</small>
+                    <small>The bar</small>
                 </a>
 
                 <a asp-controller="Home"
@@ -327,9 +276,9 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Home", "Menu") == "active" ? "page" : null)"
                    data-rs-preview="menu">
-                    <span class="rs-open-num">&rsquo;71</span>
+                    <span class="rs-open-num">02</span>
                     <span class="rs-open-word">Menu</span>
-                    <small>Life on Mars?</small>
+                    <small>Food, beer &amp; drinks</small>
                 </a>
 
                 @if (!hideAiFeatures)
@@ -339,9 +288,9 @@
                        class="rs-open-link"
                        aria-current="@(IsActive("BeerGuide") == "active" ? "page" : null)"
                        data-rs-preview="ai">
-                        <span class="rs-open-num">&rsquo;16</span>
+                        <span class="rs-open-num">03</span>
                         <span class="rs-open-word">Rebel AI</span>
-                        <small>The Blind Prophet</small>
+                        <small>Can't decide?</small>
                     </a>
                 }
 
@@ -350,9 +299,9 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Events") == "active" ? "page" : null)"
                    data-rs-preview="events">
-                    <span class="rs-open-num">&rsquo;80</span>
+                    <span class="rs-open-num">04</span>
                     <span class="rs-open-word">Events</span>
-                    <small>Ashes to Ashes</small>
+                    <small>Live nights</small>
                 </a>
 
                 <a asp-controller="Home"
@@ -360,9 +309,9 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Home", "Contact") == "active" ? "page" : null)"
                    data-rs-preview="contact">
-                    <span class="rs-open-num">&rsquo;76</span>
+                    <span class="rs-open-num">05</span>
                     <span class="rs-open-word">Contact</span>
-                    <small>Station to Station</small>
+                    <small>Hours &amp; directions</small>
                 </a>
 
                 <a asp-controller="Reservations"
@@ -370,9 +319,9 @@
                    class="rs-open-link"
                    aria-current="@(IsActive("Reservations", "Lookup") == "active" ? "page" : null)"
                    data-rs-preview="booking">
-                    <span class="rs-open-num">&rsquo;69</span>
+                    <span class="rs-open-num">06</span>
                     <span class="rs-open-word">My booking</span>
-                    <small>Space Oddity</small>
+                    <small>Check your table</small>
                 </a>
             </nav>
 
@@ -405,17 +354,15 @@
     <footer class="rs-footer" data-rs-stardust>
         <span class="rs-stars"></span>
 
-        <partial name="_Era" model='new EraModel("2016", "blackstar", "Blackstar", "rs-era--footer")' />
+        <partial name="_Rail" model='new RailModel(null, "Last call · 01:00", "rs-rail--footer")' />
 
-        <svg class="rs-footer-star" viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-blackstar" /></svg>
-
-        @* The last look, the Blind Prophet, standing in front of the black star; he runs Rebel AI. *@
+        @* The Blind Prophet, the face of Rebel AI, sees you out. *@
         <partial name="_Look" model='new LookModel("prophet", "footer", "rs-footer-look")' />
 
         @if (!hideAiFeatures)
         {
             <a class="rs-look-tag rs-look-tag--footer" asp-controller="BeerGuide" asp-action="Index">
-                <b>Can't decide?</b> Ask the Prophet <i aria-hidden="true">&rarr;</i>
+                <b>Can't decide?</b> Ask Rebel AI <i aria-hidden="true">&rarr;</i>
             </a>
         }
 

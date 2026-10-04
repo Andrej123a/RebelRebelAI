@@ -1,24 +1,25 @@
 /* =========================================================
    REBEL REBEL — PUBLIC SITE ("Ziggy red")
 
-   The whole site is one Bowie career. Every page is an era
-   with its own year on a thin yellow timeline: Space Oddity
-   '69, Life on Mars? '71, Ziggy Stardust and Starman '72,
-   Aladdin Sane '73, Rebel Rebel '74, Station to Station '76,
-   Heroes '77, Ashes to Ashes '80 and Blackstar 2016.
+   Rebel Rebel's own site: a pub in Skopje named after a
+   Bowie song, so Bowie is the inspiration, not the subject.
+   Each chapter carries a thin rail with the page's number
+   and what that part of the pub is.
 
-   Every page sits under one night sky (rebel-sky.js): a red
-   nebula, the Milky Way, falling stars and Ziggy's stardust.
-   Chapters are either windows onto that sky (red at the
-   horizon) or printed matter laid over it (gold, newsprint,
-   concrete). Light blue is kept for small details (lines,
-   lights, the edge of the bolt, Ground Control). Huge
-   condensed Big Shoulders over a red sky (its stencil cut for
-   anything you press), Bricolage Grotesque for reading,
-   Space Mono for Ground Control, Playfair for fanzine
-   headlines and Monoton for the neon OPEN sign.
+   Every page starts in deep space (rebel-sky.js): faint
+   nebulae in their real colours, the Milky Way, galaxies,
+   falling stars and Ziggy's stardust. Scrolling down turns
+   the sky violet and then Ziggy red, like a sunrise, down to
+   the red footer. Chapters are windows onto that sky or
+   printed matter laid over it (gold, newsprint), and melt
+   into each other at the seams. Buttons are cream paper that
+   turns Rebel red; light blue is kept for small details.
+   Huge condensed Big Shoulders (its stencil cut for anything
+   you press), Bricolage Grotesque for reading, Space Mono for
+   Ground Control, Playfair for fanzine headlines and Monoton
+   for the neon OPEN sign.
 
-   Photos keep their files and crops. The era treatments
+   Photos keep their files and crops. The treatments
    (lightning splits, black-and-white, videotape) are CSS on
    top of the same images.
 
@@ -26,13 +27,13 @@
    1. Tokens
    2. Base
    3. Components
-   4. Chapters, sky, stars, timeline
+   4. Chapters, sky, stars, rail
    5. Photo treatments
    6. Ground Control, departure board, ticket
    7. Header + #open menu + preloader
    8. Footer
    9. Pages (home, menu, events, bookings, contact, error)
-      9y. Bowie's looks and the Changes stage
+      9y. The characters and the "How Rebel works" stage
       9z. Space: the HUD, the constellation, Earth
    10. Motion
    ========================================================= */
@@ -52,6 +53,7 @@
     --z-ink: #1a0f0d;
     --z-space: #0e0807;
     --z-night: #0b0405;
+    --z-void: #03040a;
     --z-cream: #fff1dc;
     --z-news: #f1e8d6;
     --z-concrete: #a7a198;
@@ -85,9 +87,11 @@
     --ch-hot: var(--z-blue);
     --ch-line: rgba(255, 241, 220, 0.28);
     --ch-rail: var(--z-gold);
-    --ch-btn: var(--z-gold);
+    /* Buttons are cream paper with ink type, a shadow underneath, and turn Rebel red
+       when you go for them. Light chapters flip them to ink. */
+    --ch-btn: var(--z-cream);
     --ch-btn-ink: var(--z-ink);
-    --ch-plate: var(--z-blue);
+    --ch-plate: rgba(0, 0, 0, 0.38);
 
     /* Older names, still read by the beer menu and Rebel AI sheets. */
     --rs-char: var(--z-ink);
@@ -117,7 +121,7 @@
 html {
     position: relative;
     min-height: 100%;
-    background: var(--z-night);
+    background: var(--z-void);
     font-size: 15px;
     scroll-behavior: smooth;
     scrollbar-color: var(--z-gold) var(--z-night);
@@ -407,8 +411,8 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* ---------- buttons ---------- */
 
-/* No pills. Every button is a scrap cut out of a poster, its colour printed a few
-   millimetres off a second plate. rebel-cutup.js gives each one its own jagged cut,
+/* No pills. Every button is a scrap of paper cut out with scissors, with its shadow a
+   few millimetres off. rebel-cutup.js gives each one its own jagged cut,
    re-cuts it while you hover, shuffles its letters and throws sparks when pressed;
    without it the scraps keep this cut. */
 .rs-btn {
@@ -499,48 +503,39 @@ input[type="search"]::-webkit-search-cancel-button {
     --plate: var(--ch-plate);
 }
 
-    .rs-btn--primary:hover,
-    .rs-btn--primary:focus-visible {
-        --face: var(--z-cream);
-        --face-ink: var(--z-ink);
-    }
-
 .rs-btn--paper {
     --face: var(--z-cream);
     --face-ink: var(--z-ink);
-    --plate: var(--z-red);
+    --plate: rgba(0, 0, 0, 0.38);
 }
-
-    .rs-btn--paper:hover,
-    .rs-btn--paper:focus-visible {
-        --face: var(--z-gold);
-    }
 
 .rs-btn--night {
     --face: var(--z-ink);
-    --face-ink: var(--z-gold);
-    --plate: var(--z-red);
+    --face-ink: var(--z-cream);
+    --plate: rgba(0, 0, 0, 0.38);
 }
 
-    .rs-btn--night:hover,
-    .rs-btn--night:focus-visible {
-        --face-ink: var(--z-cream);
-    }
-
-/* A plain scrap of the chapter's ink: newsprint on the dark, ink on the light. */
+/* The second choice: a thin scrap of the chapter's own ink, see-through. */
 .rs-btn--ghost,
 .rs-btn--ink {
-    --face: var(--ch-ink);
-    --face-ink: var(--ch-bg);
+    --face: color-mix(in srgb, var(--ch-ink) 14%, transparent);
+    --face-ink: var(--ch-ink);
 }
 
+    /* Whatever the button, going for it turns it Rebel red. */
+    .rs-btn--primary:hover,
+    .rs-btn--primary:focus-visible,
+    .rs-btn--paper:hover,
+    .rs-btn--paper:focus-visible,
+    .rs-btn--night:hover,
+    .rs-btn--night:focus-visible,
     .rs-btn--ghost:hover,
     .rs-btn--ghost:focus-visible,
     .rs-btn--ink:hover,
     .rs-btn--ink:focus-visible {
-        --face: var(--ch-btn);
-        --face-ink: var(--ch-btn-ink);
-        --plate: var(--ch-plate);
+        --face: var(--z-red);
+        --face-ink: var(--z-cream);
+        --plate: rgba(0, 0, 0, 0.38);
     }
 
 .rs-btn--small {
@@ -637,7 +632,7 @@ input[type="search"]::-webkit-search-cancel-button {
     }
 
     .rs-chip.is-active {
-        --face: var(--z-gold);
+        --face: var(--z-cream);
         --face-ink: var(--z-ink);
         rotate: -1deg;
     }
@@ -682,7 +677,7 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-tag: var(--z-yellow);
     --ch-hot: var(--z-blue);
     --ch-line: rgba(255, 241, 220, 0.16);
-    --ch-btn: var(--z-gold);
+    --ch-btn: var(--z-cream);
     --ch-btn-ink: var(--z-ink);
     position: relative;
     border: 0;
@@ -779,15 +774,16 @@ input[type="search"]::-webkit-search-cancel-button {
         line-height: 1.7;
     }
 
-/* ---------- marquee: the setlist on a strip of tape ---------- */
+/* ---------- marquee: what's on, on a strip of black gaffer tape ---------- */
 
 .rs-marquee {
     position: relative;
     z-index: 3;
     overflow: hidden;
     padding: 13px 0 11px;
-    background: var(--z-gold);
-    color: var(--z-ink);
+    background: var(--z-ink);
+    color: var(--z-cream);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
     transform: rotate(-1.4deg) scale(1.03);
 }
 
@@ -802,7 +798,7 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .rs-marquee-item {
-    color: var(--z-ink);
+    color: var(--z-cream);
     font-family: var(--rs-display);
     font-size: clamp(28px, 3.4vw, 50px);
     font-weight: 900;
@@ -984,12 +980,11 @@ input[type="search"]::-webkit-search-cancel-button {
     padding-block: clamp(72px, 10vw, 140px);
 }
 
-/* The default: a window onto the night sky, glowing Ziggy red down at the horizon,
-   with thin clouds lit from below. */
+/* A window onto the sky behind the page: deep space at the top of the page, a red
+   dawn by the bottom (rebel-sky.js). The chapter itself adds nothing, so the sky runs
+   on without seams. */
 .rs-chapter--sky {
-    background:
-        var(--z-clouds-night) center bottom / 100% 72% no-repeat,
-        linear-gradient(180deg, transparent 0%, rgba(74, 8, 3, 0.16) 34%, rgba(125, 13, 6, 0.46) 64%, rgba(187, 21, 11, 0.84) 100%);
+    background: none;
 }
 
 /* Flat red, for long stretches of content. */
@@ -1000,7 +995,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 .rs-chapter--deep {
     --ch-bg: var(--z-red-deep);
-    background: linear-gradient(180deg, rgba(74, 8, 3, 0.3), rgba(125, 13, 6, 0.62));
+    background: none;
 }
 
 /* The yellow flood: red type on gold. */
@@ -1015,9 +1010,9 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-hot: var(--z-red);
     --ch-line: rgba(26, 15, 13, 0.24);
     --ch-rail: var(--z-red);
-    --ch-btn: var(--z-red);
+    --ch-btn: var(--z-ink);
     --ch-btn-ink: var(--z-cream);
-    --ch-plate: var(--z-ink);
+    --ch-plate: rgba(0, 0, 0, 0.25);
 }
 
 /* Outer space: Space Oddity, Starman, Blackstar. */
@@ -1027,7 +1022,7 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-tag: var(--z-blue);
     --ch-hot: var(--z-blue);
     --ch-line: rgba(154, 211, 240, 0.24);
-    background: radial-gradient(ellipse 70% 50% at 50% 120%, rgba(187, 21, 11, 0.5), transparent 70%);
+    background: none;
 }
 
 /* Heroes: concrete slabs with a single red accent. */
@@ -1040,9 +1035,9 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-hot: var(--z-red);
     --ch-line: rgba(26, 15, 13, 0.22);
     --ch-rail: var(--z-red);
-    --ch-btn: var(--z-red);
+    --ch-btn: var(--z-ink);
     --ch-btn-ink: var(--z-cream);
-    --ch-plate: var(--z-ink);
+    --ch-plate: rgba(0, 0, 0, 0.25);
     background:
         repeating-linear-gradient(90deg, transparent 0 calc(25% - 2px), rgba(26, 15, 13, 0.18) calc(25% - 2px) 25%),
         linear-gradient(180deg, #b4aea4, #9c968c);
@@ -1060,8 +1055,8 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-line: rgba(26, 15, 13, 0.18);
     --ch-rail: var(--z-red);
     --ch-btn: var(--z-ink);
-    --ch-btn-ink: var(--z-gold);
-    --ch-plate: var(--z-red);
+    --ch-btn-ink: var(--z-cream);
+    --ch-plate: rgba(0, 0, 0, 0.25);
 }
 
 /* The Thin White Duke: black, cream, one red. */
@@ -1074,17 +1069,28 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-rail: var(--z-red-hot);
 }
 
-/* The edge between chapters is torn like a lightning strike. */
+/* No hard edges between chapters: each one slides over the last and fades in, so one
+   colour bleeds into the next. */
 .rs-torn {
-    --cut: clamp(26px, 4vw, 54px);
-    margin-top: calc(var(--cut) * -1);
-    padding-top: calc(clamp(72px, 10vw, 140px) + var(--cut));
-    clip-path: polygon(0 var(--cut), 11% calc(var(--cut) * 0.25), 19% calc(var(--cut) * 0.8), 34% 0, 43% calc(var(--cut) * 0.62), 58% calc(var(--cut) * 0.08), 66% calc(var(--cut) * 0.9), 81% calc(var(--cut) * 0.2), 90% calc(var(--cut) * 0.7), 100% calc(var(--cut) * 0.1), 100% 100%, 0 100%);
+    --seam: clamp(70px, 9vw, 150px);
+    margin-top: calc(var(--seam) * -1);
+    padding-top: calc(clamp(72px, 10vw, 140px) + var(--seam));
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.55) calc(var(--seam) * 0.55), #000 var(--seam));
+    mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.55) calc(var(--seam) * 0.55), #000 var(--seam));
+}
+
+/* A coloured chapter also melts away at the bottom into the chapter after it (the
+   footer brings its own fade). */
+.rs-torn.rs-chapter--gold:has(+ .rs-chapter),
+.rs-torn.rs-chapter--concrete:has(+ .rs-chapter) {
+    padding-bottom: calc(clamp(96px, 12vw, 170px) + var(--seam) * 0.5);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.55) calc(var(--seam) * 0.55), #000 var(--seam), #000 calc(100% - var(--seam)), transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, rgba(0, 0, 0, 0.55) calc(var(--seam) * 0.55), #000 var(--seam), #000 calc(100% - var(--seam)), transparent 100%);
 }
 
 /* ---------- the night sky ---------- */
 
-/* rebel-sky.js paints the sky on this canvas; these layers are what shows without it. */
+/* rebel-sky.js paints space on this canvas; these layers are what shows without it. */
 .rs-sky {
     position: fixed;
     top: 0;
@@ -1100,15 +1106,45 @@ input[type="search"]::-webkit-search-cancel-button {
         radial-gradient(1px 1px at 70% 80%, rgba(202, 215, 255, 0.8) 50%, transparent 52%) 0 0 / 170px 210px,
         radial-gradient(1.6px 1.6px at 45% 55%, rgba(255, 216, 106, 0.9) 50%, transparent 52%) 0 0 / 390px 330px,
         radial-gradient(0.8px 0.8px at 85% 15%, rgba(255, 255, 255, 0.7) 50%, transparent 52%) 0 0 / 120px 140px,
-        radial-gradient(60% 45% at 85% 12%, rgba(187, 21, 11, 0.38), transparent 70%),
-        radial-gradient(55% 50% at 8% 55%, rgba(125, 13, 6, 0.42), transparent 70%),
-        radial-gradient(50% 40% at 70% 95%, rgba(226, 64, 26, 0.22), transparent 70%),
-        var(--z-night);
+        radial-gradient(60% 45% at 80% 15%, rgba(72, 104, 190, 0.12), transparent 70%),
+        radial-gradient(55% 50% at 10% 60%, rgba(176, 38, 66, 0.1), transparent 70%),
+        var(--z-void);
 }
 
 .rs-sky-on .rs-sky {
-    background: radial-gradient(120% 70% at 50% 115%, rgba(74, 8, 3, 0.5), transparent 70%), var(--z-night);
+    background: radial-gradient(120% 90% at 50% 40%, #070912, var(--z-void) 70%);
 }
+
+/* The way down: as the page scrolls, space turns violet at dusk and then Ziggy red,
+   rising from the bottom of the screen like a sunrise. rebel-sky.js sets --dusk and
+   --dawn from how far down the page you are; without it the page stays in space. */
+.rs-sky-warm {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+    .rs-sky-warm::before,
+    .rs-sky-warm::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        will-change: opacity;
+    }
+
+    .rs-sky-warm::before {
+        background:
+            radial-gradient(140% 85% at 50% 118%, rgba(120, 36, 82, 0.85), rgba(62, 22, 74, 0.55) 45%, rgba(20, 12, 40, 0.2) 75%, transparent 100%);
+        opacity: var(--dusk, 0);
+    }
+
+    .rs-sky-warm::after {
+        background:
+            radial-gradient(70% 38% at 50% 106%, rgba(255, 196, 120, 0.55), transparent 70%),
+            radial-gradient(135% 80% at 50% 112%, #e2401a 0%, rgba(187, 21, 11, 0.94) 28%, rgba(125, 13, 6, 0.7) 52%, rgba(74, 8, 3, 0.32) 76%, rgba(20, 4, 6, 0.1) 100%);
+        opacity: var(--dawn, 0);
+    }
 
 /* Per-chapter stars, only for when the sky script is not running. */
 .rs-sky-on .rs-stars {
@@ -1131,10 +1167,11 @@ input[type="search"]::-webkit-search-cancel-button {
     opacity: 0.9;
 }
 
-/* ---------- the Bowie timeline ---------- */
+/* ---------- the rail ---------- */
 
-/* A thin yellow line with the era's year and icon, as on the longread. */
-.rs-era {
+/* A thin line down the side of a chapter with the page's number and what this part
+   of Rebel is. */
+.rs-rail {
     position: absolute;
     top: 0;
     bottom: 0;
@@ -1150,22 +1187,22 @@ input[type="search"]::-webkit-search-cancel-button {
     pointer-events: none;
 }
 
-    .rs-era::before,
-    .rs-era::after {
+    .rs-rail::before,
+    .rs-rail::after {
         content: "";
         width: 2px;
         background: var(--ch-rail);
     }
 
-    .rs-era::before {
+    .rs-rail::before {
         flex: 0 0 84px;
     }
 
-    .rs-era::after {
+    .rs-rail::after {
         flex: 1;
     }
 
-.rs-era-year {
+.rs-rail-mark {
     color: var(--ch-rail);
     font-family: var(--rs-display);
     font-size: clamp(30px, 2.6vw, 40px);
@@ -1173,21 +1210,7 @@ input[type="search"]::-webkit-search-cancel-button {
     line-height: 1;
 }
 
-.rs-era-icon {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    color: var(--ch-rail);
-    fill: var(--ch-rail);
-    --ufo-body: var(--ch-rail);
-    --ufo-rim: var(--ch-rail);
-    --ufo-beam: transparent;
-    --bolt-a: var(--ch-rail);
-    --bolt-b: var(--z-blue);
-    --crater: rgba(0, 0, 0, 0.3);
-}
-
-.rs-era-title {
+.rs-rail-title {
     color: var(--ch-ink);
     font-family: var(--rs-mono);
     font-size: 11px;
@@ -1199,17 +1222,17 @@ input[type="search"]::-webkit-search-cancel-button {
     transform: rotate(180deg);
 }
 
-/* Leave room for the timeline when the screen is too narrow to hold it in the margin. */
+/* Leave room for the rail when the screen is too narrow to hold it in the margin. */
 @media (min-width: 992px) and (max-width: 1439.98px) {
-    .rs-chapter:has(> .rs-era) > .rs-container,
-    .rs-footer:has(> .rs-era) > .rs-container {
+    .rs-chapter:has(> .rs-rail) > .rs-container,
+    .rs-footer:has(> .rs-rail) > .rs-container {
         padding-left: 76px;
     }
 }
 
-/* On small screens the timeline becomes a line of type above the chapter. */
+/* On small screens the rail becomes a line of type above the chapter. */
 @media (max-width: 991.98px) {
-    .rs-era {
+    .rs-rail {
         position: relative;
         top: auto;
         bottom: auto;
@@ -1220,25 +1243,20 @@ input[type="search"]::-webkit-search-cancel-button {
         margin: 0 auto 26px;
     }
 
-        .rs-era::before {
+        .rs-rail::before {
             display: none;
         }
 
-        .rs-era::after {
+        .rs-rail::after {
             height: 1.5px;
             opacity: 0.7;
         }
 
-    .rs-era-year {
+    .rs-rail-mark {
         font-size: 30px;
     }
 
-    .rs-era-icon {
-        width: 28px;
-        height: 28px;
-    }
-
-    .rs-era-title {
+    .rs-rail-title {
         writing-mode: horizontal-tb;
         transform: none;
     }
@@ -1570,7 +1588,7 @@ a:focus-visible .rs-vhs img {
     margin-inline: auto;
 }
 
-/* ---------- brand: a stencil misprint with red label tape ---------- */
+/* ---------- brand: a stencil cut, misprinted in red, with red label tape ---------- */
 
 .rs-brand {
     display: inline-flex;
@@ -1606,7 +1624,7 @@ a:focus-visible .rs-vhs img {
 }
 
     .rs-brand-text strong {
-        color: var(--z-gold);
+        color: var(--z-cream);
         font-family: var(--rs-stencil);
         font-size: 30px;
         font-weight: 900;
@@ -1618,7 +1636,7 @@ a:focus-visible .rs-vhs img {
     }
 
     .rs-brand:hover .rs-brand-text strong {
-        text-shadow: -3px 2px 0 var(--z-red), 3px -1px 0 rgba(154, 211, 240, 0.7);
+        text-shadow: -3px 2px 0 var(--z-red);
     }
 
     /* Red label-maker tape. */
@@ -1669,30 +1687,14 @@ a:focus-visible .rs-vhs img {
     transition: rotate 0.25s var(--rs-ease), translate 0.25s var(--rs-ease);
 }
 
-    .rs-nav-link:nth-child(2) {
-        --face: var(--z-gold);
+    .rs-nav-link:nth-child(even) {
+        --face: var(--z-news);
         rotate: 1.5deg;
     }
 
-    .rs-nav-link:nth-child(3) {
-        --face: var(--z-blue);
+    .rs-nav-link:nth-child(3n) {
+        --face: #d8d1c4;
         rotate: -1deg;
-    }
-
-    .rs-nav-link:nth-child(4) {
-        --face: var(--z-red);
-        --face-ink: var(--z-cream);
-        rotate: 2deg;
-    }
-
-    .rs-nav-link:nth-child(5) {
-        --face: var(--z-news);
-        rotate: -2.5deg;
-    }
-
-    .rs-nav-link:nth-child(6) {
-        --face: var(--z-yellow);
-        rotate: 1deg;
     }
 
     .rs-nav-link:hover,
@@ -1707,7 +1709,7 @@ a:focus-visible .rs-vhs img {
     }
 
 /* With the script, the link's own paper goes and every letter is cut out of a
-   different magazine (rebel-cutup.js picks the paper, the face and the angle). */
+   different newspaper (rebel-cutup.js picks the paper, the face and the angle). */
 .rs-nav.is-ransom .rs-nav-link {
     padding: 4px 2px;
     background: none;
@@ -1745,23 +1747,22 @@ a:focus-visible .rs-vhs img {
         background: none;
     }
 
-/* The page you are on is taped down, with a gold strip across the top. */
+/* The page you are on is underlined with a strip torn from red paper. */
 .rs-nav-link.active::after {
     content: "";
     position: absolute;
-    top: -6px;
-    left: 50%;
-    width: min(70%, 54px);
-    height: 13px;
-    background: rgba(255, 216, 106, 0.62);
-    translate: -50% 0;
-    rotate: -5deg;
-    mix-blend-mode: screen;
+    right: 4%;
+    bottom: -7px;
+    left: 4%;
+    height: 5px;
+    background: var(--z-red);
+    clip-path: polygon(0 30%, 30% 0, 62% 40%, 100% 10%, 98% 90%, 55% 100%, 22% 70%, 2% 100%);
+    rotate: -1.5deg;
     pointer-events: none;
 }
 
 .rs-nav:not(.is-ransom) .rs-nav-link.active::after {
-    top: 0;
+    bottom: 1px;
 }
 
 .rs-nav-link:focus-visible {
@@ -1777,7 +1778,7 @@ a:focus-visible .rs-vhs img {
 /* ---------- Book a table: a ticket, stub and all ---------- */
 
 .rs-ticket {
-    --tk-face: var(--z-gold);
+    --tk-face: var(--z-cream);
     --tk-ink: var(--z-ink);
     --tk-stub: var(--z-red);
     --tk-stub-ink: var(--z-cream);
@@ -1859,7 +1860,7 @@ a:focus-visible .rs-vhs img {
 
     .rs-ticket:hover .rs-ticket-main,
     .rs-ticket:focus-visible .rs-ticket-main {
-        background: var(--z-cream);
+        background: #fff8ec;
     }
 
     .rs-ticket:hover .rs-ticket-stub,
@@ -1881,9 +1882,9 @@ a:focus-visible .rs-vhs img {
 /* ---------- Open: the bar's neon sign ---------- */
 
 .rs-open-toggle {
-    --neon: #ff2d55;
-    --neon-hot: #e2401a;
-    --tube: #ffe1e7;
+    --neon: #ff3b1f;
+    --neon-hot: #bb150b;
+    --tube: #ffe9df;
     position: relative;
     isolation: isolate;
     display: inline-flex;
@@ -1915,7 +1916,7 @@ a:focus-visible .rs-vhs img {
             radial-gradient(circle 2px at calc(100% - 7px) 7px, #6c5b55 60%, transparent 70%),
             radial-gradient(circle 2px at 7px calc(100% - 7px), #6c5b55 60%, transparent 70%),
             radial-gradient(circle 2px at calc(100% - 7px) calc(100% - 7px), #6c5b55 60%, transparent 70%),
-            radial-gradient(80% 90% at 50% 50%, rgba(255, 45, 85, 0.16), transparent 70%),
+            radial-gradient(80% 90% at 50% 50%, rgba(255, 59, 31, 0.14), transparent 70%),
             #120607;
         clip-path: polygon(2% 0, 100% 6%, 98% 100%, 0 94%);
         box-shadow: inset 0 0 0 1px rgba(255, 241, 220, 0.12);
@@ -1923,11 +1924,11 @@ a:focus-visible .rs-vhs img {
 
     /* Aladdin Sane's bolt, bent out of gold tube. */
     .rs-open-toggle svg {
-        --bolt-a: #ffd86a;
-        --bolt-b: rgba(255, 45, 85, 0.75);
+        --bolt-a: #ffe9df;
+        --bolt-b: rgba(255, 59, 31, 0.8);
         width: 24px;
         height: 24px;
-        filter: drop-shadow(0 0 3px rgba(255, 216, 106, 0.9)) drop-shadow(0 0 8px rgba(226, 64, 26, 0.8));
+        filter: drop-shadow(0 0 3px rgba(255, 59, 31, 0.9)) drop-shadow(0 0 8px rgba(187, 21, 11, 0.8));
     }
 
 .rs-neon-word i {
@@ -1936,9 +1937,7 @@ a:focus-visible .rs-vhs img {
 
 .rs-open-toggle:hover,
 .rs-open-toggle:focus-visible {
-    --neon: #ffb21f;
-    --neon-hot: #ff5a1f;
-    --tube: #fff6d8;
+    --tube: #ffffff;
     color: var(--tube);
     rotate: -3deg;
 }
@@ -2062,7 +2061,7 @@ a:focus-visible .rs-vhs img {
     --ch-bg: var(--z-red);
     --ch-ink: var(--z-cream);
     --ch-accent: var(--z-gold);
-    --ch-btn: var(--z-gold);
+    --ch-btn: var(--z-cream);
     --ch-btn-ink: var(--z-ink);
     position: fixed;
     inset: 0;
@@ -2408,35 +2407,24 @@ html.rs-open-lock body {
    8. FOOTER — Blackstar
    ========================================================= */
 
+/* The footer is where the sun is up: Rebel red with yellow type, like the poster on
+   the door. Its top edge fades in over the page above. */
 .rs-footer {
-    --ch-bg: var(--z-space);
+    --ch-bg: var(--z-red);
     --ch-ink: var(--z-cream);
-    --ch-accent: var(--z-gold);
-    --ch-rail: var(--z-gold);
+    --ch-accent: var(--z-yellow);
+    --ch-rail: var(--z-yellow);
+    --ch-btn: var(--z-cream);
+    --ch-btn-ink: var(--z-ink);
+    --seam: clamp(80px, 10vw, 160px);
     position: relative;
     z-index: 2;
     overflow: clip;
     isolation: isolate;
-    border-top: 1px solid rgba(255, 241, 220, 0.1);
-    background: linear-gradient(180deg, transparent 40%, rgba(5, 2, 2, 0.55));
+    margin-top: calc(var(--seam) * -1);
+    padding-top: var(--seam);
+    background: linear-gradient(180deg, transparent 0, rgba(187, 21, 11, 0.7) calc(var(--seam) * 0.6), var(--z-red) var(--seam), #a8130a 100%);
     color: var(--z-cream);
-}
-
-/* Blackstar: a black star, outlined so it shows against the dark. */
-.rs-footer-star {
-    position: absolute;
-    top: 6%;
-    right: -3%;
-    z-index: 0;
-    width: clamp(260px, 34vw, 520px);
-    height: auto;
-    aspect-ratio: 1;
-    fill: #050303;
-    stroke: var(--z-gold);
-    stroke-width: 0.9;
-    opacity: 0.7;
-    transform: rotate(14deg);
-    pointer-events: none;
 }
 
 .rs-footer-main,
@@ -2454,7 +2442,7 @@ html.rs-open-lock body {
 
 .rs-footer-word {
     margin: 0;
-    color: var(--z-gold);
+    color: var(--z-yellow);
     font-family: var(--rs-display);
     font-size: clamp(80px, 10vw, 168px);
     font-weight: 900;
@@ -2465,12 +2453,12 @@ html.rs-open-lock body {
     .rs-footer-word span {
         display: block;
         -webkit-text-fill-color: transparent;
-        -webkit-text-stroke: 2px var(--z-gold);
+        -webkit-text-stroke: 2px var(--z-yellow);
     }
 
 .rs-footer-note {
     margin: 22px 0 0;
-    color: var(--z-blue);
+    color: var(--z-cream);
     font-family: var(--rs-mono);
     font-size: 12px;
     font-weight: 700;
@@ -2480,7 +2468,7 @@ html.rs-open-lock body {
 
 .rs-footer-col h2 {
     margin: 0 0 18px;
-    color: var(--z-gold);
+    color: var(--z-yellow);
     font-family: var(--rs-mono);
     font-size: 12px;
     font-weight: 700;
@@ -2499,14 +2487,14 @@ html.rs-open-lock body {
 .rs-footer-col a,
 .rs-footer-col p {
     margin: 0;
-    color: rgba(255, 241, 220, 0.84);
+    color: var(--z-cream);
     font-size: 15px;
     line-height: 1.7;
     text-decoration: none;
 }
 
     .rs-footer-col a:hover {
-        color: var(--z-gold);
+        color: var(--z-yellow);
     }
 
 .rs-footer-cta {
@@ -2527,8 +2515,8 @@ html.rs-open-lock body {
     }
 
 .rs-footer-bottom {
-    background: var(--z-red);
-    color: var(--z-yellow);
+    background: var(--z-ink);
+    color: var(--z-cream);
 }
 
     .rs-footer-bottom .rs-container {
@@ -2553,7 +2541,7 @@ html.rs-open-lock body {
         grid-column: 1 / -1;
     }
 
-    .rs-footer > .rs-era {
+    .rs-footer > .rs-rail {
         margin-top: 48px;
     }
 }
@@ -2703,19 +2691,6 @@ html.rs-open-lock body {
 
 .rs-home-beer {
     padding-bottom: clamp(96px, 12vw, 170px);
-}
-
-.rs-home-beer-bolt {
-    position: absolute;
-    top: 8%;
-    right: 4%;
-    z-index: -1;
-    width: clamp(200px, 24vw, 400px);
-    --bolt-a: var(--z-red);
-    --bolt-b: var(--z-blue);
-    transform: rotate(12deg);
-    translate: 0 var(--rs-drift, 0px);
-    pointer-events: none;
 }
 
 .rs-home-beer-head {
@@ -3161,23 +3136,6 @@ html.rs-open-lock body {
     opacity: 0.5;
 }
 
-.rs-menu-icon {
-    position: absolute;
-    top: 8%;
-    right: 7%;
-    z-index: -1;
-    width: clamp(150px, 17vw, 270px);
-    color: var(--z-gold);
-    fill: var(--z-gold);
-    transform: rotate(-10deg);
-    translate: 0 var(--rs-drift, 0px);
-    pointer-events: none;
-}
-
-.rs-menu-icon--record {
-    fill: var(--z-ink);
-}
-
 .rs-menu-hero-inner {
     display: flex;
     flex-wrap: wrap;
@@ -3229,14 +3187,14 @@ html.rs-open-lock body {
 
     .rs-menu-tab:hover,
     .rs-menu-tab:focus-visible {
-        --face: var(--z-cream);
-        --face-ink: var(--z-red);
+        --face: var(--z-red);
+        --face-ink: var(--z-cream);
         outline: none;
         rotate: -2deg;
     }
 
     .rs-menu-tab.is-active {
-        --face: var(--z-gold);
+        --face: var(--z-cream);
         --face-ink: var(--z-ink);
     }
 
@@ -3650,7 +3608,7 @@ html.rs-open-lock body {
     .rs-food-pair:hover,
     .rs-food-pair:focus-visible {
         --face: var(--z-ink);
-        --face-ink: var(--z-gold);
+        --face-ink: var(--z-cream);
         outline: none;
         rotate: -2deg;
     }
@@ -3666,12 +3624,6 @@ html.rs-open-lock body {
 
     .rs-menu-badge {
         display: none;
-    }
-
-    .rs-menu-icon {
-        top: 4%;
-        right: 3%;
-        width: 110px;
     }
 
     .rs-menu-tab {
@@ -3698,27 +3650,6 @@ html.rs-open-lock body {
 
 .rs-events-stars {
     opacity: 0.45;
-}
-
-.rs-events-tape,
-.rs-events-cta-tape {
-    position: absolute;
-    top: 6%;
-    right: 40%;
-    z-index: -1;
-    width: clamp(120px, 12vw, 200px);
-    fill: var(--z-gold);
-    opacity: 0.9;
-    transform: rotate(-14deg);
-    translate: 0 var(--rs-drift, 0px);
-    pointer-events: none;
-}
-
-.rs-events-cta-tape {
-    top: auto;
-    right: 32%;
-    bottom: 12%;
-    fill: var(--z-red);
 }
 
 .rs-events-hero-grid {
@@ -4925,15 +4856,6 @@ html.rs-open-lock body {
         color: var(--z-cream);
     }
 
-.rs-contact-star {
-    position: absolute;
-    top: 18%;
-    left: 44%;
-    width: 46px;
-    fill: var(--z-blue);
-    pointer-events: none;
-}
-
 .rs-contact-map-section {
     padding-bottom: clamp(80px, 10vw, 150px);
 }
@@ -5136,7 +5058,7 @@ html.rs-open-lock body {
     padding-bottom: clamp(40px, 6vw, 80px);
 }
 
-.rs-changes-year {
+.rs-changes-num {
     display: block;
     color: transparent;
     font-family: var(--rs-display);
@@ -5146,7 +5068,7 @@ html.rs-open-lock body {
     -webkit-text-stroke: 2px var(--look-hot);
 }
 
-.rs-changes-name {
+.rs-changes-job {
     margin: 12px 0 0;
     color: var(--look-ink);
     font-family: var(--rs-display);
@@ -5156,20 +5078,6 @@ html.rs-open-lock body {
     text-transform: uppercase;
 }
 
-.rs-changes-song {
-    margin: 18px 0 0;
-    color: var(--look-hot);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-}
-
-    .rs-changes-song::before {
-        content: "\25B6\00a0\00a0";
-    }
-
 .rs-changes-line {
     max-width: 40ch;
     margin: 12px 0 0;
@@ -5177,8 +5085,8 @@ html.rs-open-lock body {
     line-height: 1.6;
 }
 
-/* His job at the bar, the point of the whole thing. */
-.rs-changes-job {
+/* Who looks after it, and how. */
+.rs-changes-who {
     margin: 14px 0 0;
     color: var(--look-hot);
     font-family: var(--rs-display);
@@ -5189,11 +5097,16 @@ html.rs-open-lock body {
     text-transform: uppercase;
 }
 
+    .rs-changes-who b {
+        color: var(--look-ink);
+        font-weight: inherit;
+    }
+
 /* His desk: what he looks after, live from the bar, and the way there. Buttons take the look's colours. */
 .rs-changes-look {
     --ch-ink: var(--look-ink);
     --ch-bg: var(--look-solid, var(--look-stage));
-    --ch-btn: var(--look-btn, var(--z-gold));
+    --ch-btn: var(--look-btn, var(--z-cream));
     --ch-btn-ink: var(--look-btn-ink, var(--z-ink));
 }
 
@@ -5201,24 +5114,11 @@ html.rs-open-lock body {
     --look-solid: var(--z-space);
 }
 
-.rs-changes-look--ziggy,
+/* On the light stages the paper flips to ink. */
+.rs-changes-look--sane,
 .rs-changes-look--prophet {
     --look-btn: var(--z-ink);
-    --look-btn-ink: var(--z-gold);
-}
-
-.rs-changes-look--sane {
-    --look-btn: var(--z-red);
     --look-btn-ink: var(--z-cream);
-}
-
-.rs-changes-look--duke {
-    --look-btn: var(--z-red-hot);
-    --look-btn-ink: var(--z-cream);
-}
-
-.rs-changes-look--pierrot {
-    --look-btn: var(--z-blue);
 }
 
 .rs-changes-desk {
@@ -5374,33 +5274,6 @@ html.rs-open-lock body {
     z-index: 1;
 }
 
-.rs-changes-sign {
-    position: absolute;
-    top: 50%;
-    right: 3%;
-    width: min(74vh, 48vw);
-    aspect-ratio: 1;
-    translate: 0 -50%;
-    color: var(--look-hot);
-    fill: var(--look-hot);
-    opacity: 0.2;
-}
-
-.rs-changes-look--sane .rs-changes-sign {
-    --bolt-a: var(--z-red);
-    --bolt-b: var(--z-blue);
-    opacity: 0.32;
-}
-
-.rs-changes-look--rebel .rs-changes-sign {
-    fill: #10223c;
-    opacity: 0.5;
-}
-
-.rs-changes-look--prophet .rs-changes-sign {
-    opacity: 0.12;
-}
-
 .rs-changes-look .rs-mars {
     top: 9%;
     right: 4%;
@@ -5523,17 +5396,13 @@ html.rs-open-lock body {
         padding: 9vh 0 0;
     }
 
-        .rs-changes.is-staged .rs-changes-year {
+        .rs-changes.is-staged .rs-changes-num {
             font-size: clamp(64px, 14vh, 190px);
         }
 
-        .rs-changes.is-staged .rs-changes-name {
+        .rs-changes.is-staged .rs-changes-job {
             margin-top: 6px;
             font-size: clamp(40px, 8.4vh, 104px);
-        }
-
-        .rs-changes.is-staged .rs-changes-song {
-            margin-top: 10px;
         }
 
         .rs-changes.is-staged .rs-changes-copy > * {
@@ -5692,14 +5561,14 @@ html.rs-open-lock body {
             padding: 14px 0 92px;
         }
 
-        .rs-changes.is-staged .rs-changes-year {
+        .rs-changes.is-staged .rs-changes-num {
             position: absolute;
             right: 20px;
             bottom: calc(100% + 8px);
             font-size: 72px;
         }
 
-        .rs-changes.is-staged .rs-changes-name {
+        .rs-changes.is-staged .rs-changes-job {
             margin: 0;
             font-size: 40px;
         }
@@ -5708,11 +5577,7 @@ html.rs-open-lock body {
             display: none;
         }
 
-        .rs-changes.is-staged .rs-changes-song {
-            display: none;
-        }
-
-        .rs-changes.is-staged .rs-changes-job {
+        .rs-changes.is-staged .rs-changes-who {
             margin-top: 8px;
             font-size: 20px;
         }
@@ -6079,14 +5944,6 @@ html.rs-open-lock body {
         filter: none;
     }
 
-.rs-constellation-labels text {
-    fill: var(--z-gold);
-    font-family: var(--rs-display);
-    font-size: 26px;
-    font-weight: 900;
-    letter-spacing: 0.08em;
-}
-
 @media (max-width: 991.98px) {
     .rs-constellation {
         top: 40px;
@@ -6145,17 +6002,24 @@ html.rs-open-lock body {
         mix-blend-mode: screen;
     }
 
-.rs-home-cta {
-    padding-bottom: clamp(170px, 17vw, 250px);
+/* Dawn from orbit: by the end of the page the sun is coming up over the planet, and
+   its thin atmosphere burns orange instead of blue. */
+.rs-earth--dawn {
+    background: radial-gradient(circle closest-side, #050304 0 calc(100% - 70px), #1a0708 calc(100% - 30px), #6d1a0c calc(100% - 9px), #ff7a2e calc(100% - 2px), #ffe2b8 100%);
+    box-shadow:
+        0 0 16px 2px rgba(255, 150, 80, 0.65),
+        0 0 70px 14px rgba(226, 64, 26, 0.38),
+        0 0 180px 50px rgba(187, 21, 11, 0.22);
 }
 
-/* Below the planet's edge the night side carries on into the footer. */
-body:has(.rs-home-cta) .rs-footer,
-body:has(.rs-error-earth) .rs-footer {
-    border-top: 0;
-    background:
-        linear-gradient(180deg, #020509 0, rgba(2, 5, 9, 0.7) 90px, transparent 320px),
-        linear-gradient(180deg, transparent 40%, rgba(5, 2, 2, 0.55));
+    .rs-earth--dawn i {
+        width: clamp(340px, 40vw, 620px);
+        height: clamp(110px, 11vw, 180px);
+        background: radial-gradient(ellipse closest-side, rgba(255, 250, 235, 1) 0, rgba(255, 220, 150, 0.75) 16%, rgba(255, 120, 50, 0.35) 44%, transparent 100%);
+    }
+
+.rs-home-cta {
+    padding-bottom: clamp(170px, 17vw, 250px);
 }
 
 .rs-error-earth {
@@ -6280,8 +6144,7 @@ body:has(.rs-error-earth) .rs-footer {
         animation: rs-chart 2.6s var(--rs-ease) 0.5s both;
     }
 
-    .rs-constellation-line--faint,
-    .rs-constellation-labels {
+    .rs-constellation-line--faint {
         animation: rs-fade-in 1.2s ease 2.4s both;
     }
 
@@ -6470,18 +6333,6 @@ body:has(.rs-error-earth) .rs-footer {
         animation: rs-spin 40s linear infinite;
     }
 
-    /* On the Changes stage the symbol behind the look turns; the record spins at 45. */
-    .rs-changes.is-staged .is-current .rs-changes-sign {
-        animation: rs-spin 90s linear infinite;
-    }
-
-    .rs-changes.is-staged .rs-changes-look--rebel.is-current .rs-changes-sign {
-        animation-duration: 6s;
-    }
-
-    .rs-changes.is-staged .rs-changes-look--sane.is-current .rs-changes-sign {
-        animation: rs-strike-sign 7s steps(1) infinite;
-    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -6830,20 +6681,5 @@ body:has(.rs-error-earth) .rs-footer {
 
     93% {
         translate: -2px 0;
-    }
-}
-
-/* The big bolt behind Aladdin Sane lights up with the one on his face. */
-@keyframes rs-strike-sign {
-    0%, 70%, 75%, 86%, 88%, 100% {
-        opacity: 0.32;
-    }
-
-    71%, 73% {
-        opacity: 0.9;
-    }
-
-    87% {
-        opacity: 0.7;
     }
 }

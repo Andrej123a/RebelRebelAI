@@ -196,13 +196,16 @@
         tick();
         window.setInterval(tick, 1000);
 
-        // The tape's marker climbs as you scroll down the page.
+        // The tape's marker climbs as you scroll down the page. Set on the HUDs only, so
+        // a scroll restyles them and not the whole page.
+        const huds = document.querySelectorAll(".rs-hud");
         let pending = false;
 
         const climb = () => {
             pending = false;
             const travel = Math.max(1, root.scrollHeight - window.innerHeight);
-            root.style.setProperty("--hud-tape", (Math.min(1, window.scrollY / travel)).toFixed(3));
+            const height = (Math.min(1, window.scrollY / travel)).toFixed(3);
+            huds.forEach((hud) => hud.style.setProperty("--hud-tape", height));
         };
 
         window.addEventListener("scroll", () => {

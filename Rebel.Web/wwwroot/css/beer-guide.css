@@ -1,14 +1,12 @@
-/* Starman '72: the night sky over the chat, red at the horizon, and one bright
-   star (Starman, waiting in the sky) sending rings out like a radio signal. */
+/* The chat sits out in space, like every page's top (site.css), with one bright star
+   sending rings out like a radio signal. */
 .rr-guide-page {
     position: relative;
     isolation: isolate;
     overflow: clip;
     min-height: 100vh;
     color: #fff1dc;
-    background:
-        var(--z-clouds-night) center bottom / 100% 72% no-repeat,
-        linear-gradient(180deg, transparent 0%, rgba(74, 8, 3, 0.16) 34%, rgba(125, 13, 6, 0.46) 64%, rgba(187, 21, 11, 0.84) 100%);
+    background: none;
 }
 
 .rr-guide-starman {
@@ -1712,31 +1710,31 @@
 
 /* Leave room for the timeline when the screen is too narrow to hold it in the margin. */
 @media (min-width: 992px) and (max-width: 1439.98px) {
-    .rr-guide-page:has(> .rs-era) .rr-guide-workspace {
+    .rr-guide-page:has(> .rs-rail) .rr-guide-workspace {
         padding-left: 76px;
     }
 }
 
 @media (max-width: 991.98px) {
     /* Below the HUD's top readouts. */
-    .rr-guide-page > .rs-era {
+    .rr-guide-page > .rs-rail {
         margin-top: 64px;
     }
 }
 
 /* =========================================================
    CUT-UP — the Prophet's buttons are paper scraps like the
-   rest of the site: a face cut with scissors over a second
-   plate printed out of register. rebel-cutup.js re-cuts them.
+   rest of the site: cream paper cut with scissors over its
+   shadow, red when you go for it. rebel-cutup.js re-cuts them.
    ========================================================= */
 
 .rr-guide-chat-form button,
 .rr-guide-ai-stage .rr-guide-chat-form button,
 .rr-guide-submit {
     --cut: polygon(1% 9%, 31% 0, 64% 7%, 100% 1%, 97% 48%, 100% 97%, 66% 100%, 33% 93%, 0 100%, 3% 52%);
-    --face: #e2401a;
+    --face: #fff1dc;
     --face-ink: #150b09;
-    --plate: #f2c23a;
+    --plate: rgba(0, 0, 0, 0.45);
     position: relative;
     isolation: isolate;
     padding: 0 20px;
@@ -1754,8 +1752,6 @@
 }
 
 .rr-guide-submit {
-    --face: #f2c23a;
-    --plate: #e2401a;
     transform: rotate(-0.6deg);
 }
 
@@ -1794,7 +1790,8 @@
 
 .rr-guide-chat-form button:hover:not(:disabled),
 .rr-guide-submit:hover {
-    --face: #fff1dc;
+    --face: #bb150b;
+    --face-ink: #fff1dc;
     background: none;
     box-shadow: none;
     color: var(--face-ink);
@@ -1826,23 +1823,21 @@
     letter-spacing: 0.05em;
 }
 
-.rr-guide-chat-prompts button:nth-child(2) {
-    background: rgba(226, 64, 26, 0.22);
-}
+
 
 .rr-guide-chat-prompts button:hover,
 .rr-guide-recovery-actions button:hover,
 .rr-guide-recovery-actions button:focus-visible,
 .rr-guide-feedback button:hover:not(:disabled),
 .rr-guide-feedback button:focus-visible {
-    background: #e2401a;
-    color: #150b09;
+    background: #bb150b;
+    color: #fff1dc;
 }
 
 .rr-guide-compare-button:hover,
 .rr-guide-compare-button:focus-visible,
 .rr-guide-compare-button[aria-pressed="true"] {
-    background: #f2c23a;
+    background: #fff1dc;
     color: #150b09;
 }
 
