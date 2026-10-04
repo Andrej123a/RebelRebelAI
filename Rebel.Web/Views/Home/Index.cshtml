@@ -509,60 +509,65 @@
             <header class="rs-heading" data-rs-reveal>
                 <div>
                     <p class="rs-kicker">Fat Kitchen + the fridge</p>
-                    <h2 class="rs-home-headline">Pick your poison.</h2>
+                    <h2 class="rs-display rs-display--lg">Pick your poison.</h2>
                 </div>
 
                 <p>
                     Fat Kitchen plates for the hungry table and beer worth
-                    slowing down for.
+                    slowing down for. The menus are on their way down.
                 </p>
             </header>
 
-            <div class="rs-home-panels @(showDrinks ? "rs-home-panels--three" : "")">
+            @* The menus come down by cargo hauler, each one lowered on two cables. *@
+            <div class="rs-cargo-row @(showDrinks ? "rs-cargo-row--three" : "")">
                 <a asp-controller="Home"
                    asp-action="Menu"
                    asp-route-section="food"
-                   class="rs-clip rs-home-panel"
+                   class="rs-cargo"
                    data-rs-reveal>
-                    <span class="rs-home-panel-top">
-                        <span>Section A · Kitchen</span>
-                        <span>Skopje edition</span>
+                    <span class="rs-cargo-rig">
+                        <partial name="_Look" model='new LookModel("hauler", "kitchen", "rs-cargo-ship")' />
+                        <svg class="rs-cargo-cables" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 0 L4 100 M50 0 L96 100" /></svg>
+                        <span class="rs-cargo-pod">
+                            <span class="rs-cargo-top"><span>Cargo 01 · Kitchen</span><span>Contents: hot</span></span>
+                            <strong class="rs-cargo-head">Food with bad intentions.</strong>
+                            <span class="rs-cargo-window rs-home-rotator" aria-hidden="true">
+                                <img src="https://imageproxy.wolt.com/assets/6a02e61c938b4b58b5c33754?w=960" alt="" />
+                                <img src="https://imageproxy.wolt.com/assets/6a03117d3f815eb3031bd7ba?w=960" alt="" />
+                                <img src="https://imageproxy.wolt.com/assets/6a02e63b938b4b58b5c33760?w=960" alt="" />
+                                <img src="https://imageproxy.wolt.com/assets/6a02e5bc95fd7fae364fccb1?w=960" alt="" />
+                            </span>
+                            <span class="rs-cargo-foot">
+                                <span class="rs-label">Wings · Burgers · Pizza · Finger food</span>
+                                <span class="rs-cargo-action">See the food <i aria-hidden="true">&rarr;</i></span>
+                            </span>
+                        </span>
                     </span>
-                    <strong class="rs-home-panel-head">Food with bad intentions.</strong>
-                    <span class="rs-home-rotator" aria-hidden="true">
-                        <img src="https://imageproxy.wolt.com/assets/6a02e61c938b4b58b5c33754?w=960" alt="" />
-                        <img src="https://imageproxy.wolt.com/assets/6a03117d3f815eb3031bd7ba?w=960" alt="" />
-                        <img src="https://imageproxy.wolt.com/assets/6a02e63b938b4b58b5c33760?w=960" alt="" />
-                        <img src="https://imageproxy.wolt.com/assets/6a02e5bc95fd7fae364fccb1?w=960" alt="" />
-                    </span>
-                    <span class="rs-home-panel-foot">
-                        <span class="rs-label">Wings · Burgers · Pizza · Finger food</span>
-                        <span class="rs-home-panel-action">See the food <i aria-hidden="true">&rarr;</i></span>
-                    </span>
-                    <span class="rs-sticker" style="--size: 92px;">Extra<br />hot!</span>
                 </a>
 
                 <a asp-controller="Home"
                    asp-action="Menu"
                    asp-route-section="beer"
-                   class="rs-clip rs-home-panel"
+                   class="rs-cargo"
                    data-rs-reveal>
-                    <span class="rs-home-panel-top">
-                        <span>Section B · The fridge</span>
-                        <span>50+ in stock</span>
+                    <span class="rs-cargo-rig">
+                        <partial name="_Look" model='new LookModel("hauler", "fridge", "rs-cargo-ship")' />
+                        <svg class="rs-cargo-cables" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 0 L4 100 M50 0 L96 100" /></svg>
+                        <span class="rs-cargo-pod">
+                            <span class="rs-cargo-top"><span>Cargo 02 · The fridge</span><span>Kept at 4&deg;C</span></span>
+                            <strong class="rs-cargo-head">Beer beyond the usual.</strong>
+                            <span class="rs-cargo-window rs-home-rotator" aria-hidden="true">
+                                <img src="https://imageproxy.wolt.com/assets/699da1e53eb3341f036f3ee9?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
+                                <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf30?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
+                                <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf40?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
+                                <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf39?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
+                            </span>
+                            <span class="rs-cargo-foot">
+                                <span class="rs-label">Bottles · Draft · Rare finds</span>
+                                <span class="rs-cargo-action">Open the beer list <i aria-hidden="true">&rarr;</i></span>
+                            </span>
+                        </span>
                     </span>
-                    <strong class="rs-home-panel-head">Beer beyond the usual.</strong>
-                    <span class="rs-home-rotator" aria-hidden="true">
-                        <img src="https://imageproxy.wolt.com/assets/699da1e53eb3341f036f3ee9?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
-                        <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf30?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
-                        <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf40?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
-                        <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf39?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
-                    </span>
-                    <span class="rs-home-panel-foot">
-                        <span class="rs-label">Bottles · Draft · Rare finds</span>
-                        <span class="rs-home-panel-action">Open the beer list <i aria-hidden="true">&rarr;</i></span>
-                    </span>
-                    <span class="rs-sticker" style="--size: 92px;">Ice<br />cold</span>
                 </a>
 
                 @if (showDrinks)
@@ -570,16 +575,19 @@
                     <a asp-controller="Home"
                        asp-action="Menu"
                        asp-route-section="drink"
-                       class="rs-clip rs-home-panel"
+                       class="rs-cargo"
                        data-rs-reveal>
-                        <span class="rs-home-panel-top">
-                            <span>Section C · The bar</span>
-                            <span>Late edition</span>
-                        </span>
-                        <strong class="rs-home-panel-head">Liquid courage.</strong>
-                        <span class="rs-home-panel-foot">
-                            <span class="rs-label">Spirits · Cocktails · Shots</span>
-                            <span class="rs-home-panel-action">View drinks <i aria-hidden="true">&rarr;</i></span>
+                        <span class="rs-cargo-rig">
+                            <partial name="_Look" model='new LookModel("hauler", "bar", "rs-cargo-ship")' />
+                            <svg class="rs-cargo-cables" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 0 L4 100 M50 0 L96 100" /></svg>
+                            <span class="rs-cargo-pod">
+                                <span class="rs-cargo-top"><span>Cargo 03 · The bar</span><span>Handle with care</span></span>
+                                <strong class="rs-cargo-head">Liquid courage.</strong>
+                                <span class="rs-cargo-foot">
+                                    <span class="rs-label">Spirits · Cocktails · Shots</span>
+                                    <span class="rs-cargo-action">View drinks <i aria-hidden="true">&rarr;</i></span>
+                                </span>
+                            </span>
                         </span>
                     </a>
                 }

@@ -70,14 +70,6 @@
         _ => "planet"
     };
 
-    var categoryTones = new[]
-    {
-        "var(--rs-yellow)",
-        "var(--rs-flame)",
-        "var(--rs-sky)",
-        "var(--rs-bone)"
-    };
-
     var menuGroups = Model
         .Where(p => p.Category != null && p.Category.Type == selectedType)
         .GroupBy(p => p.Category!.Name)
@@ -176,17 +168,18 @@
     else
     {
         <div class="rs-container rs-food">
-            <header class="rs-clip rs-food-masthead">
-                <p class="rs-food-masthead-top">
-                    <span>Vol. 1 · Skopje</span>
-                    <span>Currently serving</span>
-                    <span>Price: one good night</span>
-                </p>
-                <h2>The Rebel Rebel Gazette</h2>
-                <p class="rs-food-masthead-sub">
-                    <strong>@sectionTitle</strong>
-                    <span>@sectionMessage</span>
-                </p>
+            @* The manifest of what came down from the kitchen, and the courier bringing it. *@
+            <header class="rs-manifest">
+                <div class="rs-manifest-copy">
+                    <p class="rs-manifest-top">
+                        <span>Cargo manifest</span>
+                        <span>@(selectedSection == "drink" ? "The bar" : "Fat Kitchen") &rarr; your table</span>
+                    </p>
+                    <h2>@sectionTitle</h2>
+                    <p class="rs-manifest-sub">@sectionMessage</p>
+                </div>
+
+                <partial name="_Look" model='new LookModel("courier", "manifest", "rs-manifest-courier")' />
             </header>
 
             <section class="rs-food-tools"
@@ -231,9 +224,8 @@
             @if (!menuGroups.Any())
             {
                 <div class="rs-food-nothing">
-                    <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#rs-bolt" /></svg>
-                    <h3 class="rs-display rs-display--sm">Nothing here yet.</h3>
-                    <p>The rebels are still working on this part of the menu.</p>
+                    <h3 class="rs-display rs-display--sm">Nothing aboard yet.</h3>
+                    <p>This bay is still being loaded. Try the other menus in the meantime.</p>
                 </div>
             }
             else
@@ -242,17 +234,13 @@
 
                 @foreach (var group in menuGroups)
                 {
-                    var tone = categoryTones[(categoryNumber - 1) % categoryTones.Length];
-
                     <section class="rs-food-category"
-                             data-menu-category
-                             style="--tone: @tone;">
-                        <header class="rs-food-category-head">
-                            <span class="rs-food-category-num">Page @categoryNumber.ToString("00")</span>
-                            <h3><span>@group.Key</span></h3>
-                            <span class="rs-sticker rs-food-category-count" style="--size: 84px;">
-                                @group.Count()<small>@(group.Count() == 1 ? "item" : "items")</small>
-                            </span>
+                             data-menu-category>
+                        @* Each category is a cargo bay. *@
+                        <header class="rs-bay-head">
+                            <span class="rs-bay-num">Bay @categoryNumber.ToString("00")</span>
+                            <h3>@group.Key</h3>
+                            <span class="rs-bay-count">@group.Count().ToString("00") aboard</span>
                         </header>
 
                         <div class="rs-food-grid">
@@ -292,12 +280,12 @@
                                         product.IsPromo ? "promo" : ""
                                     }.Where(tag => !string.IsNullOrWhiteSpace(tag)));
 
-                                <article class="rs-clip rs-food-card @(!product.IsAvailable ? "is-unavailable" : "")"
+                                <article class="rs-crate @(!product.IsAvailable ? "is-unavailable" : "")"
                                          id="dish-@product.Id"
                                          data-menu-item
                                          data-search="@searchableText"
                                          data-tags="@tagData">
-                                    <div class="rs-food-card-media">
+                                    <div class="rs-crate-media">
                                         @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
                                         {
                                             <img src="@product.ImageUrl"
@@ -306,26 +294,26 @@
                                         }
                                         else
                                         {
-                                            <div class="rs-food-card-placeholder" aria-hidden="true">
-                                                <svg viewBox="0 0 100 100"><use href="#rs-bolt" /></svg>
+                                            <div class="rs-crate-placeholder" aria-hidden="true">
                                                 <span>No photo.<br />Still tastes good.</span>
                                             </div>
                                         }
 
-                                        <span class="rs-food-price">
+                                        <span class="rs-crate-price">
                                             @product.Price.ToString("0.##")<small>ден</small>
                                         </span>
 
                                         @if (!product.IsAvailable)
                                         {
-                                            <span class="rs-food-stamp">Sold out</span>
+                                            <span class="rs-crate-stamp">Out of stock</span>
                                         }
                                     </div>
 
-                                    <div class="rs-food-card-body">
-                                        <div class="rs-food-card-top">
+                                    <div class="rs-crate-body">
+                                        <div class="rs-crate-top">
                                             <span class="rs-label">@group.Key</span>
-                                            <span class="rs-food-status">
+                                            <span class="rs-crate-status">
+                                                <i class="rs-led @(product.IsAvailable ? "" : "rs-led--red")" aria-hidden="true"></i>
                                                 @(product.IsAvailable ? "Available" : "Unavailable")
                                             </span>
                                         </div>

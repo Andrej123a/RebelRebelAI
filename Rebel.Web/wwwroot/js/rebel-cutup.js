@@ -15,7 +15,7 @@
         ".rs-btn",
         ".rs-chip",
         ".rs-menu-tab",
-        ".rs-home-panel-action",
+        ".rs-cargo-action",
         ".rs-food-pair",
         ".rs-open-close",
         ".rr-beer-filter",
