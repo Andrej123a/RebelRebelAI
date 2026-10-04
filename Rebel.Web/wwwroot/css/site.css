@@ -4654,7 +4654,7 @@ html.rs-open-lock body {
         .rs-changes.is-staged .rs-changes-art::after {
             background:
                 linear-gradient(90deg, var(--stage-bg) 0, color-mix(in srgb, var(--stage-bg) 55%, transparent) 22%, transparent 52%),
-                linear-gradient(0deg, var(--stage-bg) 0, transparent 24%),
+                linear-gradient(0deg, var(--stage-bg) 0, transparent 16%),
                 linear-gradient(180deg, color-mix(in srgb, var(--stage-bg) 70%, transparent) 0, transparent 20%);
         }
 

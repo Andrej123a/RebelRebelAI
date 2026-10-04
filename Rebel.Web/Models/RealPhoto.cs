@@ -51,7 +51,7 @@ public static class RealPhotos
         ["tom"] = new(
             "photo-1454789548928-9efd52dc4031?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8M3x8ZWFydGh8ZW58MHx8fHwxNzkxMTA2NTg2fDI&ixlib=rb-4.1.0",
             "An astronaut floating free in space above the Earth",
-            5735, 5735, "#0b1018", "50% 50%", Zoom: 1.8, Sky: true, By: "NASA", ByUser: "nasa"),
+            5735, 5735, "#0b1018", "50% 62%", Zoom: 1.5, Sky: true, By: "NASA", ByUser: "nasa"),
 
         // Life on Mars?: Mars through the Hubble Space Telescope.
         ["mars"] = new(
