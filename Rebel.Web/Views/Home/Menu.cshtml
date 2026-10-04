@@ -115,22 +115,98 @@
     }
     else
     {
-        // The kitchen is Life on Mars?'s (the bar's drinks are Halloween Jack's).
+        // The kitchen is Life on Mars?'s (the bar's drinks are Halloween Jack's), and it is on
+        // television: each category is a channel, the dish on air is on the set and he presents
+        // it, his words in teletext subtitles. The listings beside the set are the menu.
         var host = BowieCast.For(selectedSection == "drink" ? "jack" : "mars");
         var hostOpening = selectedSection == "drink"
             ? "The bar's open till one. What are you drinking?"
             : "Is there life on Mars? There's food. What are you hungry for?";
+        var dishCount = menuGroups.Sum(group => group.Count());
 
-        @* Below Mars, the white set of his video: the dishes are the prints from the shoot,
-           the favourites circled in red grease pencil, and he talks you through them. *@
-        <div class="rs-studio rs-studio--@host.Key" style="--host-stage: @host.Stage; --host-hot: @host.Hot;">
-            <div class="rs-container rs-studio-inner">
-                <div class="rs-studio-main">
+        string PriceOf(Rebel.Domain.Entities.Product product) => product.Price.ToString("0.##");
+
+        // What he says while it is on: what is in it, or that it is off tonight.
+        string WordsFor(Rebel.Domain.Entities.Product product) => product.IsAvailable
+            ? product.Description?.Trim() ?? ""
+            : "Off air tonight.";
+
+        // The set comes on with the first dish that is on tonight and has a picture.
+        var firstOnAir = menuGroups.SelectMany(group => group)
+            .FirstOrDefault(product => product.IsAvailable && !string.IsNullOrWhiteSpace(product.ImageUrl))
+            ?? menuGroups.SelectMany(group => group).FirstOrDefault();
+        var firstChannel = firstOnAir == null ? -1 : menuGroups.FindIndex(group => group.Contains(firstOnAir));
+        var screenState = firstOnAir == null
+            ? " is-no-signal"
+            : (string.IsNullOrWhiteSpace(firstOnAir.ImageUrl) ? " is-bars" : "") +
+              (!firstOnAir.IsAvailable ? " is-off" : "") +
+              (firstOnAir.IsPopular ? " is-pick" : "");
+
+        <div class="rs-tv rs-tv--@host.Key"
+             data-rs-tv
+             style="--host-stage: @host.Stage; --host-hot: @host.Hot;">
+            <div class="rs-container rs-tv-inner">
+                @* The set, on its legs in the corner of the room. *@
+                <div class="rs-tv-side">
+                    <div class="rs-tv-set">
+                        <span class="rs-tv-aerial" aria-hidden="true"></span>
+
+                        <div class="rs-tv-cabinet">
+                            <div class="rs-tv-bezel">
+                                @* What is on the set is in the listings too, so screen readers skip it. *@
+                                <div class="rs-tv-screen@(screenState)" aria-hidden="true" data-rs-tv-screen>
+                                    <img class="rs-tv-picture" data-rs-tv-picture src="@(firstOnAir?.ImageUrl)" alt="" />
+                                    <span class="rs-tv-bars"></span>
+                                    <span class="rs-tv-osd" data-rs-tv-channel>@(firstChannel >= 0 ? $"{firstChannel + 1} {menuGroups[firstChannel].Key}" : "")</span>
+                                    <span class="rs-tv-price" data-rs-tv-price>@(firstOnAir == null ? "" : $"{PriceOf(firstOnAir)} ден")</span>
+                                    <span class="rs-tv-pick">&#9733; Pick of the night</span>
+                                    <span class="rs-tv-off">Off air tonight</span>
+                                    <span class="rs-tv-notice">Normal service will be resumed as soon as possible.</span>
+                                    <span class="rs-tv-subtitles">
+                                        <span class="rs-tv-subtitle-name" data-rs-tv-name>@firstOnAir?.Name</span>
+                                        <span data-rs-host-says>@(firstOnAir == null ? "" : WordsFor(firstOnAir))</span>
+                                    </span>
+                                    <span class="rs-tv-inset" style="--ego-stage: @host.Stage; --ego-hot: @host.Hot;">
+                                        <img src="@Url.Content($"~/art/faces/{host.Key}.webp")" asp-append-version="true" width="160" height="160" alt="" />
+                                    </span>
+                                    <span class="rs-tv-static"></span>
+                                    <span class="rs-tv-glass"></span>
+                                </div>
+                            </div>
+
+                            <div class="rs-tv-panel">
+                                <span class="rs-tv-badge">@host.Name</span>
+
+                                <span class="rs-tv-dials">
+                                    <button type="button" class="rs-tv-dial" data-rs-step="-1" aria-label="Channel down" hidden>CH&nbsp;&minus;</button>
+                                    <button type="button" class="rs-tv-dial" data-rs-step="1" aria-label="Channel up" hidden>CH&nbsp;+</button>
+                                </span>
+
+                                @if (menuGroups.Any())
+                                {
+                                    <nav class="rs-tv-keys" aria-label="Channels">
+                                        @for (var index = 0; index < menuGroups.Count; index++)
+                                        {
+                                            <a href="#channel-@(index + 1)" class="rs-tv-key" data-rs-tune="@index">
+                                                <b>@(index + 1)</b>
+                                                <span>@menuGroups[index].Key</span>
+                                            </a>
+                                        }
+                                    </nav>
+                                }
+                            </div>
+                        </div>
+
+                        <span class="rs-tv-legs" aria-hidden="true"></span>
+                    </div>
+                </div>
+
+                <div class="rs-tv-main">
                     @* He asks what you are hungry for; the filters are your answers. *@
-                    <section class="rs-studio-ask" aria-label="Menu search and filters" hidden="@(!menuGroups.Any())">
+                    <section class="rs-tv-ask" aria-label="Menu search and filters" hidden="@(!menuGroups.Any())">
                         <span class="rs-ego-face" aria-hidden="true" style="--ego-stage: @host.Stage; --ego-hot: @host.Hot;"><img src="@Url.Content($"~/art/faces/{host.Key}.webp")" asp-append-version="true" width="160" height="160" alt="" /></span>
 
-                        <div class="rs-ego-bubble rs-studio-ask-bubble">
+                        <div class="rs-ego-bubble rs-tv-ask-bubble">
                             <span class="rs-ego-who">@host.Name</span>
                             <label class="rs-ego-line" for="menuSearchInput">@hostOpening</label>
                             <input id="menuSearchInput"
@@ -159,7 +235,7 @@
                     <div id="menuFilterEmpty"
                          class="rs-food-empty"
                          hidden>
-                        <partial name="_Ego" model='new EgoCall(host.Key, "Nothing like that in the kitchen tonight. Start again?", [new("Clear filters")], "rs-ego--small", Button: "button", Attributes: new Dictionary<string, string> { ["id"] = "menuFilterClear" })' />
+                        <partial name="_Ego" model='new EgoCall(host.Key, "Nothing like that on tonight. Start again?", [new("Clear filters")], "", Button: "button", Attributes: new Dictionary<string, string> { ["id"] = "menuFilterClear" })' />
                     </div>
 
                     @if (!menuGroups.Any())
@@ -170,17 +246,23 @@
                     }
                     else
                     {
-                        @foreach (var group in menuGroups)
-                        {
-                            var count = group.Count();
+                        @* The listings magazine, open at tonight. *@
+                        <div class="rs-tv-guide">
+                            <header class="rs-tv-guide-head">
+                                <h2>What's on tonight</h2>
+                                <p>@menuGroups.Count @(menuGroups.Count == 1 ? "channel" : "channels") &middot; @dishCount on tonight</p>
+                            </header>
 
-                            @* Each category is a set from the shoot, its name brushed on in his eyeshadow. *@
-                            <section class="rs-studio-set"
-                                     data-menu-category
-                                     data-rs-set-line="@group.Key: @count on the menu tonight.">
-                                <h3 class="rs-studio-title"><span>@group.Key</span></h3>
+                            @for (var index = 0; index < menuGroups.Count; index++)
+                            {
+                                var group = menuGroups[index];
 
-                                <div class="rs-prints">
+                                <section class="rs-tv-channel"
+                                         id="channel-@(index + 1)"
+                                         data-menu-category
+                                         data-rs-channel-label="@(index + 1) @group.Key">
+                                    <h3 class="rs-tv-channel-title"><span class="rs-tv-channel-number">CH @(index + 1)</span> @group.Key</h3>
+
                                     @foreach (var product in group)
                                     {
                                         var pairingDescription = string.IsNullOrWhiteSpace(product.Description)
@@ -219,7 +301,6 @@
 
                                         var notes = new[]
                                         {
-                                            product.IsPopular ? "a favourite" : null,
                                             product.IsSpicy ? "spicy" : null,
                                             product.SweetnessLevel is >= 4 ? "sweet" : null,
                                             product.IsVegan ? "vegan" : product.IsVegetarian ? "vegetarian" : null,
@@ -228,83 +309,67 @@
                                             product.IsPromo ? "promo" : null,
                                         }.Where(note => note != null).ToList();
 
-                                        var price = product.Price.ToString("0.##");
-                                        var hostLine = product.IsAvailable
-                                            ? $"{product.Name}, {price} ден. {product.Description}".Trim()
-                                            : $"{product.Name} is out tonight.";
+                                        var price = PriceOf(product);
 
-                                        <article class="rs-print@(product.IsPopular ? " is-popular" : "")@(!product.IsAvailable ? " is-unavailable" : "")"
+                                        <article class="rs-tv-show@(product.IsPopular ? " is-popular" : "")@(!product.IsAvailable ? " is-unavailable" : "")@(product == firstOnAir ? " is-on-air" : "")"
                                                  id="dish-@product.Id"
                                                  data-menu-item
                                                  data-search="@searchableText"
                                                  data-tags="@tagData"
-                                                 data-rs-host-line="@hostLine">
-                                            <figure class="rs-print-photo">
-                                                <span class="rs-print-frame">
-                                                    <span class="rs-print-window">
-                                                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                                                        {
-                                                            <img src="@product.ImageUrl"
-                                                                 alt="@product.Name"
-                                                                 loading="lazy" />
-                                                        }
-                                                        else
-                                                        {
-                                                            <span class="rs-print-blank" aria-hidden="true"></span>
-                                                        }
-                                                    </span>
+                                                 data-rs-show-image="@product.ImageUrl"
+                                                 data-rs-show-name="@product.Name"
+                                                 data-rs-show-price="@price ден"
+                                                 data-rs-host-line="@WordsFor(product)">
+                                            <figure class="rs-tv-still">
+                                                @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                                {
+                                                    <img src="@product.ImageUrl"
+                                                         alt="@product.Name"
+                                                         loading="lazy" />
+                                                }
+                                                else
+                                                {
+                                                    <span class="rs-tv-still-bars" aria-hidden="true"></span>
+                                                }
 
-                                                    @if (product.IsPopular)
-                                                    {
-                                                        <span class="rs-grease rs-grease--circle" aria-hidden="true"></span>
-                                                    }
-
-                                                    @if (!product.IsAvailable)
-                                                    {
-                                                        <span class="rs-grease rs-grease--cross" aria-hidden="true"></span>
-                                                        <span class="rs-print-out">Out tonight</span>
-                                                    }
-                                                </span>
-
-                                                <figcaption>
-                                                    <h4>@product.Name</h4>
-                                                    <span class="rs-print-price">@price<small>ден</small></span>
-                                                </figcaption>
+                                                @if (!product.IsAvailable)
+                                                {
+                                                    <figcaption class="rs-tv-still-tag rs-tv-still-tag--off">Off air tonight</figcaption>
+                                                }
+                                                else if (product.IsPopular)
+                                                {
+                                                    <figcaption class="rs-tv-still-tag">&#9733; Pick of the night</figcaption>
+                                                }
                                             </figure>
 
-                                            @if (notes.Count > 0)
-                                            {
-                                                <p class="rs-print-notes">@string.Join(" · ", notes)</p>
-                                            }
+                                            <div class="rs-tv-show-copy">
+                                                <div class="rs-tv-show-head">
+                                                    <h4>@product.Name</h4>
+                                                    <span class="rs-tv-show-price">@price<small>ден</small></span>
+                                                </div>
 
-                                            @if (!string.IsNullOrWhiteSpace(product.Description))
-                                            {
-                                                <p class="rs-print-text">@product.Description</p>
-                                            }
+                                                @if (notes.Count > 0)
+                                                {
+                                                    <p class="rs-tv-show-notes">@string.Join(" · ", notes)</p>
+                                                }
 
-                                            @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
-                                            {
-                                                <partial name="_Ego" model='new EgoCall("prophet", "", [new("Find a beer for this", Url.Action("Index", "BeerGuide", new { prompt = rebelPrompt }))], "rs-ego--small rs-food-pair")' />
-                                            }
+                                                @if (!string.IsNullOrWhiteSpace(product.Description))
+                                                {
+                                                    <p class="rs-tv-show-text">@product.Description</p>
+                                                }
+
+                                                @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
+                                                {
+                                                    <partial name="_Ego" model='new EgoCall("prophet", "", [new("Find a beer for this", Url.Action("Index", "BeerGuide", new { prompt = rebelPrompt }))], "rs-ego--small rs-food-pair")' />
+                                                }
+                                            </div>
                                         </article>
                                     }
-                                </div>
-                            </section>
-                        }
+                                </section>
+                            }
+                        </div>
                     }
                 </div>
-
-                @* He hosts from the side and talks about whatever you point at (the same
-                   words are on the prints, so screen readers skip him). *@
-                <aside class="rs-studio-host" aria-hidden="true">
-                    <div class="rs-studio-host-stand">
-                        <span class="rs-ego-bubble rs-studio-host-says">
-                            <span class="rs-ego-who">@host.Name</span>
-                            <span class="rs-ego-line" data-rs-host-says>@hostOpening</span>
-                        </span>
-                        <img class="rs-studio-host-look" src="@Url.Content($"~/art/looks/{host.Key}.webp")" asp-append-version="true" width="400" height="520" alt="" loading="lazy" />
-                    </div>
-                </aside>
             </div>
         </div>
     }
@@ -335,12 +400,100 @@
                 const chips = Array.from(document.querySelectorAll(".rs-food-chips [data-filter]"));
                 const items = Array.from(document.querySelectorAll("[data-menu-item]"));
                 const categories = Array.from(document.querySelectorAll("[data-menu-category]"));
+                const guide = document.querySelector(".rs-tv-guide");
+                const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
                 if (!searchInput || !items.length) {
                     return;
                 }
 
                 let activeFilter = "all";
+
+                const searching = () => searchInput.value.trim() !== "" || activeFilter !== "all";
+
+                // ---------- the set: one channel at a time, the dish on air, his subtitles ----------
+
+                const tv = document.querySelector("[data-rs-tv]");
+                const screen = tv?.querySelector("[data-rs-tv-screen]");
+                const picture = screen?.querySelector("[data-rs-tv-picture]");
+                const channelLabel = screen?.querySelector("[data-rs-tv-channel]");
+                const priceLabel = screen?.querySelector("[data-rs-tv-price]");
+                const nameLabel = screen?.querySelector("[data-rs-tv-name]");
+                const words = screen?.querySelector("[data-rs-host-says]");
+                const keys = tv ? Array.from(tv.querySelectorAll("[data-rs-tune]")) : [];
+                const dials = tv ? Array.from(tv.querySelectorAll("[data-rs-step]")) : [];
+                let onAir = items.find((item) => item.classList.contains("is-on-air")) ?? null;
+                let channel = Math.max(0, categories.findIndex((set) => set.contains(onAir)));
+                let touched = 0;
+
+                const putOnAir = (show) => {
+                    if (!screen || !show || show === onAir) {
+                        return;
+                    }
+
+                    onAir?.classList.remove("is-on-air");
+                    onAir = show;
+                    show.classList.add("is-on-air");
+
+                    const image = show.dataset.rsShowImage;
+                    screen.classList.remove("is-no-signal");
+                    screen.classList.toggle("is-bars", !image);
+                    screen.classList.toggle("is-off", show.classList.contains("is-unavailable"));
+                    screen.classList.toggle("is-pick", show.classList.contains("is-popular"));
+
+                    if (image) {
+                        picture.src = image;
+                    }
+
+                    channelLabel.textContent = show.closest("[data-menu-category]")?.dataset.rsChannelLabel ?? "";
+                    priceLabel.textContent = show.dataset.rsShowPrice;
+                    nameLabel.textContent = show.dataset.rsShowName;
+                    words.textContent = show.dataset.rsHostLine;
+
+                    if (!reducedMotion) {
+                        screen.classList.remove("is-tuning");
+                        void screen.offsetWidth;
+                        screen.classList.add("is-tuning");
+                    }
+                };
+
+                // Nothing matches: the test card, and normal service will be resumed.
+                const noSignal = () => {
+                    if (!screen) {
+                        return;
+                    }
+
+                    onAir?.classList.remove("is-on-air");
+                    onAir = null;
+                    screen.classList.add("is-no-signal");
+                    channelLabel.textContent = "";
+                    priceLabel.textContent = "";
+                    nameLabel.textContent = "";
+                    words.textContent = "";
+                };
+
+                // The first dish worth putting on: on tonight and with a picture, if there is one.
+                const headline = (shows) =>
+                    shows.find((show) => !show.classList.contains("is-unavailable") && show.dataset.rsShowImage) ?? shows[0];
+
+                const visible = (scope) => Array.from(scope.querySelectorAll("[data-menu-item]")).filter((item) => !item.hidden);
+
+                const showChannel = (index) => {
+                    channel = (index + categories.length) % categories.length;
+
+                    categories.forEach((set, i) => set.classList.toggle("is-on", i === channel));
+                    keys.forEach((key, i) => {
+                        key.classList.toggle("is-on", i === channel);
+
+                        if (i === channel) {
+                            key.setAttribute("aria-current", "true");
+                        } else {
+                            key.removeAttribute("aria-current");
+                        }
+                    });
+
+                    putOnAir(headline(visible(categories[channel])));
+                };
 
                 const setActiveChip = (filter) => {
                     activeFilter = filter;
@@ -374,6 +527,9 @@
                         category.hidden = category.querySelector("[data-menu-item]:not([hidden])") === null;
                     });
 
+                    // Searching looks across every channel; otherwise the set shows one.
+                    tv?.classList.toggle("is-searching", searching());
+
                     if (summary) {
                         summary.textContent = visibleCount === 1
                             ? "1 item found"
@@ -383,7 +539,56 @@
                     if (emptyState) {
                         emptyState.hidden = visibleCount > 0;
                     }
+
+                    if (guide) {
+                        guide.hidden = visibleCount === 0;
+                    }
+
+                    if (searching()) {
+                        keys.forEach((key) => {
+                            key.classList.remove("is-on");
+                            key.removeAttribute("aria-current");
+                        });
+                    }
+
+                    if (visibleCount === 0) {
+                        noSignal();
+                    } else if (searching()) {
+                        putOnAir(headline(items.filter((item) => !item.hidden)));
+                    } else {
+                        showChannel(channel);
+                    }
                 };
+
+                // Changing the channel leaves whatever you were searching for.
+                const tune = (index) => {
+                    touched = Date.now();
+                    channel = index;
+
+                    if (searching()) {
+                        searchInput.value = "";
+                        setActiveChip("all");
+                    }
+
+                    applyFilters();
+
+                    const set = categories[channel];
+
+                    if (set && set.getBoundingClientRect().top < 0) {
+                        set.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+                    }
+                };
+
+                // The next dish on this channel (or in what you searched for).
+                const next = () => {
+                    const shows = searching() ? items.filter((item) => !item.hidden) : visible(categories[channel]);
+
+                    if (shows.length) {
+                        putOnAir(shows[(shows.indexOf(onAir) + 1) % shows.length]);
+                    }
+                };
+
+                tv?.classList.add("is-tuned");
 
                 chips.forEach((chip) => {
                     chip.addEventListener("click", () => {
@@ -401,46 +606,52 @@
                     searchInput.focus();
                 });
 
-                applyFilters();
+                keys.forEach((key, index) => {
+                    key.addEventListener("click", (event) => {
+                        event.preventDefault();
+                        tune(index);
+                    });
+                });
 
-                // Life on Mars? talks about whatever you point at, and about the set you are in.
-                const hostSays = document.querySelector("[data-rs-host-says]");
+                dials.forEach((dial) => {
+                    dial.hidden = false;
+                    dial.addEventListener("click", () => tune(channel + Number(dial.dataset.rsStep)));
+                });
 
-                if (hostSays) {
-                    const bubble = hostSays.parentElement;
-                    let standing = hostSays.textContent;
-
-                    const say = (line) => {
-                        if (!line || line === hostSays.textContent) {
-                            return;
-                        }
-
-                        hostSays.textContent = line;
-                        bubble.classList.remove("is-new");
-                        void bubble.offsetWidth;
-                        bubble.classList.add("is-new");
+                // Whatever you point at in the listings goes on.
+                items.forEach((item) => {
+                    const watch = () => {
+                        touched = Date.now();
+                        putOnAir(item);
                     };
 
-                    items.forEach((item) => {
-                        item.addEventListener("pointerenter", () => say(item.dataset.rsHostLine));
-                        item.addEventListener("focusin", () => say(item.dataset.rsHostLine));
-                        item.addEventListener("pointerleave", () => say(standing));
-                    });
+                    item.addEventListener("pointerenter", watch);
+                    item.addEventListener("focusin", watch);
+                });
 
-                    if ("IntersectionObserver" in window) {
-                        const sets = new IntersectionObserver(
-                            (entries) => {
-                                entries.forEach((entry) => {
-                                    if (entry.isIntersecting) {
-                                        standing = entry.target.dataset.rsSetLine;
-                                        say(standing);
-                                    }
-                                });
-                            },
-                            { rootMargin: "-45% 0px -45% 0px" });
+                screen?.addEventListener("click", () => {
+                    touched = Date.now();
+                    next();
+                });
 
-                        categories.forEach((category) => sets.observe(category));
-                    }
+                applyFilters();
+
+                // Left alone, the channel carries on: the next dish every few seconds while the
+                // set is in view.
+                if (screen && !reducedMotion && "IntersectionObserver" in window) {
+                    let timer = 0;
+
+                    new IntersectionObserver(([entry]) => {
+                        window.clearInterval(timer);
+
+                        if (entry.isIntersecting) {
+                            timer = window.setInterval(() => {
+                                if (Date.now() - touched > 9000) {
+                                    next();
+                                }
+                            }, 6500);
+                        }
+                    }).observe(screen);
                 }
             })();
         </script>

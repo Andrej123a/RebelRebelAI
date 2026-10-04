@@ -4,6 +4,7 @@
 // - blocks marked data-rs-drift move at their own speed while scrolling,
 // - headlines rise word by word as they scroll in,
 // - Bowie's looks (Art/Looks) move only while on screen,
+// - the home page's menu carriers flip their photos over the top of the frame,
 // - the home page's "How Rebel works" stage, one character at a time while you scroll.
 // The night sky, falling stars and stardust live in rebel-sky.js.
 // Without JS or with reduced motion everything is simply shown.
@@ -224,6 +225,55 @@
         window.addEventListener("resize", queue);
         update();
     }
+
+    // ---------- the menus' carriers flip their photos over the top of the frame ----------
+
+    document.querySelectorAll(".rs-carrier-photos").forEach((photos, index) => {
+        const shots = Array.from(photos.querySelectorAll("img"));
+        const carrier = photos.closest(".rs-carrier");
+
+        if (shots.length < 2 || !carrier) {
+            return;
+        }
+
+        let shown = 0;
+        let busy = false;
+        let timer = 0;
+
+        photos.classList.add("is-flipbook");
+        shots[0].classList.add("is-shown");
+
+        const flip = () => {
+            if (busy) {
+                return;
+            }
+
+            busy = true;
+            const leaving = shots[shown];
+            shown = (shown + 1) % shots.length;
+            shots[shown].classList.add("is-shown");
+            leaving.classList.add("is-leaving");
+
+            window.setTimeout(() => {
+                leaving.classList.remove("is-shown", "is-leaving");
+                busy = false;
+            }, 720);
+        };
+
+        carrier.addEventListener("pointerenter", flip);
+        carrier.addEventListener("focus", flip);
+
+        // While he is on screen, a new photo every few seconds, each on his own beat.
+        if ("IntersectionObserver" in window) {
+            new IntersectionObserver(([entry]) => {
+                window.clearInterval(timer);
+
+                if (entry.isIntersecting) {
+                    timer = window.setInterval(flip, 5200 + index * 900);
+                }
+            }).observe(photos);
+        }
+    });
 
     // ---------- Bowie's looks: they move only while on screen ----------
 

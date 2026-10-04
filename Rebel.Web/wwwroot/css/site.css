@@ -2150,6 +2150,9 @@ html.rs-open-lock body {
     --crop-width: 100%;
     --frame-top: 90cqw;
     --frame-turn: -3deg;
+    --beam: rgba(255, 232, 196, 0.2);
+    position: relative;
+    isolation: isolate;
     display: grid;
     justify-items: center;
     color: var(--z-cream);
@@ -2221,7 +2224,7 @@ html.rs-open-lock body {
     background: linear-gradient(135deg, #2a1d18, #0e0806 60%, #22160f);
     box-shadow: inset 0 0 0 1px rgba(255, 241, 220, 0.18), 0 22px 30px rgba(0, 0, 0, 0.55);
     rotate: var(--frame-turn);
-    transition: rotate 0.45s var(--rs-ease), translate 0.45s var(--rs-ease);
+    transition: rotate 0.45s var(--rs-ease), translate 0.45s var(--rs-ease), scale 0.45s var(--rs-ease), box-shadow 0.45s var(--rs-ease);
 }
 
 .rs-carrier-photos {
@@ -2251,14 +2254,16 @@ html.rs-open-lock body {
     pointer-events: none;
 }
 
-/* Go for it and he lifts the picture up to you. */
+/* Go for it and he leans in and holds the picture up to you. */
 .rs-carrier:is(:hover, :focus-visible) .rs-carrier-picture {
     rotate: 0deg;
-    translate: 0 -2.5cqw;
+    scale: 1.08;
+    translate: 0 -4cqw;
+    box-shadow: inset 0 0 0 1px rgba(255, 241, 220, 0.24), 0 34px 44px rgba(0, 0, 0, 0.6);
 }
 
 .rs-carrier:is(:hover, :focus-visible) .rs-carrier-look {
-    transform: scale(1.03) rotate(-1deg);
+    transform: translateY(-1.5cqw) scale(1.07) rotate(-1.5deg);
 }
 
 /* What he says, under him, the bubble's tail pointing up at him. */
@@ -2283,6 +2288,153 @@ html.rs-open-lock body {
             clip-path: polygon(20% 100%, 50% 0, 80% 100%);
             translate: 0 0;
         }
+
+/* The lights. Each carrier stands in his own spotlight from a lamp high above, dust
+   turning in the beam and a pool of it on the floor; the lamps stutter on as they come
+   into view. Go for one and his light goes up while the others drop into the dark. */
+.rs-carrier::before,
+.rs-carrier::after {
+    content: "";
+    position: absolute;
+    top: -140px;
+    bottom: -24px;
+    left: 50%;
+    z-index: -1;
+    width: 160%;
+    translate: -50% 0;
+    pointer-events: none;
+    transition: opacity 0.6s var(--rs-ease);
+}
+
+.rs-carrier::before {
+    background:
+        radial-gradient(46% 9% at 50% 93%, var(--beam), transparent),
+        conic-gradient(from 160deg at 50% 0%, transparent, var(--beam) 12deg 28deg, transparent 40deg);
+    -webkit-mask: linear-gradient(transparent, #000 18%, #000 80%, transparent);
+    mask: linear-gradient(transparent, #000 18%, #000 80%, transparent);
+    opacity: 0.65;
+}
+
+.rs-carrier::after {
+    background:
+        radial-gradient(1.5px 1.5px at 20% 30%, rgba(255, 240, 214, 0.9), transparent),
+        radial-gradient(1px 1px at 70% 60%, rgba(255, 240, 214, 0.8), transparent),
+        radial-gradient(1.5px 1.5px at 45% 80%, rgba(255, 240, 214, 0.7), transparent),
+        radial-gradient(1px 1px at 85% 15%, rgba(255, 240, 214, 0.8), transparent);
+    background-size: 110px 130px, 90px 170px, 140px 110px, 70px 150px;
+    -webkit-mask:
+        linear-gradient(transparent, #000 25%, #000 70%, transparent),
+        conic-gradient(from 162deg at 50% 0%, transparent, #000 12deg 24deg, transparent 36deg);
+    -webkit-mask-composite: source-in;
+    mask:
+        linear-gradient(transparent, #000 25%, #000 70%, transparent) intersect,
+        conic-gradient(from 162deg at 50% 0%, transparent, #000 12deg 24deg, transparent 36deg);
+    opacity: 0.45;
+}
+
+/* A glow behind his head where the light catches his hair. */
+.rs-carrier-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(42% 26% at 50% 24%, rgba(255, 232, 196, 0.3), transparent);
+    opacity: 0.6;
+    transition: opacity 0.6s var(--rs-ease);
+}
+
+.rs-carrier-stage {
+    transition: filter 0.6s var(--rs-ease);
+}
+
+.rs-carrier-says {
+    transition: opacity 0.6s var(--rs-ease);
+}
+
+.rs-carrier:is(:hover, :focus-visible)::before,
+.rs-carrier:is(:hover, :focus-visible) .rs-carrier-stage::before {
+    opacity: 1;
+}
+
+.rs-carrier:is(:hover, :focus-visible)::after {
+    opacity: 0.9;
+}
+
+.rs-carriers:has(.rs-carrier:is(:hover, :focus-visible)) .rs-carrier:not(:hover, :focus-visible)::before,
+.rs-carriers:has(.rs-carrier:is(:hover, :focus-visible)) .rs-carrier:not(:hover, :focus-visible)::after {
+    opacity: 0.08;
+}
+
+.rs-carriers:has(.rs-carrier:is(:hover, :focus-visible)) .rs-carrier:not(:hover, :focus-visible) .rs-carrier-stage {
+    filter: brightness(0.38) saturate(0.6);
+}
+
+.rs-carriers:has(.rs-carrier:is(:hover, :focus-visible)) .rs-carrier:not(:hover, :focus-visible) .rs-carrier-says {
+    opacity: 0.4;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .rs-js .rs-carrier.is-in-view::before {
+        animation: rs-lamp-on 1.3s linear var(--lamp-wait, 0.2s) backwards;
+    }
+
+    .rs-carrier--ziggy {
+        --lamp-wait: 0.65s;
+    }
+
+    .rs-carrier--jack {
+        --lamp-wait: 1.1s;
+    }
+
+    .rs-carrier::after {
+        animation: rs-dust 26s linear infinite;
+    }
+}
+
+@keyframes rs-lamp-on {
+    0% { opacity: 0; }
+    8% { opacity: 0.7; }
+    12% { opacity: 0.05; }
+    20% { opacity: 0.8; }
+    25% { opacity: 0.15; }
+    38%, 100% { opacity: 0.65; }
+}
+
+@keyframes rs-dust {
+    to {
+        background-position: 30px -260px, -40px -340px, 20px -220px, -10px -300px;
+    }
+}
+
+/* With the script the photos flip over the top of the frame, one after another and
+   whenever you go for him; without it they cross-fade. */
+.rs-carrier-photos.is-flipbook {
+    overflow: visible;
+    perspective: 700px;
+}
+
+    .rs-carrier-photos.is-flipbook img {
+        opacity: 0;
+        animation: none;
+        transform-origin: 50% 0;
+        backface-visibility: hidden;
+    }
+
+        .rs-carrier-photos.is-flipbook img.is-shown {
+            opacity: 1;
+        }
+
+        .rs-carrier-photos.is-flipbook img.is-leaving {
+            z-index: 1;
+            animation: rs-flip-over 0.7s cubic-bezier(0.5, 0, 0.7, 0.4) forwards;
+        }
+
+@keyframes rs-flip-over {
+    to {
+        opacity: 0.3;
+        filter: brightness(1.5);
+        transform: rotateX(-100deg);
+    }
+}
 
 .rs-home-rotator {
     position: relative;
@@ -2503,30 +2655,11 @@ html.rs-open-lock body {
 }
 
 .rs-food-empty {
-    grid-column: 1 / -1;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 14px 20px;
-    padding: 22px 26px;
-    border: 1px solid rgba(154, 211, 240, 0.3);
-    background: rgba(10, 7, 10, 0.7);
-    color: var(--z-cream);
 }
 
     .rs-food-empty[hidden] {
         display: none;
-    }
-
-    .rs-food-empty strong {
-        font-family: var(--rs-display);
-        font-size: 26px;
-        font-weight: 900;
-        text-transform: none;
-    }
-
-    .rs-food-empty span {
-        color: rgba(255, 241, 220, 0.8);
     }
 
 .rs-food-nothing {
@@ -5702,142 +5835,619 @@ a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-act {
 }
 
 /* =========================================================
-   13. THE KITCHEN: LIFE ON MARS?'S WHITE SET
-   Below Mars the food menu steps into the white set of the
-   "Life on Mars?" video: studio light, his ice-blue suit and
-   eyeshadow, his copper hair. Each category is a set, its
-   name brushed on in eyeshadow; each dish is a glossy print
-   from the shoot, the favourites circled in red grease pencil
-   and the ones out tonight crossed through. He stands at
-   the side and talks about whatever you point at (the
-   script in Views/Home/Menu.cshtml). The bar's drinks are
-   Halloween Jack's set, in his colours.
+   13. THE KITCHEN ON TELEVISION: LIFE ON MARS? PRESENTS
+   Below Mars the food menu is a night in, in 1973: a living
+   room papered in orange circles, a teak colour set on its
+   legs and the listings magazine open beside it. Each
+   category is a channel; the dish on air is on the set and
+   Life on Mars? presents it from an inset in the corner, his
+   words in teletext subtitles. The listings are the menu,
+   every dish with a still, its price and what is in it; the
+   set follows whatever you point at, and left alone it
+   carries on through the channel (the script in
+   Views/Home/Menu.cshtml). Without the script every channel
+   is listed and the set shows the first dish. The bar's
+   drinks are Halloween Jack's channel, in his colours.
    ========================================================= */
 
-.rs-studio {
-    --studio-ink: #1d1714;
-    --studio-copper: #c4461a;
-    --studio-ice: #9ccfe8;
-    --studio-grease: #d4231b;
+.rs-tv {
+    --tv-ink: #1d1714;
+    --tv-paper: #f1e8d6;
+    --tv-red: #c62a1d;
+    --tv-glow: rgba(150, 196, 255, 0.16);
+    --tt-yellow: #ffe93a;
+    --tt-cyan: #4ff0ff;
+    --tt-green: #52ff6a;
+    --tt-red: #e8281b;
+    --tv-bars:
+        linear-gradient(90deg, #c0c0c0 0 14.28%, #c0c000 0 28.57%, #00c0c0 0 42.85%, #00c000 0 57.14%, #c000c0 0 71.42%, #c00000 0 85.71%, #0000c0 0) top / 100% 68% no-repeat,
+        linear-gradient(90deg, #0000c0 0 14.28%, #131313 0 28.57%, #c000c0 0 42.85%, #131313 0 57.14%, #00c0c0 0 71.42%, #131313 0 85.71%, #c0c0c0 0) 0 68% / 100% 10% no-repeat,
+        linear-gradient(90deg, #00214c 0 18%, #f4f4f4 0 36%, #32006a 0 54%, #131313 0) bottom / 100% 22% no-repeat;
     position: relative;
     z-index: 1;
-    padding-block: clamp(72px, 8vw, 120px) clamp(96px, 10vw, 150px);
+    padding-block: clamp(48px, 6vw, 96px) clamp(96px, 10vw, 150px);
     background:
-        radial-gradient(70% 40% at 78% 8%, rgba(255, 255, 255, 0.95), transparent 70%),
-        radial-gradient(120% 80% at 50% 0%, #fbfbf8 0, #edf3f6 45%, #d6e5ed 100%);
-    color: var(--studio-ink);
+        radial-gradient(44% 40% at var(--glow-x, 76%) var(--glow-y, 22%), var(--tv-glow), transparent 72%),
+        linear-gradient(#170d07, #110905);
+    color: var(--z-cream);
 }
 
-    /* The studio lights come up over the night sky. */
-    .rs-studio::before {
+    /* The wallpaper, coming out of the dark below the sky. */
+    .rs-tv::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+            radial-gradient(circle, #d4671f 0 19%, #7c3c12 20% 31%, #e7a338 32% 40%, #4f250b 41% 47%, transparent 48%) 0 0 / 132px 132px,
+            radial-gradient(circle, #d4671f 0 19%, #7c3c12 20% 31%, #e7a338 32% 40%, #4f250b 41% 47%, transparent 48%) 66px 66px / 132px 132px;
+        -webkit-mask: linear-gradient(transparent, #000 clamp(160px, 18vw, 280px));
+        mask: linear-gradient(transparent, #000 clamp(160px, 18vw, 280px));
+        opacity: 0.12;
+        pointer-events: none;
+    }
+
+    /* The room comes up out of the night sky. */
+    .rs-tv::before {
         content: "";
         position: absolute;
         right: 0;
         bottom: 100%;
         left: 0;
         height: clamp(90px, 12vw, 180px);
-        background: linear-gradient(180deg, transparent, rgba(251, 251, 248, 0.6) 55%, #fbfbf8);
+        background: linear-gradient(180deg, transparent, #170d07);
         pointer-events: none;
     }
 
-.rs-studio--jack {
-    --studio-copper: #b8860b;
-    --studio-ice: #9fd8ff;
+.rs-tv--jack {
+    --tv-glow: rgba(255, 196, 120, 0.14);
 }
 
-.rs-studio-inner {
+.rs-tv-inner {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: clamp(32px, 4vw, 64px);
+    gap: clamp(40px, 5vw, 72px);
+}
+
+.rs-tv-side {
+    justify-self: center;
+    width: min(100%, 600px);
 }
 
 @media (min-width: 1100px) {
-    .rs-studio-inner {
-        grid-template-columns: minmax(0, 1fr) clamp(260px, 22vw, 340px);
+    .rs-tv-inner {
+        grid-template-columns: minmax(0, 1fr) minmax(400px, 44%);
+        align-items: start;
+    }
+
+    .rs-tv-main {
+        grid-row: 1;
+        grid-column: 1;
+    }
+
+    /* The set stays in the corner of your eye while you read the listings. */
+    .rs-tv-side {
+        position: sticky;
+        top: 20px;
+        grid-row: 1;
+        grid-column: 2;
+        width: 100%;
+        max-width: calc((100vh - 40px) / 1.12);
     }
 }
 
-/* In the studio the speech bubbles are a comic's: white, inked round the edge. */
-.rs-studio .rs-ego-bubble {
-    --bubble: #fff;
-    border: 2px solid var(--studio-ink);
-    box-shadow: 4px 5px 0 var(--studio-ink);
+@media (max-width: 1099.98px) {
+    .rs-tv {
+        --glow-x: 50%;
+        --glow-y: 8%;
+    }
 }
 
-    .rs-studio .rs-ego-bubble::before {
-        background: var(--studio-ink);
+/* ---------- the set ---------- */
+
+/* Padding in % (of its own width): a container cannot size itself in its own cqw. */
+.rs-tv-set {
+    position: relative;
+    container-type: inline-size;
+    padding-block: 12% 5%;
+}
+
+/* Rabbit ears on a little dome. */
+.rs-tv-aerial {
+    position: absolute;
+    top: 0;
+    left: 60%;
+    width: 30cqw;
+    height: 13cqw;
+    background: radial-gradient(50% 100% at 50% 100%, #8c8379, #4a433d 70%, transparent 74%) bottom / 9cqw 3.4cqw no-repeat;
+    translate: -50% 0;
+}
+
+    .rs-tv-aerial::before,
+    .rs-tv-aerial::after {
+        content: "";
+        position: absolute;
+        bottom: 2.6cqw;
+        left: 50%;
+        width: 0.55cqw;
+        height: 13cqw;
+        border-radius: 1cqw;
+        background: linear-gradient(90deg, #7d776f, #f4f0ea 50%, #7d776f);
+        transform-origin: 50% 100%;
+        rotate: -34deg;
+        translate: -50% 0;
+    }
+
+    .rs-tv-aerial::after {
+        height: 11.5cqw;
+        rotate: 28deg;
+    }
+
+/* Teak, with the grain running along it. */
+.rs-tv-cabinet {
+    position: relative;
+    padding: 3.2cqw 3.2cqw 2.6cqw;
+    border-radius: 3.4cqw;
+    background:
+        repeating-linear-gradient(91deg, rgba(0, 0, 0, 0.09) 0 0.25cqw, transparent 0.25cqw 1.6cqw),
+        repeating-linear-gradient(89.3deg, rgba(255, 220, 170, 0.05) 0 0.15cqw, transparent 0.15cqw 2.3cqw),
+        linear-gradient(180deg, #84512c, #66391b 55%, #50290f);
+    box-shadow:
+        inset 0 0.4cqw 0 rgba(255, 214, 160, 0.25),
+        inset 0 -0.6cqw 0 rgba(0, 0, 0, 0.35),
+        0 4cqw 7cqw rgba(0, 0, 0, 0.6);
+}
+
+.rs-tv-bezel {
+    padding: 2.2cqw;
+    border-radius: 4.4cqw;
+    background: linear-gradient(160deg, #2b2420, #120d0b 60%, #231c18);
+    box-shadow:
+        0 0 0 0.5cqw #cfc6b8,
+        0 0 0 0.75cqw #5d5248,
+        inset 0 0 2cqw rgba(0, 0, 0, 0.8),
+        0 0 10cqw var(--tv-glow);
+}
+
+/* The picture tube: rounded, a little curved, lines across it, a glare on the glass. */
+.rs-tv-screen {
+    position: relative;
+    isolation: isolate;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 9% / 12%;
+    background: #070708;
+    font-family: var(--rs-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.rs-tv.is-tuned .rs-tv-screen {
+    cursor: pointer;
+}
+
+.rs-tv-picture {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(1.3) contrast(1.08) sepia(0.12);
+}
+
+.rs-tv-bars {
+    position: absolute;
+    inset: 0;
+    display: none;
+    background: var(--tv-bars);
+}
+
+.rs-tv-screen:is(.is-bars, .is-no-signal) .rs-tv-bars {
+    display: block;
+}
+
+.rs-tv-screen.is-no-signal .rs-tv-picture,
+.rs-tv-screen.is-bars .rs-tv-picture {
+    visibility: hidden;
+}
+
+/* Teletext, laid over the picture: the channel in green, the price in double-height
+   yellow, his words as subtitles in black boxes. */
+:is(.rs-tv-osd, .rs-tv-price, .rs-tv-pick, .rs-tv-off, .rs-tv-notice) {
+    position: absolute;
+    z-index: 1;
+    padding: 0.3cqw 0.9cqw;
+    background: #000;
+    font-size: 2.5cqw;
+    letter-spacing: 0.04em;
+    line-height: 1.25;
+}
+
+.rs-tv-osd {
+    top: 5.5cqw;
+    left: 6cqw;
+    color: var(--tt-green);
+}
+
+.rs-tv-price {
+    top: 5.5cqw;
+    right: 6cqw;
+    color: var(--tt-yellow);
+    font-size: 3.6cqw;
+    scale: 1 1.4;
+    transform-origin: top right;
+}
+
+.rs-tv-pick {
+    top: 12.4cqw;
+    right: 6cqw;
+    display: none;
+    color: var(--tt-cyan);
+    font-size: 2.1cqw;
+}
+
+.rs-tv-screen.is-pick .rs-tv-pick {
+    display: block;
+}
+
+.rs-tv-off {
+    top: 44%;
+    left: 50%;
+    display: none;
+    padding: 0.6cqw 1.6cqw;
+    background: var(--tt-red);
+    color: #fff;
+    font-size: 3.4cqw;
+    translate: -50% -50%;
+    white-space: nowrap;
+}
+
+.rs-tv-screen.is-off .rs-tv-off {
+    display: block;
+}
+
+.rs-tv-screen.is-off .rs-tv-picture {
+    filter: grayscale(1) brightness(0.7);
+}
+
+.rs-tv-notice {
+    top: 50%;
+    left: 50%;
+    display: none;
+    width: 70%;
+    padding: 1.4cqw 2cqw;
+    color: #fff;
+    font-size: 2.8cqw;
+    text-align: center;
+    text-transform: none;
+    translate: -50% -50%;
+}
+
+.rs-tv-screen.is-no-signal .rs-tv-notice {
+    display: block;
+}
+
+.rs-tv-screen.is-no-signal :is(.rs-tv-osd, .rs-tv-price, .rs-tv-pick, .rs-tv-off, .rs-tv-subtitles, .rs-tv-inset) {
+    display: none;
+}
+
+.rs-tv-subtitles {
+    position: absolute;
+    right: 25cqw;
+    bottom: 5cqw;
+    left: 6cqw;
+    z-index: 1;
+    color: #fff;
+    font-size: 2.45cqw;
+    line-height: 1.6;
+    text-transform: none;
+}
+
+    .rs-tv-subtitles > span:not(:empty) {
+        padding: 0.15em 0.4em;
+        background: #000;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
+    }
+
+    .rs-tv-subtitle-name {
+        color: var(--tt-yellow);
+        text-transform: uppercase;
+    }
+
+/* The presenter, in an oval in the corner. */
+.rs-tv-inset {
+    position: absolute;
+    right: 5cqw;
+    bottom: 4cqw;
+    z-index: 1;
+    width: 15cqw;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 30%, color-mix(in srgb, var(--ego-hot) 60%, #fff), var(--ego-hot) 50%, var(--ego-stage));
+    box-shadow: 0 0 0 0.45cqw rgba(255, 255, 255, 0.85), 0 1cqw 2cqw rgba(0, 0, 0, 0.5);
+}
+
+    .rs-tv-inset img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 50% 20%;
+        scale: 1.25;
+        translate: 0 8%;
+    }
+
+.rs-tv-static {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.5 -0.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+        #262626;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rs-tv-screen.is-no-signal .rs-tv-static {
+    opacity: 0.18;
+}
+
+.rs-tv-glass {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    background:
+        radial-gradient(70% 50% at 28% 14%, rgba(255, 255, 255, 0.14), transparent 60%),
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0 1px, transparent 1px 3px),
+        radial-gradient(closest-side, transparent 72%, rgba(0, 0, 0, 0.5));
+    box-shadow: inset 0 0 5cqw rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+}
+
+/* ---------- the controls under the screen ---------- */
+
+.rs-tv-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2.2cqw 3cqw;
+    margin-top: 2.6cqw;
+    padding: 2.2cqw 2.6cqw 2.6cqw;
+    border-radius: 1.6cqw;
+    background: linear-gradient(180deg, #2c2520, #191411);
+    box-shadow: inset 0 0.3cqw 0.6cqw rgba(0, 0, 0, 0.6), 0 0.2cqw 0 rgba(255, 214, 160, 0.15);
+}
+
+/* His name on the front in chrome script. */
+.rs-tv-badge {
+    justify-self: start;
+    background: linear-gradient(180deg, #fffaf0, #b9b0a3 55%, #f4efe7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-family: var(--rs-display);
+    font-size: clamp(15px, 3.6cqw, 24px);
+    font-style: italic;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.rs-tv-dials {
+    display: flex;
+    gap: 2.2cqw;
+}
+
+.rs-tv-dial {
+    display: grid;
+    place-items: center;
+    width: clamp(42px, 9.5cqw, 58px);
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background:
+        repeating-conic-gradient(rgba(0, 0, 0, 0.16) 0 4deg, transparent 4deg 10deg),
+        radial-gradient(circle at 35% 30%, #fbf8f2, #b8b0a4 55%, #6f665c);
+    box-shadow: 0 0.5cqw 0.9cqw rgba(0, 0, 0, 0.6), inset 0 -0.3cqw 0.4cqw rgba(0, 0, 0, 0.35);
+    color: var(--tv-ink);
+    font: 700 clamp(9px, 1.9cqw, 12px)/1 var(--rs-mono);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: rotate 0.25s var(--rs-ease);
+}
+
+    .rs-tv-dial[hidden] {
+        display: none;
+    }
+
+    .rs-tv-dial:hover {
+        rotate: 12deg;
+    }
+
+    .rs-tv-dial:active {
+        rotate: 40deg;
+    }
+
+    .rs-tv-dial:focus-visible {
+        outline: 3px solid var(--z-blue);
+        outline-offset: 3px;
+    }
+
+/* A push button for each channel, its lamp lit while it is on. */
+.rs-tv-keys {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.8cqw 1.4cqw;
+}
+
+.rs-tv-key {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.6cqw;
+    min-width: 13cqw;
+    padding: 1.6cqw 1.8cqw 1.3cqw;
+    border-radius: 0.8cqw;
+    background: linear-gradient(180deg, #f6efe0, #d8ccb4);
+    box-shadow: 0 0.6cqw 0 #8c7e67, 0 0.9cqw 1.2cqw rgba(0, 0, 0, 0.5);
+    color: var(--tv-ink);
+    text-decoration: none;
+    transition: translate 0.12s ease, box-shadow 0.12s ease, background 0.2s ease;
+}
+
+    .rs-tv-key::before {
+        content: "";
+        position: absolute;
+        top: 0.8cqw;
+        right: 0.9cqw;
+        width: 1.1cqw;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #5a1510;
+    }
+
+    .rs-tv-key b {
+        font: 700 clamp(14px, 3.2cqw, 20px)/1 var(--rs-mono);
+    }
+
+    .rs-tv-key span {
+        font: 700 clamp(8px, 1.75cqw, 11px)/1.1 var(--rs-mono);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .rs-tv-key:hover,
+    .rs-tv-key:focus-visible {
+        background: linear-gradient(180deg, #fffaf0, #e4d9c3);
+        color: var(--tv-ink);
+    }
+
+    .rs-tv-key:focus-visible {
+        outline: 3px solid var(--z-blue);
+        outline-offset: 3px;
+    }
+
+    .rs-tv-key.is-on {
+        box-shadow: 0 0.15cqw 0 #8c7e67, 0 0.3cqw 0.6cqw rgba(0, 0, 0, 0.5);
+        translate: 0 0.45cqw;
+    }
+
+        .rs-tv-key.is-on::before {
+            background: #ff3b2a;
+            box-shadow: 0 0 1.2cqw #ff3b2a;
+        }
+
+.rs-tv-legs {
+    position: absolute;
+    right: 14%;
+    bottom: 0;
+    left: 14%;
+    height: 6cqw;
+}
+
+    .rs-tv-legs::before,
+    .rs-tv-legs::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        width: 2.4cqw;
+        height: 100%;
+        background: linear-gradient(90deg, #3d220f, #6b3d1f 50%, #3d220f);
+        clip-path: polygon(0 0, 100% 0, 72% 100%, 32% 100%);
+    }
+
+    .rs-tv-legs::before {
+        left: 0;
+        rotate: 9deg;
+    }
+
+    .rs-tv-legs::after {
+        right: 0;
+        rotate: -9deg;
     }
 
 /* ---------- he asks what you are hungry for ---------- */
 
-.rs-studio-ask {
+.rs-tv-ask {
     --ego-face: clamp(84px, 8vw, 116px);
+    --bubble: var(--z-cream);
+    --bubble-ink: var(--z-ink);
     display: flex;
     align-items: flex-start;
     gap: 18px;
-    margin-bottom: clamp(48px, 6vw, 80px);
+    margin-bottom: clamp(36px, 4vw, 56px);
 }
 
-    .rs-studio-ask .rs-ego-face {
+    .rs-tv-ask[hidden] {
+        display: none;
+    }
+
+    .rs-tv-ask .rs-ego-face {
         margin-top: 14px;
     }
 
-    .rs-studio-ask-bubble {
-        max-width: 640px;
+    .rs-tv-ask-bubble {
         width: 100%;
+        max-width: 640px;
         gap: 12px;
         padding: 18px 22px 20px;
     }
 
-        .rs-studio-ask-bubble .rs-ego-line {
+        .rs-tv-ask-bubble .rs-ego-line {
             font-size: clamp(19px, 1.7vw, 24px);
         }
 
-        .rs-studio-ask-bubble input {
+        .rs-tv-ask-bubble input {
             width: 100%;
             min-height: 48px;
             padding: 0 4px;
             border: 0;
-            border-bottom: 2px solid var(--studio-ink);
+            border-bottom: 2px solid var(--tv-ink);
             border-radius: 0;
             background: transparent;
-            color: var(--studio-ink);
+            color: var(--tv-ink);
             font-family: var(--rs-display);
             font-size: 20px;
             font-style: italic;
         }
 
-            .rs-studio-ask-bubble input::placeholder {
-                color: rgba(29, 23, 20, 0.4);
+            /* Dark on his paper (the site's placeholders are pale, and !important). */
+            .rs-tv-ask-bubble input::placeholder {
+                color: rgba(29, 23, 20, 0.45) !important;
             }
 
-            .rs-studio-ask-bubble input:focus {
-                border-bottom-color: var(--studio-copper);
+            .rs-tv-ask-bubble input:focus {
+                border-bottom-color: var(--tv-red);
                 outline: none;
             }
 
-    .rs-studio .rs-food-chips {
+    .rs-tv .rs-food-chips {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
     }
 
-    .rs-studio .rs-chip {
-        --face: rgba(29, 23, 20, 0.07);
-        --face-ink: var(--studio-ink);
+    .rs-tv .rs-chip {
+        --face: rgba(29, 23, 20, 0.08);
+        --face-ink: var(--tv-ink);
         padding: 8px 13px 7px;
     }
 
-        .rs-studio .rs-chip:hover,
-        .rs-studio .rs-chip:focus-visible {
-            --face: rgba(29, 23, 20, 0.14);
+        .rs-tv .rs-chip:hover,
+        .rs-tv .rs-chip:focus-visible {
+            --face: rgba(29, 23, 20, 0.15);
         }
 
-        .rs-studio .rs-chip.is-active {
-            --face: var(--studio-ice);
+        .rs-tv .rs-chip.is-active {
+            --face: var(--tt-yellow);
         }
 
-    .rs-studio .rs-food-summary {
+    .rs-tv .rs-food-summary {
         margin: 0;
         color: rgba(29, 23, 20, 0.6);
         font-family: var(--rs-mono);
@@ -5846,295 +6456,385 @@ a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-act {
         text-transform: uppercase;
     }
 
-.rs-studio .rs-food-empty {
-    margin-bottom: 48px;
+.rs-tv .rs-food-empty {
+    margin-bottom: 32px;
 }
 
-.rs-studio-ask[hidden] {
+.rs-tv-guide[hidden] {
     display: none;
 }
 
-.rs-studio .rs-food-nothing h3 {
-    color: var(--studio-copper);
+/* ---------- the listings magazine ---------- */
+
+.rs-tv-guide {
+    padding: clamp(22px, 3vw, 44px) clamp(18px, 3vw, 44px) clamp(28px, 3vw, 48px);
+    background:
+        radial-gradient(120% 70% at 18% 0%, rgba(255, 255, 255, 0.45), transparent 60%),
+        var(--tv-paper);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15), 0 30px 60px rgba(0, 0, 0, 0.55);
+    color: var(--tv-ink);
 }
 
-/* ---------- each category is a set ---------- */
-
-.rs-studio-set + .rs-studio-set {
-    margin-top: clamp(72px, 8vw, 120px);
-}
-
-/* Its name in copper, brushed over a swipe of his ice-blue eyeshadow. */
-.rs-studio-title {
-    position: relative;
-    display: inline-block;
-    margin: 0 0 clamp(28px, 3vw, 44px);
-    color: var(--studio-copper);
-    font-size: clamp(48px, 6vw, 92px);
-    font-style: italic;
-    font-weight: 800;
-    line-height: 0.95;
-}
-
-    .rs-studio-title span {
-        position: relative;
-    }
-
-    .rs-studio-title::before {
-        content: "";
-        position: absolute;
-        right: -8%;
-        bottom: 2%;
-        left: -6%;
-        height: 58%;
-        background: var(--studio-ice);
-        opacity: 0.8;
-        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.6' numOctaves='3' seed='5'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='9'/%3E%3C/filter%3E%3Cpath filter='url(%23r)' d='M8 34C60 16 170 8 392 12L388 30C300 40 140 50 14 54Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.6' numOctaves='3' seed='5'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='9'/%3E%3C/filter%3E%3Cpath filter='url(%23r)' d='M8 34C60 16 170 8 392 12L388 30C300 40 140 50 14 54Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-        rotate: -1.5deg;
-    }
-
-/* ---------- the prints ---------- */
-
-.rs-prints {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-    gap: clamp(36px, 4vw, 56px) clamp(24px, 3vw, 44px);
-}
-
-.rs-print {
-    --tilt: -1.4deg;
-    display: grid;
-    align-content: start;
-    gap: 10px;
-}
-
-    .rs-print:nth-child(3n + 2) {
-        --tilt: 1.1deg;
-    }
-
-    .rs-print:nth-child(3n) {
-        --tilt: -0.5deg;
-    }
-
-    .rs-print[hidden] {
-        display: none;
-    }
-
-/* A glossy print: white border, a little curl of shadow, the dish's name and price
-   written on the border underneath. */
-.rs-print-photo {
-    position: relative;
-    margin: 0 0 6px;
-    padding: 10px 10px 0;
-    background: #fdfcf9;
-    box-shadow: 0 1px 0 rgba(29, 23, 20, 0.08), 0 22px 30px -16px rgba(30, 45, 60, 0.5), 0 2px 6px rgba(30, 45, 60, 0.12);
-    rotate: var(--tilt);
-    transition: rotate 0.4s var(--rs-ease), translate 0.4s var(--rs-ease), box-shadow 0.4s var(--rs-ease);
-}
-
-.rs-print-frame {
-    position: relative;
-    display: block;
-}
-
-.rs-print-window {
-    display: block;
-    overflow: hidden;
-    aspect-ratio: 4 / 3;
-    background: #e6ebee;
-}
-
-    .rs-print-window img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.6s var(--rs-ease);
-    }
-
-/* No photo yet: an empty frame with a ring of ice blue, like an unexposed plate. */
-.rs-print-blank {
-    display: block;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 50% 50%, transparent 0 30%, rgba(156, 207, 232, 0.55) 31% 34%, transparent 35%), #eef3f6;
-}
-
-.rs-print-photo figcaption {
+.rs-tv-guide-head {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
-    gap: 12px;
-    padding: 12px 4px 14px;
+    gap: 6px 20px;
+    margin-bottom: clamp(18px, 2.4vw, 30px);
+    padding-bottom: 14px;
+    border-bottom: 4px double var(--tv-ink);
 }
 
-    .rs-print-photo h4 {
+    .rs-tv-guide-head h2 {
         margin: 0;
-        color: var(--studio-ink);
-        font-size: 22px;
-        font-weight: 700;
-        line-height: 1.05;
+        color: var(--tv-ink);
+        font-size: clamp(34px, 4vw, 58px);
+        font-style: italic;
+        line-height: 0.95;
     }
 
-.rs-print-price {
-    flex: none;
-    color: var(--studio-copper);
-    font-family: var(--rs-display);
-    font-size: 22px;
+    .rs-tv-guide-head p {
+        margin: 0;
+        color: rgba(29, 23, 20, 0.65);
+        font-family: var(--rs-mono);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+.rs-tv-channel[hidden] {
+    display: none;
+}
+
+.rs-tv-channel + .rs-tv-channel {
+    margin-top: clamp(36px, 4vw, 56px);
+}
+
+/* With the script the listings show the channel that is on, unless you are searching. */
+.rs-tv.is-tuned:not(.is-searching) .rs-tv-channel:not(.is-on) {
+    display: none;
+}
+
+.rs-tv.is-tuned:not(.is-searching) .rs-tv-channel + .rs-tv-channel {
+    margin-top: 0;
+}
+
+.rs-tv-channel-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 0 0 6px;
+    color: var(--tv-ink);
+    font-size: clamp(30px, 3.4vw, 46px);
     font-weight: 800;
     line-height: 1;
 }
 
-    .rs-print-price small {
-        margin-left: 3px;
-        font-family: var(--rs-mono);
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
+.rs-tv-channel-number {
+    flex: none;
+    padding: 6px 9px 5px;
+    background: var(--tv-ink);
+    color: var(--tv-paper);
+    font-family: var(--rs-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+}
+
+.rs-tv-show {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(110px, 34%) minmax(0, 1fr);
+    gap: 16px clamp(16px, 2vw, 26px);
+    padding-block: 20px;
+    border-top: 1px dashed rgba(29, 23, 20, 0.3);
+}
+
+    .rs-tv-show[hidden] {
+        display: none;
     }
 
-/* Grease pencil: a loop round the favourites, a cross through what is out tonight. */
-.rs-grease {
+/* Each still is a little set of its own. */
+.rs-tv-still {
+    position: relative;
+    align-self: start;
+    margin: 0;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 10% / 13%;
+    background: #111;
+    box-shadow: 0 0 0 4px #2a221d, 0 0 0 5px #8a7d6c, 0 12px 18px -8px rgba(0, 0, 0, 0.5);
+}
+
+    .rs-tv-still img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: saturate(1.2) sepia(0.1);
+        transition: transform 0.5s var(--rs-ease);
+    }
+
+    .rs-tv-still::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background:
+            repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
+            radial-gradient(closest-side, transparent 70%, rgba(0, 0, 0, 0.45));
+        pointer-events: none;
+    }
+
+.rs-tv-still-bars {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--tv-bars);
+}
+
+.rs-tv-still-tag,
+.rs-tv-show.is-on-air .rs-tv-still::before {
     position: absolute;
-    pointer-events: none;
-    background: var(--studio-grease);
-}
-
-.rs-grease--circle {
-    inset: -20px -18px -18px -20px;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 140' preserveAspectRatio='none'%3E%3Cpath d='M30 26C70 4 160 2 186 34C204 60 196 118 150 130C96 142 28 136 12 98C-2 62 18 30 60 16' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 140' preserveAspectRatio='none'%3E%3Cpath d='M30 26C70 4 160 2 186 34C204 60 196 118 150 130C96 142 28 136 12 98C-2 62 18 30 60 16' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-    opacity: 0.88;
-}
-
-.rs-grease--cross {
-    inset: 8% 10%;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M6 8C34 36 62 64 95 93M92 6C66 34 36 66 5 95' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M6 8C34 36 62 64 95 93M92 6C66 34 36 66 5 95' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
-}
-
-.rs-print-out {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    padding: 2px 10px 4px;
-    background: #fdfcf9;
-    color: var(--studio-grease);
-    font-family: var(--rs-display);
-    font-size: 22px;
-    font-style: italic;
+    z-index: 1;
+    padding: 3px 6px;
+    background: #000;
+    color: var(--tt-yellow);
+    font-family: var(--rs-mono);
+    font-size: 10px;
     font-weight: 700;
-    rotate: -8deg;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+
+.rs-tv-still-tag {
+    bottom: 10%;
+    left: 9%;
+}
+
+.rs-tv-still-tag--off {
+    top: 50%;
+    bottom: auto;
+    left: 50%;
+    background: var(--tt-red);
+    color: #fff;
     translate: -50% -50%;
     white-space: nowrap;
 }
 
-.rs-print.is-unavailable .rs-print-window img {
-    filter: grayscale(1) contrast(0.9);
-    opacity: 0.75;
+.rs-tv-show.is-unavailable .rs-tv-still img {
+    filter: grayscale(1) brightness(0.7);
 }
 
-/* Notes in the margin, in grease pencil. */
-.rs-print-notes {
-    margin: 0;
-    color: var(--studio-grease);
-    font-family: var(--rs-display);
+.rs-tv-show.is-unavailable h4 {
+    opacity: 0.6;
+}
+
+/* The one on the set right now. */
+.rs-tv-show.is-on-air .rs-tv-still::before {
+    content: "\25CF  On air";
+    top: 10%;
+    left: 9%;
+    z-index: 2;
+    background: var(--tt-red);
+    color: #fff;
+    white-space: pre;
+}
+
+.rs-tv-show.is-on-air::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    bottom: 20px;
+    left: calc(-1 * clamp(10px, 1.6vw, 22px));
+    width: 4px;
+    background: var(--tv-red);
+}
+
+.rs-tv-show:is(:hover, :focus-within) .rs-tv-still img {
+    transform: scale(1.05);
+}
+
+.rs-tv-show-copy {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    min-width: 0;
+}
+
+.rs-tv-show-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+    .rs-tv-show-head h4 {
+        margin: 0;
+        color: var(--tv-ink);
+        font-size: clamp(20px, 1.8vw, 24px);
+        font-weight: 800;
+        line-height: 1.05;
+    }
+
+.rs-tv-show-price {
+    flex: none;
+    color: var(--tv-red);
+    font-family: var(--rs-mono);
     font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+    .rs-tv-show-price small {
+        margin-left: 3px;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+    }
+
+.rs-tv-show-notes {
+    margin: 0;
+    color: var(--tv-red);
+    font-family: var(--rs-display);
+    font-size: 15px;
     font-style: italic;
     font-weight: 600;
     line-height: 1.2;
 }
 
-.rs-print-text {
+.rs-tv-show-text {
     margin: 0;
     color: rgba(29, 23, 20, 0.78);
     font-size: 15px;
     line-height: 1.55;
 }
 
-.rs-print .rs-food-pair {
-    margin-top: 6px;
+.rs-tv-show .rs-food-pair {
+    margin-top: 4px;
 }
 
-/* Point at a print and it comes off the wall a little. */
-.rs-print:is(:hover, :focus-within) .rs-print-photo {
-    rotate: 0deg;
-    translate: 0 -6px;
-    box-shadow: 0 1px 0 rgba(29, 23, 20, 0.08), 0 34px 40px -18px rgba(30, 45, 60, 0.55), 0 2px 6px rgba(30, 45, 60, 0.12);
-}
+/* ---------- the set in motion ---------- */
 
-.rs-print:is(:hover, :focus-within) .rs-print-window img {
-    transform: scale(1.04);
-}
-
-/* ---------- he hosts from the side ---------- */
-
-.rs-studio-host {
-    display: none;
-}
-
-@media (min-width: 1100px) {
-    /* He steps in once the hero (where he already stands) has gone by. */
-    .rs-studio-host {
-        display: block;
-        padding-top: clamp(220px, 34vh, 380px);
+@media (prefers-reduced-motion: no-preference) {
+    /* It warms up: a line across the middle that opens into the picture. */
+    .rs-js .rs-tv-screen {
+        animation: rs-tv-on 1.1s var(--rs-ease) 0.3s backwards;
     }
 
-        .rs-studio-host-stand {
-            position: sticky;
-            top: 90px;
-            display: grid;
-            justify-items: center;
-        }
+    .rs-tv-screen.is-tuning .rs-tv-static {
+        animation: rs-tv-static 0.42s steps(5) both;
+    }
 
-        .rs-studio-host-says {
-            z-index: 1;
-            max-width: 100%;
-            margin-bottom: -10px;
-            border-radius: 22px 22px 8px 22px;
-            rotate: 1.5deg;
-        }
+    .rs-tv-screen.is-tuning :is(.rs-tv-picture, .rs-tv-bars) {
+        animation: rs-tv-tune 0.42s var(--rs-ease) both;
+    }
 
-            .rs-studio-host-says::before {
-                top: auto;
-                right: 26%;
-                bottom: -14px;
-                left: auto;
-                width: 20px;
-                height: 16px;
-                clip-path: polygon(0 0, 100% 0, 30% 100%);
-                translate: 0 0;
-            }
+    .rs-tv-screen.is-no-signal .rs-tv-static {
+        animation: rs-tv-snow 0.5s steps(4) infinite;
+    }
 
-            .rs-studio-host-says.is-new {
-                animation: rs-host-says 0.35s var(--rs-ease);
-            }
-
-        .rs-studio-host-look {
-            display: block;
-            width: 100%;
-            height: auto;
-            max-height: calc(100vh - 220px);
-            object-fit: contain;
-            filter: drop-shadow(0 18px 24px rgba(30, 45, 60, 0.35));
-        }
+    /* The bar that rolls slowly down an old set. */
+    .rs-tv-glass::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        left: 0;
+        height: 30%;
+        background: linear-gradient(transparent, rgba(255, 255, 255, 0.045), transparent);
+        animation: rs-tv-roll 7s linear infinite;
+    }
 }
 
-@keyframes rs-host-says {
+@keyframes rs-tv-on {
+    0% {
+        clip-path: inset(49.5% 0);
+        filter: brightness(3);
+    }
+
+    35% {
+        clip-path: inset(49% 0);
+        filter: brightness(2.5);
+    }
+
+    100% {
+        clip-path: inset(0);
+        filter: none;
+    }
+}
+
+@keyframes rs-tv-static {
+    0% {
+        opacity: 1;
+        background-position: 0 0, 0 0;
+    }
+
+    25% {
+        background-position: 40px 70px, 0 0;
+    }
+
+    50% {
+        opacity: 0.9;
+        background-position: 120px 20px, 0 0;
+    }
+
+    100% {
+        opacity: 0;
+        background-position: 30px 160px, 0 0;
+    }
+}
+
+@keyframes rs-tv-snow {
+    to {
+        background-position: 160px 90px, 0 0;
+    }
+}
+
+@keyframes rs-tv-tune {
+    0% {
+        opacity: 0;
+        transform: translateY(-12%) scaleY(1.08);
+    }
+
+    60% {
+        opacity: 0.85;
+        transform: translateY(2%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes rs-tv-roll {
     from {
-        opacity: 0.4;
-        scale: 0.96;
+        top: -30%;
+    }
+
+    to {
+        top: 100%;
     }
 }
 
 @media (max-width: 575.98px) {
-    .rs-studio-ask {
+    .rs-tv-ask {
         --ego-face: 64px;
         gap: 10px;
     }
 
-    .rs-studio-ask-bubble {
+    .rs-tv-ask-bubble {
         padding: 14px 16px 16px;
+    }
+
+    .rs-tv-show {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rs-tv-subtitles {
+        font-size: 3cqw;
     }
 }
