@@ -2211,6 +2211,17 @@ html.rs-open-lock body {
         text-transform: uppercase;
     }
 
+    .rs-footer-credit {
+        color: rgba(255, 241, 220, 0.6);
+        font-weight: 400;
+        letter-spacing: 0.06em;
+        text-transform: none;
+    }
+
+        .rs-footer-credit a {
+            color: inherit;
+        }
+
 @media (max-width: 991.98px) {
     .rs-footer-main {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4336,6 +4347,7 @@ html.rs-open-lock body {
         object-position: var(--photo-focus, 50% 50%);
         transform-origin: var(--photo-focus, 50% 50%);
         background: var(--photo-color);
+        color: transparent;
     }
 
 /* Sky photos: on the home stage they are screened onto its dark; elsewhere the page's
@@ -4920,6 +4932,11 @@ html.rs-open-lock body {
 
 }
 
+/* The flying saucer that crosses the stage now and then (09-motion). */
+.rs-stage-ufo {
+    display: none;
+}
+
 /* ---------- the other pages: each look in front of his photo ---------- */
 
 /* The photo stands at the edge of the hero, behind the type, and fades into the sky on
@@ -5241,6 +5258,20 @@ html.rs-open-lock body {
         transform: scale(1);
     }
 
+    /* A flying saucer drifts in over the stage, hovers, then darts off. */
+    .rs-changes.is-staged .rs-stage-ufo {
+        position: absolute;
+        top: 9%;
+        left: 0;
+        z-index: 1;
+        display: block;
+        width: clamp(70px, 8vw, 124px);
+        height: auto;
+        opacity: 0;
+        pointer-events: none;
+        animation: rs-ufo-pass 36s linear 6s infinite;
+    }
+
     /* ---------- Bowie's looks (only while one is on screen) ---------- */
 
     /* Major Tom floats. */
@@ -5430,3 +5461,32 @@ html.rs-open-lock body {
     }
 }
 
+@keyframes rs-ufo-pass {
+    0% {
+        opacity: 0;
+        transform: translate(104vw, 7vh) rotate(-9deg);
+    }
+
+    2% {
+        opacity: 1;
+    }
+
+    13% {
+        transform: translate(64vw, 0) rotate(-1deg);
+    }
+
+    21% {
+        transform: translate(61vw, -1vh) rotate(1deg);
+    }
+
+    24% {
+        opacity: 1;
+        transform: translate(-22vw, -12vh) rotate(-16deg);
+    }
+
+    24.5%,
+    100% {
+        opacity: 0;
+        transform: translate(-22vw, -12vh) rotate(-16deg);
+    }
+}

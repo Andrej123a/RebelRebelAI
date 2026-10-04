@@ -1,33 +1,54 @@
 <!-- Pierrot, Ashes to Ashes, 1980: chalk-white face, the cone hat, the ruff, sequins. Original artwork, painted for Rebel Rebel. The site shows wwwroot/art/looks/pierrot.webp, rendered from this file at 1000 x 1300. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520" width="400" height="520">
   <defs>
-    <filter id="rs-volume" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="11" result="height" />
-      <feDiffuseLighting in="height" surfaceScale="5" diffuseConstant="1.22" lighting-color="#fff4e6" result="light">
-        <fePointLight x="-160" y="-140" z="700" />
+    <filter id="rs-volume" filterUnits="userSpaceOnUse" x="-60" y="-60" width="520" height="640" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="15" result="broad" />
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="tight" />
+      <feComposite in="broad" in2="tight" operator="arithmetic" k1="0" k2="0.7" k3="0.3" k4="0" result="form" />
+      <feTurbulence type="fractalNoise" baseFrequency="0.022 0.07" numOctaves="3" seed="4" result="strokes" />
+      <feComposite in="form" in2="strokes" operator="arithmetic" k1="0" k2="1" k3="0.055" k4="-0.027" result="height" />
+      <feDiffuseLighting in="height" surfaceScale="6" diffuseConstant="1.32" lighting-color="#fff2e2" result="key">
+        <fePointLight x="-170" y="-150" z="500" />
       </feDiffuseLighting>
-      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="7" result="noise" />
-      <feColorMatrix in="noise" type="matrix" values="0 0 0 0.12 0.94  0 0 0 0.12 0.94  0 0 0 0.12 0.94  0 0 0 0 1" result="grain" />
-      <feComposite in="light" in2="grain" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="shade" />
-      <feComposite in="SourceGraphic" in2="shade" operator="arithmetic" k1="0.96" k2="0.08" k3="0" k4="0" result="lit" />
-      <feSpecularLighting in="height" surfaceScale="5" specularConstant="0.6" specularExponent="16" lighting-color="#fff4e6" result="sheen">
-        <fePointLight x="-160" y="-140" z="700" />
+      <feDiffuseLighting in="height" surfaceScale="6" diffuseConstant="1.15" lighting-color="#c79cff" result="rim">
+        <fePointLight x="640" y="300" z="24" />
+      </feDiffuseLighting>
+      <feComposite in="key" in2="rim" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="light" />
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="noise" />
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0.16 0.92  0 0 0 0.16 0.92  0 0 0 0.16 0.92  0 0 0 0 1" result="tooth" />
+      <feComposite in="light" in2="tooth" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="shade" />
+      <feComposite in="SourceGraphic" in2="shade" operator="arithmetic" k1="0.98" k2="0.04" k3="0" k4="0" result="lit" />
+      <feSpecularLighting in="height" surfaceScale="6" specularConstant="0.55" specularExponent="18" lighting-color="#fff2e2" result="sheen">
+        <fePointLight x="-170" y="-150" z="500" />
       </feSpecularLighting>
       <feComposite in="sheen" in2="SourceAlpha" operator="in" result="sheenIn" />
-      <feComposite in="lit" in2="sheenIn" operator="arithmetic" k1="0" k2="1" k3="0.3" k4="0" result="glossy" />
-      <feComposite in="glossy" in2="SourceAlpha" operator="in" />
+      <feComposite in="lit" in2="sheenIn" operator="arithmetic" k1="0" k2="1" k3="0.28" k4="0" result="glossy" />
+      <feComposite in="glossy" in2="SourceAlpha" operator="in" result="painted" />
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="shadowBlur" />
+      <feOffset in="shadowBlur" dx="6" dy="10" result="shadowOffset" />
+      <feFlood flood-color="#140806" flood-opacity="0.5" result="shadowColour" />
+      <feComposite in="shadowColour" in2="shadowOffset" operator="in" result="shadow" />
+      <feComposite in="shadow" in2="SourceAlpha" operator="out" result="cast" />
+      <feMerge>
+        <feMergeNode in="cast" />
+        <feMergeNode in="painted" />
+      </feMerge>
     </filter>
     <filter id="rs-soft" x="-25%" y="-25%" width="150%" height="150%">
       <feGaussianBlur stdDeviation="6" />
     </filter>
     <filter id="rs-pencil" x="-2%" y="-2%" width="104%" height="104%" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="0.9" />
+      <feGaussianBlur stdDeviation="0.8" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
+        <feFuncA type="linear" slope="0.6" />
       </feComponentTransfer>
     </filter>
-    <filter id="rs-cast" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="8" dy="16" stdDeviation="12" flood-color="#000" flood-opacity="0.45" />
+    <filter id="rs-cast" x="-10%" y="-10%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="3" seed="11" result="mottle" />
+      <feColorMatrix in="mottle" type="matrix" values="0 0 0 0.3 0.85  0 0 0 0.3 0.85  0 0 0 0.3 0.86  0 0 0 0 1" result="density" />
+      <feComposite in="SourceGraphic" in2="density" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="mottled" />
+      <feComposite in="mottled" in2="SourceAlpha" operator="in" result="figure" />
+      <feDropShadow in="figure" dx="8" dy="16" stdDeviation="12" flood-color="#000" flood-opacity="0.45" />
     </filter>
     <pattern id="rs-dots" width="8" height="8" patternUnits="userSpaceOnUse">
       <rect width="8" height="8" fill="#1a0f0d" fill-opacity="0.55" />
@@ -41,9 +62,29 @@
     <clipPath id="rs-pierrot-suit-a">
       <path d="M150 392C112 404 72 418 52 440C38 456 30 488 28 520L372 520C370 488 362 456 348 440C328 418 288 404 250 392Z" />
     </clipPath>
+    <mask id="rs-silhouette" maskUnits="userSpaceOnUse" x="-60" y="-60" width="520" height="640">
+      <g>
+        <path fill="#fff" d="M150 392.3 C112.1 404.4 72.1 417.1 52.4 440.2 C38.7 455.1 30.1 487.6 27.4 520.1 L372.2 520.2 C369.1 487.5 361.4 456.6 348.9 439.5 C328.2 417.8 287.3 403.5 250.1 392.8Z" />
+        <path fill="#fff" d="M52.4 440.2 C38.7 455.1 30.1 487.6 27.4 520.1 L89.6 520 C86.4 489.5 83.6 461.8 85.9 429.9Z" />
+        <path fill="#fff" d="M175.4 314.3 C178.5 340.4 176.1 356.2 171.2 372.9 L228.5 372.3 C223.8 356 221.6 340 224.5 314Z" />
+        <path fill="#fff" d="M324.5 372.3 Q332.9 379.4 319.4 383.8 Q322.3 391.9 304.6 396.5 Q304.7 403.8 280.4 404.7 Q276.9 414 251.9 411.4 Q241.1 423.5 217.2 415.8 Q200.1 427.7 181.9 416.1 Q158 423.7 147.7 411.7 Q122.4 413.3 118.6 405.4 Q95.5 403.3 95.7 395.7 Q77.4 391.2 81.7 383.8 Q66.9 379.1 75.1 372.2 Q67 365.7 80.9 359.2 Q77.2 352.1 95.6 348.2 Q95.8 339.8 119.2 339.4 Q122.7 329.6 148.5 332.4 Q158.3 320.9 182.4 328.4 Q200.2 315.2 218.3 327.2 Q241.9 321.1 252.6 332.4 Q277.4 329.5 281.7 338.9 Q304.5 340.4 304.8 347.8 Q323.1 352 318.5 359.1 Q332.9 365 324.5 372.3Z" />
+        <path fill="#fff" d="M296.7 366.1 Q302.1 372.4 290.3 375.3 Q290.7 381.9 274.1 385.4 Q269.2 391.9 248.2 392.9 Q239.4 399.6 217.3 396.5 Q200.1 404.3 183.3 395.2 Q160.3 400.5 151.9 392.2 Q130.3 391.2 125.5 384.5 Q108.5 381.4 109.6 375.5 Q98.1 371.7 104.3 366.1 Q98.7 360.8 109.5 355.4 Q109 349.2 126 347.9 Q130.7 340.1 151.5 340.3 Q160.9 332.2 183.7 335.8 Q199.1 327.2 217 335.8 Q239.1 332.1 247.8 339.6 Q269.3 339.9 274.1 347.4 Q290.5 349.7 289.6 356.2 Q301.9 360.6 296.7 366.1Z" />
+        <path fill="#fff" d="M176.5 340.4 C187.2 352.1 211.8 351.3 223.4 340.1 L226.4 368.2 C209.9 375.5 190.1 375.8 173.5 368.4Z" />
+        <path fill="#fff" d="M200.1 148.2 C235.1 148.1 262 171.8 264.2 209.6 C267.1 235.2 265 257.9 258.9 278.1 C254.1 299.9 245.7 317.3 233.6 330.4 C223.3 339 212.7 343.2 200.4 342.8 C187.7 342.4 176.6 339.3 165.9 329.4 C154.3 317.8 145.9 300.1 141.1 277.9 C134.6 258.2 133.7 235.8 134.9 209.8 C138 172.8 163.7 148 200.1 148.2Z" />
+        <path fill="#fff" d="M264.2 211.7 C267.1 235.2 265 257.9 258.9 278.1 C252.8 297.7 243.2 313.4 231.9 326.6 C239.7 306.1 244 285.9 243.8 264.6 C244 244.2 250 225.7 264.2 211.7Z" />
+        <path fill="#fff" d="M149.5 236.6 C152.5 220.3 165.3 211.5 180.1 213.9 C189.6 215.3 193.8 225.4 192.8 238.5 C180.1 232.6 163.6 231.2 149.5 236.6ZM207.5 237.9 C206.4 226 210.1 216.6 220.6 213.4 C233.8 212.2 248.8 219.8 249.3 236.4 C236.1 232.3 219.7 231.9 207.5 237.9Z" />
+        <path fill="#fff" d="M154 242.4 C161.7 235.2 181.4 236.1 191.7 242.2 C181.8 248.3 164.9 249.4 154 242.4ZM207.9 242.1 C217.9 235.4 238.4 236.1 245.9 242.6 C236.1 248.1 217.4 249.4 207.9 242.1Z" />
+        <circle fill="#fff" cx="173" cy="242" r="5.5" />
+        <circle fill="#fff" cx="227.6" cy="241.9" r="5.5" />
+        <path fill="#fff" d="M181.6 301.8 C189.3 295.9 197 297.2 200.1 299 C203.2 296.8 210.1 294.8 217.3 301.8 C209.4 309.9 190.7 308.7 181.6 301.8ZM185.8 303.1 C194.8 313.2 205.9 314.1 213.1 303.4 C205.6 307.5 194.7 306.6 185.8 303.1Z" />
+        <path fill="#fff" d="M130 196.8 C146.9 159.4 171.3 149.5 200 150.3 C229.7 149.4 256 161.8 270.1 192.2 L236.2 15.6Z" />
+        <path fill="#fff" d="M236.2 15.6 L270.1 192.2 C257.7 171.4 246.9 161.9 229.9 155.1Z" />
+        <path fill="#fff" d="M128.4 190.3 C155.4 171.7 236.1 168.3 271.7 185.5 L273.9 200 C238.4 182.5 160.3 186.9 128.4 204.5Z" />
+      </g>
+    </mask>
   </defs>
   <g filter="url(#rs-cast)">
-    <g class="rs-look-print">
+    <g class="rs-look-print" mask="url(#rs-silhouette)">
       <path fill="#8fb4cf" d="M150 392.3 C112.1 404.4 72.1 417.1 52.4 440.2 C38.7 455.1 30.1 487.6 27.4 520.1 L372.2 520.2 C369.1 487.5 361.4 456.6 348.9 439.5 C328.2 417.8 287.3 403.5 250.1 392.8Z" filter="url(#rs-volume)" />
       <path fill="url(#rs-dots)" opacity="0.3" d="M52.4 440.2 C38.7 455.1 30.1 487.6 27.4 520.1 L89.6 520 C86.4 489.5 83.6 461.8 85.9 429.9Z" filter="url(#rs-soft)" />
       <path fill="#fbfaf6" d="M175.4 314.3 C178.5 340.4 176.1 356.2 171.2 372.9 L228.5 372.3 C223.8 356 221.6 340 224.5 314Z" filter="url(#rs-volume)" />

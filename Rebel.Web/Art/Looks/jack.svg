@@ -1,33 +1,54 @@
 <!-- Halloween Jack, Diamond Dogs, 1974: the yellow suit and the eyepatch. Original artwork, painted for Rebel Rebel. The site shows wwwroot/art/looks/jack.webp, rendered from this file at 1000 x 1300. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520" width="400" height="520">
   <defs>
-    <filter id="rs-volume" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="11" result="height" />
-      <feDiffuseLighting in="height" surfaceScale="5" diffuseConstant="1.22" lighting-color="#fff4e6" result="light">
-        <fePointLight x="-160" y="-140" z="700" />
+    <filter id="rs-volume" filterUnits="userSpaceOnUse" x="-60" y="-60" width="520" height="640" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="15" result="broad" />
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="tight" />
+      <feComposite in="broad" in2="tight" operator="arithmetic" k1="0" k2="0.7" k3="0.3" k4="0" result="form" />
+      <feTurbulence type="fractalNoise" baseFrequency="0.022 0.07" numOctaves="3" seed="4" result="strokes" />
+      <feComposite in="form" in2="strokes" operator="arithmetic" k1="0" k2="1" k3="0.055" k4="-0.027" result="height" />
+      <feDiffuseLighting in="height" surfaceScale="6" diffuseConstant="1.32" lighting-color="#fff2e2" result="key">
+        <fePointLight x="-170" y="-150" z="500" />
       </feDiffuseLighting>
-      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="7" result="noise" />
-      <feColorMatrix in="noise" type="matrix" values="0 0 0 0.12 0.94  0 0 0 0.12 0.94  0 0 0 0.12 0.94  0 0 0 0 1" result="grain" />
-      <feComposite in="light" in2="grain" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="shade" />
-      <feComposite in="SourceGraphic" in2="shade" operator="arithmetic" k1="0.96" k2="0.08" k3="0" k4="0" result="lit" />
-      <feSpecularLighting in="height" surfaceScale="5" specularConstant="0.6" specularExponent="16" lighting-color="#fff4e6" result="sheen">
-        <fePointLight x="-160" y="-140" z="700" />
+      <feDiffuseLighting in="height" surfaceScale="6" diffuseConstant="1.15" lighting-color="#8fe0ff" result="rim">
+        <fePointLight x="640" y="300" z="24" />
+      </feDiffuseLighting>
+      <feComposite in="key" in2="rim" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="light" />
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="noise" />
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0.16 0.92  0 0 0 0.16 0.92  0 0 0 0.16 0.92  0 0 0 0 1" result="tooth" />
+      <feComposite in="light" in2="tooth" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="shade" />
+      <feComposite in="SourceGraphic" in2="shade" operator="arithmetic" k1="0.98" k2="0.04" k3="0" k4="0" result="lit" />
+      <feSpecularLighting in="height" surfaceScale="6" specularConstant="0.55" specularExponent="18" lighting-color="#fff2e2" result="sheen">
+        <fePointLight x="-170" y="-150" z="500" />
       </feSpecularLighting>
       <feComposite in="sheen" in2="SourceAlpha" operator="in" result="sheenIn" />
-      <feComposite in="lit" in2="sheenIn" operator="arithmetic" k1="0" k2="1" k3="0.3" k4="0" result="glossy" />
-      <feComposite in="glossy" in2="SourceAlpha" operator="in" />
+      <feComposite in="lit" in2="sheenIn" operator="arithmetic" k1="0" k2="1" k3="0.28" k4="0" result="glossy" />
+      <feComposite in="glossy" in2="SourceAlpha" operator="in" result="painted" />
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="shadowBlur" />
+      <feOffset in="shadowBlur" dx="6" dy="10" result="shadowOffset" />
+      <feFlood flood-color="#140806" flood-opacity="0.5" result="shadowColour" />
+      <feComposite in="shadowColour" in2="shadowOffset" operator="in" result="shadow" />
+      <feComposite in="shadow" in2="SourceAlpha" operator="out" result="cast" />
+      <feMerge>
+        <feMergeNode in="cast" />
+        <feMergeNode in="painted" />
+      </feMerge>
     </filter>
     <filter id="rs-soft" x="-25%" y="-25%" width="150%" height="150%">
       <feGaussianBlur stdDeviation="6" />
     </filter>
     <filter id="rs-pencil" x="-2%" y="-2%" width="104%" height="104%" color-interpolation-filters="sRGB">
-      <feGaussianBlur stdDeviation="0.9" />
+      <feGaussianBlur stdDeviation="0.8" />
       <feComponentTransfer>
-        <feFuncA type="linear" slope="0.5" />
+        <feFuncA type="linear" slope="0.6" />
       </feComponentTransfer>
     </filter>
-    <filter id="rs-cast" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="8" dy="16" stdDeviation="12" flood-color="#000" flood-opacity="0.45" />
+    <filter id="rs-cast" x="-10%" y="-10%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="3" seed="11" result="mottle" />
+      <feColorMatrix in="mottle" type="matrix" values="0 0 0 0.3 0.85  0 0 0 0.3 0.85  0 0 0 0.3 0.86  0 0 0 0 1" result="density" />
+      <feComposite in="SourceGraphic" in2="density" operator="arithmetic" k1="1" k2="0" k3="0" k4="0" result="mottled" />
+      <feComposite in="mottled" in2="SourceAlpha" operator="in" result="figure" />
+      <feDropShadow in="figure" dx="8" dy="16" stdDeviation="12" flood-color="#000" flood-opacity="0.45" />
     </filter>
     <pattern id="rs-dots" width="8" height="8" patternUnits="userSpaceOnUse">
       <rect width="8" height="8" fill="#1a0f0d" fill-opacity="0.55" />
@@ -38,9 +59,30 @@
     <pattern id="rs-dots-light" width="8" height="8" patternUnits="userSpaceOnUse">
       <rect width="8" height="8" fill="#fff1dc" fill-opacity="0.35" />
     </pattern>
+    <mask id="rs-silhouette" maskUnits="userSpaceOnUse" x="-60" y="-60" width="520" height="640">
+      <g>
+        <path fill="#fff" d="M180.4 56.2 Q178.1 44 165.3 40.8 Q171.7 36.8 178.3 37.3 Q178.7 27.5 169.8 22.2 Q178.1 21.1 185.9 26.5 Q193.3 19.3 190.1 9.7 Q198.9 13.8 201.9 21.4 Q211.9 18.7 213.5 8.3 Q218 17.7 215.8 25.9 Q226.4 27.6 232.7 20 Q231.1 28.6 224 35.5 Q227.7 42.7 235.4 41.7 Q229.9 48.2 222.3 48.2 Q218.1 52 219.2 57.3 C224.1 69.7 224.2 85.7 220.7 100.1 C221.3 112.3 219.4 119.7 214 126 L185.4 125.2 C180.2 119.6 178.7 112.6 180.1 100 C175.9 86.2 175.7 70 180.4 56.2Z" />
+        <path fill="#fff" d="M128.5 476 L175.7 476.2 L180.4 494.2 L124 494.8ZM217.7 475.2 L268.4 475.2 L273.8 494.7 L216 494.2Z" />
+        <path fill="#fff" d="M120.1 492.9 L184.3 491.5 L185.7 509.7 L118.4 510.1ZM211.7 492 L277.8 492.4 L280.2 509.9 L210.8 509.7Z" />
+        <path fill="#fff" d="M174 246.2 L228.5 245.8 C232 320.8 246 400.1 269.7 479.2 L222.7 481.7 C213.5 420.2 206.4 349.8 200.1 300.1 C193.6 349.8 186.2 420.3 177.3 479.9 L130.6 477.7 C149.9 399.5 165.4 319.5 174 246.2Z" />
+        <path fill="#fff" d="M214.5 261.6 C221.8 329.1 236.7 410.4 253.8 480.7 L269.7 479.2 C246 400.1 232 320.8 228.5 245.8ZM179.7 320.8 C173.6 380.5 167.9 439.6 162.1 479.6 L177.3 479.9 C186.2 420.3 192.4 360.2 196.5 315.2Z" />
+        <path fill="#fff" d="M186.2 99.3 C169.4 102.5 156.2 105.6 148.4 112.4 C150 139.5 159.8 168 174 196.3 C169.5 213.6 166 235.4 161.8 259.5 L237.2 260 C234.5 236.3 230 213.9 226.2 196.2 C240.5 168.3 250.3 139.8 252.2 112 C244.8 105.3 229.9 102.3 214.9 100.1 L214.5 149.9 L200.7 180.1 L186.7 150.1Z" />
+        <path fill="#fff" d="M240.3 116.1 C237.1 146.4 229.4 172.2 217.7 198 C222.2 215.6 226.3 238.1 230 260.3 L237.2 260 C234.5 236.3 230 213.9 226.2 196.2 C240.5 168.3 250.3 139.8 252.2 112Z" />
+        <path fill="#fff" d="M186 101.3 L214.8 102.1 L214.5 149.9 L200.7 175.8 L186.7 150.1Z" />
+        <path fill="#fff" d="M185.8 103.5 C191.3 109.9 208.1 109.4 214.7 104 L210.4 121.7 L200.4 130.2 L189.9 122ZM196.5 126.5 L190.2 154.3 L200.1 148.2 L210.5 154.2 L204.7 126.4Z" />
+        <path fill="#fff" d="M148.4 112.4 C136 117.9 128.3 136.1 124 159.9 C119.9 179.2 124.2 198.5 135.9 211.5 C148.7 220 161.9 222 174.3 218.2 L175.5 206 C163.5 205.2 151.9 202.1 145.7 191.2 C140.6 182 140.3 166.2 143.6 150.6 C145.7 138 149.4 126.4 153.3 118.1Z" />
+        <path fill="#fff" d="M173.3 205.7 C182.2 206.6 188.2 210 187.8 215.3 C186.2 221.5 180.8 224.5 172.6 222.6Z" />
+        <path fill="#fff" d="M252.2 112 C261.9 123.7 265.8 147.7 266.3 175.9 C265.7 203.6 261.9 227.9 254.5 250.5 L239.7 249.2 C246 227.4 249.9 203.6 249.2 177.9 C250 150.5 247.3 128.5 244.5 114.1Z" />
+        <path fill="#fff" d="M257.5 124.2 C263.6 149.6 266.2 200.1 254.5 250.5 L247.9 250.3 C257.8 210.4 259.5 160.3 253.2 126.7Z" />
+        <path fill="#fff" d="M192.5 86.1 L207.2 86 L210.5 104 L189.5 103.2Z" />
+        <path fill="#fff" d="M199.9 41.4 C210.6 42.5 218.4 50.2 217.3 63.7 C218 77.9 209.6 90 199.9 90.6 C190.8 89.9 181.2 78.8 182.1 63.9 C182 50.7 190.3 41.9 199.9 41.4Z" />
+        <path fill="#fff" d="M182.3 58.3 C184.1 46.4 194.2 39.8 206.1 40.1 C216.8 42.9 222.1 50.1 217.3 59.5 C214.3 52 206.2 47.5 197.3 49.3 C189.3 50.4 185.6 54.9 182.3 58.3Z" />
+        <path fill="#fff" d="M196.1 78.4 C198.1 77.3 201.9 77.6 203.6 78.8 C201.6 80.8 197.9 80.6 196.1 78.4Z" />
+      </g>
+    </mask>
   </defs>
   <g filter="url(#rs-cast)">
-    <g class="rs-look-print">
+    <g class="rs-look-print" mask="url(#rs-silhouette)">
       <path fill="#b31e0d" d="M180.4 56.2 Q178.1 44 165.3 40.8 Q171.7 36.8 178.3 37.3 Q178.7 27.5 169.8 22.2 Q178.1 21.1 185.9 26.5 Q193.3 19.3 190.1 9.7 Q198.9 13.8 201.9 21.4 Q211.9 18.7 213.5 8.3 Q218 17.7 215.8 25.9 Q226.4 27.6 232.7 20 Q231.1 28.6 224 35.5 Q227.7 42.7 235.4 41.7 Q229.9 48.2 222.3 48.2 Q218.1 52 219.2 57.3 C224.1 69.7 224.2 85.7 220.7 100.1 C221.3 112.3 219.4 119.7 214 126 L185.4 125.2 C180.2 119.6 178.7 112.6 180.1 100 C175.9 86.2 175.7 70 180.4 56.2Z" filter="url(#rs-volume)" />
       <path fill="#fff1dc" d="M128.5 476 L175.7 476.2 L180.4 494.2 L124 494.8ZM217.7 475.2 L268.4 475.2 L273.8 494.7 L216 494.2Z" filter="url(#rs-volume)" />
       <path fill="#1a0f0d" d="M120.1 492.9 L184.3 491.5 L185.7 509.7 L118.4 510.1ZM211.7 492 L277.8 492.4 L280.2 509.9 L210.8 509.7Z" filter="url(#rs-volume)" />

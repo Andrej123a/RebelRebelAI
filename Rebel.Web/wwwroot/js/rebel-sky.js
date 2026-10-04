@@ -7,6 +7,10 @@
 // - a flare wherever someone clicks the sky,
 // - Ziggy's stardust trailing the pointer inside [data-rs-stardust],
 // - "Tin can": a satellite crossing now and then, in Ground Control's brackets,
+// - far off, Jupiter and Saturn (Hubble photos) drifting past as the page scrolls,
+// - a comet now and then, a broad warm dust tail curving away and a straight blue ion tail,
+// - and every so often a flying saucer drifts in, hovers (sometimes with its beam on)
+//   and darts off,
 // - the way down: --dusk and --dawn follow how far down the page you are, and the
 //   .rs-sky-warm layer turns space violet and then Ziggy red, rising like a sunrise.
 // The sky is seeded, so it is the same on every visit. With reduced motion it is
@@ -129,10 +133,14 @@
     const dust = [];
     const flares = [];
     let satellite = null;
+    let comet = null;
+    let ufo = null;
     let dawn = 0;
     let nextMeteor = 1.2;
     let nextShower = 9;
     let nextSatellite = 4;
+    let nextComet = 5 + Math.random() * 6;
+    let nextUfo = 9 + Math.random() * 8;
     const live = Math.random;
 
     // ---------- the deep sky: nebula and Milky Way ----------
@@ -402,6 +410,66 @@
 
     const interactive = "a, button, input, select, textarea, label, summary, iframe, [role='button'], [contenteditable], .rs-open";
 
+    // ---------- far away: planets, comets and the odd flying saucer ----------
+
+    // Hubble's Jupiter and Saturn, drawn with "lighter" so their black sky adds nothing.
+    const unsplash = (path, width) => `https://images.unsplash.com/${path}&auto=format&fit=max&q=70&w=${width}`;
+    const planets = [
+        { path: "photo-1707056790571-54d8612d6368?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8M3x8anVwaXRlciUyMHBsYW5ldHxlbnwwfHx8fDE3OTExMTAzOTB8Mg&ixlib=rb-4.1.0", width: 300, at: 520, x: 0.88, size: 130, tilt: 0.3 },
+        { path: "photo-1706211306706-8f36d91c8379?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8NXx8c2F0dXJuJTIwcGxhbmV0JTIwcmluZ3N8ZW58MHx8fHwxNzkxMTEwMzkwfDI&ixlib=rb-4.1.0", width: 440, at: 2600, x: 0.03, size: 230, tilt: -0.16 }
+    ].map((planet) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.onload = () => {
+            planet.ready = true;
+
+            if (!running) {
+                frame(performance.now());
+            }
+        };
+        img.src = unsplash(planet.path, planet.width);
+        return Object.assign(planet, { img });
+    });
+
+    const ufoImage = (() => {
+        if (!canvas.dataset.rsUfo) {
+            return null;
+        }
+
+        const img = new Image();
+        img.decoding = "async";
+        img.src = canvas.dataset.rsUfo;
+        return img;
+    })();
+
+    const launchComet = () => {
+        const fromLeft = live() < 0.5;
+        const x0 = fromLeft ? -0.06 * W : 1.06 * W;
+        const run = W * (0.4 + live() * 0.35);
+        const y0 = H * (0.05 + live() * 0.3);
+        comet = {
+            x0,
+            y0,
+            x1: x0 + (fromLeft ? run : -run),
+            y1: y0 + H * (0.1 + live() * 0.2),
+            duration: 18 + live() * 8,
+            tail: Math.min(320, 150 + live() * 170) * Math.min(1, W / 800 + 0.3),
+            age: 0
+        };
+    };
+
+    const launchUfo = () => {
+        const size = (70 + live() * 46) * Math.min(1, W / 900 + 0.35);
+        ufo = {
+            fromLeft: live() < 0.5,
+            y: H * (0.1 + live() * 0.28),
+            hoverX: W * (0.25 + live() * 0.5),
+            size,
+            beam: live() < 0.6,
+            age: 0
+        };
+    };
+
     // ---------- drawing ----------
 
     const drawDeep = (scroll) => {
@@ -577,6 +645,175 @@
         ctx.globalAlpha = 1;
     };
 
+    // The planets hang a set distance down the page (at, in pixels) and drift past at a
+    // third of the scroll, as if very far away. Short pages only get the first.
+    const drawPlanets = (scroll) => {
+        ctx.globalCompositeOperation = "lighter";
+
+        for (const planet of planets) {
+            if (!planet.ready) {
+                continue;
+            }
+
+            const w = planet.size * Math.min(1, W / 900 + 0.3);
+            const h = w * planet.img.naturalHeight / planet.img.naturalWidth;
+            if (planet.at > docH) {
+                continue;
+            }
+
+            const y = H * 0.3 + (planet.at - scroll) * 0.33;
+
+            if (y - h > H || y + h < 0) {
+                continue;
+            }
+
+            ctx.globalAlpha = 0.88;
+            ctx.save();
+            ctx.translate(planet.x * W + pointer.x * 3, y + pointer.y * 3);
+            ctx.rotate(planet.tilt);
+            ctx.drawImage(planet.img, -w / 2, -h / 2, w, h);
+            ctx.restore();
+        }
+
+        ctx.globalAlpha = 1;
+    };
+
+    const drawComet = (dt) => {
+        if (!comet) {
+            return;
+        }
+
+        comet.age += dt;
+        const p = comet.age / comet.duration;
+
+        if (p >= 1) {
+            comet = null;
+            return;
+        }
+
+        const x = comet.x0 + (comet.x1 - comet.x0) * p;
+        const y = comet.y0 + (comet.y1 - comet.y0) * p;
+        const fade = Math.min(1, p * 6, (1 - p) * 6);
+        const dx = comet.x1 - comet.x0;
+        const dy = comet.y1 - comet.y0;
+        const len = Math.hypot(dx, dy);
+        const ux = -dx / len;
+        const uy = -dy / len;
+        const bend = dx > 0 ? -0.24 : 0.24;
+        const tail = comet.tail;
+
+        ctx.globalCompositeOperation = "lighter";
+        ctx.lineCap = "round";
+
+        // The dust tail: broad and warm, curving away from the path.
+        const cx = x + ux * tail * 0.55 - uy * tail * bend * 0.5;
+        const cy = y + uy * tail * 0.55 + ux * tail * bend * 0.5;
+        const ex = x + ux * tail - uy * tail * bend;
+        const ey = y + uy * tail + ux * tail * bend;
+
+        for (const [width, alpha] of [[30, 0.045], [15, 0.08], [7, 0.15], [2.4, 0.34]]) {
+            const grad = ctx.createLinearGradient(x, y, ex, ey);
+            grad.addColorStop(0, rgba([255, 238, 210], alpha * fade));
+            grad.addColorStop(1, rgba([255, 238, 210], 0));
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.quadraticCurveTo(cx, cy, ex, ey);
+            ctx.stroke();
+        }
+
+        // The ion tail: thin, blue and dead straight.
+        const ix = x + ux * tail * 1.4;
+        const iy = y + uy * tail * 1.4;
+        const ion = ctx.createLinearGradient(x, y, ix, iy);
+        ion.addColorStop(0, rgba([150, 205, 255], 0.55 * fade));
+        ion.addColorStop(1, rgba([150, 205, 255], 0));
+        ctx.strokeStyle = ion;
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(ix, iy);
+        ctx.stroke();
+
+        // The head, its green-white coma round a bright core.
+        ctx.globalAlpha = fade;
+        ctx.drawImage(spriteFor([190, 255, 225]), x - 32, y - 32, 64, 64);
+        ctx.drawImage(spriteFor([255, 255, 255]), x - 11, y - 11, 22, 22);
+        ctx.globalAlpha = 1;
+    };
+
+    // It drifts in, hovers, then darts away.
+    const UFO_IN = 7;
+    const UFO_HOLD = 4.5;
+    const UFO_OUT = 1.4;
+
+    const drawUfo = (dt) => {
+        if (!ufo || !ufoImage || !ufoImage.naturalWidth) {
+            return;
+        }
+
+        ufo.age += dt;
+        const a = ufo.age;
+        const side = ufo.fromLeft ? 1 : -1;
+        const start = ufo.fromLeft ? -ufo.size : W + ufo.size;
+        const away = ufo.fromLeft ? W + ufo.size * 2 : -ufo.size * 2;
+        let x;
+        let y = ufo.y;
+        let tilt = 0;
+
+        if (a < UFO_IN) {
+            const k = 1 - Math.pow(1 - a / UFO_IN, 3);
+            x = start + (ufo.hoverX - start) * k;
+            tilt = side * 0.14 * (1 - k);
+        } else if (a < UFO_IN + UFO_HOLD) {
+            x = ufo.hoverX + Math.sin((a - UFO_IN) * 1.4) * 5;
+        } else if (a < UFO_IN + UFO_HOLD + UFO_OUT) {
+            const k = (a - UFO_IN - UFO_HOLD) / UFO_OUT;
+            x = ufo.hoverX + (away - ufo.hoverX) * k * k * k;
+            y -= H * 0.16 * k * k;
+            tilt = side * 0.22 * k;
+        } else {
+            ufo = null;
+            return;
+        }
+
+        y += Math.sin(a * 2.2) * 3;
+        const w = ufo.size;
+        const h = w * ufoImage.naturalHeight / ufoImage.naturalWidth;
+
+        // The beam, while it hovers.
+        const beamFrom = UFO_IN + 0.6;
+        const beamTo = UFO_IN + UFO_HOLD - 0.3;
+
+        if (ufo.beam && a > beamFrom && a < beamTo) {
+            const k = Math.min(1, (a - beamFrom) / 0.5, (beamTo - a) / 0.4);
+            const top = y + h * 0.12;
+            const bottom = top + Math.min(H * 0.34, w * 3.2);
+            const grad = ctx.createLinearGradient(0, top, 0, bottom);
+            grad.addColorStop(0, rgba([190, 255, 228], 0.3 * k));
+            grad.addColorStop(1, rgba([190, 255, 228], 0));
+            ctx.globalCompositeOperation = "lighter";
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.moveTo(x - w * 0.13, top);
+            ctx.lineTo(x + w * 0.13, top);
+            ctx.lineTo(x + w * 0.5, bottom);
+            ctx.lineTo(x - w * 0.5, bottom);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = Math.min(1, a * 2);
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(tilt);
+        ctx.drawImage(ufoImage, -w / 2, -h / 2, w, h);
+        ctx.restore();
+        ctx.globalAlpha = 1;
+    };
+
     const drawSatellite = (dt) => {
         if (!satellite) {
             return;
@@ -640,6 +877,7 @@
         ctx.clearRect(0, 0, W, H);
 
         drawDeep(scroll);
+        drawPlanets(scroll);
         drawStars(t, scroll);
 
         if (!reducedMotion) {
@@ -658,6 +896,16 @@
                 nextSatellite = t + 40 + live() * 30;
             }
 
+            if (!comet && t >= nextComet) {
+                launchComet();
+                nextComet = t + 26 + live() * 22;
+            }
+
+            if (!ufo && t >= nextUfo) {
+                launchUfo();
+                nextUfo = t + 38 + live() * 30;
+            }
+
             for (let i = queued.length - 1; i >= 0; i--) {
                 if (t >= queued[i].at) {
                     meteor(queued[i].x, queued[i].y, queued[i].angle);
@@ -666,6 +914,8 @@
             }
 
             drawSatellite(dt);
+            drawComet(dt);
+            drawUfo(dt);
             drawMeteors(dt);
             drawFlares(dt);
             drawDust(dt);
