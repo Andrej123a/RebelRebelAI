@@ -2107,13 +2107,15 @@ html.rs-open-lock body {
     z-index: 1;
 }
 
-/* The wordmark, where to find us and when, side by side. */
+/* The wordmark, where to find us and when, side by side; the Prophet stands at the
+   end of the row. */
 .rs-footer-main {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
     align-items: end;
     gap: 36px clamp(32px, 4.5vw, 72px);
     padding-block: clamp(24px, 3vw, 44px) clamp(36px, 4vw, 56px);
+    padding-right: clamp(150px, 19vw, 280px);
 }
 
 .rs-footer-word {
@@ -2216,6 +2218,12 @@ html.rs-open-lock body {
 
     .rs-footer-brand {
         grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 760px) {
+    .rs-footer-main {
+        padding-right: 0;
     }
 }
 
@@ -3728,14 +3736,16 @@ html.rs-open-lock body {
 
 /* ---------- lookup + confirmation ---------- */
 
-/* Major Tom, floating past the tracking station. */
+/* Major Tom, drifting past the tracking station. */
 .rs-booking-helmet {
     position: absolute;
-    top: 2%;
-    right: max(0px, calc((100% - 1440px) / 2));
+    top: 6%;
+    right: 5%;
     z-index: -1;
-    width: clamp(240px, 30vw, 460px);
-    aspect-ratio: 1;
+    width: clamp(150px, 15vw, 240px);
+    transform: rotate(14deg);
+    translate: 0 var(--rs-drift, 0px);
+    pointer-events: none;
 }
 
 .rs-booking-inner {
@@ -4046,7 +4056,9 @@ html.rs-open-lock body {
     }
 
     .rs-booking-helmet {
-        display: none;
+        top: 1%;
+        right: 2%;
+        width: 88px;
     }
 }
 
@@ -4227,15 +4239,27 @@ html.rs-open-lock body {
     min-height: 56vh;
 }
 
-/* Major Tom, floating free with nothing to hold on to. */
 .rs-error-tom {
     position: relative;
-    width: clamp(240px, 32vw, 460px);
+    width: clamp(180px, 22vw, 320px);
 }
 
-    .rs-error-tom .rs-photo {
-        aspect-ratio: 1;
+    /* Major Tom himself, tumbling away on his tether. */
+    .rs-error-tom .rs-look {
+        transform: rotate(-16deg);
     }
+
+.rs-error-tether {
+    position: absolute;
+    right: -30%;
+    bottom: -12%;
+    width: 60%;
+    height: 40%;
+    border: 2px dashed var(--z-gold);
+    border-top: 0;
+    border-left: 0;
+    border-radius: 0 0 60% 0;
+}
 
 .rs-error .rs-display {
     color: var(--z-gold);
@@ -4256,21 +4280,47 @@ html.rs-open-lock body {
     font-size: 12px;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+    .rs-error-tom {
+        animation: rs-drift-space 9s ease-in-out infinite;
+    }
+}
+
+@keyframes rs-drift-space {
+    0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    50% {
+        transform: translate(12px, -16px) rotate(8deg);
+    }
+}
+
 @media (max-width: 767.98px) {
     .rs-error-inner {
         grid-template-columns: minmax(0, 1fr);
     }
 }
 /* =========================================================
-   9y. REAL PHOTOS — each part of the pub in a real photo
+   9y. BOWIE'S LOOKS, PAINTED, IN FRONT OF REAL PHOTOS
 
-   Each part of the pub has a real photo (Models/RealPhoto.cs):
-   NASA and other Unsplash photographers, hotlinked from
+   The characters are painted rather than printed (Art/Looks):
+   one light on the figure, volume and sheen on every shape, soft
+   shadows instead of halftone and outlines sunk into the paint.
+   The site shows their renders (wwwroot/art/looks), so none of
+   that costs anything while the page moves. Behind each one is a real photo of the
+   part of the pub he looks after (Models/RealPhoto.cs): NASA
+   and other Unsplash photographers, hotlinked from
    images.unsplash.com with the photographer credited, or one
    of the pub's own. Sky photos were taken against black space;
-   they are screened onto whatever dark they sit on and fade at
-   the edges, so only the subject shows.
+   the black is screened or keyed out so only the subject shows.
    ========================================================= */
+
+.rs-look {
+    display: block;
+    width: 100%;
+    height: auto;
+}
 
 /* (Kept weak, so each placement can position its photo.) */
 :where(.rs-photo) {
@@ -4383,29 +4433,55 @@ html.rs-open-lock body {
     color: var(--z-cream);
 }
 
-.rs-changes-art {
-    position: relative;
-    order: 2;
+.rs-changes-look {
+    --look-rim: var(--look-hot);
+    align-items: end;
+    padding-bottom: 0;
 }
 
-    .rs-changes-art .rs-photo {
-        aspect-ratio: 4 / 5;
-        max-height: 78vh;
-        margin-left: auto;
+/* Behind him, the real thing: a photo of the part he looks after. */
+.rs-changes-back {
+    position: absolute;
+    inset: 0 0 0 38%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+    .rs-changes-back .rs-photo {
+        width: 100%;
+        height: 100%;
+        opacity: 0.72;
     }
 
     /* The photo melts into the stage on the side of the words. */
-    .rs-changes-art::after {
+    .rs-changes-back::after {
         content: "";
         position: absolute;
         inset: 0;
         z-index: 1;
         background:
-            linear-gradient(90deg, var(--look-stage) 0, transparent 34%),
-            linear-gradient(270deg, var(--look-stage) 0, transparent 10%),
-            linear-gradient(0deg, var(--look-stage) 0, transparent 22%),
-            linear-gradient(180deg, var(--look-stage) 0, transparent 12%);
+            linear-gradient(90deg, var(--look-stage) 0, transparent 40%),
+            linear-gradient(0deg, var(--look-stage) 0, transparent 18%),
+            linear-gradient(180deg, var(--look-stage) 0, transparent 14%);
         pointer-events: none;
+    }
+
+    .rs-changes-back .rs-photo-credit {
+        z-index: 2;
+    }
+
+.rs-changes-art {
+    position: relative;
+    z-index: 1;
+    order: 2;
+    align-self: end;
+    pointer-events: none;
+}
+
+    .rs-changes-art .rs-look {
+        width: min(100%, 460px);
+        margin-inline: auto;
     }
 
 .rs-changes-job {
@@ -4561,6 +4637,8 @@ html.rs-open-lock body {
 .rs-changes-copy {
     position: relative;
     z-index: 2;
+    align-self: center;
+    padding-block: clamp(40px, 6vw, 80px);
 }
 
 /* The stage: pinned for the length of the cast, one look at a time (rebel-site.js). */
@@ -4580,7 +4658,6 @@ html.rs-open-lock body {
         color: var(--z-cream);
         transition: background-color 0.7s var(--rs-ease);
     }
-
 
     .rs-changes.is-staged .rs-changes-head {
         position: absolute;
@@ -4631,41 +4708,59 @@ html.rs-open-lock body {
         }
 
     /* The photo takes the right two thirds of the screen, edge to edge, and melts into the
-       dark behind the words. */
-    .rs-changes.is-staged .rs-changes-art {
-        position: absolute;
+       dark behind the words; he stands in front of it. */
+    .rs-changes.is-staged .rs-changes-back {
         inset: 0 0 0 auto;
         width: 68%;
-        overflow: hidden;
     }
 
-        .rs-changes.is-staged .rs-changes-art .rs-photo {
-            width: 100%;
-            height: 100%;
-            max-height: none;
-            aspect-ratio: auto;
+        .rs-changes.is-staged .rs-changes-back .rs-photo img {
+            scale: var(--photo-zoom, 1);
         }
 
-            /* Close in where the subject is small in the frame. */
-            .rs-changes.is-staged .rs-changes-art .rs-photo img {
-                scale: var(--photo-zoom, 1);
-            }
-
-        .rs-changes.is-staged .rs-changes-art::after {
+        .rs-changes.is-staged .rs-changes-back::after {
             background:
                 linear-gradient(90deg, var(--stage-bg) 0, color-mix(in srgb, var(--stage-bg) 55%, transparent) 22%, transparent 52%),
                 linear-gradient(0deg, var(--stage-bg) 0, transparent 16%),
                 linear-gradient(180deg, color-mix(in srgb, var(--stage-bg) 70%, transparent) 0, transparent 20%);
         }
 
-        .rs-changes.is-staged .rs-changes-art .rs-photo-credit {
-            right: auto;
-            left: 40%;
-            bottom: 18px;
+        .rs-changes.is-staged .rs-changes-back .rs-photo-credit {
+            right: 14px;
+            bottom: 90px;
+            writing-mode: vertical-rl;
         }
+
+    .rs-changes.is-staged .rs-changes-art {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: end;
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        transform: translateY(9%);
+        transition: transform 0.9s var(--rs-ease);
+    }
+
+        .rs-changes.is-staged .rs-changes-art .rs-look {
+            width: auto;
+            height: min(88%, 860px);
+            max-width: 100%;
+            margin: 0;
+        }
+
+    .rs-changes.is-staged .is-current .rs-changes-art {
+        transform: none;
+    }
+
+    .rs-changes.is-staged .is-past .rs-changes-art {
+        transform: translateY(-5%) scale(0.96);
+    }
 
     .rs-changes.is-staged .rs-changes-copy {
         grid-column: 1;
+        grid-row: 1;
         padding: 0;
         text-shadow: 0 2px 22px rgba(0, 0, 0, 0.55);
     }
@@ -4712,27 +4807,26 @@ html.rs-open-lock body {
         gap: 0;
     }
 
-    .rs-changes-look {
-        padding-top: 0;
-        padding-inline: 0;
+    .rs-changes-back {
+        inset: 0 0 34%;
     }
+
+        .rs-changes-back::after {
+            background:
+                linear-gradient(0deg, var(--look-stage) 0, transparent 40%),
+                linear-gradient(180deg, var(--look-stage) 0, transparent 14%);
+        }
 
     .rs-changes-art {
         order: 0;
     }
 
-        .rs-changes-art .rs-photo {
-            aspect-ratio: 4 / 3;
-            max-height: none;
-        }
-
-        .rs-changes-art::after {
-            background:
-                linear-gradient(0deg, var(--look-stage) 0, transparent 40%);
+        .rs-changes-art .rs-look {
+            width: min(82%, 360px);
         }
 
     .rs-changes-copy {
-        padding: 16px 20px 0;
+        padding-top: 24px;
     }
 
     .rs-changes.is-staged {
@@ -4750,27 +4844,41 @@ html.rs-open-lock body {
             padding: 0 20px;
         }
 
-        .rs-changes.is-staged .rs-changes-art {
+        .rs-changes.is-staged .rs-changes-back {
             inset: 0 0 auto;
             width: 100%;
             height: 66%;
         }
 
-            .rs-changes.is-staged .rs-changes-art::after {
+            .rs-changes.is-staged .rs-changes-back::after {
                 background:
                     linear-gradient(0deg, var(--stage-bg) 0, transparent 46%),
                     linear-gradient(180deg, color-mix(in srgb, var(--stage-bg) 80%, transparent) 0, transparent 24%);
             }
 
-            .rs-changes.is-staged .rs-changes-art .rs-photo-credit {
-                left: auto;
-                right: 12px;
+            .rs-changes.is-staged .rs-changes-back .rs-photo-credit {
+                right: 6px;
                 bottom: auto;
                 top: 64px;
             }
 
+        .rs-changes.is-staged .rs-changes-art {
+            grid-column: 1;
+            grid-row: 1;
+            align-self: stretch;
+            height: auto;
+            min-height: 0;
+            padding-top: 72px;
+        }
+
+            .rs-changes.is-staged .rs-changes-art .rs-look {
+                height: 100%;
+                max-height: 100%;
+            }
+
         .rs-changes.is-staged .rs-changes-copy {
             position: relative;
+            grid-column: 1;
             grid-row: 2;
             padding: 14px 0 92px;
         }
@@ -4812,11 +4920,11 @@ html.rs-open-lock body {
 
 }
 
-/* ---------- the photos on the other pages ---------- */
+/* ---------- the other pages: each look in front of his photo ---------- */
 
-/* Each page's photo stands at the edge of its hero, behind the type, and fades into the
-   sky on every side. */
-.rs-page-look {
+/* The photo stands at the edge of the hero, behind the type, and fades into the sky on
+   every side. */
+.rs-page-photo {
     position: absolute;
     top: 0;
     right: 0;
@@ -4825,72 +4933,155 @@ html.rs-open-lock body {
     width: min(58vw, 900px);
 }
 
-    .rs-page-look img {
+    .rs-page-photo img {
         -webkit-mask-image: radial-gradient(ellipse 66% 70% at 62% 50%, #000 34%, transparent 100%);
         mask-image: radial-gradient(ellipse 66% 70% at 62% 50%, #000 34%, transparent 100%);
     }
 
-    .rs-page-look.rs-photo--sky img {
+    .rs-page-photo.rs-photo--sky img {
         object-fit: contain;
         object-position: 70% 50%;
     }
 
-/* Mars over the food. */
-.rs-page-look--menu.rs-photo--mars {
-    top: 4%;
-    bottom: 4%;
-    width: min(46vw, 640px);
+/* Mars, high in the sky over the food. */
+.rs-page-photo--menu.rs-photo--mars {
+    top: 3%;
+    right: max(0px, calc((100% - 1440px) / 2));
+    bottom: auto;
+    width: clamp(220px, 28vw, 420px);
+    aspect-ratio: 1;
 }
 
-/* The pub's own cans over the beer list. */
-.rr-menu-page--beer .rs-page-look--menu {
-    width: min(46vw, 700px);
+/* The pub's own cans behind Ziggy. */
+.rr-menu-page--beer .rs-page-photo--menu {
+    width: min(52vw, 780px);
 }
 
-/* A band on stage, behind the next night's flyer. */
-.rs-page-look--events {
+/* A band on stage, behind Pierrot and the next night's flyer. */
+.rs-page-photo--events {
     width: min(70vw, 1080px);
-    opacity: 0.85;
+    opacity: 0.8;
 }
 
-    .rs-page-look--events img {
+    .rs-page-photo--events img {
         -webkit-mask-image: radial-gradient(ellipse 60% 74% at 46% 46%, #000 26%, transparent 100%);
         mask-image: radial-gradient(ellipse 60% 74% at 46% 46%, #000 26%, transparent 100%);
     }
 
-/* The centre of Skopje, behind the opening hours. */
-.rs-page-look--contact {
+/* The centre of Skopje, behind the Duke and the opening hours. */
+.rs-page-photo--contact {
     width: min(68vw, 1040px);
-    opacity: 0.9;
+    opacity: 0.85;
 }
 
-    .rs-page-look--contact img {
+    .rs-page-photo--contact img {
         -webkit-mask-image: radial-gradient(ellipse 64% 72% at 50% 44%, #000 30%, transparent 100%);
         mask-image: radial-gradient(ellipse 64% 72% at 50% 44%, #000 30%, transparent 100%);
     }
 
-.rs-page-look .rs-photo-credit {
+.rs-page-photo .rs-photo-credit {
     right: max(16px, calc((100vw - 1280px) / 2));
     bottom: 12px;
 }
 
+.rs-page-photo--menu.rs-photo--mars .rs-photo-credit {
+    top: 8%;
+    right: 0;
+    bottom: auto;
+    writing-mode: vertical-rl;
+}
+
+/* The look stands at the edge of the hero, cut off by the bottom, behind the type. */
+.rs-page-look {
+    position: absolute;
+    bottom: 0;
+    z-index: 0;
+    width: auto;
+    pointer-events: none;
+}
+
+/* Life on Mars? under the planet; Ziggy in front of the cans. */
+.rs-page-look--menu {
+    --look-rim: #f08a4b;
+    right: -1vw;
+    height: min(76%, 560px);
+}
+
+.rr-menu-page--beer .rs-page-look--menu {
+    --look-rim: #f2c23a;
+    right: max(16px, 9vw);
+    height: min(92%, 700px);
+}
+
+/* Pierrot between the headline and the flyer. */
+.rs-page-look--events {
+    --look-rim: #ffb35c;
+    right: 31vw;
+    height: min(74%, 540px);
+}
+
+/* The Duke smokes beside the departures board. */
+.rs-page-look--contact {
+    --look-rim: #a9c4f5;
+    right: max(380px, calc((100% - 1280px) / 2 + 380px));
+    height: min(84%, 560px);
+}
+
+/* The Blind Prophet at the end of the footer. */
+.rs-footer-look {
+    --look-rim: #ffcf8a;
+    position: absolute;
+    right: max(20px, calc((100% - 1280px) / 2));
+    bottom: 0;
+    z-index: 0;
+    width: clamp(140px, 15vw, 230px);
+    pointer-events: none;
+}
+
+.rs-error-tom .rs-look--tom.is-live {
+    animation: none;
+}
+
 @media (max-width: 991.98px) {
-    .rs-page-look,
-    .rs-page-look--events,
-    .rs-page-look--contact {
+    .rs-page-photo,
+    .rs-page-photo--events,
+    .rs-page-photo--contact {
         width: 100%;
         opacity: 0.55;
     }
 
-    .rs-page-look--menu.rs-photo--mars {
-        width: min(70vw, 420px);
-        opacity: 0.8;
+    .rs-page-photo--menu.rs-photo--mars {
+        width: min(46vw, 300px);
+        opacity: 0.85;
+    }
+
+    .rs-page-look {
+        opacity: 0.9;
+    }
+
+    .rs-page-look--menu,
+    .rr-menu-page--beer .rs-page-look--menu,
+    .rs-page-look--events,
+    .rs-page-look--contact {
+        right: -6vw;
+        height: min(52%, 360px);
+    }
+
+    .rs-footer-look {
+        width: 130px;
+        right: 8px;
     }
 }
 
-/* On a phone the credit runs up the photo's right edge, clear of the words. */
+/* A phone's hero is all headline and buttons: the cast stays on the home stage, and the
+   photo credits run up the photo's right edge, clear of the words. */
 @media (max-width: 760px) {
-    .rs-page-look .rs-photo-credit,
+    .rs-page-look,
+    .rs-footer-look {
+        display: none;
+    }
+
+    .rs-page-photo .rs-photo-credit,
     .rs-home-station .rs-photo-credit {
         top: 72px;
         right: 4px;
@@ -4903,9 +5094,7 @@ html.rs-open-lock body {
 /* Photos from orbit beside the other pages' content: soft at the edges. */
 .rs-home-station img,
 .rs-manifest-courier img,
-.rs-booking-helmet img,
-.rs-error-tom img,
-.rr-guide-prophet img {
+.rr-guide-eclipse img {
     -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
     mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
 }
@@ -5052,6 +5241,44 @@ html.rs-open-lock body {
         transform: scale(1);
     }
 
+    /* ---------- Bowie's looks (only while one is on screen) ---------- */
+
+    /* Major Tom floats. */
+    .rs-look--tom.is-live {
+        animation: rs-float 11s ease-in-out infinite;
+    }
+
+    /* Ziggy dances. */
+    .rs-look--ziggy.is-live {
+        transform-origin: 50% 96%;
+        animation: rs-sway 3.6s ease-in-out infinite;
+    }
+
+    /* Aladdin Sane, Life on Mars?, the Duke and the Prophet breathe. */
+    .rs-look--sane.is-live,
+    .rs-look--mars.is-live,
+    .rs-look--duke.is-live,
+    .rs-look--prophet.is-live {
+        transform-origin: 50% 100%;
+        animation: rs-breathe 6s ease-in-out infinite;
+    }
+
+    /* Rebel Rebel buzzes like an amp turned up. */
+    .rs-look--rebel.is-live {
+        animation: rs-buzz 6.5s steps(1) infinite;
+    }
+
+    /* Halloween Jack shifts his weight from one platform to the other. */
+    .rs-look--jack.is-live {
+        transform-origin: 46% 98%;
+        animation: rs-shift 5.4s ease-in-out infinite;
+    }
+
+    /* Pierrot: the tape slips now and then. */
+    .rs-look--pierrot.is-live {
+        animation: rs-slip 9s steps(1) infinite;
+    }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -5110,3 +5337,96 @@ html.rs-open-lock body {
         filter: none;
     }
 }
+
+@keyframes rs-float {
+    0%, 100% {
+        translate: 0 0;
+        rotate: -1.2deg;
+    }
+
+    50% {
+        translate: 0 -14px;
+        rotate: 1.4deg;
+    }
+}
+
+@keyframes rs-sway {
+    0%, 100% {
+        rotate: -1.6deg;
+    }
+
+    50% {
+        rotate: 1.6deg;
+    }
+}
+
+@keyframes rs-breathe {
+    0%, 100% {
+        scale: 1;
+    }
+
+    50% {
+        scale: 1.018;
+    }
+}
+
+/* A strike, a flicker, a second strike, then nothing for a while. */
+
+@keyframes rs-buzz {
+    0%, 79%, 85%, 100% {
+        translate: 0 0;
+    }
+
+    80% {
+        translate: 1px -1px;
+    }
+
+    81% {
+        translate: -1px 1px;
+    }
+
+    82% {
+        translate: 2px 0;
+    }
+
+    83% {
+        translate: -1px -1px;
+    }
+
+    84% {
+        translate: 1px 1px;
+    }
+}
+
+@keyframes rs-shift {
+    0%, 100% {
+        rotate: -0.8deg;
+    }
+
+    50% {
+        rotate: 0.9deg;
+    }
+}
+
+/* Videotape: the picture slips sideways and changes colour for a moment. */
+@keyframes rs-slip {
+    0%, 90%, 94%, 100% {
+        translate: 0 0;
+        filter: none;
+    }
+
+    91% {
+        translate: -8px 0;
+        filter: hue-rotate(40deg) saturate(1.5);
+    }
+
+    92% {
+        translate: 6px 0;
+        filter: hue-rotate(-30deg);
+    }
+
+    93% {
+        translate: -2px 0;
+    }
+}
+

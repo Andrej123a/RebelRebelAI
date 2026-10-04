@@ -1,4 +1,4 @@
-﻿@model ErrorViewModel
+@model ErrorViewModel
 
 @{
     ViewData["Title"] = "Something went wrong";
@@ -11,8 +11,9 @@
     <div class="rs-earth rs-earth--dawn rs-error-earth" aria-hidden="true"><i></i></div>
 
     <div class="rs-container rs-error-inner">
-        <div class="rs-error-tom">
-            <partial name="_Look" model='new LookModel("tom", Sizes: "(max-width: 760px) 80vw, 40vw")' />
+        <div class="rs-error-tom" aria-hidden="true">
+            <partial name="_Look" model='new LookModel("tom")' />
+            <span class="rs-error-tether"></span>
         </div>
 
         <div>

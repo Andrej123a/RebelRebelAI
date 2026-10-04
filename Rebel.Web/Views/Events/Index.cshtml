@@ -1,4 +1,4 @@
-﻿@model List<Rebel.Domain.Entities.Event>
+@model List<Rebel.Domain.Entities.Event>
 @using System.Globalization
 
 @{
@@ -54,8 +54,9 @@
     <header class="rs-chapter rs-chapter--sky rs-events-hero" data-rs-stardust>
         <span class="rs-stars rs-events-stars"></span>
 
-        @* Pierrot hosts the nights: a band on stage. *@
-        <partial name="_Look" model='new LookModel("pierrot", "rs-page-look rs-page-look--events", "(max-width: 760px) 100vw, 50vw")' />
+        @* Pierrot, from the Ashes to Ashes video, hosts the nights, in front of a band on stage. *@
+        <partial name="_Photo" model='new PhotoModel("pierrot", "rs-page-photo rs-page-photo--events", "(max-width: 760px) 100vw, 50vw")' />
+        <partial name="_Look" model='new LookModel("pierrot", "rs-page-look rs-page-look--events")' />
 
 
         <div class="rs-container rs-events-hero-grid @(nextEvent == null ? "has-no-feature" : string.Empty)">

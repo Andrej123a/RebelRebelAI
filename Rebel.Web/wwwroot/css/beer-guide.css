@@ -810,12 +810,26 @@
         grid-row: 1;
     }
 
-/* The black star: a total eclipse beside the chat. */
 .rr-guide-prophet {
+    --look-rim: #ffcf8a;
     grid-column: 2;
     grid-row: 1;
-    align-self: center;
     width: 100%;
+    margin-bottom: calc(var(--rs-pad, 72px) * -1);
+}
+
+/* He is already on this page, so he sits out the footer. */
+body:has(.rr-guide-prophet) .rs-footer-look {
+    display: none;
+}
+
+/* Blackstar: a total eclipse high in the corner, above him. */
+.rr-guide-eclipse {
+    position: absolute;
+    top: 4%;
+    right: max(0px, calc((100% - 1440px) / 2));
+    z-index: -1;
+    width: clamp(220px, 26vw, 420px);
     aspect-ratio: 1;
 }
 
@@ -964,7 +978,8 @@
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .rr-guide-prophet {
+    .rr-guide-prophet,
+    .rr-guide-eclipse {
         display: none;
     }
 }

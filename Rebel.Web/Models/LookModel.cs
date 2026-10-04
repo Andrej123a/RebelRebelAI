@@ -1,7 +1,9 @@
 namespace Rebel.Web.Models;
 
 /// <summary>
-/// A real photo standing in a page (Views/Shared/_Look): the one RealPhotos keeps for a
-/// look key, with the CSS class that places it and the width it takes on screen.
+/// One of Bowie's characters (Major Tom, Life on Mars?, Ziggy, Aladdin Sane, Rebel Rebel,
+/// Halloween Jack, the Thin White Duke, Pierrot and the Blind Prophet), painted in
+/// Art/Looks and shown from its render in wwwroot/art/looks, with the CSS class that
+/// places it.
 /// </summary>
-public sealed record LookModel(string Key, string? CssClass = null, string Sizes = "(max-width: 760px) 100vw, 60vw");
+public sealed record LookModel(string Key, string? CssClass = null);

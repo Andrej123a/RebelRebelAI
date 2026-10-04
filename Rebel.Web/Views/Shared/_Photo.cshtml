@@ -1,0 +1,28 @@
+@model Rebel.Web.Models.PhotoModel
+
+@{
+    var photo = RealPhotos.For(Model.Key);
+}
+
+@if (photo != null)
+{
+    <figure class="rs-photo rs-photo--@Model.Key@(photo.Sky ? " rs-photo--sky" : "") @Model.CssClass"
+            style="--photo-focus: @photo.Focus; --photo-zoom: @photo.Zoom.ToString(System.Globalization.CultureInfo.InvariantCulture); --photo-color: @photo.Color;">
+        <img src="@Url.Content(photo.At(1280))"
+             srcset="@photo.SrcSet"
+             sizes="@Model.Sizes"
+             width="@photo.Width"
+             height="@photo.Height"
+             alt="@photo.Alt"
+             loading="lazy"
+             decoding="async" />
+
+        @if (photo.FromUnsplash)
+        {
+            <figcaption class="rs-photo-credit">
+                Photo by <a href="@photo.ProfileUrl" target="_blank" rel="noopener">@photo.By</a>
+                on <a href="@RealPhoto.UnsplashUrl" target="_blank" rel="noopener">Unsplash</a>
+            </figcaption>
+        }
+    </figure>
+}

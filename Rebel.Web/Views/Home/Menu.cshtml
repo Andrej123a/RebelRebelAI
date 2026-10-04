@@ -1,4 +1,4 @@
-﻿@using Rebel.Domain.Enums
+@using Rebel.Domain.Enums
 @using Rebel.Web.Services
 @model List<Rebel.Domain.Entities.Product>
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
@@ -34,7 +34,8 @@
         _ => ("Food with", "bad intentions")
     };
 
-    // The hero's photo: Mars over the food (Life on Mars?), the pub's own cans over the beer (Ziggy).
+    // Who stands in the hero: Life on Mars? in front of Mars over the food, Ziggy in front of
+    // the pub's own cans over the beer.
     var heroLook = selectedSection switch
     {
         "beer" => "ziggy",
@@ -56,7 +57,8 @@
 
         @if (heroLook != null)
         {
-            <partial name="_Look" model='new LookModel(heroLook, "rs-page-look rs-page-look--menu", "(max-width: 760px) 100vw, 50vw")' />
+            <partial name="_Photo" model='new PhotoModel(heroLook, "rs-page-photo rs-page-photo--menu", "(max-width: 760px) 100vw, 50vw")' />
+            <partial name="_Look" model='new LookModel(heroLook, "rs-page-look rs-page-look--menu")' />
         }
 
         <div class="rs-container rs-menu-hero-inner">
@@ -148,7 +150,7 @@
                     </div>
                 </section>
 
-                <partial name="_Look" model='new LookModel("courier", "rs-manifest-courier", "(max-width: 760px) 100vw, 40vw")' />
+                <partial name="_Photo" model='new PhotoModel("courier", "rs-manifest-courier", "(max-width: 760px) 100vw, 40vw")' />
             </div>
 
             @if (!menuGroups.Any())

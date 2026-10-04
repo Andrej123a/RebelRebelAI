@@ -2,7 +2,8 @@
 // - the full-screen #open menu,
 // - blocks marked data-rs-reveal come into focus as they scroll in,
 // - blocks marked data-rs-drift move at their own speed while scrolling,
-// - the home page's "How Rebel works" stage, one photo at a time while you scroll.
+// - Bowie's looks (Art/Looks) move only while on screen,
+// - the home page's "How Rebel works" stage, one character at a time while you scroll.
 // The night sky, falling stars and stardust live in rebel-sky.js.
 // Without JS or with reduced motion everything is simply shown.
 (() => {
@@ -168,7 +169,39 @@
         update();
     }
 
-    // ---------- Ch-ch-changes: the stage shows one part of the pub at a time ----------
+    // ---------- Bowie's looks: they move only while on screen ----------
+
+    const looks = Array.from(document.querySelectorAll(".rs-look"));
+    const onScreen = new Set();
+    let refreshLooks = () => {};
+
+    if (looks.length && "IntersectionObserver" in window) {
+        // On the Changes stage only the look in the spotlight is live.
+        const refresh = (look) => {
+            const slot = look.closest("[data-rs-look]");
+            const staged = Boolean(slot && slot.closest(".is-staged"));
+            look.classList.toggle("is-live", onScreen.has(look) && (!staged || slot.classList.contains("is-current")));
+        };
+
+        const watcher = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        onScreen.add(entry.target);
+                    } else {
+                        onScreen.delete(entry.target);
+                    }
+
+                    refresh(entry.target);
+                });
+            },
+            { rootMargin: "40px" });
+
+        looks.forEach((look) => watcher.observe(look));
+        refreshLooks = () => looks.forEach(refresh);
+    }
+
+    // ---------- Ch-ch-changes: the cast takes the stage one look at a time ----------
 
     const changes = document.querySelector("[data-rs-changes]");
 
@@ -198,6 +231,8 @@
             const slot = slots[index];
             stage.style.setProperty("--stage-bg", slot.style.getPropertyValue("--look-stage"));
             stage.style.setProperty("--stage-hot", slot.style.getPropertyValue("--look-hot"));
+
+            refreshLooks();
         };
 
         const update = () => {

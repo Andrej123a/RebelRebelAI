@@ -90,7 +90,9 @@
     <span class="rs-stars rs-booking-stars"></span>
 
     @* Major Tom, drifting past the tracking station. *@
-    <partial name="_Look" model='new LookModel("tom", "rs-booking-helmet", "34vw")' />
+    <span class="rs-booking-helmet" aria-hidden="true" data-rs-drift="-0.16">
+        <partial name="_Look" model='new LookModel("tom")' />
+    </span>
 
     <div class="rs-container rs-booking-inner">
         <header class="rs-booking-header">

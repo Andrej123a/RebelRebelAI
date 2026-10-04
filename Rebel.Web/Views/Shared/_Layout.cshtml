@@ -1,4 +1,4 @@
-﻿@{
+@{
     var configuration =
         Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions
             .GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>(Context.RequestServices);
@@ -319,6 +319,9 @@
 
     <footer class="rs-footer" data-rs-stardust>
         <span class="rs-stars"></span>
+
+        @* The Blind Prophet, the face of Rebel AI. *@
+        <partial name="_Look" model='new LookModel("prophet", "rs-footer-look")' />
 
         <div class="rs-container rs-footer-main">
             <div class="rs-footer-brand">

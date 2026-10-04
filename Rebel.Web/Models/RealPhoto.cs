@@ -2,7 +2,8 @@ namespace Rebel.Web.Models;
 
 /// <summary>
 /// A real photograph: one of the pub's own (Src starts with "~/") or one from Unsplash,
-/// with the point to keep in frame (Focus) and how far to close in on it (Zoom).
+/// with the point to keep in frame (Focus) and how far to close in on it (Zoom). The
+/// photos are the scenery Bowie's characters stand in.
 /// Unsplash photos are hotlinked from images.unsplash.com, as Unsplash asks, and their
 /// photographer is credited next to the photo. Sky photos were taken against black space
 /// and are screened onto the night sky, so only the subject shows.
@@ -40,18 +41,18 @@ public sealed record RealPhoto(
 }
 
 /// <summary>
-/// The photo for each part of the pub, by look key (see BowieCast): the job on the home
-/// stage, and the same photo on that job's page.
+/// The photo for each part of the pub, by look key (see BowieCast): behind the character
+/// on the home stage, and behind the same character on that job's page.
 /// </summary>
 public static class RealPhotos
 {
     private static readonly Dictionary<string, RealPhoto> ByKey = new()
     {
-        // Major Tom: Bruce McCandless, the first untethered spacewalk, 1984.
+        // Major Tom: the Earth from orbit, half in night (Artemis II, 2026).
         ["tom"] = new(
-            "photo-1454789548928-9efd52dc4031?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8M3x8ZWFydGh8ZW58MHx8fHwxNzkxMTA2NTg2fDI&ixlib=rb-4.1.0",
-            "An astronaut floating free in space above the Earth",
-            5735, 5735, "#0b1018", "50% 62%", Zoom: 1.5, Sky: true, By: "NASA", ByUser: "nasa"),
+            "photo-1777047023742-1607aeb1a5bb?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8MjR8fGVhcnRofGVufDB8fHx8MTc5MTEwNjU4Nnwy&ixlib=rb-4.1.0",
+            "The Earth from space, half of it in night",
+            3840, 2560, "#05080e", "50% 50%", Sky: true, By: "NASA", ByUser: "nasa"),
 
         // Life on Mars?: Mars through the Hubble Space Telescope.
         ["mars"] = new(

@@ -1,4 +1,4 @@
-﻿@model Rebel.Web.Models.HomeViewModel
+@model Rebel.Web.Models.HomeViewModel
 
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
@@ -115,8 +115,8 @@
     </section>
 
     @* How Rebel works, one part at a time while you scroll, each looked after by one of
-       Bowie's characters (the pub is named after his song) and shown in a real photo.
-       Without JS, or with less motion, it is a plain list. *@
+       Bowie's characters (the pub is named after his song), standing in front of a real
+       photo of that part. Without JS, or with less motion, it is a plain list. *@
     <section class="rs-chapter rs-changes" id="changes" aria-labelledby="rs-changes-title" data-rs-changes style="--looks: @BowieCast.All.Count;">
         <div class="rs-changes-stage">
             <header class="rs-changes-head">
@@ -143,8 +143,12 @@
                         id="look-@look.Key"
                         style="--look-stage: @look.Stage; --look-hot: @look.Hot;"
                         data-rs-look>
+                        <div class="rs-changes-back">
+                            <partial name="_Photo" model='new PhotoModel(look.Key, Sizes: "(max-width: 760px) 100vw, 66vw")' />
+                        </div>
+
                         <div class="rs-changes-art">
-                            <partial name="_Look" model='new LookModel(look.Key, Sizes: "(max-width: 760px) 100vw, 66vw")' />
+                            <partial name="_Look" model='new LookModel(look.Key)' />
                         </div>
 
                         <div class="rs-changes-copy">
@@ -261,7 +265,7 @@
 
     <section class="rs-chapter rs-chapter--sky rs-torn rs-home-menu">
 
-        <partial name="_Look" model='new LookModel("station", "rs-home-station", "(max-width: 760px) 90vw, 50vw")' />
+        <partial name="_Photo" model='new PhotoModel("station", "rs-home-station", "(max-width: 760px) 90vw, 50vw")' />
 
         <div class="rs-container">
             <header class="rs-heading" data-rs-reveal>

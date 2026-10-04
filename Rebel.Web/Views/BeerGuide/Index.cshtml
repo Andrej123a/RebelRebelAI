@@ -13,10 +13,14 @@
 <div class="rr-guide-page" data-rs-stardust>
     <span class="rs-stars"></span>
 
+    @* Blackstar: a total eclipse in the corner of the sky. *@
+    <partial name="_Photo" model='new PhotoModel("prophet", "rr-guide-eclipse", "30vw")' />
+
     <main class="rr-guide-workspace rr-guide-workspace-chat-only"
           data-active-tool="chat">
-        @* The Blind Prophet, from Blackstar, is the face of Rebel AI: a black star beside the chat. *@
-        <partial name="_Look" model='new LookModel("prophet", "rr-guide-prophet", "30vw")' />
+        @* The Blind Prophet, the face of Rebel AI, stands beside the chat: he can't see a
+           thing, but he knows the menu. *@
+        <partial name="_Look" model='new LookModel("prophet", "rr-guide-prophet")' />
 
         <section id="rr-guide-chat"
                  class="rr-guide-chat rr-guide-ai-stage"
