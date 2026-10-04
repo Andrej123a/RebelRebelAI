@@ -115,195 +115,197 @@
     }
     else
     {
-        <div class="rs-container rs-food">
-            @* The courier floats in with the menu: search and filters. *@
-            <div class="rs-manifest">
-                <section class="rs-food-tools"
-                         aria-label="Menu search and filters">
-                    <div class="rs-field rs-food-search">
-                        <label for="menuSearchInput">Find your order</label>
-                        <input id="menuSearchInput"
-                               type="search"
-                               placeholder="Search burgers, spicy, vegan..."
-                               autocomplete="off" />
-                    </div>
+        // The kitchen is Life on Mars?'s (the bar's drinks are Halloween Jack's).
+        var host = BowieCast.For(selectedSection == "drink" ? "jack" : "mars");
+        var hostOpening = selectedSection == "drink"
+            ? "The bar's open till one. What are you drinking?"
+            : "Is there life on Mars? There's food. What are you hungry for?";
 
-                    <div class="rs-food-chips"
-                         role="group"
-                         aria-label="Menu tag filters">
-                        <button type="button" class="rs-chip is-active" aria-pressed="true" data-filter="all">All</button>
-                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="available"><i aria-hidden="true"></i>Available</button>
-                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="popular"><i aria-hidden="true"></i>Popular</button>
-                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="spicy"><i aria-hidden="true"></i>Spicy</button>
-                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="sweet"><i aria-hidden="true"></i>Sweet</button>
-                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegan"><i aria-hidden="true"></i>Vegan</button>
-                        <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegetarian"><i aria-hidden="true"></i>Vegetarian</button>
-                    </div>
+        @* Below Mars, the white set of his video: the dishes are the prints from the shoot,
+           the favourites circled in red grease pencil, and he talks you through them. *@
+        <div class="rs-studio rs-studio--@host.Key" style="--host-stage: @host.Stage; --host-hot: @host.Hot;">
+            <div class="rs-container rs-studio-inner">
+                <div class="rs-studio-main">
+                    @* He asks what you are hungry for; the filters are your answers. *@
+                    <section class="rs-studio-ask" aria-label="Menu search and filters" hidden="@(!menuGroups.Any())">
+                        <span class="rs-ego-face" aria-hidden="true" style="--ego-stage: @host.Stage; --ego-hot: @host.Hot;"><img src="@Url.Content($"~/art/faces/{host.Key}.webp")" asp-append-version="true" width="160" height="160" alt="" /></span>
 
-                    <p id="menuFilterSummary"
-                       class="rs-food-summary"
-                       aria-live="polite"></p>
+                        <div class="rs-ego-bubble rs-studio-ask-bubble">
+                            <span class="rs-ego-who">@host.Name</span>
+                            <label class="rs-ego-line" for="menuSearchInput">@hostOpening</label>
+                            <input id="menuSearchInput"
+                                   type="search"
+                                   placeholder="Burgers, spicy, vegan..."
+                                   autocomplete="off" />
+
+                            <div class="rs-food-chips"
+                                 role="group"
+                                 aria-label="Menu tag filters">
+                                <button type="button" class="rs-chip is-active" aria-pressed="true" data-filter="all">All</button>
+                                <button type="button" class="rs-chip" aria-pressed="false" data-filter="available">Available</button>
+                                <button type="button" class="rs-chip" aria-pressed="false" data-filter="popular">Popular</button>
+                                <button type="button" class="rs-chip" aria-pressed="false" data-filter="spicy">Spicy</button>
+                                <button type="button" class="rs-chip" aria-pressed="false" data-filter="sweet">Sweet</button>
+                                <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegan">Vegan</button>
+                                <button type="button" class="rs-chip" aria-pressed="false" data-filter="vegetarian">Vegetarian</button>
+                            </div>
+
+                            <p id="menuFilterSummary"
+                               class="rs-food-summary"
+                               aria-live="polite"></p>
+                        </div>
+                    </section>
 
                     <div id="menuFilterEmpty"
                          class="rs-food-empty"
                          hidden>
-                        <strong>No matching menu items.</strong>
-                        <span>Try another search or clear the filters.</span>
-                        <partial name="_Ego" model='new EgoCall("mars", "Nothing like that in the kitchen tonight. Start again?", [new("Clear filters")], "rs-ego--small", Button: "button", Attributes: new Dictionary<string, string> { ["id"] = "menuFilterClear" })' />
+                        <partial name="_Ego" model='new EgoCall(host.Key, "Nothing like that in the kitchen tonight. Start again?", [new("Clear filters")], "rs-ego--small", Button: "button", Attributes: new Dictionary<string, string> { ["id"] = "menuFilterClear" })' />
                     </div>
-                </section>
 
-                <partial name="_Photo" model='new PhotoModel("courier", "rs-manifest-courier", "(max-width: 760px) 100vw, 40vw")' />
-            </div>
-
-            @if (!menuGroups.Any())
-            {
-                <div class="rs-food-nothing">
-                    <h3 class="rs-display rs-display--sm">Nothing on this menu yet.</h3>
-                </div>
-            }
-            else
-            {
-                @foreach (var group in menuGroups)
-                {
-                    <section class="rs-food-category"
-                             data-menu-category>
-                        @* Each category is a cargo bay. *@
-                        <header class="rs-bay-head">
-                            <h3>@group.Key</h3>
-                        </header>
-
-                        <div class="rs-food-grid">
-                            @foreach (var product in group)
-                            {
-                                var pairingDescription = string.IsNullOrWhiteSpace(product.Description)
-                                    ? null
-                                    : product.Description.Trim()[..Math.Min(product.Description.Trim().Length, 180)];
-                                var rebelPrompt = selectedType switch
-                                {
-                                    CategoryType.Food when product.IsAvailable =>
-                                        $"I need a beer pairing for {product.Name}." +
-                                        (pairingDescription == null
-                                            ? ""
-                                            : $" The dish is: {pairingDescription}.") +
-                                        " Give me three available options.",
-                                    _ => null
-                                };
-
-                                var searchableText =
-                                    $"{product.Name} {product.Description} {group.Key}"
-                                        .ToLowerInvariant()
-                                        .Replace("\"", string.Empty);
-
-                                var tagData = string.Join(
-                                    " ",
-                                    new[]
-                                    {
-                                        product.IsAvailable ? "available" : "unavailable",
-                                        product.IsPopular ? "popular" : "",
-                                        product.IsSpicy ? "spicy" : "",
-                                        product.SweetnessLevel is >= 4 ? "sweet" : "",
-                                        product.IsVegetarian ? "vegetarian" : "",
-                                        product.IsVegan ? "vegan" : "",
-                                        product.ContainsNuts ? "nuts" : "",
-                                        product.IsLimited ? "limited" : "",
-                                        product.IsPromo ? "promo" : ""
-                                    }.Where(tag => !string.IsNullOrWhiteSpace(tag)));
-
-                                <article class="rs-crate @(!product.IsAvailable ? "is-unavailable" : "")"
-                                         id="dish-@product.Id"
-                                         data-menu-item
-                                         data-search="@searchableText"
-                                         data-tags="@tagData">
-                                    <div class="rs-crate-media">
-                                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
-                                        {
-                                            <img src="@product.ImageUrl"
-                                                 alt="@product.Name"
-                                                 loading="lazy" />
-                                        }
-                                        else
-                                        {
-                                            <div class="rs-crate-placeholder" aria-hidden="true"></div>
-                                        }
-
-                                        <span class="rs-crate-price">
-                                            @product.Price.ToString("0.##")<small>ден</small>
-                                        </span>
-
-                                        @if (!product.IsAvailable)
-                                        {
-                                            <span class="rs-crate-stamp">Out of stock</span>
-                                        }
-                                    </div>
-
-                                    <div class="rs-crate-body">
-
-                                        <h4>@product.Name</h4>
-
-                                        @if (product.IsPopular || product.IsSpicy || product.SweetnessLevel is >= 4 ||
-                                             product.IsVegetarian || product.IsVegan || product.ContainsNuts ||
-                                             product.IsLimited || product.IsPromo)
-                                        {
-                                            <ul class="rs-food-tags" aria-label="Tags">
-                                                @if (product.IsPopular)
-                                                {
-                                                    <li class="rs-pill">Popular</li>
-                                                }
-
-                                                @if (product.IsSpicy)
-                                                {
-                                                    <li class="rs-pill">Spicy</li>
-                                                }
-
-                                                @if (product.SweetnessLevel is >= 4)
-                                                {
-                                                    <li class="rs-pill">Sweet</li>
-                                                }
-
-                                                @if (product.IsVegetarian)
-                                                {
-                                                    <li class="rs-pill">Vegetarian</li>
-                                                }
-
-                                                @if (product.IsVegan)
-                                                {
-                                                    <li class="rs-pill">Vegan</li>
-                                                }
-
-                                                @if (product.ContainsNuts)
-                                                {
-                                                    <li class="rs-pill rs-pill--warning">Contains nuts</li>
-                                                }
-
-                                                @if (product.IsLimited)
-                                                {
-                                                    <li class="rs-pill">Limited</li>
-                                                }
-
-                                                @if (product.IsPromo)
-                                                {
-                                                    <li class="rs-pill">Promo</li>
-                                                }
-                                            </ul>
-                                        }
-
-                                        @if (!string.IsNullOrWhiteSpace(product.Description))
-                                        {
-                                            <p>@product.Description</p>
-                                        }
-
-                                        @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
-                                        {
-                                            <partial name="_Ego" model='new EgoCall("prophet", "", [new("Find a beer for this", Url.Action("Index", "BeerGuide", new { prompt = rebelPrompt }))], "rs-ego--small rs-food-pair")' />
-                                        }
-                                    </div>
-                                </article>
-                            }
+                    @if (!menuGroups.Any())
+                    {
+                        <div class="rs-food-nothing">
+                            <h3 class="rs-display rs-display--sm">Nothing on this menu yet.</h3>
                         </div>
-                    </section>
-                }
-            }
+                    }
+                    else
+                    {
+                        @foreach (var group in menuGroups)
+                        {
+                            var count = group.Count();
+
+                            @* Each category is a set from the shoot, its name brushed on in his eyeshadow. *@
+                            <section class="rs-studio-set"
+                                     data-menu-category
+                                     data-rs-set-line="@group.Key: @count on the menu tonight.">
+                                <h3 class="rs-studio-title"><span>@group.Key</span></h3>
+
+                                <div class="rs-prints">
+                                    @foreach (var product in group)
+                                    {
+                                        var pairingDescription = string.IsNullOrWhiteSpace(product.Description)
+                                            ? null
+                                            : product.Description.Trim()[..Math.Min(product.Description.Trim().Length, 180)];
+                                        var rebelPrompt = selectedType switch
+                                        {
+                                            CategoryType.Food when product.IsAvailable =>
+                                                $"I need a beer pairing for {product.Name}." +
+                                                (pairingDescription == null
+                                                    ? ""
+                                                    : $" The dish is: {pairingDescription}.") +
+                                                " Give me three available options.",
+                                            _ => null
+                                        };
+
+                                        var searchableText =
+                                            $"{product.Name} {product.Description} {group.Key}"
+                                                .ToLowerInvariant()
+                                                .Replace("\"", string.Empty);
+
+                                        var tagData = string.Join(
+                                            " ",
+                                            new[]
+                                            {
+                                                product.IsAvailable ? "available" : "unavailable",
+                                                product.IsPopular ? "popular" : "",
+                                                product.IsSpicy ? "spicy" : "",
+                                                product.SweetnessLevel is >= 4 ? "sweet" : "",
+                                                product.IsVegetarian ? "vegetarian" : "",
+                                                product.IsVegan ? "vegan" : "",
+                                                product.ContainsNuts ? "nuts" : "",
+                                                product.IsLimited ? "limited" : "",
+                                                product.IsPromo ? "promo" : ""
+                                            }.Where(tag => !string.IsNullOrWhiteSpace(tag)));
+
+                                        var notes = new[]
+                                        {
+                                            product.IsPopular ? "a favourite" : null,
+                                            product.IsSpicy ? "spicy" : null,
+                                            product.SweetnessLevel is >= 4 ? "sweet" : null,
+                                            product.IsVegan ? "vegan" : product.IsVegetarian ? "vegetarian" : null,
+                                            product.ContainsNuts ? "contains nuts" : null,
+                                            product.IsLimited ? "limited" : null,
+                                            product.IsPromo ? "promo" : null,
+                                        }.Where(note => note != null).ToList();
+
+                                        var price = product.Price.ToString("0.##");
+                                        var hostLine = product.IsAvailable
+                                            ? $"{product.Name}, {price} ден. {product.Description}".Trim()
+                                            : $"{product.Name} is out tonight.";
+
+                                        <article class="rs-print@(product.IsPopular ? " is-popular" : "")@(!product.IsAvailable ? " is-unavailable" : "")"
+                                                 id="dish-@product.Id"
+                                                 data-menu-item
+                                                 data-search="@searchableText"
+                                                 data-tags="@tagData"
+                                                 data-rs-host-line="@hostLine">
+                                            <figure class="rs-print-photo">
+                                                <span class="rs-print-frame">
+                                                    <span class="rs-print-window">
+                                                        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                                        {
+                                                            <img src="@product.ImageUrl"
+                                                                 alt="@product.Name"
+                                                                 loading="lazy" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="rs-print-blank" aria-hidden="true"></span>
+                                                        }
+                                                    </span>
+
+                                                    @if (product.IsPopular)
+                                                    {
+                                                        <span class="rs-grease rs-grease--circle" aria-hidden="true"></span>
+                                                    }
+
+                                                    @if (!product.IsAvailable)
+                                                    {
+                                                        <span class="rs-grease rs-grease--cross" aria-hidden="true"></span>
+                                                        <span class="rs-print-out">Out tonight</span>
+                                                    }
+                                                </span>
+
+                                                <figcaption>
+                                                    <h4>@product.Name</h4>
+                                                    <span class="rs-print-price">@price<small>ден</small></span>
+                                                </figcaption>
+                                            </figure>
+
+                                            @if (notes.Count > 0)
+                                            {
+                                                <p class="rs-print-notes">@string.Join(" · ", notes)</p>
+                                            }
+
+                                            @if (!string.IsNullOrWhiteSpace(product.Description))
+                                            {
+                                                <p class="rs-print-text">@product.Description</p>
+                                            }
+
+                                            @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
+                                            {
+                                                <partial name="_Ego" model='new EgoCall("prophet", "", [new("Find a beer for this", Url.Action("Index", "BeerGuide", new { prompt = rebelPrompt }))], "rs-ego--small rs-food-pair")' />
+                                            }
+                                        </article>
+                                    }
+                                </div>
+                            </section>
+                        }
+                    }
+                </div>
+
+                @* He hosts from the side and talks about whatever you point at (the same
+                   words are on the prints, so screen readers skip him). *@
+                <aside class="rs-studio-host" aria-hidden="true">
+                    <div class="rs-studio-host-stand">
+                        <span class="rs-ego-bubble rs-studio-host-says">
+                            <span class="rs-ego-who">@host.Name</span>
+                            <span class="rs-ego-line" data-rs-host-says>@hostOpening</span>
+                        </span>
+                        <img class="rs-studio-host-look" src="@Url.Content($"~/art/looks/{host.Key}.webp")" asp-append-version="true" width="400" height="520" alt="" loading="lazy" />
+                    </div>
+                </aside>
+            </div>
         </div>
     }
 </div>
@@ -400,6 +402,46 @@
                 });
 
                 applyFilters();
+
+                // Life on Mars? talks about whatever you point at, and about the set you are in.
+                const hostSays = document.querySelector("[data-rs-host-says]");
+
+                if (hostSays) {
+                    const bubble = hostSays.parentElement;
+                    let standing = hostSays.textContent;
+
+                    const say = (line) => {
+                        if (!line || line === hostSays.textContent) {
+                            return;
+                        }
+
+                        hostSays.textContent = line;
+                        bubble.classList.remove("is-new");
+                        void bubble.offsetWidth;
+                        bubble.classList.add("is-new");
+                    };
+
+                    items.forEach((item) => {
+                        item.addEventListener("pointerenter", () => say(item.dataset.rsHostLine));
+                        item.addEventListener("focusin", () => say(item.dataset.rsHostLine));
+                        item.addEventListener("pointerleave", () => say(standing));
+                    });
+
+                    if ("IntersectionObserver" in window) {
+                        const sets = new IntersectionObserver(
+                            (entries) => {
+                                entries.forEach((entry) => {
+                                    if (entry.isIntersecting) {
+                                        standing = entry.target.dataset.rsSetLine;
+                                        say(standing);
+                                    }
+                                });
+                            },
+                            { rootMargin: "-45% 0px -45% 0px" });
+
+                        categories.forEach((category) => sets.observe(category));
+                    }
+                }
             })();
         </script>
     }

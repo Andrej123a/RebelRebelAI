@@ -2,7 +2,7 @@
 # filters), ink (the drawn lines and inked shapes), fx, and a z-order map (ids), as SVG
 # files in ./svg/{key}-{layer}.svg under the current directory.
 import os, re, copy, sys, xml.etree.ElementTree as ET
-DIR=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','Looks')
+DIR=os.environ.get('PAINT_DRAWINGS') or os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','Looks')
 NS='http://www.w3.org/2000/svg'
 ET.register_namespace('', NS)
 q=lambda t:'{%s}%s'%(NS,t)

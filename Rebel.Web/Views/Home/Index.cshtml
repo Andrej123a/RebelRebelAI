@@ -254,50 +254,51 @@
                 </div>
             </header>
 
-            @* The menus, in cargo pods sent down from the station. *@
-            <div class="rs-cargo-row @(showDrinks ? "rs-cargo-row--three" : "")">
+            @* The menus, carried by the characters who look after them: each holds up a
+               picture of what is on it, fingers curled over the frame. *@
+            <div class="rs-carriers @(showDrinks ? "rs-carriers--three" : "")">
                 <a asp-controller="Home"
                    asp-action="Menu"
                    asp-route-section="food"
-                   class="rs-cargo"
+                   class="rs-carrier rs-carrier--mars"
+                   aria-label="See the food (Life on Mars?)"
+                   style="--ego-stage: @BowieCast.For("mars").Stage; --ego-hot: @BowieCast.For("mars").Hot;"
                    data-rs-reveal>
-                    <span class="rs-cargo-rig">
-                        <span class="rs-cargo-pod">
-                            <strong class="rs-cargo-head">Food with bad intentions.</strong>
-                            <span class="rs-cargo-window rs-home-rotator" aria-hidden="true">
+                    <span class="rs-carrier-stage" aria-hidden="true">
+                        <img class="rs-carrier-look" src="~/art/looks/mars.webp" asp-append-version="true" width="400" height="520" alt="" loading="lazy" />
+                        <span class="rs-carrier-picture">
+                            <span class="rs-carrier-photos rs-home-rotator">
                                 <img src="https://imageproxy.wolt.com/assets/6a02e61c938b4b58b5c33754?w=960" alt="" />
                                 <img src="https://imageproxy.wolt.com/assets/6a03117d3f815eb3031bd7ba?w=960" alt="" />
                                 <img src="https://imageproxy.wolt.com/assets/6a02e63b938b4b58b5c33760?w=960" alt="" />
                                 <img src="https://imageproxy.wolt.com/assets/6a02e5bc95fd7fae364fccb1?w=960" alt="" />
                             </span>
-                            <span class="rs-cargo-foot">
-                                <span class="rs-label">Wings · Burgers · Pizza · Finger food</span>
-                                <partial name="_Ego" model='new EgoCall("mars", "", [new("See the food")], "rs-ego--small rs-cargo-ego", Inline: true)' />
-                            </span>
+                            <img class="rs-carrier-hands" src="~/art/hands/mars.webp" asp-append-version="true" width="1000" height="150" alt="" loading="lazy" />
                         </span>
                     </span>
+                    <partial name="_Ego" model='new EgoCall("mars", "Food with bad intentions: wings, burgers, pizza and finger food.", [new("See the food")], "rs-carrier-says", Inline: true)' />
                 </a>
 
                 <a asp-controller="Home"
                    asp-action="Menu"
                    asp-route-section="beer"
-                   class="rs-cargo"
+                   class="rs-carrier rs-carrier--ziggy"
+                   aria-label="See the beers (Ziggy Stardust)"
+                   style="--ego-stage: @BowieCast.For("ziggy").Stage; --ego-hot: @BowieCast.For("ziggy").Hot;"
                    data-rs-reveal>
-                    <span class="rs-cargo-rig">
-                        <span class="rs-cargo-pod">
-                            <strong class="rs-cargo-head">Beer beyond the usual.</strong>
-                            <span class="rs-cargo-window rs-home-rotator" aria-hidden="true">
+                    <span class="rs-carrier-stage" aria-hidden="true">
+                        <img class="rs-carrier-look" src="~/art/looks/ziggy.webp" asp-append-version="true" width="400" height="520" alt="" loading="lazy" />
+                        <span class="rs-carrier-picture">
+                            <span class="rs-carrier-photos rs-home-rotator">
                                 <img src="https://imageproxy.wolt.com/assets/699da1e53eb3341f036f3ee9?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                                 <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf30?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                                 <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf40?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                                 <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf39?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
                             </span>
-                            <span class="rs-cargo-foot">
-                                <span class="rs-label">Bottles · Draft · Rare finds</span>
-                                <partial name="_Ego" model='new EgoCall("ziggy", "", [new("See the beers")], "rs-ego--small rs-cargo-ego", Inline: true)' />
-                            </span>
+                            <img class="rs-carrier-hands" src="~/art/hands/ziggy.webp" asp-append-version="true" width="1000" height="150" alt="" loading="lazy" />
                         </span>
                     </span>
+                    <partial name="_Ego" model='new EgoCall("ziggy", "Beer beyond the usual: bottles, draft and rare finds.", [new("See the beers")], "rs-carrier-says", Inline: true)' />
                 </a>
 
                 @if (showDrinks)
@@ -305,38 +306,22 @@
                     <a asp-controller="Home"
                        asp-action="Menu"
                        asp-route-section="drink"
-                       class="rs-cargo"
+                       class="rs-carrier rs-carrier--jack"
+                       aria-label="See the drinks (Halloween Jack)"
+                       style="--ego-stage: @BowieCast.For("jack").Stage; --ego-hot: @BowieCast.For("jack").Hot;"
                        data-rs-reveal>
-                        <span class="rs-cargo-rig">
-                            <span class="rs-cargo-pod">
-                                <strong class="rs-cargo-head">Liquid courage.</strong>
-                                <span class="rs-cargo-foot">
-                                    <span class="rs-label">Spirits · Cocktails · Shots</span>
-                                    <partial name="_Ego" model='new EgoCall("jack", "", [new("See the drinks")], "rs-ego--small rs-cargo-ego", Inline: true)' />
+                        <span class="rs-carrier-stage" aria-hidden="true">
+                            <img class="rs-carrier-look" src="~/art/looks/jack.webp" asp-append-version="true" width="400" height="520" alt="" loading="lazy" />
+                            <span class="rs-carrier-picture">
+                                <span class="rs-carrier-photos rs-home-rotator">
+                                    <img src="~/images/rebel-liquid-cocaine-mural-room.webp" alt="" />
                                 </span>
+                                <img class="rs-carrier-hands" src="~/art/hands/jack.webp" asp-append-version="true" width="1000" height="150" alt="" loading="lazy" />
                             </span>
                         </span>
+                        <partial name="_Ego" model='new EgoCall("jack", "Liquid courage: spirits, cocktails and shots, till one.", [new("See the drinks")], "rs-carrier-says", Inline: true)' />
                     </a>
                 }
-            </div>
-        </div>
-    </section>
-
-    <section class="rs-chapter rs-chapter--space rs-torn rs-home-cta" data-rs-stardust>
-        <span class="rs-stars"></span>
-
-        @* The bottom of the page: the sun coming up over the planet's edge. *@
-        <div class="rs-earth rs-earth--dawn" aria-hidden="true"><i></i></div>
-
-        <div class="rs-container">
-            <div class="rs-console rs-home-console" data-rs-reveal>
-                <div class="rs-home-console-body">
-                    <h2 class="rs-display rs-display--xl">Your table<br /><span class="rs-accent">is waiting.</span></h2>
-
-                    <div class="rs-home-cta-actions">
-                        <partial name="_Ego" model='BowieCalls.Bookings(Url, "rs-ego--big")' />
-                    </div>
-                </div>
             </div>
         </div>
     </section>

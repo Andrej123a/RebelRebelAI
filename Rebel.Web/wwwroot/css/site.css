@@ -2117,7 +2117,7 @@ html.rs-open-lock body {
     grid-area: card;
 }
 
-/* ---------- Food & beer: the menus, in cargo pods from the station ---------- */
+/* ---------- Food & beer: the menus, carried by their characters ---------- */
 
 /* The International Space Station, high in the corner of the sky. */
 .rs-home-station {
@@ -2129,94 +2129,161 @@ html.rs-open-lock body {
     aspect-ratio: 4289 / 3217;
 }
 
-.rs-cargo-row {
+/* The menus, carried by the characters who look after them: each holds up a framed
+   picture of what is on it, his painted fingers curled over the top of the frame
+   (Art/Hands). Full-length looks are cropped to the part above the picture. */
+.rs-carriers {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
-    gap: clamp(30px, 5vw, 80px);
-    margin-top: clamp(20px, 3vw, 40px);
+    gap: clamp(40px, 6vw, 96px);
+    width: min(100%, 1040px);
+    margin-inline: auto;
 }
 
-.rs-cargo-row--three {
+.rs-carriers--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.rs-cargo {
-    display: block;
+.rs-carrier {
+    --crop-left: 0%;
+    --crop-width: 100%;
+    --frame-top: 90cqw;
+    --frame-turn: -3deg;
+    display: grid;
+    justify-items: center;
     color: var(--z-cream);
     text-decoration: none;
 }
 
-    .rs-cargo:hover,
-    .rs-cargo:focus-visible {
+    .rs-carrier:hover,
+    .rs-carrier:focus-visible {
         color: var(--z-cream);
     }
 
-    .rs-cargo:focus-visible {
-        outline: none;
+    .rs-carrier:focus-visible {
+        outline: 3px solid var(--z-blue);
+        outline-offset: 8px;
     }
 
-        .rs-cargo:focus-visible .rs-cargo-pod {
-            outline: 3px solid var(--z-blue);
-            outline-offset: 5px;
+/* Life on Mars? is painted to the waist: the picture covers where the painting stops. */
+.rs-carrier--mars {
+    --frame-left: 6%;
+    --frame-width: 88%;
+}
+
+    .rs-carrier--mars .rs-carrier-look {
+        -webkit-mask: linear-gradient(#000 88%, transparent);
+        mask: linear-gradient(#000 88%, transparent);
+    }
+
+.rs-carrier--ziggy {
+    --crop-left: -61.1%;
+    --crop-width: 222.2%;
+    --frame-top: 64cqw;
+    --frame-turn: 2.5deg;
+}
+
+.rs-carrier--jack {
+    --crop-left: -61.1%;
+    --crop-width: 222.2%;
+    --frame-top: 80cqw;
+    --frame-turn: -2deg;
+}
+
+.rs-carrier-stage {
+    position: relative;
+    display: block;
+    width: min(100%, 400px);
+    aspect-ratio: 400 / 640;
+    overflow: hidden;
+    container-type: inline-size;
+}
+
+.rs-carrier-look {
+    position: absolute;
+    top: 0;
+    left: var(--crop-left);
+    width: var(--crop-width);
+    max-width: none;
+    height: auto;
+    transform-origin: 50% 30%;
+    transition: transform 0.5s var(--rs-ease);
+}
+
+/* The picture: black lacquer, a cream mat, the photos turning over inside. */
+.rs-carrier-picture {
+    position: absolute;
+    top: var(--frame-top);
+    left: var(--frame-left, 10%);
+    width: var(--frame-width, 80%);
+    padding: 3cqw;
+    background: linear-gradient(135deg, #2a1d18, #0e0806 60%, #22160f);
+    box-shadow: inset 0 0 0 1px rgba(255, 241, 220, 0.18), 0 22px 30px rgba(0, 0, 0, 0.55);
+    rotate: var(--frame-turn);
+    transition: rotate 0.45s var(--rs-ease), translate 0.45s var(--rs-ease);
+}
+
+.rs-carrier-photos {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border: 2cqw solid #f1ebdf;
+    background: var(--z-ink);
+}
+
+    .rs-carrier-photos img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+/* His fingers over the top edge of the frame. */
+.rs-carrier-hands {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    translate: 0 -40%;
+    pointer-events: none;
+}
+
+/* Go for it and he lifts the picture up to you. */
+.rs-carrier:is(:hover, :focus-visible) .rs-carrier-picture {
+    rotate: 0deg;
+    translate: 0 -2.5cqw;
+}
+
+.rs-carrier:is(:hover, :focus-visible) .rs-carrier-look {
+    transform: scale(1.03) rotate(-1deg);
+}
+
+/* What he says, under him, the bubble's tail pointing up at him. */
+.rs-carrier-says {
+    margin-top: -4px;
+}
+
+    .rs-carrier-says .rs-ego-face {
+        display: none;
+    }
+
+    .rs-carrier-says .rs-ego-bubble {
+        max-width: 360px;
+        rotate: 1deg;
+    }
+
+        .rs-carrier-says .rs-ego-bubble::before {
+            top: -12px;
+            left: 46%;
+            width: 22px;
+            height: 14px;
+            clip-path: polygon(20% 100%, 50% 0, 80% 100%);
+            translate: 0 0;
         }
 
-.rs-cargo-rig {
-    display: grid;
-    justify-items: center;
-    transition: translate 0.5s var(--rs-ease);
-}
-
-.rs-cargo:hover .rs-cargo-rig,
-.rs-cargo:focus-visible .rs-cargo-rig {
-    translate: 0 -6px;
-}
-
-/* The pod: a dark anodised panel, lit from above. */
-.rs-cargo-pod {
-    position: relative;
-    display: grid;
-    gap: 16px;
-    width: 100%;
-    padding: 24px clamp(18px, 2vw, 26px) 20px;
-    border: 1px solid rgba(255, 241, 220, 0.14);
-    border-radius: 6px;
-    background:
-        linear-gradient(180deg, rgba(255, 241, 220, 0.06), transparent 30%),
-        linear-gradient(180deg, #1a1414, #0e0a0a);
-    box-shadow: inset 0 1px 0 rgba(255, 241, 220, 0.12), 0 30px 60px rgba(0, 0, 0, 0.5);
-}
-
-.rs-cargo-head {
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: clamp(30px, 2.9vw, 48px);
-    font-weight: 900;
-    line-height: 0.95;
-    text-transform: none;
-}
-
-/* A window in the side of the pod, rivets at the corners, the photos turning over. */
-.rs-cargo-window {
-    border: 3px solid #2c2423;
-    border-radius: 12px;
-    box-shadow: inset 0 0 0 1px rgba(255, 241, 220, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.6);
-}
-
-    .rs-cargo-window::after {
-        content: "";
-        position: absolute;
-        inset: 6px;
-        z-index: 1;
-        background:
-            radial-gradient(circle 2.5px, #6c5b55 70%, transparent 75%) left top / 10px 10px no-repeat,
-            radial-gradient(circle 2.5px, #6c5b55 70%, transparent 75%) right top / 10px 10px no-repeat,
-            radial-gradient(circle 2.5px, #6c5b55 70%, transparent 75%) left bottom / 10px 10px no-repeat,
-            radial-gradient(circle 2.5px, #6c5b55 70%, transparent 75%) right bottom / 10px 10px no-repeat;
-        pointer-events: none;
-    }
-
-/* The food photos turn over in the window. */
 .rs-home-rotator {
     position: relative;
     display: block;
@@ -2266,46 +2333,6 @@ html.rs-open-lock body {
     }
 }
 
-.rs-cargo-foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-    .rs-cargo-foot .rs-label {
-        color: rgba(255, 241, 220, 0.7);
-    }
-
-
-/* ---------- 1969 · Space Oddity: Ground Control ---------- */
-
-/* The headline on the left, the two ways in stacked on the right. */
-.rs-home-console-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
-    gap: 32px clamp(32px, 4vw, 64px);
-    padding: clamp(28px, 4vw, 56px);
-}
-
-    .rs-home-console-body h2 {
-        margin: 0;
-    }
-
-.rs-home-cta-actions {
-    display: grid;
-    gap: 14px;
-}
-
-@media (max-width: 767.98px) {
-    .rs-home-console-body {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-}
-
 @media (max-width: 991.98px) {
     .rs-hero-grid {
         grid-template-columns: minmax(0, 1fr);
@@ -2325,11 +2352,10 @@ html.rs-open-lock body {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .rs-cargo-row,
-    .rs-cargo-row--three {
+    .rs-carriers,
+    .rs-carriers--three {
         grid-template-columns: minmax(0, 1fr);
-        width: min(100%, 560px);
-        margin-inline: auto;
+        width: min(100%, 420px);
     }
 
 }
@@ -2460,70 +2486,6 @@ html.rs-open-lock body {
         box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.42);
     }
 
-/* ---------- the food list: what came down from the kitchen ---------- */
-
-.rs-food {
-    padding-block: clamp(56px, 7vw, 100px) clamp(80px, 10vw, 140px);
-}
-
-/* The manifest: what is aboard, in a Ground Control frame, and the courier
-   floating in with it on his tether. */
-.rs-manifest {
-    --hud: rgba(154, 211, 240, 0.6);
-    position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(200px, 27vw, 400px);
-    align-items: center;
-    gap: 24px;
-    padding: clamp(26px, 3.4vw, 46px) clamp(22px, 3.4vw, 48px);
-    border: 1px solid rgba(154, 211, 240, 0.18);
-    background:
-        linear-gradient(var(--hud), var(--hud)) top left / 22px 1px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) top left / 1px 22px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) top right / 22px 1px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) top right / 1px 22px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) bottom left / 22px 1px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) bottom left / 1px 22px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) bottom right / 22px 1px no-repeat,
-        linear-gradient(var(--hud), var(--hud)) bottom right / 1px 22px no-repeat,
-        linear-gradient(180deg, rgba(12, 16, 28, 0.78), rgba(10, 7, 10, 0.66));
-}
-
-.rs-manifest .rs-food-tools {
-    margin: 0;
-}
-
-/* The astronaut who brought it, working outside the station. */
-.rs-manifest .rs-manifest-courier {
-    width: 100%;
-    aspect-ratio: 4928 / 3280;
-    justify-self: end;
-    margin: -64px -40px -64px 0;
-}
-
-.rs-food-tools {
-    display: grid;
-    grid-template-columns: minmax(240px, 380px) minmax(0, 1fr);
-    align-items: end;
-    gap: 22px 36px;
-    margin: clamp(48px, 6vw, 80px) 0;
-}
-
-.rs-food-search input {
-    min-height: 0;
-    padding: 8px 0;
-    border: 0;
-    border-bottom: 2px solid rgba(255, 241, 220, 0.5);
-    background: transparent;
-    font-size: 22px;
-}
-
-    .rs-food-search input:focus {
-        border-bottom-color: var(--z-gold);
-        background: transparent;
-        box-shadow: none;
-    }
-
 .rs-food-chips {
     display: flex;
     flex-wrap: wrap;
@@ -2580,221 +2542,12 @@ html.rs-open-lock body {
         margin: 0;
     }
 
-.rs-food-category {
-    margin-top: clamp(64px, 8vw, 112px);
-}
-
-    .rs-food-category[hidden] {
-        display: none;
-    }
-
-/* Each category is a cargo bay: its number, its name and how much is aboard, over a
-   docking rule with ticks. */
-.rs-bay-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 10px 20px;
-    margin-bottom: clamp(24px, 3vw, 36px);
-    padding-bottom: 18px;
-    background:
-        linear-gradient(rgba(154, 211, 240, 0.45), rgba(154, 211, 240, 0.45)) left bottom / 100% 1px no-repeat,
-        repeating-linear-gradient(90deg, rgba(154, 211, 240, 0.45) 0 1px, transparent 1px 24px) left bottom / 100% 8px no-repeat;
-}
-
-.rs-bay-head h3 {
-    margin: 0;
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: clamp(38px, 4.6vw, 70px);
-    font-weight: 900;
-    line-height: 0.92;
-    text-transform: none;
-}
-
-.rs-food-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
-    gap: clamp(18px, 2vw, 28px);
-}
-
-/* A dish is a crate: dark metal with ribs, Ground Control's brackets at the corners,
-   a window with the photo and the price stencilled on it. */
-.rs-crate {
-    --hud: rgba(154, 211, 240, 0.55);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 10px 10px 0;
-    border: 1px solid rgba(255, 241, 220, 0.12);
-    border-radius: 8px;
-    background:
-        repeating-linear-gradient(90deg, transparent 0 38px, rgba(255, 241, 220, 0.022) 38px 40px),
-        linear-gradient(180deg, #1c1516, #100a0b);
-    box-shadow: inset 0 1px 0 rgba(255, 241, 220, 0.08), 0 22px 44px rgba(0, 0, 0, 0.4);
-    color: var(--z-cream);
-    transition: translate 0.35s var(--rs-ease), border-color 0.2s ease;
-}
-
-    .rs-crate[hidden] {
-        display: none;
-    }
-
-    .rs-crate::before {
-        content: "";
-        position: absolute;
-        inset: -5px;
-        pointer-events: none;
-        background:
-            linear-gradient(var(--hud), var(--hud)) top left / 14px 1px no-repeat,
-            linear-gradient(var(--hud), var(--hud)) top left / 1px 14px no-repeat,
-            linear-gradient(var(--hud), var(--hud)) top right / 14px 1px no-repeat,
-            linear-gradient(var(--hud), var(--hud)) top right / 1px 14px no-repeat,
-            linear-gradient(var(--hud), var(--hud)) bottom left / 14px 1px no-repeat,
-            linear-gradient(var(--hud), var(--hud)) bottom left / 1px 14px no-repeat,
-            linear-gradient(var(--hud), var(--hud)) bottom right / 14px 1px no-repeat,
-            linear-gradient(var(--hud), var(--hud)) bottom right / 1px 14px no-repeat;
-        opacity: 0;
-        transition: opacity 0.25s ease;
-    }
-
-    .rs-crate:hover {
-        border-color: rgba(154, 211, 240, 0.35);
-        translate: 0 -6px;
-    }
-
-        .rs-crate:hover::before,
-        .rs-crate:focus-within::before {
-            opacity: 1;
-        }
-
-.rs-crate-media {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    border: 2px solid #2c2423;
-    border-radius: 6px;
-    background: #0c0809;
-}
-
-    .rs-crate-media img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.6s var(--rs-ease);
-    }
-
-.rs-crate:hover .rs-crate-media img {
-    transform: scale(1.04);
-}
-
-.rs-crate.is-unavailable .rs-crate-media img {
-    filter: grayscale(1) brightness(0.55);
-}
-
-/* No photo yet: the pub's logo stands in. */
-.rs-crate-placeholder {
-    height: 100%;
-    background:
-        url("../images/email/rebel-logo.png") center / 42% auto no-repeat,
-        radial-gradient(circle at 50% 45%, #2a2122, #0c0809 70%);
-}
-
-.rs-crate-price {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    padding: 6px 10px 5px;
-    border: 1px solid rgba(255, 241, 220, 0.2);
-    background: rgba(10, 8, 9, 0.86);
-    color: var(--z-gold);
-    font-family: var(--rs-display);
-    font-size: 24px;
-    font-weight: 800;
-    line-height: 1;
-}
-
-    .rs-crate-price small {
-        margin-left: 3px;
-        color: var(--z-cream);
-        font-family: var(--rs-mono);
-        font-size: 11px;
-        font-weight: 700;
-    }
-
-.rs-crate-stamp {
-    position: absolute;
-    top: 22px;
-    right: -42px;
-    padding: 6px 48px 5px;
-    background: var(--z-red);
-    color: var(--z-cream);
-    font-family: var(--rs-stencil);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    rotate: 35deg;
-}
-
-.rs-crate-body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: 12px;
-    padding: 16px 8px 18px;
-}
-
-.rs-crate h4 {
-    margin: 0;
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: 26px;
-    font-weight: 900;
-    line-height: 1;
-    text-transform: none;
-}
-
-.rs-food-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-/* On a dark crate the label tape is cream. */
-.rs-crate .rs-pill {
-    background: var(--z-cream);
-    color: var(--z-ink);
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-.rs-crate .rs-pill--warning,
-.rs-pill--warning {
-    background: var(--z-red);
-    color: var(--z-cream);
-    text-shadow: none;
-}
-
-.rs-crate p {
-    margin: 0;
-    color: rgba(255, 241, 220, 0.78);
-    font-size: 15px;
-    line-height: 1.6;
-}
-
 .rs-food-pair {
     align-self: flex-start;
     margin-top: auto;
 }
 
 @media (max-width: 767.98px) {
-    .rs-food-tools {
-        grid-template-columns: minmax(0, 1fr);
-    }
 
     .rs-menu-tab {
         --ego-face: 44px;
@@ -2806,20 +2559,6 @@ html.rs-open-lock body {
         font-size: 22px;
     }
 
-    .rs-manifest {
-        grid-template-columns: minmax(0, 1fr);
-        padding-top: 64px;
-    }
-
-    .rs-manifest .rs-manifest-courier {
-        position: absolute;
-        top: -40px;
-        right: -12px;
-        z-index: -1;
-        width: 190px;
-        margin: 0;
-        opacity: 0.85;
-    }
 }
 
 /* =========================================================
@@ -4293,7 +4032,6 @@ html.rs-open-lock body {
         font-size: 15px;
     }
 
-
 .rs-changes-copy {
     position: relative;
     z-index: 2;
@@ -4594,7 +4332,6 @@ html.rs-open-lock body {
                 font-size: 20px;
             }
 
-
 }
 
 /* The flying saucer that crosses the stage now and then (09-motion). */
@@ -4775,12 +4512,10 @@ html.rs-open-lock body {
 
 /* Photos from orbit beside the other pages' content: soft at the edges. */
 .rs-home-station img,
-.rs-manifest-courier img,
 .rr-guide-eclipse img {
     -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
     mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
 }
-
 
 /* ---------- "Planet Earth is blue": the planet's edge from orbit ---------- */
 
@@ -4830,8 +4565,8 @@ html.rs-open-lock body {
         mix-blend-mode: screen;
     }
 
-/* Dawn from orbit: by the end of the page the sun is coming up over the planet, and
-   its thin atmosphere burns orange instead of blue. */
+/* Dawn from orbit: the sun coming up over the planet, its thin atmosphere burning
+   orange instead of blue (under the error page). */
 .rs-earth--dawn {
     background: radial-gradient(circle closest-side, #050304 0 calc(100% - 70px), #1a0708 calc(100% - 30px), #6d1a0c calc(100% - 9px), #ff7a2e calc(100% - 2px), #ffe2b8 100%);
     box-shadow:
@@ -4845,10 +4580,6 @@ html.rs-open-lock body {
         height: clamp(110px, 11vw, 180px);
         background: radial-gradient(ellipse closest-side, rgba(255, 250, 235, 1) 0, rgba(255, 220, 150, 0.75) 16%, rgba(255, 120, 50, 0.35) 44%, transparent 100%);
     }
-
-.rs-home-cta {
-    padding-bottom: clamp(130px, 12vw, 190px);
-}
 
 .rs-error-earth {
     top: calc(100% - clamp(70px, 8vw, 120px));
@@ -5966,10 +5697,444 @@ a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-act {
     text-decoration-color: transparent;
 }
 
-.rs-cargo-ego {
-    margin-left: auto;
-}
-
 .rs-contact-duke {
     margin-top: 28px;
+}
+
+/* =========================================================
+   13. THE KITCHEN: LIFE ON MARS?'S WHITE SET
+   Below Mars the food menu steps into the white set of the
+   "Life on Mars?" video: studio light, his ice-blue suit and
+   eyeshadow, his copper hair. Each category is a set, its
+   name brushed on in eyeshadow; each dish is a glossy print
+   from the shoot, the favourites circled in red grease pencil
+   and the ones out tonight crossed through. He stands at
+   the side and talks about whatever you point at (the
+   script in Views/Home/Menu.cshtml). The bar's drinks are
+   Halloween Jack's set, in his colours.
+   ========================================================= */
+
+.rs-studio {
+    --studio-ink: #1d1714;
+    --studio-copper: #c4461a;
+    --studio-ice: #9ccfe8;
+    --studio-grease: #d4231b;
+    position: relative;
+    z-index: 1;
+    padding-block: clamp(72px, 8vw, 120px) clamp(96px, 10vw, 150px);
+    background:
+        radial-gradient(70% 40% at 78% 8%, rgba(255, 255, 255, 0.95), transparent 70%),
+        radial-gradient(120% 80% at 50% 0%, #fbfbf8 0, #edf3f6 45%, #d6e5ed 100%);
+    color: var(--studio-ink);
+}
+
+    /* The studio lights come up over the night sky. */
+    .rs-studio::before {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: 100%;
+        left: 0;
+        height: clamp(90px, 12vw, 180px);
+        background: linear-gradient(180deg, transparent, rgba(251, 251, 248, 0.6) 55%, #fbfbf8);
+        pointer-events: none;
+    }
+
+.rs-studio--jack {
+    --studio-copper: #b8860b;
+    --studio-ice: #9fd8ff;
+}
+
+.rs-studio-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(32px, 4vw, 64px);
+}
+
+@media (min-width: 1100px) {
+    .rs-studio-inner {
+        grid-template-columns: minmax(0, 1fr) clamp(260px, 22vw, 340px);
+    }
+}
+
+/* In the studio the speech bubbles are a comic's: white, inked round the edge. */
+.rs-studio .rs-ego-bubble {
+    --bubble: #fff;
+    border: 2px solid var(--studio-ink);
+    box-shadow: 4px 5px 0 var(--studio-ink);
+}
+
+    .rs-studio .rs-ego-bubble::before {
+        background: var(--studio-ink);
+    }
+
+/* ---------- he asks what you are hungry for ---------- */
+
+.rs-studio-ask {
+    --ego-face: clamp(84px, 8vw, 116px);
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: clamp(48px, 6vw, 80px);
+}
+
+    .rs-studio-ask .rs-ego-face {
+        margin-top: 14px;
+    }
+
+    .rs-studio-ask-bubble {
+        max-width: 640px;
+        width: 100%;
+        gap: 12px;
+        padding: 18px 22px 20px;
+    }
+
+        .rs-studio-ask-bubble .rs-ego-line {
+            font-size: clamp(19px, 1.7vw, 24px);
+        }
+
+        .rs-studio-ask-bubble input {
+            width: 100%;
+            min-height: 48px;
+            padding: 0 4px;
+            border: 0;
+            border-bottom: 2px solid var(--studio-ink);
+            border-radius: 0;
+            background: transparent;
+            color: var(--studio-ink);
+            font-family: var(--rs-display);
+            font-size: 20px;
+            font-style: italic;
+        }
+
+            .rs-studio-ask-bubble input::placeholder {
+                color: rgba(29, 23, 20, 0.4);
+            }
+
+            .rs-studio-ask-bubble input:focus {
+                border-bottom-color: var(--studio-copper);
+                outline: none;
+            }
+
+    .rs-studio .rs-food-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .rs-studio .rs-chip {
+        --face: rgba(29, 23, 20, 0.07);
+        --face-ink: var(--studio-ink);
+        padding: 8px 13px 7px;
+    }
+
+        .rs-studio .rs-chip:hover,
+        .rs-studio .rs-chip:focus-visible {
+            --face: rgba(29, 23, 20, 0.14);
+        }
+
+        .rs-studio .rs-chip.is-active {
+            --face: var(--studio-ice);
+        }
+
+    .rs-studio .rs-food-summary {
+        margin: 0;
+        color: rgba(29, 23, 20, 0.6);
+        font-family: var(--rs-mono);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+.rs-studio .rs-food-empty {
+    margin-bottom: 48px;
+}
+
+.rs-studio-ask[hidden] {
+    display: none;
+}
+
+.rs-studio .rs-food-nothing h3 {
+    color: var(--studio-copper);
+}
+
+/* ---------- each category is a set ---------- */
+
+.rs-studio-set + .rs-studio-set {
+    margin-top: clamp(72px, 8vw, 120px);
+}
+
+/* Its name in copper, brushed over a swipe of his ice-blue eyeshadow. */
+.rs-studio-title {
+    position: relative;
+    display: inline-block;
+    margin: 0 0 clamp(28px, 3vw, 44px);
+    color: var(--studio-copper);
+    font-size: clamp(48px, 6vw, 92px);
+    font-style: italic;
+    font-weight: 800;
+    line-height: 0.95;
+}
+
+    .rs-studio-title span {
+        position: relative;
+    }
+
+    .rs-studio-title::before {
+        content: "";
+        position: absolute;
+        right: -8%;
+        bottom: 2%;
+        left: -6%;
+        height: 58%;
+        background: var(--studio-ice);
+        opacity: 0.8;
+        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.6' numOctaves='3' seed='5'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='9'/%3E%3C/filter%3E%3Cpath filter='url(%23r)' d='M8 34C60 16 170 8 392 12L388 30C300 40 140 50 14 54Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04 0.6' numOctaves='3' seed='5'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='9'/%3E%3C/filter%3E%3Cpath filter='url(%23r)' d='M8 34C60 16 170 8 392 12L388 30C300 40 140 50 14 54Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+        rotate: -1.5deg;
+    }
+
+/* ---------- the prints ---------- */
+
+.rs-prints {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: clamp(36px, 4vw, 56px) clamp(24px, 3vw, 44px);
+}
+
+.rs-print {
+    --tilt: -1.4deg;
+    display: grid;
+    align-content: start;
+    gap: 10px;
+}
+
+    .rs-print:nth-child(3n + 2) {
+        --tilt: 1.1deg;
+    }
+
+    .rs-print:nth-child(3n) {
+        --tilt: -0.5deg;
+    }
+
+    .rs-print[hidden] {
+        display: none;
+    }
+
+/* A glossy print: white border, a little curl of shadow, the dish's name and price
+   written on the border underneath. */
+.rs-print-photo {
+    position: relative;
+    margin: 0 0 6px;
+    padding: 10px 10px 0;
+    background: #fdfcf9;
+    box-shadow: 0 1px 0 rgba(29, 23, 20, 0.08), 0 22px 30px -16px rgba(30, 45, 60, 0.5), 0 2px 6px rgba(30, 45, 60, 0.12);
+    rotate: var(--tilt);
+    transition: rotate 0.4s var(--rs-ease), translate 0.4s var(--rs-ease), box-shadow 0.4s var(--rs-ease);
+}
+
+.rs-print-frame {
+    position: relative;
+    display: block;
+}
+
+.rs-print-window {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background: #e6ebee;
+}
+
+    .rs-print-window img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s var(--rs-ease);
+    }
+
+/* No photo yet: an empty frame with a ring of ice blue, like an unexposed plate. */
+.rs-print-blank {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, transparent 0 30%, rgba(156, 207, 232, 0.55) 31% 34%, transparent 35%), #eef3f6;
+}
+
+.rs-print-photo figcaption {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 4px 14px;
+}
+
+    .rs-print-photo h4 {
+        margin: 0;
+        color: var(--studio-ink);
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.05;
+    }
+
+.rs-print-price {
+    flex: none;
+    color: var(--studio-copper);
+    font-family: var(--rs-display);
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+    .rs-print-price small {
+        margin-left: 3px;
+        font-family: var(--rs-mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+    }
+
+/* Grease pencil: a loop round the favourites, a cross through what is out tonight. */
+.rs-grease {
+    position: absolute;
+    pointer-events: none;
+    background: var(--studio-grease);
+}
+
+.rs-grease--circle {
+    inset: -20px -18px -18px -20px;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 140' preserveAspectRatio='none'%3E%3Cpath d='M30 26C70 4 160 2 186 34C204 60 196 118 150 130C96 142 28 136 12 98C-2 62 18 30 60 16' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 140' preserveAspectRatio='none'%3E%3Cpath d='M30 26C70 4 160 2 186 34C204 60 196 118 150 130C96 142 28 136 12 98C-2 62 18 30 60 16' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+    opacity: 0.88;
+}
+
+.rs-grease--cross {
+    inset: 8% 10%;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M6 8C34 36 62 64 95 93M92 6C66 34 36 66 5 95' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M6 8C34 36 62 64 95 93M92 6C66 34 36 66 5 95' fill='none' stroke='%23000' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+}
+
+.rs-print-out {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    padding: 2px 10px 4px;
+    background: #fdfcf9;
+    color: var(--studio-grease);
+    font-family: var(--rs-display);
+    font-size: 22px;
+    font-style: italic;
+    font-weight: 700;
+    rotate: -8deg;
+    translate: -50% -50%;
+    white-space: nowrap;
+}
+
+.rs-print.is-unavailable .rs-print-window img {
+    filter: grayscale(1) contrast(0.9);
+    opacity: 0.75;
+}
+
+/* Notes in the margin, in grease pencil. */
+.rs-print-notes {
+    margin: 0;
+    color: var(--studio-grease);
+    font-family: var(--rs-display);
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.rs-print-text {
+    margin: 0;
+    color: rgba(29, 23, 20, 0.78);
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+.rs-print .rs-food-pair {
+    margin-top: 6px;
+}
+
+/* Point at a print and it comes off the wall a little. */
+.rs-print:is(:hover, :focus-within) .rs-print-photo {
+    rotate: 0deg;
+    translate: 0 -6px;
+    box-shadow: 0 1px 0 rgba(29, 23, 20, 0.08), 0 34px 40px -18px rgba(30, 45, 60, 0.55), 0 2px 6px rgba(30, 45, 60, 0.12);
+}
+
+.rs-print:is(:hover, :focus-within) .rs-print-window img {
+    transform: scale(1.04);
+}
+
+/* ---------- he hosts from the side ---------- */
+
+.rs-studio-host {
+    display: none;
+}
+
+@media (min-width: 1100px) {
+    /* He steps in once the hero (where he already stands) has gone by. */
+    .rs-studio-host {
+        display: block;
+        padding-top: clamp(220px, 34vh, 380px);
+    }
+
+        .rs-studio-host-stand {
+            position: sticky;
+            top: 90px;
+            display: grid;
+            justify-items: center;
+        }
+
+        .rs-studio-host-says {
+            z-index: 1;
+            max-width: 100%;
+            margin-bottom: -10px;
+            border-radius: 22px 22px 8px 22px;
+            rotate: 1.5deg;
+        }
+
+            .rs-studio-host-says::before {
+                top: auto;
+                right: 26%;
+                bottom: -14px;
+                left: auto;
+                width: 20px;
+                height: 16px;
+                clip-path: polygon(0 0, 100% 0, 30% 100%);
+                translate: 0 0;
+            }
+
+            .rs-studio-host-says.is-new {
+                animation: rs-host-says 0.35s var(--rs-ease);
+            }
+
+        .rs-studio-host-look {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: calc(100vh - 220px);
+            object-fit: contain;
+            filter: drop-shadow(0 18px 24px rgba(30, 45, 60, 0.35));
+        }
+}
+
+@keyframes rs-host-says {
+    from {
+        opacity: 0.4;
+        scale: 0.96;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .rs-studio-ask {
+        --ego-face: 64px;
+        gap: 10px;
+    }
+
+    .rs-studio-ask-bubble {
+        padding: 14px 16px 16px;
+    }
 }

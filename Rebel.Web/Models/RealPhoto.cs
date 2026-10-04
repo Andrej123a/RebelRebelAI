@@ -102,12 +102,6 @@ public static class RealPhotos
             "A total solar eclipse: a black disc ringed with light",
             7296, 7296, "#0a0403", "50% 50%", Sky: true, By: "Robert Anderson", ByUser: "robanderson72"),
 
-        // The courier who brings the menu: an astronaut at work outside the station.
-        ["courier"] = new(
-            "photo-1447433865958-f402f562b843?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8MTl8fHNwYWNlJTIwc2h1dHRsZXxlbnwwfHx8fDE3OTExMDY2NTl8Mg&ixlib=rb-4.1.0",
-            "An astronaut carrying cargo bags outside a spacecraft",
-            4928, 3280, "#141414", "34% 55%", Sky: true, By: "NASA", ByUser: "nasa"),
-
         // The station the menus come down from.
         ["station"] = new(
             "photo-1614314007212-0257d6e2f7d8?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8MTV8fHNwYWNlJTIwc2h1dHRsZXxlbnwwfHx8fDE3OTExMDY2NTl8Mg&ixlib=rb-4.1.0",

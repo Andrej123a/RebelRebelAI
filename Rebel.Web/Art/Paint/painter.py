@@ -3,7 +3,7 @@
 # brushes over a toned ground (Hertzmann's layered painterly rendering, loose in the big
 # shapes and careful round the eyes and mouth), on linen, with a soft pencil line.
 #   python3 painter.py key [out.png]     (run from the work folder paint.sh sets up)
-import sys, math, numpy as np, cv2
+import os, sys, math, numpy as np, cv2
 from PIL import Image
 
 KEY = sys.argv[1]
@@ -134,7 +134,7 @@ PROFILE_BLUSH = [(-0.45, 0.62, 0.2, 0.09, 1.0), (-0.86, 0.6, 0.06, 0.05, 0.6)]
 PROFILE_DETAIL = [(-0.6, 0.45, 0.25, 0.12, 1), (-0.8, 0.75, 0.15, 0.12, 1)]
 
 face_area = np.zeros((H, W), f32)
-if KEY in FACES or KEY in PROFILE:
+if (KEY in FACES or KEY in PROFILE) and not os.environ.get('PAINT_PLAIN'):
     box = FACES.get(KEY) or PROFILE[KEY]
     spec = (FRONT_MODEL, FRONT_BLUSH, FRONT_DETAIL) if KEY in FACES else (PROFILE_MODEL, PROFILE_BLUSH, PROFILE_DETAIL)
     blobs(box, spec[0], model)
