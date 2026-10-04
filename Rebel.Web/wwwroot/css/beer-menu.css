@@ -50,76 +50,11 @@
     padding: clamp(32px, 4vw, 56px) 0 32px;
 }
 
-.rr-beer-callout {
+/* The Blind Prophet, across the top: he knows the whole fridge. */
+.rr-beer-ask {
     grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px 24px;
-    padding: 24px 28px;
-    background: var(--beer-yellow);
-    color: var(--beer-night);
-    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.35);
-    transform: rotate(-0.6deg);
+    justify-self: start;
 }
-
-    .rr-beer-callout span {
-        display: block;
-        margin-bottom: 4px;
-        color: var(--beer-night);
-        font-weight: 800;
-        font-family: var(--beer-mono);
-        font-size: 11px;
-        letter-spacing: 0.28em;
-        text-transform: uppercase;
-    }
-
-    .rr-beer-callout strong {
-        color: var(--beer-night);
-        font-family: var(--beer-display);
-        font-size: clamp(18px, 2.0vw, 26px);
-        font-weight: 800;
-        text-transform: none;
-    }
-
-    .rr-beer-callout a,
-    .rr-beer-outro-actions a:first-child {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
-        padding: 14px 26px;
-        border-radius: 999px;
-        background: var(--beer-night);
-        color: var(--beer-yellow);
-        font-family: var(--beer-mono);
-        font-weight: 700;
-        font-size: 14px;
-        letter-spacing: 0.08em;
-        text-decoration: none;
-        text-transform: uppercase;
-        transition: transform 0.3s var(--beer-ease);
-    }
-
-        .rr-beer-callout a:hover,
-        .rr-beer-callout a:focus-visible,
-        .rr-beer-outro-actions a:first-child:hover,
-        .rr-beer-outro-actions a:first-child:focus-visible {
-            background: var(--beer-night);
-            color: var(--beer-paper);
-            transform: rotate(-3deg) scale(1.04);
-        }
-
-        .rr-beer-outro-actions a:first-child:hover,
-        .rr-beer-outro-actions a:first-child:focus-visible {
-            background: var(--beer-yellow);
-            color: var(--beer-night);
-        }
-
-        .rr-beer-callout a:focus-visible {
-            outline: 3px solid var(--beer-night);
-            outline-offset: 3px;
-        }
 
 /* =========================================================
    TOOLS
@@ -321,19 +256,6 @@
         text-transform: uppercase;
     }
 
-    .rr-beer-empty button {
-        padding: 10px 20px;
-        border: 0;
-        border-radius: 999px;
-        background: var(--beer-night);
-        color: var(--beer-yellow);
-        font-family: var(--beer-mono);
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        cursor: pointer;
-    }
 
 /* =========================================================
    STAGE + TRACKLIST RAIL
@@ -806,47 +728,10 @@
         margin-right: 10px;
     }
 
+/* Ask the Prophet about this one. */
 .rr-beer-action {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
     margin-top: 26px;
-    padding: 14px 26px;
-    border-radius: 999px;
-    background-color: var(--stage-ink);
-    color: var(--stage-bg);
-    box-shadow: -5px 5px 0 var(--track-accent);
-    font-family: var(--beer-mono);
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: background-color 0.2s ease, transform 0.2s ease;
 }
-
-    .rr-beer-action i {
-        font-style: normal;
-        transition: transform 0.3s var(--beer-ease);
-    }
-
-    .rr-beer-action:hover,
-    .rr-beer-action:focus-visible {
-        background-color: var(--stage-ink);
-        color: var(--stage-bg);
-        box-shadow: -8px 8px 0 var(--track-accent);
-        transform: rotate(-3deg) scale(1.04);
-    }
-
-        .rr-beer-action:hover i,
-        .rr-beer-action:focus-visible i {
-            transform: translateX(5px);
-        }
-
-    .rr-beer-action:focus-visible {
-        outline: 3px solid var(--stage-ink);
-        outline-offset: 3px;
-    }
 
 /* =========================================================
    DISC: starburst + orbiting text + photo
@@ -949,44 +834,9 @@
     }
 
 .rr-beer-outro-actions {
-    display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 12px;
     margin-top: 40px;
 }
-
-    .rr-beer-outro-actions a {
-        padding: 14px 26px;
-        border: 2px solid var(--beer-paper);
-        border-radius: 999px;
-        color: var(--beer-paper);
-        font-family: var(--beer-mono);
-        font-weight: 700;
-        font-size: 14px;
-        letter-spacing: 0.08em;
-        text-decoration: none;
-        text-transform: uppercase;
-        transition: border-color 0.2s ease, color 0.2s ease;
-    }
-
-        .rr-beer-outro-actions a:hover {
-            border-color: var(--beer-paper);
-            background: var(--beer-paper);
-            color: var(--beer-red);
-            transform: rotate(-3deg) scale(1.04);
-        }
-
-        .rr-beer-outro-actions a:focus-visible {
-            outline: 2px solid var(--beer-paper);
-            outline-offset: 3px;
-        }
-
-        .rr-beer-outro-actions a:first-child {
-            border-color: var(--beer-yellow);
-            background: var(--beer-yellow);
-            color: var(--beer-night);
-        }
 
 /* =========================================================
    MOTION — slow and sparse; nothing for people who asked for less
@@ -1122,11 +972,6 @@
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .rr-beer-callout {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
     .rr-beer-tools {
         grid-template-columns: minmax(0, 1fr);
     }
@@ -1137,16 +982,13 @@
 }
 
 /* =========================================================
-   CUT-UP — no pills on the record either. Buttons, filters
-   and flags are scraps and label tape like the rest of the
-   site (site.css); rebel-cutup.js re-cuts the scraps.
+   CUT-UP — no pills on the record either. Filters and flags
+   are scraps and label tape like the rest of the site
+   (site.css); rebel-cutup.js re-cuts the scraps. What you ask
+   for is asked of the cast (the Prophet, Ziggy, Major Tom).
    ========================================================= */
 
-.rr-beer-filter,
-.rr-beer-outro-actions a,
-.rr-beer-outro-actions a:first-child,
-.rr-beer-callout a,
-.rr-beer-empty button {
+.rr-beer-filter {
     --cut: polygon(0 8%, 47% 0, 100% 6%, 98% 94%, 53% 100%, 2% 92%);
     border: 0;
     border-radius: 0;
@@ -1175,68 +1017,6 @@
     .rr-beer-filter.is-active {
         background: var(--chip-bg, var(--beer-yellow));
     }
-
-.rr-beer-outro-actions a {
-    background: rgba(255, 241, 220, 0.16);
-    font-size: 20px;
-}
-
-    .rr-beer-outro-actions a:hover,
-    .rr-beer-outro-actions a:focus-visible {
-        outline: none;
-        background: var(--beer-paper);
-    }
-
-    .rr-beer-outro-actions a:first-child {
-        background: var(--beer-yellow);
-    }
-
-.rr-beer-empty button {
-    font-size: 17px;
-}
-
-/* "Ask Rebel AI about this beer": a scrap in the track's ink with a shadow under it. */
-.rr-beer-action {
-    --cut: polygon(1% 9%, 31% 0, 64% 7%, 100% 1%, 97% 48%, 100% 97%, 66% 100%, 33% 93%, 0 100%, 3% 52%);
-    position: relative;
-    isolation: isolate;
-    border-radius: 0;
-    background: none;
-    box-shadow: none;
-    font-family: var(--rs-stencil);
-    font-size: 20px;
-    letter-spacing: 0.06em;
-}
-
-    .rr-beer-action::before,
-    .rr-beer-action::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        clip-path: var(--cut);
-        transition: translate 0.25s var(--beer-ease);
-    }
-
-    .rr-beer-action::before {
-        background: rgba(0, 0, 0, 0.3);
-        translate: -5px 5px;
-    }
-
-    .rr-beer-action::after {
-        background: var(--stage-ink);
-    }
-
-    .rr-beer-action:hover,
-    .rr-beer-action:focus-visible {
-        background: none;
-        box-shadow: none;
-    }
-
-        .rr-beer-action:hover::before,
-        .rr-beer-action:focus-visible::before {
-            translate: -9px 8px;
-        }
 
 /* Flags are label-maker tape; the spacemen's picks are on red tape. */
 .rr-beer-flag {

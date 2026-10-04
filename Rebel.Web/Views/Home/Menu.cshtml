@@ -69,14 +69,17 @@
             </div>
         </div>
 
+        @* Each part of the menu is asked of its character: the kitchen, the beers, the bar. *@
         <nav class="rs-container rs-menu-tabs" aria-label="Menu sections">
             <a asp-controller="Home"
                asp-action="Menu"
                asp-route-section="food"
                class="rs-menu-tab @(selectedSection == "food" ? "is-active" : "")"
                aria-current="@(selectedSection == "food" ? "page" : null)"
-               style="--tone: var(--rs-yellow);">
-                Food
+               style="--ego-stage: @BowieCast.For("mars").Stage; --ego-hot: @BowieCast.For("mars").Hot;">
+                <span class="rs-cast-face" aria-hidden="true"><img src="~/art/faces/mars.webp" asp-append-version="true" width="96" height="96" alt="" /></span>
+                <span class="rs-menu-tab-word">Food</span>
+                <small>@BowieCast.For("mars").Name</small>
             </a>
 
             <a asp-controller="Home"
@@ -84,8 +87,10 @@
                asp-route-section="beer"
                class="rs-menu-tab @(selectedSection == "beer" ? "is-active" : "")"
                aria-current="@(selectedSection == "beer" ? "page" : null)"
-               style="--tone: var(--rs-yellow);">
-                Beer
+               style="--ego-stage: @BowieCast.For("ziggy").Stage; --ego-hot: @BowieCast.For("ziggy").Hot;">
+                <span class="rs-cast-face" aria-hidden="true"><img src="~/art/faces/ziggy.webp" asp-append-version="true" width="96" height="96" alt="" /></span>
+                <span class="rs-menu-tab-word">Beer</span>
+                <small>@BowieCast.For("ziggy").Name</small>
             </a>
 
             @if (showDrinksMenu)
@@ -95,8 +100,10 @@
                    asp-route-section="drink"
                    class="rs-menu-tab @(selectedSection == "drink" ? "is-active" : "")"
                    aria-current="@(selectedSection == "drink" ? "page" : null)"
-                   style="--tone: var(--rs-red);">
-                    Drinks
+                   style="--ego-stage: @BowieCast.For("jack").Stage; --ego-hot: @BowieCast.For("jack").Hot;">
+                    <span class="rs-cast-face" aria-hidden="true"><img src="~/art/faces/jack.webp" asp-append-version="true" width="96" height="96" alt="" /></span>
+                    <span class="rs-menu-tab-word">Drinks</span>
+                    <small>@BowieCast.For("jack").Name</small>
                 </a>
             }
         </nav>
@@ -142,11 +149,7 @@
                          hidden>
                         <strong>No matching menu items.</strong>
                         <span>Try another search or clear the filters.</span>
-                        <button type="button"
-                                id="menuFilterClear"
-                                class="rs-btn rs-btn--small rs-btn--paper">
-                            Clear filters
-                        </button>
+                        <partial name="_Ego" model='new EgoCall("mars", "Nothing like that in the kitchen tonight. Start again?", [new("Clear filters")], "rs-ego--small", Button: "button", Attributes: new Dictionary<string, string> { ["id"] = "menuFilterClear" })' />
                     </div>
                 </section>
 
@@ -292,12 +295,7 @@
 
                                         @if (!hideAiFeatures && !string.IsNullOrWhiteSpace(rebelPrompt))
                                         {
-                                            <a asp-controller="BeerGuide"
-                                               asp-action="Index"
-                                               asp-route-prompt="@rebelPrompt"
-                                               class="rs-food-pair">
-                                                Find a beer for this <i aria-hidden="true">&rarr;</i>
-                                            </a>
+                                            <partial name="_Ego" model='new EgoCall("prophet", "", [new("Find a beer for this", Url.Action("Index", "BeerGuide", new { prompt = rebelPrompt }))], "rs-ego--small rs-food-pair")' />
                                         }
                                     </div>
                                 </article>

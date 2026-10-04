@@ -23,24 +23,11 @@
                 The page could not be loaded right now. Try again, or head back to the main Rebel Rebel by Fat Kitchen pages.
             </p>
 
-            <div class="rs-error-actions">
-                <a asp-controller="Home"
-                   asp-action="Index"
-                   class="rs-btn rs-btn--primary">
-                    Back home
-                </a>
-
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   class="rs-btn rs-btn--ghost">
-                    View menu
-                </a>
-
-                <a asp-controller="Reservations"
-                   asp-action="Create"
-                   class="rs-btn rs-btn--ghost">
-                    Book a table
-                </a>
+            @* Rebel Rebel takes you back; the others are a call away. *@
+            <div class="rs-egos rs-error-actions">
+                <partial name="_Ego" model="BowieCalls.Home(Url)" />
+                <partial name="_Ego" model='BowieCalls.Food(Url, "rs-ego--small")' />
+                <partial name="_Ego" model='BowieCalls.Book(Url, "rs-ego--small")' />
             </div>
 
             @if (Model.ShowRequestId)

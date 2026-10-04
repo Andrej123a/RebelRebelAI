@@ -1,5 +1,6 @@
 #!/bin/bash
-# Paints the cast: Art/Looks/*.svg -> wwwroot/art/looks/*.webp (1000 x 1300).
+# Paints the cast: Art/Looks/*.svg -> wwwroot/art/looks/*.webp (1000 x 1300), then cuts
+# their portraits for the calls and the navbar (wwwroot/art/faces, faces.py).
 #   Art/Paint/paint.sh [key ...]      (all nine when no key is given)
 # Needs python3 with numpy, opencv-python-headless and pillow, and node with playwright.
 set -e
@@ -16,3 +17,4 @@ for key in $KEYS; do
     python3 -c "from PIL import Image; Image.open('out/$key.png').save('$SITE/$key.webp', 'WEBP', quality=80, method=6, alpha_quality=90)"
 done
 rm -rf "$WORK"
+python3 "$HERE/faces.py" $KEYS

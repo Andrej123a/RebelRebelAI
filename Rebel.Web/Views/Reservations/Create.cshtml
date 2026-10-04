@@ -122,9 +122,8 @@
             </p>
 
             <div class="rs-reserve-submit">
-                <button type="submit" class="rs-btn rs-btn--primary">
-                    Request the table <i aria-hidden="true">&rarr;</i>
-                </button>
+                @* Major Tom sends it up to Ground Control. *@
+                <partial name="_Ego" model='new EgoCall("tom", "Send it up to Ground Control. I\u2019ll radio back a code so you can follow it.", [new("Request the table")], "rs-ego--big", Button: "submit")' />
                 <p>No email needed. Keep the code shown after submitting.</p>
             </div>
             </div>

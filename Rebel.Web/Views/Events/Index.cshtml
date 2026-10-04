@@ -66,9 +66,8 @@
                     <span class="rs-events-here">starts here.</span>
                 </h1>
 
-                <a href="#upcoming-events" class="rs-btn rs-btn--ghost rs-events-scroll">
-                    See all events <i aria-hidden="true">&darr;</i>
-                </a>
+                @* Pierrot hosts the nights. *@
+                <partial name="_Ego" model='new EgoCall("pierrot", "Live music and special nights. Here is what is coming up.", [new("See what\u2019s on", "#upcoming-events")], "rs-ego--big rs-events-scroll")' />
             </div>
 
             @if (nextEvent != null)
@@ -164,20 +163,10 @@
                                 }
                             </div>
 
+                            @* Major Tom books you in for the night; Pierrot tells you about it. *@
                             <div class="rs-events-actions">
-                                <a asp-controller="Reservations"
-                                   asp-action="Create"
-                                   asp-route-eventId="@e.Id"
-                                   class="rs-btn rs-btn--small rs-events-reserve">
-                                    Reserve a table
-                                </a>
-
-                                <a asp-controller="Events"
-                                   asp-action="Details"
-                                   asp-route-id="@e.Id"
-                                   class="rs-btn rs-btn--small rs-btn--ghost">
-                                    View event <i aria-hidden="true">&nearr;</i>
-                                </a>
+                                <partial name="_Ego" model='new EgoCall("tom", "", [new("Book for this night", Url.Action("Create", "Reservations", new { eventId = e.Id }))], "rs-ego--small rs-events-reserve")' />
+                                <partial name="_Ego" model='new EgoCall("pierrot", "", [new("See the night", Url.Action("Details", "Events", new { id = e.Id }))], "rs-ego--small")' />
                             </div>
                         </li>
                     }
@@ -188,11 +177,7 @@
                 <div class="rs-events-empty">
                     <h3 class="rs-display rs-display--sm">No upcoming events right now.</h3>
 
-                    <a asp-controller="Home"
-                       asp-action="Index"
-                       class="rs-btn rs-btn--ghost">
-                        Back home
-                    </a>
+                    <partial name="_Ego" model='BowieCalls.Home(Url, "rs-ego--small")' />
                 </div>
             }
         </div>
@@ -204,11 +189,7 @@
                 <h2 class="rs-display rs-display--lg">Book a table<br />for the night.</h2>
             </div>
 
-            <a asp-controller="Reservations"
-               asp-action="Create"
-               class="rs-btn rs-btn--night">
-                Reserve a table <i aria-hidden="true">&rarr;</i>
-            </a>
+            <partial name="_Ego" model="BowieCalls.Book(Url)" />
         </div>
     </section>
 

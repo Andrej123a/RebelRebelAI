@@ -51,4 +51,7 @@ public static class BowieCast
             "Tell Rebel AI what you feel like and it picks food, beer or a pairing from the menu.",
             "#070403", "#ffcf8a"),
     ];
+
+    /// <summary>The look with this key.</summary>
+    public static BowieLook For(string key) => All.First(look => look.Key == key);
 }

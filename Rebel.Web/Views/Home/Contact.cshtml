@@ -17,6 +17,8 @@
                     <span class="rs-accent">the Rebels.</span>
                 </h1>
 
+                @* The Duke goes station to station: he walks you here. *@
+                <partial name="_Ego" model='BowieCalls.GetHere("rs-ego--big rs-contact-duke")' />
             </div>
 
             <aside class="rs-board rs-contact-hours" aria-label="Opening hours: open every day from 12:00 until 01:00">
@@ -38,7 +40,7 @@
                     Naum Naumovski<br />
                     Borce 62, Skopje
                 </strong>
-                <span class="rs-contact-place-link">Open directions <i aria-hidden="true">&nearr;</i></span>
+                <partial name="_Ego" model='new EgoCall("duke", "", [new("Get directions")], "rs-ego--small", Inline: true)' />
             </a>
 
             <div class="rs-console rs-contact-direct">
@@ -62,11 +64,7 @@
 
             <div class="rs-contact-walkin rs-flood rs-flood--yellow">
                 <strong>Walk-ins welcome.</strong>
-                <a asp-controller="Reservations"
-                   asp-action="Create"
-                   class="rs-btn rs-btn--night">
-                    Book a table <i aria-hidden="true">&rarr;</i>
-                </a>
+                <partial name="_Ego" model='BowieCalls.Book(Url, "rs-ego--small")' />
             </div>
         </section>
 

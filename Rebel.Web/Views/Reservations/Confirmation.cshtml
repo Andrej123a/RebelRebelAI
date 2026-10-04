@@ -27,12 +27,7 @@
             <div class="rs-confirm-ticket rs-ticket">
                 <span class="rs-label">Reservation code</span>
                 <strong id="reservationCodeValue">@ViewBag.ReservationCode</strong>
-                <button type="button"
-                        id="copyReservationCode"
-                        class="rs-btn rs-btn--small rs-btn--night"
-                        data-code="@ViewBag.ReservationCode">
-                    Copy
-                </button>
+                <partial name="_Ego" model='new EgoCall("tom", "", [new("Copy the code")], "rs-ego--small", Button: "button", Attributes: new Dictionary<string, string> { ["id"] = "copyReservationCode", ["data-code"] = (string)ViewBag.ReservationCode })' />
                 <p>No account needed. This code is enough to find or cancel your reservation.</p>
             </div>
 
@@ -79,18 +74,9 @@
             </ol>
         </div>
 
-        <div class="rs-confirm-actions">
-            <a asp-controller="Reservations"
-               asp-action="Lookup"
-               class="rs-btn rs-btn--primary">
-                Find my reservation <i aria-hidden="true">&rarr;</i>
-            </a>
-
-            <a asp-controller="Home"
-               asp-action="Index"
-               class="rs-btn rs-btn--ghost">
-                Back home
-            </a>
+        <div class="rs-egos rs-confirm-actions">
+            <partial name="_Ego" model='new EgoCall("tom", "Message received at Ground Control. Read me your code any time and I\u2019ll tell you where it stands.", [new("Find my booking", Url.Action("Lookup", "Reservations"))], "rs-ego--big")' />
+            <partial name="_Ego" model='BowieCalls.Home(Url, "rs-ego--small")' />
         </div>
     </div>
 </section>
@@ -104,12 +90,15 @@
                 return;
             }
 
+            // Major Tom answers in his bubble.
+            const label = button.querySelector("[data-ego-act]") ?? button;
+
             button.addEventListener("click", async () => {
                 const code = button.dataset.code ?? "";
 
                 try {
                     await navigator.clipboard.writeText(code);
-                    button.textContent = "Copied";
+                    label.textContent = "Copied";
                 } catch {
                     const codeElement =
                         document.getElementById("reservationCodeValue");
@@ -122,11 +111,11 @@
                         selection?.addRange(range);
                     }
 
-                    button.textContent = "Selected";
+                    label.textContent = "Selected";
                 }
 
                 window.setTimeout(() => {
-                    button.textContent = "Copy";
+                    label.textContent = "Copy the code";
                 }, 1800);
             });
         })();

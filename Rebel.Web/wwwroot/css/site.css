@@ -12,8 +12,8 @@
    the sky violet and then Ziggy red, like a sunrise, down to
    the red footer. Chapters are windows onto that sky or
    printed matter laid over it (gold, newsprint), and melt
-   into each other at the seams. Buttons are cream paper that
-   turns Rebel red; light blue is kept for small details.
+   into each other at the seams. Nothing is a button: every
+   action is asked of the Bowie character who looks after it.
    Three typefaces: Fraunces, a soft 1970s serif, for headlines
    (its italic for the characters, quotes and the neon OPEN sign),
    Hanken Grotesk for reading, and Space Mono, Ground Control's
@@ -36,6 +36,8 @@
       9y. The characters and the "How Rebel works" stage
       9z. Space: the HUD, the constellation, Earth
    10. Motion
+   11. Film and hand: grain, rising headlines, focus
+   12. The cast at your service: characters instead of buttons
    ========================================================= */
 
 /* =========================================================
@@ -93,10 +95,6 @@
     --ch-hot: var(--z-blue);
     --ch-line: rgba(255, 241, 220, 0.28);
     --ch-rail: var(--z-gold);
-    /* Buttons are cream paper with ink type, a shadow underneath, and turn Rebel red
-       when you go for them. Light chapters flip them to ink. */
-    --ch-btn: var(--z-cream);
-    --ch-btn-ink: var(--z-ink);
     --ch-plate: rgba(0, 0, 0, 0.38);
 
     /* One rhythm for every chapter: the space above and below its content, and the
@@ -422,144 +420,9 @@ input[type="search"]::-webkit-search-cancel-button {
     text-transform: uppercase;
 }
 
-/* ---------- buttons ---------- */
-
-/* No pills. Every button is a scrap of paper cut out with scissors, with its shadow a
-   few millimetres off. rebel-cutup.js gives each one its own jagged cut,
-   re-cuts it while you hover, shuffles its letters and throws sparks when pressed;
-   without it the scraps keep this cut. */
-.rs-btn {
-    --cut: polygon(1% 9%, 31% 0, 64% 7%, 100% 1%, 97% 48%, 100% 97%, 66% 100%, 33% 93%, 0 100%, 3% 52%);
-    --face: var(--ch-ink);
-    --face-ink: var(--ch-bg);
-    --plate: transparent;
-    position: relative;
-    isolation: isolate;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    min-height: 54px;
-    padding: 15px 30px 13px;
-    border: 0;
-    border-radius: 0;
-    background: none;
-    color: var(--face-ink);
-    font-family: var(--rs-stencil);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    line-height: 1;
-    text-decoration: none;
-    text-transform: uppercase;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: rotate 0.3s var(--rs-ease), translate 0.2s var(--rs-ease), color 0.2s ease;
-}
-
-    .rs-btn::before,
-    .rs-btn::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        clip-path: var(--cut);
-        transition: translate 0.25s var(--rs-ease), background-color 0.2s ease;
-    }
-
-    /* The second plate, out of register. */
-    .rs-btn::before {
-        background: var(--plate);
-        translate: 5px 5px;
-    }
-
-    .rs-btn::after {
-        background: var(--face);
-    }
-
-    .rs-btn i {
-        font-style: normal;
-        transition: transform 0.25s var(--rs-ease);
-    }
-
-    .rs-btn:hover i,
-    .rs-btn:focus-visible i {
-        transform: translateX(5px);
-    }
-
-    .rs-btn:hover,
-    .rs-btn:focus-visible {
-        rotate: -2deg;
-    }
-
-        .rs-btn:hover::before,
-        .rs-btn:focus-visible::before {
-            translate: 9px -6px;
-        }
-
-    .rs-btn:active {
-        rotate: 1.5deg;
-    }
-
-        .rs-btn:active::before {
-            translate: 2px 2px;
-        }
-
-    .rs-btn:focus-visible {
-        outline: 3px solid var(--z-blue);
-        outline-offset: 6px;
-    }
-
-.rs-btn--primary {
-    --face: var(--ch-btn);
-    --face-ink: var(--ch-btn-ink);
-    --plate: var(--ch-plate);
-}
-
-.rs-btn--paper {
-    --face: var(--z-cream);
-    --face-ink: var(--z-ink);
-    --plate: rgba(0, 0, 0, 0.38);
-}
-
-.rs-btn--night {
-    --face: var(--z-ink);
-    --face-ink: var(--z-cream);
-    --plate: rgba(0, 0, 0, 0.38);
-}
-
-/* The second choice: a thin scrap of the chapter's own ink, see-through. */
-.rs-btn--ghost,
-.rs-btn--ink {
-    --face: color-mix(in srgb, var(--ch-ink) 14%, transparent);
-    --face-ink: var(--ch-ink);
-}
-
-    /* Whatever the button, going for it turns it Rebel red. */
-    .rs-btn--primary:hover,
-    .rs-btn--primary:focus-visible,
-    .rs-btn--paper:hover,
-    .rs-btn--paper:focus-visible,
-    .rs-btn--night:hover,
-    .rs-btn--night:focus-visible,
-    .rs-btn--ghost:hover,
-    .rs-btn--ghost:focus-visible,
-    .rs-btn--ink:hover,
-    .rs-btn--ink:focus-visible {
-        --face: var(--z-red);
-        --face-ink: var(--z-cream);
-        --plate: rgba(0, 0, 0, 0.38);
-    }
-
-.rs-btn--small {
-    min-height: 42px;
-    padding: 11px 20px 9px;
-    font-size: 18px;
-}
-
-.rs-btn--block {
-    width: 100%;
-}
+/* ---------- buttons ----------
+   There are none on the guest pages: every action is asked of a character
+   (section 12, the cast at your service). */
 
 /* A round yellow play button, like the one on the longread. */
 .rs-play {
@@ -596,10 +459,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* Chips and tabs are smaller scraps of the same paper: the cut is on the element
    itself (rebel-cutup.js re-cuts it), the colour is the paper. */
-.rs-chip,
-.rs-menu-tab,
-.rs-cargo-action,
-.rs-food-pair {
+.rs-chip {
     --cut: polygon(0 8%, 47% 0, 100% 6%, 98% 94%, 53% 100%, 2% 92%);
     border: 0;
     border-radius: 0;
@@ -690,8 +550,6 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-tag: var(--z-yellow);
     --ch-hot: var(--z-blue);
     --ch-line: rgba(255, 241, 220, 0.16);
-    --ch-btn: var(--z-cream);
-    --ch-btn-ink: var(--z-ink);
     position: relative;
     border: 0;
     border-radius: 0;
@@ -924,8 +782,6 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-hot: var(--z-red);
     --ch-line: rgba(26, 15, 13, 0.24);
     --ch-rail: var(--z-red);
-    --ch-btn: var(--z-ink);
-    --ch-btn-ink: var(--z-cream);
     --ch-plate: rgba(0, 0, 0, 0.25);
 }
 
@@ -949,8 +805,6 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-hot: var(--z-red);
     --ch-line: rgba(26, 15, 13, 0.22);
     --ch-rail: var(--z-red);
-    --ch-btn: var(--z-ink);
-    --ch-btn-ink: var(--z-cream);
     --ch-plate: rgba(0, 0, 0, 0.25);
     background:
         repeating-linear-gradient(90deg, transparent 0 calc(25% - 2px), rgba(26, 15, 13, 0.18) calc(25% - 2px) 25%),
@@ -968,8 +822,6 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-hot: var(--z-red);
     --ch-line: rgba(26, 15, 13, 0.18);
     --ch-rail: var(--z-red);
-    --ch-btn: var(--z-ink);
-    --ch-btn-ink: var(--z-cream);
     --ch-plate: rgba(0, 0, 0, 0.25);
 }
 
@@ -1431,127 +1283,7 @@ a:focus-visible .rs-vhs img {
         rotate: -2deg;
     }
 
-/* ---------- the nav: a ransom note ---------- */
-
-.rs-nav {
-    display: none;
-    align-items: center;
-    gap: clamp(8px, 0.8vw, 14px);
-}
-
-/* Without the script each link is one scrap of a different paper. */
-.rs-nav-link {
-    --face: var(--z-cream);
-    --face-ink: var(--z-ink);
-    --cut: polygon(0 10%, 52% 0, 100% 8%, 97% 92%, 46% 100%, 3% 90%);
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    padding: 7px 10px 6px;
-    background: var(--face);
-    color: var(--face-ink);
-    font-family: var(--rs-stencil);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    line-height: 1;
-    text-decoration: none;
-    text-transform: uppercase;
-    white-space: nowrap;
-    clip-path: var(--cut);
-    rotate: -2deg;
-    transition: rotate 0.25s var(--rs-ease), translate 0.25s var(--rs-ease);
-}
-
-    .rs-nav-link:nth-child(even) {
-        --face: var(--z-news);
-        rotate: 1.5deg;
-    }
-
-    .rs-nav-link:nth-child(3n) {
-        --face: #d8d1c4;
-        rotate: -1deg;
-    }
-
-    .rs-nav-link:hover,
-    .rs-nav-link:focus-visible {
-        color: var(--face-ink);
-        rotate: 0deg;
-        translate: 0 -3px;
-    }
-
-    .rs-nav-link:focus-visible {
-        outline: none;
-    }
-
-/* With the script, the link's own paper goes and every letter is cut out of a
-   different newspaper (rebel-cutup.js picks the paper, the face and the angle). */
-.rs-nav.is-ransom .rs-nav-link {
-    padding: 4px 2px;
-    background: none;
-    clip-path: none;
-}
-
-.rs-ransom {
-    display: inline-flex;
-    align-items: center;
-    gap: 1px;
-}
-
-    .rs-ransom > span {
-        display: inline-block;
-        min-width: 0.34em;
-        padding: 3px 2px 2px;
-        background: var(--l-bg, var(--z-cream));
-        color: var(--l-ink, var(--z-ink));
-        font-family: var(--l-font, var(--rs-stencil));
-        font-size: var(--l-size, 15px);
-        font-style: var(--l-style, normal);
-        font-weight: var(--l-weight, 700);
-        letter-spacing: 0;
-        line-height: 1;
-        text-align: center;
-        text-transform: var(--l-case, uppercase);
-        clip-path: var(--l-cut, none);
-        rotate: var(--l-turn, 0deg);
-        translate: 0 var(--l-lift, 0);
-    }
-
-    .rs-ransom > .rs-ransom-gap {
-        min-width: 0.3em;
-        padding: 0;
-        background: none;
-    }
-
-/* The page you are on is underlined with a strip torn from red paper. */
-.rs-nav-link.active::after {
-    content: "";
-    position: absolute;
-    right: 4%;
-    bottom: -7px;
-    left: 4%;
-    height: 5px;
-    background: var(--z-red);
-    clip-path: polygon(0 30%, 30% 0, 62% 40%, 100% 10%, 98% 90%, 55% 100%, 22% 70%, 2% 100%);
-    rotate: -1.5deg;
-    pointer-events: none;
-}
-
-.rs-nav:not(.is-ransom) .rs-nav-link.active::after {
-    bottom: 1px;
-}
-
-.rs-nav-link:focus-visible {
-    --face: var(--z-ink);
-    --face-ink: var(--z-blue);
-}
-
-.rs-nav.is-ransom .rs-nav-link:focus-visible {
-    outline: 2px solid var(--z-blue);
-    outline-offset: 4px;
-}
-
-/* ---------- Book a table: a ticket, stub and all ---------- */
+/* ---------- tickets, stub and all (the address, the booking code) ---------- */
 
 .rs-ticket {
     --tk-face: var(--z-cream);
@@ -1783,12 +1515,6 @@ a:focus-visible .rs-vhs img {
     }
 }
 
-@media (min-width: 1360px) {
-    .rs-nav {
-        display: flex;
-    }
-}
-
 @media (max-width: 575.98px) {
     .rs-header-inner {
         min-height: 68px;
@@ -1805,10 +1531,6 @@ a:focus-visible .rs-vhs img {
     }
 
     .rs-brand-text small {
-        display: none;
-    }
-
-    .rs-header-book {
         display: none;
     }
 
@@ -1837,8 +1559,6 @@ a:focus-visible .rs-vhs img {
     --ch-bg: var(--z-red);
     --ch-ink: var(--z-cream);
     --ch-accent: var(--z-gold);
-    --ch-btn: var(--z-cream);
-    --ch-btn-ink: var(--z-ink);
     position: fixed;
     inset: 0;
     z-index: 1200;
@@ -2097,8 +1817,6 @@ html.rs-open-lock body {
     --ch-ink: var(--z-cream);
     --ch-accent: var(--z-yellow);
     --ch-rail: var(--z-yellow);
-    --ch-btn: var(--z-cream);
-    --ch-btn-ink: var(--z-ink);
     --seam: clamp(70px, 8vw, 130px);
     position: relative;
     z-index: 2;
@@ -2167,31 +1885,12 @@ html.rs-open-lock body {
     list-style: none;
 }
 
-.rs-footer-col a,
 .rs-footer-col p {
     margin: 0;
     color: var(--z-cream);
     font-size: 16px;
     line-height: 1.6;
-    text-decoration: none;
 }
-
-    .rs-footer-col a {
-        font-family: var(--rs-stencil);
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-    }
-
-        .rs-footer-col a:hover,
-        .rs-footer-col a:focus-visible {
-            color: var(--z-yellow);
-        }
-
-        .rs-footer-col a i {
-            font-style: normal;
-        }
 
 /* The facts themselves, set large. */
 .rs-footer-col .rs-footer-big {
@@ -2579,36 +2278,6 @@ html.rs-open-lock body {
         color: rgba(255, 241, 220, 0.7);
     }
 
-.rs-cargo-action {
-    --face: var(--z-cream);
-    --face-ink: var(--z-ink);
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 18px 9px;
-    font-family: var(--rs-stencil);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-    .rs-cargo-action i {
-        font-style: normal;
-        transition: transform 0.2s ease;
-    }
-
-.rs-cargo:hover .rs-cargo-action,
-.rs-cargo:focus-visible .rs-cargo-action {
-    --face: var(--z-red);
-    --face-ink: var(--z-cream);
-}
-
-    .rs-cargo:hover .rs-cargo-action i,
-    .rs-cargo:focus-visible .rs-cargo-action i {
-        transform: translateX(4px);
-    }
 
 /* ---------- 1969 · Space Oddity: Ground Control ---------- */
 
@@ -2630,19 +2299,11 @@ html.rs-open-lock body {
     gap: 14px;
 }
 
-    .rs-home-cta-actions .rs-btn {
-        justify-content: space-between;
-        min-width: 260px;
-    }
-
 @media (max-width: 767.98px) {
     .rs-home-console-body {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .rs-home-cta-actions .rs-btn {
-        min-width: 0;
-    }
 }
 
 @media (max-width: 991.98px) {
@@ -2738,41 +2399,65 @@ html.rs-open-lock body {
     padding-bottom: clamp(48px, 6vw, 72px);
 }
 
+/* Each section is its character: his face, the section, his name. The one you are on
+   is his speech bubble, cut from cream paper. */
 .rs-menu-tab {
-    --face: rgba(255, 241, 220, 0.14);
-    --face-ink: var(--z-cream);
-    display: inline-flex;
+    --ego-face: 54px;
+    display: inline-grid;
+    grid-template-columns: auto auto;
     align-items: center;
-    gap: 12px;
-    min-height: 58px;
-    padding: 15px 30px 13px;
-    font-family: var(--rs-stencil);
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    line-height: 1;
+    column-gap: 14px;
+    padding: 6px 24px 8px 8px;
+    border-radius: 24px 24px 24px 8px;
+    background: rgba(255, 241, 220, 0.08);
+    color: var(--z-cream);
     text-decoration: none;
-    text-transform: uppercase;
     transition: rotate 0.3s var(--rs-ease), background-color 0.2s ease, color 0.2s ease;
 }
 
-    .rs-menu-tab span {
+    .rs-menu-tab .rs-cast-face {
+        grid-row: 1 / 3;
+    }
+
+    .rs-menu-tab-word {
+        align-self: end;
+        font-family: var(--rs-display);
+        font-size: 28px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .rs-menu-tab small {
+        align-self: start;
+        margin-top: 4px;
         font-family: var(--rs-mono);
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 700;
+        letter-spacing: 0.12em;
+        opacity: 0.75;
+        text-transform: uppercase;
     }
 
     .rs-menu-tab:hover,
     .rs-menu-tab:focus-visible {
-        --face: var(--z-red);
-        --face-ink: var(--z-cream);
-        outline: none;
-        rotate: -2deg;
+        background: rgba(255, 241, 220, 0.16);
+        color: var(--z-cream);
+        rotate: -1.5deg;
+    }
+
+        .rs-menu-tab:is(:hover, :focus-visible) .rs-cast-face img {
+            transform: translateY(-8%) rotate(-8deg) scale(1.1);
+        }
+
+    .rs-menu-tab:focus-visible {
+        outline: 3px solid var(--z-blue);
+        outline-offset: 4px;
     }
 
     .rs-menu-tab.is-active {
-        --face: var(--z-cream);
-        --face-ink: var(--z-ink);
+        background: var(--z-cream);
+        color: var(--z-ink);
+        box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.42);
     }
 
 /* ---------- the food list: what came down from the kitchen ---------- */
@@ -3102,34 +2787,9 @@ html.rs-open-lock body {
 }
 
 .rs-food-pair {
-    --face: var(--z-cream);
-    --face-ink: var(--z-ink);
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
     align-self: flex-start;
     margin-top: auto;
-    padding: 10px 18px 9px;
-    font-family: var(--rs-stencil);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-decoration: none;
-    text-transform: uppercase;
-    transition: rotate 0.25s var(--rs-ease), background-color 0.2s ease, color 0.2s ease;
 }
-
-    .rs-food-pair:hover,
-    .rs-food-pair:focus-visible {
-        --face: var(--z-red);
-        --face-ink: var(--z-cream);
-        outline: none;
-        rotate: -2deg;
-    }
-
-    .rs-food-pair i {
-        font-style: normal;
-    }
 
 @media (max-width: 767.98px) {
     .rs-food-tools {
@@ -3137,9 +2797,12 @@ html.rs-open-lock body {
     }
 
     .rs-menu-tab {
+        --ego-face: 44px;
         flex: 1 1 auto;
-        justify-content: center;
-        padding-inline: 18px;
+        padding-right: 14px;
+    }
+
+    .rs-menu-tab-word {
         font-size: 22px;
     }
 
@@ -3367,20 +3030,9 @@ html.rs-open-lock body {
 
 .rs-events-actions {
     display: grid;
-    gap: 10px;
-    justify-items: stretch;
+    gap: 14px;
+    justify-items: start;
 }
-
-.rs-events-reserve {
-    background: var(--z-gold);
-    color: var(--z-ink);
-}
-
-    .rs-events-reserve:hover,
-    .rs-events-reserve:focus-visible {
-        background: var(--z-cream);
-        color: var(--z-ink);
-    }
 
 .rs-events-empty {
     display: grid;
@@ -4060,7 +3712,7 @@ html.rs-open-lock body {
         margin-inline: auto;
     }
 
-    .rs-booking-search .rs-btn {
+    .rs-booking-search .rs-ego {
         justify-self: start;
     }
 }
@@ -4163,20 +3815,11 @@ html.rs-open-lock body {
         text-transform: none;
     }
 
-.rs-contact-place-link {
-    color: var(--z-red);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
 .rs-contact-walkin {
     transform: rotate(1.5deg);
 }
 
-    .rs-contact-walkin .rs-btn {
+    .rs-contact-walkin .rs-ego {
         align-self: flex-start;
     }
 
@@ -4287,9 +3930,6 @@ html.rs-open-lock body {
 }
 
 .rs-error-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
     margin-top: 34px;
 }
 
@@ -4526,13 +4166,6 @@ html.rs-open-lock body {
     text-transform: none;
 }
 
-.rs-changes-line {
-    max-width: 34ch;
-    margin: 18px 0 0;
-    font-size: clamp(18px, 1.5vw, 22px);
-    line-height: 1.5;
-}
-
 /* Who looks after it, and how. */
 .rs-changes-who {
     margin: 16px 0 0;
@@ -4555,8 +4188,6 @@ html.rs-open-lock body {
 .rs-changes-look {
     --ch-ink: var(--z-cream);
     --ch-bg: var(--look-stage);
-    --ch-btn: var(--z-cream);
-    --ch-btn-ink: var(--z-ink);
 }
 
 .rs-changes-desk {
@@ -4566,16 +4197,18 @@ html.rs-open-lock body {
     margin-top: 28px;
 }
 
-.rs-changes-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+/* He says his line himself, in a bubble whose tail points at him. */
+.rs-changes-says {
+    --ego-face: 0px;
 }
 
-    .rs-changes-actions .rs-btn {
-        min-height: 46px;
-        padding: 11px 22px;
-        font-size: 18px;
+    .rs-changes-says .rs-ego-bubble {
+        max-width: 420px;
+        padding: 16px 22px 18px;
+    }
+
+    .rs-changes-says .rs-ego-line {
+        font-size: clamp(18px, 1.5vw, 22px);
     }
 
 /* A bar tab: what he drinks or eats, or what is on next. */
@@ -4645,8 +4278,7 @@ html.rs-open-lock body {
 /* Ask the Prophet right here; Rebel AI takes it from there. */
 .rs-changes-ask {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 8px 10px;
+    gap: 10px;
     width: min(100%, 460px);
 }
 
@@ -4661,11 +4293,6 @@ html.rs-open-lock body {
         font-size: 15px;
     }
 
-    .rs-changes-ask .rs-btn {
-        min-height: 46px;
-        padding: 11px 22px;
-        font-size: 18px;
-    }
 
 .rs-changes-copy {
     position: relative;
@@ -4926,9 +4553,26 @@ html.rs-open-lock body {
             font-size: 40px;
         }
 
-        .rs-changes.is-staged .rs-changes-line {
+        /* On a phone he stands above his words: the bubble points up, and only the
+           replies are left in it (the line under the job says who he is). */
+        .rs-changes.is-staged .rs-changes-says .rs-ego-who,
+        .rs-changes.is-staged .rs-changes-says .rs-ego-line {
             display: none;
         }
+
+        .rs-changes.is-staged .rs-changes-says .rs-ego-bubble {
+            padding: 10px 16px 12px;
+        }
+
+            .rs-changes.is-staged .rs-changes-says .rs-ego-bubble::before {
+                top: -12px;
+                right: auto;
+                left: 40%;
+                width: 22px;
+                height: 14px;
+                clip-path: polygon(20% 100%, 50% 0, 80% 100%);
+                translate: 0 0;
+            }
 
         .rs-changes.is-staged .rs-changes-who {
             margin-top: 8px;
@@ -4950,11 +4594,6 @@ html.rs-open-lock body {
                 font-size: 20px;
             }
 
-        .rs-changes.is-staged .rs-changes-actions .rs-btn {
-            min-height: 42px;
-            padding: 9px 18px;
-            font-size: 16px;
-        }
 
 }
 
@@ -5809,4 +5448,528 @@ html.rs-open-lock body {
         opacity: 0.55;
         transform: scale(1);
     }
+}
+
+/* =========================================================
+   12. THE CAST AT YOUR SERVICE
+   Nothing on the guest pages is a button: every action is
+   asked of the Bowie character who looks after it
+   (Models/EgoCall.cs, Views/Shared/_Ego.cshtml). His painted
+   face pops out of a disc of his colour, he says his line in
+   a speech bubble, and what you say back is the action.
+   Go for him and he turns to you and talks.
+   ========================================================= */
+
+.rs-ego {
+    --ego-face: 78px;
+    --bubble: var(--z-cream);
+    --bubble-ink: var(--z-ink);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--bubble-ink);
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+    /* His colour, a disc of it; the head sticks out over the top. The navbar's cast,
+       the menu's line-up and Jack on the neon sign wear the same disc. */
+    :is(.rs-ego-face, .rs-cast-face, .rs-open-face, .rs-open-jack) {
+        position: relative;
+        flex: none;
+        width: var(--ego-face);
+        aspect-ratio: 1;
+        isolation: isolate;
+    }
+
+        :is(.rs-ego-face, .rs-cast-face, .rs-open-face, .rs-open-jack)::before {
+            content: "";
+            position: absolute;
+            inset: 8% 4% 0;
+            z-index: -1;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--ego-hot) 55%, #fff) 0, var(--ego-hot) 46%, color-mix(in srgb, var(--ego-hot) 55%, var(--ego-stage)) 100%);
+            box-shadow: 0 0 0 2px var(--z-ink), 0 8px 18px rgba(0, 0, 0, 0.45);
+        }
+
+        :is(.rs-ego-face, .rs-cast-face, .rs-open-face, .rs-open-jack) img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            /* the top half free, so the hair and the hat stick out; the shoulders cut by the disc */
+            -webkit-mask: linear-gradient(#000 0 0) top / 100% 52% no-repeat, radial-gradient(closest-side at 50% 54%, #000 97%, transparent 100%);
+            mask: linear-gradient(#000 0 0) top / 100% 52% no-repeat, radial-gradient(closest-side at 50% 54%, #000 97%, transparent 100%);
+            filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+            transform-origin: 50% 90%;
+            transition: transform 0.4s var(--rs-ease);
+        }
+
+    /* What he says: a speech bubble cut from cream paper, its tail at his mouth. */
+    .rs-ego-bubble {
+        position: relative;
+        display: grid;
+        justify-items: start;
+        gap: 5px;
+        min-width: 0;
+        max-width: 330px;
+        padding: 12px 18px 14px;
+        border-radius: 22px 22px 22px 8px;
+        background: var(--bubble);
+        color: var(--bubble-ink);
+        font-family: var(--rs-body);
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: normal;
+        text-shadow: none;
+        text-transform: none;
+        box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.42);
+        rotate: -1.2deg;
+        transition: rotate 0.35s var(--rs-ease), translate 0.35s var(--rs-ease);
+    }
+
+        .rs-ego-bubble::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: -13px;
+            width: 18px;
+            height: 22px;
+            background: inherit;
+            clip-path: polygon(100% 0, 0 62%, 100% 100%);
+            translate: 0 -40%;
+        }
+
+    .rs-ego-who {
+        color: color-mix(in srgb, var(--ego-stage) 45%, #8a7466);
+        font-family: var(--rs-mono);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+    .rs-ego-line {
+        font-family: var(--rs-display);
+        font-size: 17px;
+        font-style: italic;
+        font-weight: 500;
+        line-height: 1.22;
+    }
+
+    /* What you say back. */
+    .rs-ego-act {
+        display: inline-block;
+        color: var(--z-red);
+        font-family: var(--rs-mono);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        line-height: 1.2;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
+        text-transform: uppercase;
+        transition: color 0.2s ease, background-color 0.2s ease;
+    }
+
+        .rs-ego-act::after {
+            content: " \2192";
+        }
+
+    .rs-ego-replies {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 16px;
+        margin-top: 2px;
+    }
+
+    /* He turns to you and talks. */
+    .rs-ego:is(:hover, :focus-visible) .rs-ego-face img,
+    .rs-ego--replies:focus-within .rs-ego-face img {
+        transform: translateY(-7%) rotate(-7deg) scale(1.08);
+    }
+
+    .rs-ego:is(:hover, :focus-visible) .rs-ego-bubble,
+    .rs-ego--replies:focus-within .rs-ego-bubble {
+        rotate: 0deg;
+        translate: 3px 0;
+    }
+
+    a.rs-ego:is(:hover, :focus-visible) .rs-ego-act,
+    button.rs-ego:is(:hover, :focus-visible) .rs-ego-act,
+    .rs-ego-replies .rs-ego-act:is(:hover, :focus-visible) {
+        background: var(--z-red);
+        color: var(--z-cream);
+        text-decoration-color: transparent;
+    }
+
+    .rs-ego:active .rs-ego-face img {
+        transform: translateY(-2%) scale(0.92);
+        transition-duration: 0.1s;
+    }
+
+    .rs-ego:focus-visible,
+    .rs-ego-replies .rs-ego-act:focus-visible {
+        outline: 3px solid var(--z-blue);
+        outline-offset: 5px;
+    }
+
+    .rs-ego:disabled {
+        cursor: progress;
+        opacity: 0.7;
+    }
+
+/* Small: for cards and lists; the line goes, the face and the reply stay. */
+.rs-ego--small {
+    --ego-face: 50px;
+    gap: 12px;
+}
+
+    .rs-ego--small .rs-ego-bubble {
+        padding: 9px 14px 10px;
+        border-radius: 16px 16px 16px 6px;
+    }
+
+    .rs-ego--small .rs-ego-line {
+        display: none;
+    }
+
+/* Big: where he has the page to himself. */
+.rs-ego--big {
+    --ego-face: 104px;
+}
+
+    .rs-ego--big .rs-ego-line {
+        font-size: 20px;
+    }
+
+/* Only his words: he is standing right there already (the home stage). */
+.rs-ego--says .rs-ego-face {
+    display: none;
+}
+
+.rs-ego--says .rs-ego-bubble::before {
+    right: -13px;
+    left: auto;
+    clip-path: polygon(0 0, 100% 62%, 0 100%);
+}
+
+/* Ink paper, for gold and cream pages. */
+.rs-ego--ink {
+    --bubble: var(--z-ink);
+    --bubble-ink: var(--z-cream);
+}
+
+    .rs-ego--ink .rs-ego-act {
+        color: var(--z-gold);
+    }
+
+/* A row of calls. */
+.rs-egos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 22px 34px;
+}
+
+@media (max-width: 575.98px) {
+    .rs-ego {
+        --ego-face: 64px;
+        gap: 12px;
+    }
+
+    .rs-ego--big {
+        --ego-face: 84px;
+    }
+
+    .rs-ego-bubble {
+        max-width: calc(100vw - var(--ego-face) - 64px);
+    }
+
+    .rs-ego-line,
+    .rs-ego--big .rs-ego-line {
+        font-size: 15.5px;
+    }
+
+    .rs-ego--says .rs-ego-bubble {
+        max-width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    /* While you hover he talks: his head bobs with the words. */
+    .rs-ego:is(:hover, :focus-visible) .rs-ego-face,
+    .rs-ego--replies:focus-within .rs-ego-face {
+        animation: rs-ego-talk 0.42s steps(2) 3;
+    }
+}
+
+@keyframes rs-ego-talk {
+    0%, 100% {
+        translate: 0 0;
+    }
+
+    50% {
+        translate: 0 -3px;
+    }
+}
+
+/* ---------- the navbar is the cast ---------- */
+
+/* Each part of the pub is the character who looks after it: his face, the job under
+   it, and on hover what he does, in a bubble. */
+.rs-cast {
+    display: none;
+    align-items: flex-start;
+    gap: clamp(4px, 0.6vw, 12px);
+}
+
+.rs-cast-link {
+    --ego-face: 44px;
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 5px;
+    padding: 6px 6px 4px;
+    color: var(--z-cream);
+    text-decoration: none;
+}
+
+    .rs-cast-link:hover,
+    .rs-cast-link:focus-visible {
+        color: var(--z-cream);
+    }
+
+.rs-cast-job {
+    position: relative;
+    font-family: var(--rs-mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Where you are: a strip torn from red paper under the job, and his disc ringed in gold. */
+.rs-cast-link.active .rs-cast-job::after {
+    content: "";
+    position: absolute;
+    right: -4px;
+    bottom: -6px;
+    left: -4px;
+    height: 4px;
+    background: var(--z-red-hot);
+    clip-path: polygon(0 30%, 18% 0, 46% 40%, 70% 0, 100% 35%, 96% 100%, 60% 70%, 30% 100%, 4% 80%);
+}
+
+.rs-cast-link.active .rs-cast-face::before {
+    box-shadow: 0 0 0 2px var(--z-ink), 0 0 0 4px var(--z-gold), 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* What he does, said in a bubble under him. */
+.rs-cast-says {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 50%;
+    z-index: 5;
+    width: max-content;
+    max-width: 210px;
+    padding: 9px 13px 10px;
+    border-radius: 14px;
+    background: var(--z-cream);
+    color: var(--z-ink);
+    font-family: var(--rs-display);
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: center;
+    box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.42);
+    opacity: 0;
+    pointer-events: none;
+    translate: -50% 6px;
+    transition: opacity 0.2s ease, translate 0.3s var(--rs-ease);
+}
+
+    .rs-cast-says::before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        width: 18px;
+        height: 12px;
+        background: inherit;
+        clip-path: polygon(30% 100%, 50% 0, 75% 100%);
+        translate: -50% 0;
+    }
+
+    .rs-cast-says b {
+        display: block;
+        margin-bottom: 3px;
+        color: color-mix(in srgb, var(--ego-stage) 45%, #8a7466);
+        font-family: var(--rs-mono);
+        font-size: 9.5px;
+        font-style: normal;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+    }
+
+.rs-cast-link:is(:hover, :focus-visible) .rs-cast-says {
+    opacity: 1;
+    translate: -50% 0;
+}
+
+.rs-cast-link:is(:hover, :focus-visible) .rs-cast-face img {
+    transform: translateY(-8%) rotate(-8deg) scale(1.12);
+}
+
+.rs-cast-link:focus-visible {
+    outline: 2px solid var(--z-blue);
+    outline-offset: 2px;
+}
+
+@media (min-width: 1200px) {
+    .rs-cast {
+        display: flex;
+    }
+}
+
+/* Major Tom in the header: his face, and the two things he does for you. */
+.rs-ego--header {
+    --ego-face: 48px;
+    gap: 12px;
+}
+
+    .rs-ego--header .rs-ego-bubble {
+        gap: 4px;
+        padding: 8px 14px 9px;
+        border-radius: 16px 16px 16px 6px;
+    }
+
+    .rs-ego--header .rs-ego-line {
+        display: none;
+    }
+
+    .rs-ego--header .rs-ego-replies {
+        gap: 3px 12px;
+        margin: 0;
+    }
+
+    .rs-ego--header .rs-ego-act {
+        font-size: 11px;
+    }
+
+/* Halloween Jack, on the neon sign and on the way out of the menu. */
+.rs-open-toggle .rs-open-jack {
+    --ego-face: 36px;
+    margin: -6px 2px -4px -2px;
+}
+
+.rs-open-close .rs-open-jack {
+    --ego-face: 30px;
+    margin: -6px 0 -4px -6px;
+}
+
+.rs-open-toggle:is(:hover, :focus-visible) .rs-open-jack img,
+.rs-open-close:is(:hover, :focus-visible) .rs-open-jack img {
+    transform: translateY(-8%) rotate(-8deg) scale(1.1);
+}
+
+/* ---------- the full-screen menu: the line-up ---------- */
+
+.rs-open-face {
+    --ego-face: clamp(48px, 5vw, 76px);
+    align-self: center;
+}
+
+.rs-open-link:is(:hover, :focus-visible, .is-previewed) .rs-open-face img {
+    transform: translateY(-8%) rotate(-8deg) scale(1.1);
+}
+
+/* His painting comes up when you hover his line. */
+.rs-open-preview {
+    background:
+        radial-gradient(70% 55% at 50% 70%, rgba(242, 194, 58, 0.25), transparent 70%),
+        var(--z-blood);
+}
+
+    .rs-open-preview img {
+        object-fit: contain;
+        object-position: 50% 100%;
+        padding-top: 8%;
+    }
+
+@media (max-width: 1199.98px) {
+    .rs-header-book .rs-ego-who {
+        display: none;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .rs-ego--header {
+        --ego-face: 40px;
+        gap: 9px;
+    }
+
+        .rs-ego--header .rs-ego-replies .rs-ego-act + .rs-ego-act {
+            display: none;
+        }
+
+        .rs-ego--header .rs-ego-bubble {
+            padding: 7px 10px 8px;
+        }
+
+        .rs-ego--header .rs-ego-act {
+            font-size: 10px;
+            white-space: nowrap;
+        }
+
+    .rs-open-toggle .rs-open-jack {
+        display: none;
+    }
+}
+
+/* On a phone the logo speaks for itself, so Major Tom and Jack's sign both fit. */
+@media (max-width: 459.98px) {
+    .rs-brand-text {
+        display: none;
+    }
+
+    .rs-header-inner {
+        gap: 8px;
+    }
+}
+
+/* Inside a card that is already a link (the cargo pods), he answers for the whole card. */
+a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-face img {
+    transform: translateY(-7%) rotate(-7deg) scale(1.08);
+}
+
+a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-act {
+    background: var(--z-red);
+    color: var(--z-cream);
+    text-decoration-color: transparent;
+}
+
+.rs-cargo-ego {
+    margin-left: auto;
+}
+
+.rs-contact-duke {
+    margin-top: 28px;
 }

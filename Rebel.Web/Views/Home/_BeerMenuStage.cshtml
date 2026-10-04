@@ -22,15 +22,8 @@
 
     @if (!hideAiFeatures)
     {
-        <aside class="rr-beer-callout">
-            <div>
-                <strong>Can't decide? Rebel AI knows the whole fridge.</strong>
-            </div>
-
-            <a asp-controller="BeerGuide" asp-action="Index">
-                Ask Rebel AI <i aria-hidden="true">&rarr;</i>
-            </a>
-        </aside>
+        @* Can't decide? The Blind Prophet sees the whole fridge. *@
+        <partial name="_Ego" model='new EgoCall("prophet", "Can\u2019t decide? I know the whole fridge by heart.", [new("Ask Rebel AI", Url.Action("Index", "BeerGuide"))], "rs-ego--big rr-beer-ask")' />
     }
 </section>
 
@@ -95,9 +88,7 @@ else
              data-beer-empty
              hidden>
             <strong>Nothing on the record matches that.</strong>
-            <button type="button" data-beer-clear>
-                Clear filters
-            </button>
+            <partial name="_Ego" model='new EgoCall("ziggy", "Nothing on the record like that. Shall I start the side again?", [new("Clear filters")], "rs-ego--small", Button: "button", Attributes: new Dictionary<string, string> { ["data-beer-clear"] = "" })' />
         </div>
     </section>
 
@@ -307,15 +298,7 @@ else
 
                                     @if (!hideAiFeatures)
                                     {
-                                        <a asp-controller="BeerGuide"
-                                           asp-action="Index"
-                                           asp-route-prompt="@($"Tell me about {track.Name}.")"
-                                           class="rr-beer-action">
-                                            @(track.IsAvailable
-                                                ? "Ask Rebel AI about this beer"
-                                                : "Find something similar")
-                                            <i aria-hidden="true">&rarr;</i>
-                                        </a>
+                                        <partial name="_Ego" model='new EgoCall("prophet", "", [new(track.IsAvailable ? "Ask about this beer" : "Find something similar", Url.Action("Index", "BeerGuide", new { prompt = $"Tell me about {track.Name}." }))], "rs-ego--small rr-beer-action")' />
                                     }
                                 </div>
                             </div>
@@ -329,21 +312,15 @@ else
     <section class="rr-beer-outro" aria-label="After the last track">
         <h2>Still thirsty?</h2>
 
-        <div class="rr-beer-outro-actions">
-            <a asp-controller="Reservations" asp-action="Create">
-                Book a table
-            </a>
+        <div class="rs-egos rr-beer-outro-actions">
+            <partial name="_Ego" model="BowieCalls.Book(Url)" />
 
             @if (!hideAiFeatures)
             {
-                <a asp-controller="BeerGuide" asp-action="Index">
-                    Ask Rebel AI
-                </a>
+                <partial name="_Ego" model="BowieCalls.AskAi(Url)" />
             }
 
-            <a href="#beerMenuTitle">
-                Back to the top
-            </a>
+            <partial name="_Ego" model='new EgoCall("ziggy", "Want the record again from the top?", [new("Back to the top", "#beerMenuTitle")])' />
         </div>
     </section>
 }

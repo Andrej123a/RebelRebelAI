@@ -1,0 +1,71 @@
+@model Rebel.Web.Models.EgoCall
+@using System.Text.Encodings.Web
+@{
+    var look = BowieCast.For(Model.Key);
+    var first = Model.Replies.FirstOrDefault();
+    var label = first == null ? null : $"{first.Act} ({look.Name})";
+    var kind = Model.Inline ? " rs-ego--inline" : Model.Replies.Count > 1 ? " rs-ego--replies" : Model.Replies.Count == 0 ? " rs-ego--speaks" : "";
+    var classes = $"rs-ego rs-ego--{Model.Key}{kind} {Model.CssClass}".Trim();
+    var style = $"--ego-stage: {look.Stage}; --ego-hot: {look.Hot};";
+    var extra = Model.Attributes == null
+        ? ""
+        : string.Join(" ", Model.Attributes.Select(pair => $"{pair.Key}=\"{HtmlEncoder.Default.Encode(pair.Value)}\""));
+    var face = Url.Content($"~/art/faces/{Model.Key}.webp");
+}
+
+@* One of Bowie's characters, asked to do something instead of a button: his face, what he
+   says, and what you say back (Models/EgoCall.cs). *@
+@if (Model.Button != null)
+{
+    <button type="@Model.Button" class="@classes" style="@style" aria-label="@label" @Html.Raw(extra)>
+        <span class="rs-ego-face" aria-hidden="true"><img src="@face" asp-append-version="true" width="160" height="160" alt="" decoding="async" /></span>
+        <span class="rs-ego-bubble">
+            <span class="rs-ego-who">@look.Name</span>
+            <span class="rs-ego-line">@Model.Line</span>
+            <span class="rs-ego-act" data-ego-act>@first?.Act</span>
+        </span>
+    </button>
+}
+else if (Model.Inline || Model.Replies.Count == 0)
+{
+    <span class="@classes" style="@style">
+        <span class="rs-ego-face" aria-hidden="true"><img src="@face" asp-append-version="true" width="160" height="160" alt="" loading="lazy" decoding="async" /></span>
+        <span class="rs-ego-bubble">
+            <span class="rs-ego-who">@look.Name</span>
+            <span class="rs-ego-line">@Model.Line</span>
+            @if (first != null)
+            {
+                <span class="rs-ego-act">@first.Act</span>
+            }
+        </span>
+    </span>
+}
+else if (Model.Replies.Count == 1)
+{
+    <a class="@classes" style="@style" href="@first!.Href" aria-label="@label"
+       target="@(first.External ? "_blank" : null)" rel="@(first.External ? "noopener" : null)" @Html.Raw(extra)>
+        <span class="rs-ego-face" aria-hidden="true"><img src="@face" asp-append-version="true" width="160" height="160" alt="" loading="lazy" decoding="async" /></span>
+        <span class="rs-ego-bubble">
+            <span class="rs-ego-who">@look.Name</span>
+            <span class="rs-ego-line">@Model.Line</span>
+            <span class="rs-ego-act">@first.Act</span>
+        </span>
+    </a>
+}
+else
+{
+    <div class="@classes" style="@style">
+        <span class="rs-ego-face" aria-hidden="true"><img src="@face" asp-append-version="true" width="160" height="160" alt="" loading="lazy" decoding="async" /></span>
+        <span class="rs-ego-bubble">
+            <span class="rs-ego-who">@look.Name</span>
+            <span class="rs-ego-line">@Model.Line</span>
+            <span class="rs-ego-replies">
+                @foreach (var reply in Model.Replies)
+                {
+                    <a class="rs-ego-act" href="@reply.Href"
+                       target="@(reply.External ? "_blank" : null)" rel="@(reply.External ? "noopener" : null)">@reply.Act</a>
+                }
+            </span>
+        </span>
+    </div>
+}

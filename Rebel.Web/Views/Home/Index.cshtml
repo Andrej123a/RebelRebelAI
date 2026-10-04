@@ -96,19 +96,10 @@
                     too interested in fitting neatly into one box.
                 </p>
 
-                <div class="rs-home-actions">
-                    <a asp-controller="Reservations"
-                       asp-action="Create"
-                       class="rs-btn rs-btn--primary">
-                        Book a table <i aria-hidden="true">&rarr;</i>
-                    </a>
-
-                    <a asp-controller="Home"
-                       asp-action="Menu"
-                       asp-route-section="food"
-                       class="rs-btn rs-btn--ghost">
-                        See the menu
-                    </a>
+                @* Ask the ones who look after it: Major Tom for a table, Life on Mars? for the food. *@
+                <div class="rs-egos rs-home-actions">
+                    <partial name="_Ego" model="BowieCalls.Book(Url)" />
+                    <partial name="_Ego" model="BowieCalls.Food(Url)" />
                 </div>
             </div>
         </div>
@@ -169,68 +160,42 @@
                         <div class="rs-changes-copy">
                             <h3 class="rs-changes-job">@job</h3>
                             <p class="rs-changes-who"><b>@look.Name</b> @role</p>
-                            <p class="rs-changes-line">@line</p>
-
-                            @* Where it leads, and the next night for Pierrot. *@
-                            <div class="rs-changes-desk">
-                                @switch (look.Key)
+                            @* He says it himself, and what you can say back is the way in. *@
+                            @{
+                                List<EgoReply> replies = look.Key switch
                                 {
-                                    case "tom":
-                                        <div class="rs-changes-actions">
-                                            <a asp-controller="Reservations" asp-action="Create" class="rs-btn rs-btn--primary">Book a table <i aria-hidden="true">&rarr;</i></a>
-                                            <a asp-controller="Reservations" asp-action="Lookup" class="rs-btn rs-btn--ghost">Find my booking</a>
-                                        </div>
-                                        break;
+                                    "tom" => [new("Book a table", Url.Action("Create", "Reservations")), new("Find my booking", Url.Action("Lookup", "Reservations"))],
+                                    "mars" => [new("See the food", Url.Action("Menu", "Home", new { section = "food" }))],
+                                    "ziggy" => [new("See the beers", Url.Action("Menu", "Home", new { section = "beer" }))],
+                                    "sane" => [new("See the room", "#the-room")],
+                                    "duke" => [new("Get directions", BowieCalls.Directions, External: true)],
+                                    "pierrot" => [new("See all events", Url.Action("Index", "Events"))],
+                                    _ => [],
+                                };
+                                var asks = look.Key == "prophet" && !hideAiFeatures;
+                            }
 
-                                    case "mars":
-                                        <div class="rs-changes-actions">
-                                            <a asp-controller="Home" asp-action="Menu" asp-route-section="food" class="rs-btn rs-btn--primary">See the food <i aria-hidden="true">&rarr;</i></a>
-                                        </div>
-                                        break;
+                            <div class="rs-changes-desk">
+                                @if (asks)
+                                {
+                                    <form class="rs-changes-ask" asp-controller="BeerGuide" asp-action="Index" method="get">
+                                        <label class="rs-changes-order-label" for="rs-changes-ask-input">Ask Rebel AI</label>
+                                        <input id="rs-changes-ask-input" name="prompt" type="text" maxlength="400" placeholder="Something cold, a bit fruity, not too strong" />
+                                        <partial name="_Ego" model='new EgoCall(look.Key, line, [new("Ask")], "rs-ego--says rs-changes-says", Button: "submit")' />
+                                    </form>
+                                }
+                                else
+                                {
+                                    <partial name="_Ego" model='new EgoCall(look.Key, line, replies, "rs-ego--says rs-changes-says")' />
+                                }
 
-                                    case "ziggy":
-                                        <div class="rs-changes-actions">
-                                            <a asp-controller="Home" asp-action="Menu" asp-route-section="beer" class="rs-btn rs-btn--primary">See the beers <i aria-hidden="true">&rarr;</i></a>
-                                        </div>
-                                        break;
-
-                                    case "sane":
-                                        <div class="rs-changes-actions">
-                                            <a href="#the-room" class="rs-btn rs-btn--primary">See the room <i aria-hidden="true">&darr;</i></a>
-                                        </div>
-                                        break;
-
-                                    case "duke":
-                                        <div class="rs-changes-actions">
-                                            <a href="https://www.google.com/maps/search/?api=1&amp;query=Naum+Naumovski+Borce+62+Skopje" class="rs-btn rs-btn--primary" target="_blank" rel="noopener">Open directions <i aria-hidden="true">&nearr;</i></a>
-                                        </div>
-                                        break;
-
-                                    case "pierrot":
-                                        if (featuredEvent != null)
-                                        {
-                                            <a class="rs-changes-order" asp-controller="Events" asp-action="Details" asp-route-id="@featuredEvent.Id">
-                                                <span class="rs-changes-order-label">Next night</span>
-                                                <strong>@featuredEvent.Title</strong>
-                                                <span>@FormatEventDate(featuredEvent.Date)@(featuredEvent.StartTime.HasValue ? " · " + featuredEvent.StartTime.Value.ToString(@"hh\:mm") : "")</span>
-                                            </a>
-                                        }
-
-                                        <div class="rs-changes-actions">
-                                            <a asp-controller="Events" asp-action="Index" class="rs-btn rs-btn--primary">See all events <i aria-hidden="true">&rarr;</i></a>
-                                        </div>
-                                        break;
-
-                                    case "prophet":
-                                        if (!hideAiFeatures)
-                                        {
-                                            <form class="rs-changes-ask" asp-controller="BeerGuide" asp-action="Index" method="get">
-                                                <label class="rs-changes-order-label" for="rs-changes-ask-input">Ask Rebel AI</label>
-                                                <input id="rs-changes-ask-input" name="prompt" type="text" maxlength="400" placeholder="Something cold, a bit fruity, not too strong" />
-                                                <button type="submit" class="rs-btn rs-btn--primary">Ask <i aria-hidden="true">&rarr;</i></button>
-                                            </form>
-                                        }
-                                        break;
+                                @if (look.Key == "pierrot" && featuredEvent != null)
+                                {
+                                    <a class="rs-changes-order" asp-controller="Events" asp-action="Details" asp-route-id="@featuredEvent.Id">
+                                        <span class="rs-changes-order-label">Next night</span>
+                                        <strong>@featuredEvent.Title</strong>
+                                        <span>@FormatEventDate(featuredEvent.Date)@(featuredEvent.StartTime.HasValue ? " · " + featuredEvent.StartTime.Value.ToString(@"hh\:mm") : "")</span>
+                                    </a>
                                 }
                             </div>
                         </div>
@@ -307,7 +272,7 @@
                             </span>
                             <span class="rs-cargo-foot">
                                 <span class="rs-label">Wings · Burgers · Pizza · Finger food</span>
-                                <span class="rs-cargo-action">See the food <i aria-hidden="true">&rarr;</i></span>
+                                <partial name="_Ego" model='new EgoCall("mars", "", [new("See the food")], "rs-ego--small rs-cargo-ego", Inline: true)' />
                             </span>
                         </span>
                     </span>
@@ -329,7 +294,7 @@
                             </span>
                             <span class="rs-cargo-foot">
                                 <span class="rs-label">Bottles · Draft · Rare finds</span>
-                                <span class="rs-cargo-action">Open the beer list <i aria-hidden="true">&rarr;</i></span>
+                                <partial name="_Ego" model='new EgoCall("ziggy", "", [new("See the beers")], "rs-ego--small rs-cargo-ego", Inline: true)' />
                             </span>
                         </span>
                     </span>
@@ -347,7 +312,7 @@
                                 <strong class="rs-cargo-head">Liquid courage.</strong>
                                 <span class="rs-cargo-foot">
                                     <span class="rs-label">Spirits · Cocktails · Shots</span>
-                                    <span class="rs-cargo-action">View drinks <i aria-hidden="true">&rarr;</i></span>
+                                    <partial name="_Ego" model='new EgoCall("jack", "", [new("See the drinks")], "rs-ego--small rs-cargo-ego", Inline: true)' />
                                 </span>
                             </span>
                         </span>
@@ -369,17 +334,7 @@
                     <h2 class="rs-display rs-display--xl">Your table<br /><span class="rs-accent">is waiting.</span></h2>
 
                     <div class="rs-home-cta-actions">
-                        <a asp-controller="Reservations"
-                           asp-action="Create"
-                           class="rs-btn rs-btn--primary">
-                            Book a table <i aria-hidden="true">&rarr;</i>
-                        </a>
-
-                        <a asp-controller="Reservations"
-                           asp-action="Lookup"
-                           class="rs-btn rs-btn--ghost">
-                            Find my booking
-                        </a>
+                        <partial name="_Ego" model='BowieCalls.Bookings(Url, "rs-ego--big")' />
                     </div>
                 </div>
             </div>

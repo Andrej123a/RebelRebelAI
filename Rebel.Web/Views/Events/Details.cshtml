@@ -16,11 +16,7 @@
     <span class="rs-stars rs-event-stars"></span>
 
     <div class="rs-container">
-        <a asp-controller="Events"
-           asp-action="Index"
-           class="rs-btn rs-btn--small rs-btn--ghost rs-event-back">
-            <i aria-hidden="true">&larr;</i> All events
-        </a>
+        <partial name="_Ego" model='new EgoCall("pierrot", "", [new("All the nights", Url.Action("Index", "Events"))], "rs-ego--small rs-event-back")' />
 
         <article class="rs-event-grid">
             <div class="rs-event-visual" data-rs-vhs>
@@ -63,13 +59,9 @@
                     <p class="rs-lead">@Model.Description</p>
                 }
 
+                @* Major Tom books you in for this one. *@
                 <div class="rs-event-actions">
-                    <a asp-controller="Reservations"
-                       asp-action="Create"
-                       asp-route-eventId="@Model.Id"
-                       class="rs-btn rs-btn--primary">
-                        Reserve a table <i aria-hidden="true">&rarr;</i>
-                    </a>
+                    <partial name="_Ego" model='new EgoCall("tom", "Ground Control here. Want a table for this night? I\u2019ll hold it for you.", [new("Book for this night", Url.Action("Create", "Reservations", new { eventId = Model.Id }))], "rs-ego--big")' />
                 </div>
             </div>
         </article>

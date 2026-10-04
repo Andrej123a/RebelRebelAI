@@ -25,25 +25,33 @@
     var currentAction =
         ViewContext.RouteData.Values["action"]?.ToString() ?? "";
 
-    string IsActive(string controller, string? action = null)
+    var currentSection = Context.Request.Query["section"].ToString();
+
+    bool Is(string controller, string action) =>
+        currentController.Equals(controller, StringComparison.OrdinalIgnoreCase) &&
+        currentAction.Equals(action, StringComparison.OrdinalIgnoreCase);
+
+    // The cast runs the place: each part of the pub is the character who looks after it.
+    var cast = new List<(string Key, string Job, string Href, bool Current)>
     {
-        var controllerMatches =
-            currentController.Equals(
-                controller,
-                StringComparison.OrdinalIgnoreCase
-            );
+        ("rebel", "Home", Url.Action("Index", "Home")!, Is("Home", "Index")),
+        ("mars", "Food", Url.Action("Menu", "Home", new { section = "food" })!, Is("Home", "Menu") && currentSection != "beer" && currentSection != "drink"),
+        ("ziggy", "Beer", Url.Action("Menu", "Home", new { section = "beer" })!, Is("Home", "Menu") && currentSection == "beer"),
+    };
 
-        var actionMatches =
-            string.IsNullOrWhiteSpace(action) ||
-            currentAction.Equals(
-                action,
-                StringComparison.OrdinalIgnoreCase
-            );
-
-        return controllerMatches && actionMatches
-            ? "active"
-            : "";
+    if (!hideAiFeatures)
+    {
+        cast.Add(("prophet", "Rebel AI", Url.Action("Index", "BeerGuide")!, currentController.Equals("BeerGuide", StringComparison.OrdinalIgnoreCase)));
     }
+
+    cast.Add(("pierrot", "Events", Url.Action("Index", "Events")!, currentController.Equals("Events", StringComparison.OrdinalIgnoreCase)));
+    cast.Add(("duke", "Contact", Url.Action("Contact", "Home")!, Is("Home", "Contact")));
+
+    // The full-screen menu adds Major Tom for a booking you already have.
+    var lineUp = new List<(string Key, string Job, string Href, bool Current)>(cast)
+    {
+        ("tom", "My booking", Url.Action("Lookup", "Reservations")!, Is("Reservations", "Lookup")),
+    };
 }
 
 <!DOCTYPE html>
@@ -158,65 +166,36 @@
                 </span>
             </a>
 
-            @* The nav is a ransom note: every link a scrap cut out of a different
-               magazine. rebel-cutup.js cuts the letters out one by one. *@
-            <nav class="rs-nav" aria-label="Main">
-                <a asp-controller="Home"
-                   asp-action="Index"
-                   class="rs-nav-link @IsActive("Home", "Index")"
-                   aria-current="@(IsActive("Home", "Index") == "active" ? "page" : null)"
-                   data-rs-ransom>Home</a>
-
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="food"
-                   class="rs-nav-link @IsActive("Home", "Menu")"
-                   aria-current="@(IsActive("Home", "Menu") == "active" ? "page" : null)"
-                   data-rs-ransom>Menu</a>
-
-                @if (!hideAiFeatures)
+            @* The nav is the cast: go to the character who looks after that part of the pub.
+               Each one turns to you and says what he does. *@
+            <nav class="rs-cast" aria-label="Main">
+                @foreach (var member in cast)
                 {
-                    <a asp-controller="BeerGuide"
-                       asp-action="Index"
-                       class="rs-nav-link @IsActive("BeerGuide")"
-                       aria-current="@(IsActive("BeerGuide") == "active" ? "page" : null)"
-                       data-rs-ransom>Rebel AI</a>
+                    var look = BowieCast.For(member.Key);
+
+                    <a href="@member.Href"
+                       class="rs-cast-link rs-cast-link--@member.Key@(member.Current ? " active" : "")"
+                       aria-current="@(member.Current ? "page" : null)"
+                       style="--ego-stage: @look.Stage; --ego-hot: @look.Hot;">
+                        <span class="rs-cast-face" aria-hidden="true"><img src="@Url.Content($"~/art/faces/{member.Key}.webp")" asp-append-version="true" width="96" height="96" alt="" /></span>
+                        <span class="rs-cast-job">@member.Job</span>
+                        <span class="rs-cast-says" aria-hidden="true"><b>@look.Name</b> @look.Role</span>
+                    </a>
                 }
-
-                <a asp-controller="Events"
-                   asp-action="Index"
-                   class="rs-nav-link @IsActive("Events")"
-                   aria-current="@(IsActive("Events") == "active" ? "page" : null)"
-                   data-rs-ransom>Events</a>
-
-                <a asp-controller="Home"
-                   asp-action="Contact"
-                   class="rs-nav-link @IsActive("Home", "Contact")"
-                   aria-current="@(IsActive("Home", "Contact") == "active" ? "page" : null)"
-                   data-rs-ransom>Contact</a>
-
-                <a asp-controller="Reservations"
-                   asp-action="Lookup"
-                   class="rs-nav-link @IsActive("Reservations", "Lookup")"
-                   aria-current="@(IsActive("Reservations", "Lookup") == "active" ? "page" : null)"
-                   data-rs-ransom>My booking</a>
             </nav>
 
-            @* Booking is a ticket: the stub tears off when you go for it. *@
-            <a asp-controller="Reservations"
-               asp-action="Create"
-               class="rs-ticket rs-header-book">
-                <span class="rs-ticket-main">Book a table</span>
-                <span class="rs-ticket-stub" aria-hidden="true">&rarr;</span>
-            </a>
+            @* Bookings are Major Tom's: Ground Control takes them. *@
+            <partial name="_Ego" model='BowieCalls.Bookings(Url, "rs-ego--header rs-header-book")' />
 
-            @* The menu hides behind the bar's neon sign, with one tube on the blink. *@
+            @* Halloween Jack keeps the night watch, and the bar's neon sign: it opens the menu,
+               with one tube on the blink. *@
             <a href="#open"
                class="rs-open-toggle"
                aria-controls="open"
                aria-expanded="false"
                aria-label="Open menu"
                data-rs-open-toggle>
+                <span class="rs-open-jack" aria-hidden="true" style="--ego-stage: @BowieCast.For("jack").Stage; --ego-hot: @BowieCast.For("jack").Hot;"><img src="~/art/faces/jack.webp" asp-append-version="true" width="96" height="96" alt="" /></span>
                 <svg viewBox="-8 -4 112 108" aria-hidden="true"><use href="#rs-bolt-sane" /></svg>
                 <span class="rs-neon-word">Op<i>e</i>n</span>
             </a>
@@ -234,82 +213,41 @@
         <div class="rs-open-inner">
             <div class="rs-open-top">
                 <a href="#" class="rs-open-close" data-rs-open-close>
+                    <span class="rs-open-jack" aria-hidden="true" style="--ego-stage: @BowieCast.For("jack").Stage; --ego-hot: @BowieCast.For("jack").Hot;"><img src="~/art/faces/jack.webp" asp-append-version="true" width="96" height="96" alt="" loading="lazy" /></span>
                     Close <span aria-hidden="true">&times;</span>
                 </a>
             </div>
 
+            @* The whole cast, one line each; hover one and his painting comes up. *@
             <nav class="rs-open-nav" aria-label="Site menu links">
-                <a asp-controller="Home"
-                   asp-action="Index"
-                   class="rs-open-link"
-                   aria-current="@(IsActive("Home", "Index") == "active" ? "page" : null)"
-                   data-rs-preview="home">
-                    <span class="rs-open-word">Home</span>
-                </a>
-
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="food"
-                   class="rs-open-link"
-                   aria-current="@(IsActive("Home", "Menu") == "active" ? "page" : null)"
-                   data-rs-preview="menu">
-                    <span class="rs-open-word">Menu</span>
-                </a>
-
-                @if (!hideAiFeatures)
+                @foreach (var member in lineUp)
                 {
-                    <a asp-controller="BeerGuide"
-                       asp-action="Index"
+                    var look = BowieCast.For(member.Key);
+
+                    <a href="@member.Href"
                        class="rs-open-link"
-                       aria-current="@(IsActive("BeerGuide") == "active" ? "page" : null)"
-                       data-rs-preview="ai">
-                        <span class="rs-open-word">Rebel AI</span>
+                       aria-current="@(member.Current ? "page" : null)"
+                       style="--ego-stage: @look.Stage; --ego-hot: @look.Hot;"
+                       data-rs-preview="@member.Key">
+                        <span class="rs-open-face" aria-hidden="true"><img src="@Url.Content($"~/art/faces/{member.Key}.webp")" asp-append-version="true" width="96" height="96" alt="" loading="lazy" /></span>
+                        <span class="rs-open-word">@member.Job</span>
+                        <small>@look.Name @look.Role</small>
                     </a>
                 }
-
-                <a asp-controller="Events"
-                   asp-action="Index"
-                   class="rs-open-link"
-                   aria-current="@(IsActive("Events") == "active" ? "page" : null)"
-                   data-rs-preview="events">
-                    <span class="rs-open-word">Events</span>
-                </a>
-
-                <a asp-controller="Home"
-                   asp-action="Contact"
-                   class="rs-open-link"
-                   aria-current="@(IsActive("Home", "Contact") == "active" ? "page" : null)"
-                   data-rs-preview="contact">
-                    <span class="rs-open-word">Contact</span>
-                </a>
-
-                <a asp-controller="Reservations"
-                   asp-action="Lookup"
-                   class="rs-open-link"
-                   aria-current="@(IsActive("Reservations", "Lookup") == "active" ? "page" : null)"
-                   data-rs-preview="booking">
-                    <span class="rs-open-word">My booking</span>
-                </a>
             </nav>
 
             <div class="rs-open-preview" aria-hidden="true">
-                <img src="~/images/rebel-bowie-mural.webp" alt="" loading="lazy" data-rs-preview-img="home" />
-                <img src="~/images/rebel-six-beers.webp" alt="" loading="lazy" data-rs-preview-img="menu" />
-                <img src="~/images/rebel-beers-bowie-sculpture.webp" alt="" loading="lazy" data-rs-preview-img="ai" />
-                <img src="~/images/rebel-liquid-cocaine-mural-room.webp" alt="" loading="lazy" data-rs-preview-img="events" />
-                <img src="~/images/rebel-exterior-yugo-night.webp" alt="" loading="lazy" data-rs-preview-img="contact" />
-                <img src="~/images/rebel-bowie-logo-room.webp" alt="" loading="lazy" data-rs-preview-img="booking" />
+                @foreach (var member in lineUp)
+                {
+                    <img src="@Url.Content($"~/art/looks/{member.Key}.webp")" asp-append-version="true" alt="" loading="lazy" data-rs-preview-img="@member.Key" />
+                }
             </div>
 
             <div class="rs-open-foot">
                 <p><strong>Visit</strong><br />Naum Naumovski Borce 62, Skopje</p>
                 <p><strong>Open every day</strong><br />12:00 – 01:00</p>
 
-                <a asp-controller="Reservations"
-                   asp-action="Create"
-                   class="rs-btn rs-btn--primary">
-                    Book a table <i aria-hidden="true">&rarr;</i>
-                </a>
+                <partial name="_Ego" model="BowieCalls.Bookings(Url)" />
             </div>
         </div>
     </div>
@@ -338,13 +276,13 @@
                     Naum Naumovski<br />
                     Borce 62, Skopje
                 </p>
-                <p><a asp-controller="Home" asp-action="Contact">Contact &amp; directions <i aria-hidden="true">&rarr;</i></a></p>
+                <partial name="_Ego" model='BowieCalls.Contact(Url, "rs-ego--small")' />
             </div>
 
             <div class="rs-footer-col">
                 <h2>Open every day</h2>
                 <p class="rs-footer-big">12:00 – 01:00</p>
-                <p><a asp-controller="Reservations" asp-action="Create">Book a table <i aria-hidden="true">&rarr;</i></a></p>
+                <partial name="_Ego" model='BowieCalls.Book(Url, "rs-ego--small")' />
             </div>
         </div>
 

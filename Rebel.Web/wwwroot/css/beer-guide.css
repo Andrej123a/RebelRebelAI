@@ -961,18 +961,6 @@ body:has(.rr-guide-prophet) .rs-footer-look {
     background: #050505;
 }
 
-.rr-guide-ai-stage .rr-guide-chat-form button {
-    min-height: 68px;
-    color: #150b09;
-    background: #e2401a;
-    box-shadow: 6px 6px 0 #f2c23a;
-    transform: none;
-}
-
-.rr-guide-ai-stage .rr-guide-chat-form button b {
-    color: #150b09;
-}
-
 @media (max-width: 860px) {
     .rr-guide-workspace-chat-only {
         grid-template-columns: minmax(0, 1fr);
@@ -1021,10 +1009,6 @@ body:has(.rr-guide-prophet) .rs-footer-look {
 
     .rr-guide-ai-stage .rr-guide-chat-form {
         grid-template-columns: 1fr;
-    }
-
-    .rr-guide-ai-stage .rr-guide-chat-form button {
-        min-height: 52px;
     }
 }
 
@@ -1140,8 +1124,9 @@ body:has(.rr-guide-prophet) .rs-footer-look {
 
 .rr-guide-chat-form {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 130px;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 16px;
     padding: 0;
 }
 
@@ -1167,59 +1152,6 @@ body:has(.rr-guide-prophet) .rs-footer-look {
     outline-offset: 0;
 }
 
-.rr-guide-chat-form button {
-    position: relative;
-    display: flex;
-    min-height: 62px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 15px;
-    border: 2px solid #e2401a;
-    background:
-        linear-gradient(103deg, transparent 0 62%, rgba(226, 64, 26, 0.17) 62.5% 64%, transparent 64.5%),
-        #150b09;
-    box-shadow: 7px 7px 0 #e2401a;
-    color: #fff1dc;
-    font-family: var(--rs-mono);
-    letter-spacing: 0.06em;
-    font-size: 0.9rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    transform: rotate(-1.2deg);
-}
-
-.rr-guide-chat-form button::before {
-    position: absolute;
-    top: -7px;
-    left: 14px;
-    width: 42px;
-    height: 5px;
-    background: #fff1dc;
-    content: "";
-    transform: rotate(3deg);
-}
-
-.rr-guide-chat-form button b {
-    color: #e2401a;
-    font-family: var(--rs-display);
-    font-weight: 800;
-    font-size: 1.64rem;
-    line-height: 1;
-    transform: rotate(-8deg);
-}
-
-.rr-guide-chat-form button:hover:not(:disabled) {
-    background: #e2401a;
-    color: #150b09;
-    box-shadow: 7px 7px 0 #bb150b;
-    transform: rotate(0.4deg) translate(-2px, -2px);
-}
-
-.rr-guide-chat-form button:hover:not(:disabled) b {
-    color: #150b09;
-}
-
-.rr-guide-chat-form button:disabled,
 .rr-guide-chat-form textarea:disabled {
     cursor: wait;
     opacity: 0.55;
@@ -1342,28 +1274,6 @@ body:has(.rr-guide-prophet) .rs-footer-look {
     color-scheme: dark;
     font-family: var(--rs-body);
     font-weight: 700;
-}
-
-.rr-guide-submit {
-    display: flex;
-    width: 100%;
-    min-height: 64px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    border: 0;
-    background: #f2c23a;
-    box-shadow: 7px 7px 0 #e2401a;
-    color: #150b09;
-    font-family: var(--rs-body);
-    font-size: 0.82rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.rr-guide-submit:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 5px 5px 0 #e2401a;
 }
 
 .rr-guide-field-error,
@@ -1667,18 +1577,8 @@ body:has(.rr-guide-prophet) .rs-footer-look {
     }
 
     .rr-guide-chat-form {
-        grid-template-columns: minmax(0, 1fr) 100px;
+        grid-template-columns: minmax(0, 1fr) auto;
         padding: 0;
-    }
-
-    .rr-guide-chat-form button {
-        padding: 0 10px;
-        font-size: 1rem;
-        white-space: nowrap;
-    }
-
-    .rr-guide-chat-form button b {
-        font-size: 1.5rem;
     }
 
     .rr-guide-chat-controls {
@@ -1724,91 +1624,6 @@ body:has(.rr-guide-prophet) .rs-footer-look {
     font-family: "Space Mono", monospace;
     letter-spacing: 0.14em;
 }
-
-/* =========================================================
-   CUT-UP — the Prophet's buttons are paper scraps like the
-   rest of the site: cream paper cut with scissors over its
-   shadow, red when you go for it. rebel-cutup.js re-cuts them.
-   ========================================================= */
-
-.rr-guide-chat-form button,
-.rr-guide-ai-stage .rr-guide-chat-form button,
-.rr-guide-submit {
-    --cut: polygon(1% 9%, 31% 0, 64% 7%, 100% 1%, 97% 48%, 100% 97%, 66% 100%, 33% 93%, 0 100%, 3% 52%);
-    --face: #fff1dc;
-    --face-ink: #150b09;
-    --plate: rgba(0, 0, 0, 0.45);
-    position: relative;
-    isolation: isolate;
-    padding: 0 20px;
-    border: 0;
-    background: none;
-    box-shadow: none;
-    color: var(--face-ink);
-    font-family: var(--rs-stencil);
-    font-size: 1.2rem;
-    font-weight: 900;
-    letter-spacing: 0.05em;
-    white-space: nowrap;
-    transform: rotate(-1.2deg);
-    transition: transform 0.3s ease;
-}
-
-.rr-guide-submit {
-    transform: rotate(-0.6deg);
-}
-
-    .rr-guide-chat-form button::before,
-    .rr-guide-chat-form button::after,
-    .rr-guide-submit::before,
-    .rr-guide-submit::after {
-        position: absolute;
-        inset: 0;
-        z-index: -1;
-        width: auto;
-        height: auto;
-        content: "";
-        clip-path: var(--cut);
-        transform: none;
-        transition: translate 0.25s ease, background-color 0.2s ease;
-    }
-
-    .rr-guide-chat-form button::before,
-    .rr-guide-submit::before {
-        background: var(--plate);
-        translate: 6px 6px;
-    }
-
-    .rr-guide-chat-form button::after,
-    .rr-guide-submit::after {
-        background: var(--face);
-    }
-
-    .rr-guide-chat-form button b,
-    .rr-guide-ai-stage .rr-guide-chat-form button b,
-    .rr-guide-submit b {
-        color: inherit;
-        font-family: var(--rs-stencil);
-    }
-
-.rr-guide-chat-form button:hover:not(:disabled),
-.rr-guide-submit:hover {
-    --face: #bb150b;
-    --face-ink: #fff1dc;
-    background: none;
-    box-shadow: none;
-    color: var(--face-ink);
-    transform: rotate(1deg);
-}
-
-    .rr-guide-chat-form button:hover:not(:disabled)::before,
-    .rr-guide-submit:hover::before {
-        translate: 10px -5px;
-    }
-
-    .rr-guide-chat-form button:hover:not(:disabled) b {
-        color: inherit;
-    }
 
 /* Prompts, second opinions and feedback are smaller scraps. */
 .rr-guide-chat-prompts button,

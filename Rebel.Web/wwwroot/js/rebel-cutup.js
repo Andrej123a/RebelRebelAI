@@ -3,37 +3,26 @@
 //   you hover or focus it (it boils),
 // - button labels shuffle their letters when the mouse comes over them,
 // - buttons lean towards a mouse pointer,
-// - pressing anything throws a handful of stars,
-// - the header nav is a ransom note: each letter cut out of a different newspaper.
+// - pressing anything, the cast's calls included, throws a handful of stars.
 // The scraps keep the cut in the CSS without the script. With reduced motion they
-// are cut once and then left alone, and the ransom note stays still.
+// are cut once and then left alone.
 (() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
     const SCRAPS = [
-        ".rs-btn",
         ".rs-chip",
-        ".rs-menu-tab",
-        ".rs-cargo-action",
-        ".rs-food-pair",
         ".rs-open-close",
         ".rr-beer-filter",
-        ".rr-beer-outro-actions a",
-        ".rr-beer-empty button",
-        ".rr-beer-action",
-        ".rr-beer-callout a",
-        ".rr-guide-chat-form button",
-        ".rr-guide-submit",
         ".rr-guide-chat-prompts button",
         ".rr-guide-recovery-actions button",
         ".rr-guide-feedback button",
         ".rr-guide-compare-button",
     ].join(", ");
 
-    const PRESSABLE = SCRAPS + ", .rs-ticket, .rs-nav-link, .rs-open-toggle";
-    const SCRAMBLED = ".rs-btn, .rs-ticket-main, .rr-beer-action, .rr-guide-chat-form button, .rr-guide-submit";
-    const MAGNETIC = ".rs-btn, .rs-ticket, .rr-beer-action, .rr-guide-chat-form button, .rr-guide-submit";
+    const PRESSABLE = SCRAPS + ", .rs-ticket, .rs-ego, .rs-ego-act, .rs-cast-link, .rs-open-toggle";
+    const SCRAMBLED = ".rs-ticket-main";
+    const MAGNETIC = ".rs-ticket";
 
     const random = (min, max) => min + Math.random() * (max - min);
     const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -231,108 +220,8 @@
         }
     };
 
-    // ---------- the ransom note ----------
-
-    // Newsprint only: cream, bone, grey and the odd black headline.
-    const PAPERS = [
-        ["var(--z-cream)", "var(--z-ink)"],
-        ["var(--z-news)", "var(--z-ink)"],
-        ["#e4ddd0", "var(--z-ink)"],
-        ["#cfc8bb", "var(--z-ink)"],
-        ["var(--z-ink)", "var(--z-cream)"],
-    ];
-
-    // The site's three faces cut up: heavy Fraunces, its italic, and the typewriter.
-    const FACES = [
-        { font: "var(--rs-display)", size: [16, 19], weight: 900 },
-        { font: "var(--rs-display)", size: [16, 19], weight: 600, style: "italic", lower: true },
-        { font: "var(--rs-mono)", size: [13, 15], weight: 700 },
-    ];
-
-    const letterCut = () =>
-        `polygon(${point(random(0, 12), random(0, 12))}, ${point(random(88, 100), random(0, 12))}, ` +
-        `${point(random(88, 100), random(88, 100))}, ${point(random(0, 12), random(88, 100))})`;
-
-    const shuffleNote = (note) => {
-        let lastPaper = null;
-
-        note.querySelectorAll("span:not(.rs-ransom-gap)").forEach((letter) => {
-            let paper = pick(PAPERS);
-
-            while (paper === lastPaper) {
-                paper = pick(PAPERS);
-            }
-
-            lastPaper = paper;
-
-            const face = pick(FACES);
-            const style = letter.style;
-
-            style.setProperty("--l-bg", paper[0]);
-            style.setProperty("--l-ink", paper[1]);
-            style.setProperty("--l-font", face.font);
-            style.setProperty("--l-size", `${Math.round(random(face.size[0], face.size[1]))}px`);
-            style.setProperty("--l-style", face.style ?? "normal");
-            style.setProperty("--l-weight", face.weight);
-            // An italic lower-case l or i reads as a slash; those stay capitals.
-            const lower = face.lower && !/[il]/i.test(letter.textContent) && Math.random() < 0.6;
-
-            style.setProperty("--l-case", lower ? "lowercase" : "uppercase");
-            style.setProperty("--l-turn", `${random(-9, 9).toFixed(1)}deg`);
-            style.setProperty("--l-lift", `${random(-2.5, 2.5).toFixed(1)}px`);
-            style.setProperty("--l-cut", letterCut());
-        });
-    };
-
-    const ransom = (nav) => {
-        nav.querySelectorAll("[data-rs-ransom]").forEach((link) => {
-            const text = link.textContent.trim();
-            const label = document.createElement("span");
-            const note = document.createElement("span");
-
-            label.className = "visually-hidden";
-            label.textContent = text;
-            note.className = "rs-ransom";
-            note.setAttribute("aria-hidden", "true");
-
-            for (const char of text) {
-                const letter = document.createElement("span");
-
-                if (char === " ") {
-                    letter.className = "rs-ransom-gap";
-                } else {
-                    letter.textContent = char;
-                }
-
-                note.append(letter);
-            }
-
-            link.replaceChildren(label, note);
-            shuffleNote(note);
-
-            if (reducedMotion) {
-                return;
-            }
-
-            // Hold the link's place while its letters are swapped, so the pointer
-            // never loses it.
-            const reshuffle = () => {
-                link.style.width = `${link.offsetWidth}px`;
-                [0, 70, 140].forEach((delay) => window.setTimeout(() => shuffleNote(note), delay));
-            };
-
-            link.addEventListener("pointerenter", reshuffle);
-            link.addEventListener("focus", reshuffle);
-            link.addEventListener("pointerleave", () => { link.style.width = ""; });
-            link.addEventListener("blur", () => { link.style.width = ""; });
-        });
-
-        nav.classList.add("is-ransom");
-    };
-
     // ---------- wiring ----------
 
-    document.querySelectorAll(".rs-nav").forEach(ransom);
     cutAll(document);
 
     // Scraps that arrive later (Rebel AI's answers, the beer menu's filters) get cut too.
