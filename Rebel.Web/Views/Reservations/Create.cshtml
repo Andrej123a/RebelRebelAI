@@ -13,7 +13,7 @@
 
     <partial name="_Era" model='new EraModel("1969", "rocket", "Space Oddity")' />
 
-    <partial name="_Hud" model='new HudModel("RR-69", "Ground Control · awaiting your request")' />
+    <partial name="_Hud" />
 
     <div class="rs-container rs-reserve-grid">
         <aside class="rs-reserve-art" aria-label="Rebel Rebel">
@@ -27,7 +27,6 @@
                 <img src="~/images/logo.jpg"
                      alt="Rebel Rebel by Fat Kitchen"
                      class="rs-reserve-logo" />
-                <span class="rs-label">Skopje / Table reservations</span>
                 <strong>Come as<br />you are.</strong>
             </div>
         </aside>
@@ -40,15 +39,10 @@
 
             <div class="rs-console-bar">
                 <span>Ground Control · Table request</span>
-                <span class="rs-console-lights">
-                    <span><i class="rs-led"></i>Bar open</span>
-                    <span><i class="rs-led rs-led--gold rs-led--blink"></i>Awaiting your request</span>
-                </span>
             </div>
 
             <div class="rs-reserve-body">
             <header>
-                <p class="rs-kicker">Mission: book a table</p>
                 <h1 class="rs-display rs-display--md" aria-label="Pick your arrival.">
                     Pick your <span class="rs-accent">arrival.</span>
                 </h1>

@@ -4,7 +4,7 @@
 // - falling stars all night long, now and then a whole shower,
 // - a flare wherever someone clicks the sky,
 // - Ziggy's stardust trailing the pointer inside [data-rs-stardust],
-// - "Tin can": a satellite crossing now and then, tagged by Ground Control,
+// - "Tin can": a satellite crossing now and then, in Ground Control's brackets,
 // - a warp-speed starfield behind the countdown preloader.
 // The sky is seeded, so it is the same on every visit. With reduced motion it is
 // painted once and holds still; without JS the canvas keeps its CSS starfield.
@@ -348,8 +348,7 @@
             x1: leftToRight ? W + 40 : -40,
             y1: y0 + (live() - 0.5) * H * 0.4,
             duration: 22 + live() * 14,
-            age: 0,
-            altitude: 400 + Math.round(live() * 30)
+            age: 0
         };
     };
 
@@ -551,7 +550,7 @@
         ctx.globalAlpha = fade;
         ctx.drawImage(spriteFor(CREAM), x - 7, y - 7, 14, 14);
 
-        // Ground Control's tracking brackets and tag.
+        // Ground Control's tracking brackets.
         ctx.globalCompositeOperation = "source-over";
         ctx.globalAlpha = fade * 0.85;
         ctx.strokeStyle = rgba(GOLD, 1);
@@ -571,17 +570,7 @@
         ctx.moveTo(x - b + c, y + b);
         ctx.lineTo(x - b, y + b);
         ctx.lineTo(x - b, y + b - c);
-        ctx.moveTo(x + b, y - b);
-        ctx.lineTo(x + b + 14, y - b - 14);
-        ctx.lineTo(x + b + 30, y - b - 14);
         ctx.stroke();
-
-        ctx.fillStyle = rgba(GOLD, 1);
-        ctx.font = "700 10px 'Space Mono', ui-monospace, monospace";
-        ctx.fillText("TIN CAN · MAJOR TOM", x + b + 34, y - b - 11);
-        ctx.fillStyle = rgba(BLUE, 1);
-        ctx.font = "400 10px 'Space Mono', ui-monospace, monospace";
-        ctx.fillText(`ALT ${satellite.altitude} KM · ${(7.66 + Math.sin(satellite.age) * 0.01).toFixed(2)} KM/S`, x + b + 34, y - b + 3);
         ctx.globalAlpha = 1;
     };
 

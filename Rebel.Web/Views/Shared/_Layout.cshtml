@@ -114,7 +114,7 @@
 
     @await RenderSectionAsync("Styles", required: false)
 
-    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600..900&family=Hanken+Grotesk:ital,wght@0,300..800;1,300..500&family=Playfair+Display:ital,wght@0,700..900;1,700..900&family=Rock+Salt&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600..900&family=Big+Shoulders+Stencil+Display:wght@700..900&family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Monoton&family=Playfair+Display:ital,wght@0,700..900;1,700..900&family=Rock+Salt&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
           rel="stylesheet" />
 </head>
 
@@ -219,7 +219,7 @@
                asp-action="Index"
                class="rs-brand">
                 <img src="~/images/email/rebel-logo.png"
-                     alt="Rebel Rebel by Fat Kitchen"
+                     alt=""
                      class="rs-brand-logo" />
 
                 <span class="rs-brand-text">
@@ -228,49 +228,67 @@
                 </span>
             </a>
 
+            @* The nav is a ransom note: every link a scrap cut out of a different
+               magazine. rebel-cutup.js cuts the letters out one by one. *@
             <nav class="rs-nav" aria-label="Main">
                 <a asp-controller="Home"
                    asp-action="Index"
-                   class="rs-nav-link @IsActive("Home", "Index")">Home</a>
+                   class="rs-nav-link @IsActive("Home", "Index")"
+                   aria-current="@(IsActive("Home", "Index") == "active" ? "page" : null)"
+                   data-rs-ransom>Home</a>
 
                 <a asp-controller="Home"
                    asp-action="Menu"
                    asp-route-section="food"
-                   class="rs-nav-link @IsActive("Home", "Menu")">Menu</a>
+                   class="rs-nav-link @IsActive("Home", "Menu")"
+                   aria-current="@(IsActive("Home", "Menu") == "active" ? "page" : null)"
+                   data-rs-ransom>Menu</a>
 
                 @if (!hideAiFeatures)
                 {
                     <a asp-controller="BeerGuide"
                        asp-action="Index"
-                       class="rs-nav-link @IsActive("BeerGuide")">Rebel AI</a>
+                       class="rs-nav-link @IsActive("BeerGuide")"
+                       aria-current="@(IsActive("BeerGuide") == "active" ? "page" : null)"
+                       data-rs-ransom>Rebel AI</a>
                 }
 
                 <a asp-controller="Events"
                    asp-action="Index"
-                   class="rs-nav-link @IsActive("Events")">Events</a>
+                   class="rs-nav-link @IsActive("Events")"
+                   aria-current="@(IsActive("Events") == "active" ? "page" : null)"
+                   data-rs-ransom>Events</a>
 
                 <a asp-controller="Home"
                    asp-action="Contact"
-                   class="rs-nav-link @IsActive("Home", "Contact")">Contact</a>
+                   class="rs-nav-link @IsActive("Home", "Contact")"
+                   aria-current="@(IsActive("Home", "Contact") == "active" ? "page" : null)"
+                   data-rs-ransom>Contact</a>
 
                 <a asp-controller="Reservations"
                    asp-action="Lookup"
-                   class="rs-nav-link @IsActive("Reservations", "Lookup")">My booking</a>
+                   class="rs-nav-link @IsActive("Reservations", "Lookup")"
+                   aria-current="@(IsActive("Reservations", "Lookup") == "active" ? "page" : null)"
+                   data-rs-ransom>My booking</a>
             </nav>
 
+            @* Booking is a ticket: the stub tears off when you go for it. *@
             <a asp-controller="Reservations"
                asp-action="Create"
-               class="rs-btn rs-btn--primary rs-header-book">
-                Book a table
+               class="rs-ticket rs-header-book">
+                <span class="rs-ticket-main">Book a table</span>
+                <span class="rs-ticket-stub" aria-hidden="true">Admit<b>you</b></span>
             </a>
 
+            @* The menu hides behind the bar's neon sign, with one tube on the blink. *@
             <a href="#open"
                class="rs-open-toggle"
                aria-controls="open"
                aria-expanded="false"
+               aria-label="Open menu"
                data-rs-open-toggle>
                 <svg viewBox="-8 -4 112 108" aria-hidden="true"><use href="#rs-bolt-sane" /></svg>
-                Open
+                <span class="rs-neon-word">Op<i>e</i>n</span>
             </a>
         </div>
     </header>
@@ -281,7 +299,7 @@
          aria-modal="true"
          aria-label="Site menu"
          data-rs-open>
-        <div class="rs-starman rs-open-starman" aria-hidden="true"><span>Starman · mag &minus;1.4</span></div>
+        <div class="rs-starman rs-open-starman" aria-hidden="true"></div>
 
         <div class="rs-open-inner">
             <div class="rs-open-top">
@@ -459,6 +477,8 @@
     <script src="~/js/rebel-sky.js" asp-append-version="true"></script>
 
     <script src="~/js/rebel-site.js" asp-append-version="true"></script>
+
+    <script src="~/js/rebel-cutup.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 

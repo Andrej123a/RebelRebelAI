@@ -92,15 +92,15 @@
 
         <partial name="_Era" model="era" />
 
-        <partial name="_Hud" model='new HudModel($"RR-{era.Year[2..]}", "Kitchen on · fridge cold")' />
+        <partial name="_Hud" />
 
         @if (heroIcon == "planet")
         {
-            <div class="rs-mars rs-menu-mars" data-label="Mars · 0.52 AU" aria-hidden="true" data-rs-drift="-0.1"></div>
+            <div class="rs-mars rs-menu-mars" aria-hidden="true" data-rs-drift="-0.1"></div>
         }
         else if (heroIcon == "star")
         {
-            <div class="rs-starman rs-menu-starman" aria-hidden="true" data-rs-drift="-0.1"><span>Starman · mag &minus;1.4</span></div>
+            <div class="rs-starman rs-menu-starman" aria-hidden="true" data-rs-drift="-0.1"></div>
         }
         else
         {
@@ -130,8 +130,6 @@
 
         <div class="rs-container rs-menu-hero-inner">
             <div>
-                <p class="rs-kicker">Rebel Rebel menu · @era.Title &rsquo;@(era.Year[2..])</p>
-
                 <h1 class="rs-display rs-display--xl" aria-label="@titleTop @titleBottom">
                     @titleTop <span class="rs-accent">@titleBottom</span>
                 </h1>

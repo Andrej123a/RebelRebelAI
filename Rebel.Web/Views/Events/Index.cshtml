@@ -56,7 +56,7 @@
 
         <partial name="_Era" model='new EraModel("1980", "tape", "Ashes to Ashes")' />
 
-        <partial name="_Hud" model='new HudModel("RR-80", "Tape rolling")' />
+        <partial name="_Hud" />
 
         <svg class="rs-events-tape" viewBox="0 0 100 100" aria-hidden="true" data-rs-drift="-0.14"><use href="#rs-tape" /></svg>
 
@@ -72,8 +72,6 @@
 
         <div class="rs-container rs-events-hero-grid @(nextEvent == null ? "has-no-feature" : string.Empty)">
             <div>
-                <p class="rs-kicker">Rebel Rebel nights · Recorded live</p>
-
                 <h1 class="rs-display rs-display--xl" aria-label="The night starts here.">
                     The <span class="rs-accent">night</span>
                     <span class="rs-events-here">starts here.</span>
@@ -84,23 +82,10 @@
                     that should probably stay at the pub.
                 </p>
 
-                <dl class="rs-stats rs-events-stats">
-                    <div>
-                        <dt>Upcoming</dt>
-                        <dd>@events.Count</dd>
-                    </div>
-
-                    @if (nextEvent != null)
-                    {
-                        <div>
-                            <dt>Next: @nextEvent.Title</dt>
-                            <dd>@FormatEventDate(nextEvent.Date)</dd>
-                        </div>
-                    }
-                </dl>
-
+                @* The next night is on the tape to the right; the count rides on the button. *@
                 <a href="#upcoming-events" class="rs-btn rs-btn--ghost rs-events-scroll">
-                    Explore the lineup <i aria-hidden="true">&darr;</i>
+                    @(events.Count switch { 0 => "Explore the lineup", 1 => "One night ahead", _ => $"{events.Count} nights ahead" })
+                    <i aria-hidden="true">&darr;</i>
                 </a>
             </div>
 

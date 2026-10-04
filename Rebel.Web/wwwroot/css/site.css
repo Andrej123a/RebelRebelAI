@@ -13,8 +13,10 @@
    horizon) or printed matter laid over it (gold, newsprint,
    concrete). Light blue is kept for small details (lines,
    lights, the edge of the bolt, Ground Control). Huge
-   condensed Big Shoulders over a red sky, Space Mono for
-   Ground Control, Playfair for fanzine headlines.
+   condensed Big Shoulders over a red sky (its stencil cut for
+   anything you press), Bricolage Grotesque for reading,
+   Space Mono for Ground Control, Playfair for fanzine
+   headlines and Monoton for the neon OPEN sign.
 
    Photos keep their files and crops. The era treatments
    (lightning splits, black-and-white, videotape) are CSS on
@@ -55,7 +57,11 @@
     --z-concrete: #a7a198;
 
     --rs-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
-    --rs-body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+    /* Cut-up type: a stencil for anything you press, a neon tube for the sign, and a
+       grotesque with ink traps that gets more eccentric the bigger it is set. */
+    --rs-stencil: "Big Shoulders Stencil Display", "Big Shoulders Display", Impact, sans-serif;
+    --rs-neon: "Monoton", "Big Shoulders Display", Impact, sans-serif;
+    --rs-body: "Bricolage Grotesque", "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     --rs-mono: "Space Mono", ui-monospace, monospace;
     --rs-news: "Playfair Display", Georgia, serif;
     --rs-scrawl: "Rock Salt", cursive;
@@ -81,6 +87,7 @@
     --ch-rail: var(--z-gold);
     --ch-btn: var(--z-gold);
     --ch-btn-ink: var(--z-ink);
+    --ch-plate: var(--z-blue);
 
     /* Older names, still read by the beer menu and Rebel AI sheets. */
     --rs-char: var(--z-ink);
@@ -400,28 +407,58 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* ---------- buttons ---------- */
 
+/* No pills. Every button is a scrap cut out of a poster, its colour printed a few
+   millimetres off a second plate. rebel-cutup.js gives each one its own jagged cut,
+   re-cuts it while you hover, shuffles its letters and throws sparks when pressed;
+   without it the scraps keep this cut. */
 .rs-btn {
+    --cut: polygon(1% 9%, 31% 0, 64% 7%, 100% 1%, 97% 48%, 100% 97%, 66% 100%, 33% 93%, 0 100%, 3% 52%);
+    --face: var(--ch-ink);
+    --face-ink: var(--ch-bg);
+    --plate: transparent;
+    position: relative;
+    isolation: isolate;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 12px;
     min-height: 54px;
-    padding: 14px 28px;
-    border: 2px solid transparent;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--ch-ink);
-    font-family: var(--rs-display);
-    font-size: 21px;
-    font-weight: 800;
-    letter-spacing: 0.05em;
+    padding: 15px 30px 13px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: var(--face-ink);
+    font-family: var(--rs-stencil);
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.07em;
     line-height: 1;
     text-decoration: none;
     text-transform: uppercase;
     white-space: nowrap;
     cursor: pointer;
-    transition: transform 0.3s var(--rs-ease), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: rotate 0.3s var(--rs-ease), translate 0.2s var(--rs-ease), color 0.2s ease;
 }
+
+    .rs-btn::before,
+    .rs-btn::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        clip-path: var(--cut);
+        transition: translate 0.25s var(--rs-ease), background-color 0.2s ease;
+    }
+
+    /* The second plate, out of register. */
+    .rs-btn::before {
+        background: var(--plate);
+        translate: 5px 5px;
+    }
+
+    .rs-btn::after {
+        background: var(--face);
+    }
 
     .rs-btn i {
         font-style: normal;
@@ -435,61 +472,81 @@ input[type="search"]::-webkit-search-cancel-button {
 
     .rs-btn:hover,
     .rs-btn:focus-visible {
-        transform: rotate(-2deg);
+        rotate: -2deg;
+    }
+
+        .rs-btn:hover::before,
+        .rs-btn:focus-visible::before {
+            translate: 9px -6px;
+        }
+
+    .rs-btn:active {
+        rotate: 1.5deg;
+    }
+
+        .rs-btn:active::before {
+            translate: 2px 2px;
+        }
+
+    .rs-btn:focus-visible {
+        outline: 3px solid var(--z-blue);
+        outline-offset: 6px;
     }
 
 .rs-btn--primary {
-    background: var(--ch-btn);
-    color: var(--ch-btn-ink);
+    --face: var(--ch-btn);
+    --face-ink: var(--ch-btn-ink);
+    --plate: var(--ch-plate);
 }
 
     .rs-btn--primary:hover,
     .rs-btn--primary:focus-visible {
-        background: var(--z-cream);
-        color: var(--z-ink);
+        --face: var(--z-cream);
+        --face-ink: var(--z-ink);
     }
 
 .rs-btn--paper {
-    background: var(--z-cream);
-    color: var(--z-ink);
+    --face: var(--z-cream);
+    --face-ink: var(--z-ink);
+    --plate: var(--z-red);
 }
 
     .rs-btn--paper:hover,
     .rs-btn--paper:focus-visible {
-        background: var(--z-gold);
-        color: var(--z-ink);
+        --face: var(--z-gold);
     }
 
 .rs-btn--night {
-    background: var(--z-ink);
-    color: var(--z-gold);
+    --face: var(--z-ink);
+    --face-ink: var(--z-gold);
+    --plate: var(--z-red);
 }
 
     .rs-btn--night:hover,
     .rs-btn--night:focus-visible {
-        background: var(--z-ink);
-        color: var(--z-cream);
+        --face-ink: var(--z-cream);
     }
 
+/* A plain scrap of the chapter's ink: newsprint on the dark, ink on the light. */
 .rs-btn--ghost,
 .rs-btn--ink {
-    border-color: currentColor;
-    color: var(--ch-ink);
+    --face: var(--ch-ink);
+    --face-ink: var(--ch-bg);
 }
 
     .rs-btn--ghost:hover,
     .rs-btn--ghost:focus-visible,
     .rs-btn--ink:hover,
     .rs-btn--ink:focus-visible {
-        border-color: var(--ch-ink);
-        background: var(--ch-ink);
-        color: var(--ch-bg);
+        --face: var(--ch-btn);
+        --face-ink: var(--ch-btn-ink);
+        --plate: var(--ch-plate);
     }
 
 .rs-btn--small {
     min-height: 42px;
-    padding: 10px 20px;
-    font-size: 17px;
+    padding: 11px 20px 9px;
+    font-size: 18px;
 }
 
 .rs-btn--block {
@@ -529,23 +586,35 @@ input[type="search"]::-webkit-search-cancel-button {
 
 /* ---------- chips & tags ---------- */
 
+/* Chips and tabs are smaller scraps of the same paper: the cut is on the element
+   itself (rebel-cutup.js re-cuts it), the colour is the paper. */
+.rs-chip,
+.rs-menu-tab,
+.rs-home-panel-action,
+.rs-food-pair {
+    --cut: polygon(0 8%, 47% 0, 100% 6%, 98% 94%, 53% 100%, 2% 92%);
+    border: 0;
+    border-radius: 0;
+    background: var(--face);
+    color: var(--face-ink);
+    clip-path: var(--cut);
+}
+
 .rs-chip {
+    --face: color-mix(in srgb, var(--ch-ink) 12%, transparent);
+    --face-ink: var(--ch-ink);
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 15px;
-    border: 1.5px solid var(--ch-line);
-    border-radius: 999px;
-    background: transparent;
-    color: var(--ch-ink);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
+    padding: 10px 16px 9px;
+    font-family: var(--rs-stencil);
+    font-size: 17px;
+    font-weight: 900;
     letter-spacing: 0.06em;
-    line-height: 1.2;
+    line-height: 1;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.25s var(--rs-ease);
+    transition: rotate 0.25s var(--rs-ease), background-color 0.2s ease, color 0.2s ease;
 }
 
     .rs-chip i {
@@ -557,34 +626,49 @@ input[type="search"]::-webkit-search-cancel-button {
     }
 
     .rs-chip:hover {
-        border-color: var(--z-gold);
-        color: var(--z-gold);
+        --face: color-mix(in srgb, var(--ch-ink) 26%, transparent);
+        rotate: -2deg;
+    }
+
+    .rs-chip:focus-visible {
+        --face: var(--z-blue);
+        --face-ink: var(--z-ink);
+        outline: none;
     }
 
     .rs-chip.is-active {
-        border-color: var(--z-gold);
-        background: var(--z-gold);
-        color: var(--z-ink);
+        --face: var(--z-gold);
+        --face-ink: var(--z-ink);
+        rotate: -1deg;
     }
 
         .rs-chip.is-active i {
             background: var(--z-red);
         }
 
+/* Tags are label-maker tape: white letters pressed into black plastic, stuck on a
+   little crooked. */
 .rs-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 3px 10px;
-    border: 1.5px solid currentColor;
-    border-radius: 999px;
+    padding: 5px 12px 4px;
+    background: var(--z-ink);
+    color: var(--z-cream);
     font-family: var(--rs-mono);
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    line-height: 1.4;
+    letter-spacing: 0.2em;
+    line-height: 1.3;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7), 0 -1px 0 rgba(255, 255, 255, 0.16);
     text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 50%, 100% 100%, 0 100%, 4px 50%);
+    rotate: -1.5deg;
 }
+
+    .rs-pill:nth-child(even) {
+        rotate: 1deg;
+    }
 
 /* ---------- surfaces ---------- */
 
@@ -933,6 +1017,7 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-rail: var(--z-red);
     --ch-btn: var(--z-red);
     --ch-btn-ink: var(--z-cream);
+    --ch-plate: var(--z-ink);
 }
 
 /* Outer space: Space Oddity, Starman, Blackstar. */
@@ -957,6 +1042,7 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-rail: var(--z-red);
     --ch-btn: var(--z-red);
     --ch-btn-ink: var(--z-cream);
+    --ch-plate: var(--z-ink);
     background:
         repeating-linear-gradient(90deg, transparent 0 calc(25% - 2px), rgba(26, 15, 13, 0.18) calc(25% - 2px) 25%),
         linear-gradient(180deg, #b4aea4, #9c968c);
@@ -975,6 +1061,7 @@ input[type="search"]::-webkit-search-cancel-button {
     --ch-rail: var(--z-red);
     --ch-btn: var(--z-ink);
     --ch-btn-ink: var(--z-gold);
+    --ch-plate: var(--z-red);
 }
 
 /* The Thin White Duke: black, cream, one red. */
@@ -1370,19 +1457,6 @@ a:focus-visible .rs-vhs img {
     text-transform: uppercase;
 }
 
-.rs-console-lights {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-}
-
-    .rs-console-lights span {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--z-cream);
-    }
-
 /* A small status light. */
 .rs-led {
     --led: var(--z-blue);
@@ -1475,7 +1549,6 @@ a:focus-visible .rs-vhs img {
         radial-gradient(circle at 100% 50%, transparent 14px, var(--z-news) 15px) right / 51% 100% no-repeat;
     color: var(--z-ink);
 }
-
 /* =========================================================
    7. HEADER + #OPEN MENU + PRELOADER
    ========================================================= */
@@ -1491,14 +1564,17 @@ a:focus-visible .rs-vhs img {
 .rs-header-inner {
     display: flex;
     align-items: center;
-    gap: clamp(14px, 2vw, 30px);
+    gap: clamp(12px, 1.2vw, 22px);
     width: min(1440px, calc(100% - 32px));
-    min-height: 80px;
+    min-height: 84px;
     margin-inline: auto;
 }
 
+/* ---------- brand: a stencil misprint with red label tape ---------- */
+
 .rs-brand {
     display: inline-flex;
+    flex-shrink: 0;
     align-items: center;
     gap: 14px;
     margin-right: auto;
@@ -1525,118 +1601,403 @@ a:focus-visible .rs-vhs img {
 
 .rs-brand-text {
     display: grid;
+    justify-items: start;
     line-height: 1;
 }
 
     .rs-brand-text strong {
         color: var(--z-gold);
-        font-family: var(--rs-display);
-        font-size: 28px;
+        font-family: var(--rs-stencil);
+        font-size: 30px;
         font-weight: 900;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.03em;
+        text-shadow: 2px 2px 0 var(--z-red);
         text-transform: uppercase;
+        white-space: nowrap;
+        transition: text-shadow 0.25s var(--rs-ease);
     }
 
+    .rs-brand:hover .rs-brand-text strong {
+        text-shadow: -3px 2px 0 var(--z-red), 3px -1px 0 rgba(154, 211, 240, 0.7);
+    }
+
+    /* Red label-maker tape. */
     .rs-brand-text small {
-        margin-top: 4px;
+        margin-top: 5px;
+        padding: 3px 9px 2px;
+        background: var(--z-red);
         color: var(--z-cream);
         font-family: var(--rs-mono);
-        font-size: 10px;
-        letter-spacing: 0.16em;
+        font-size: 9.5px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.55), 0 -1px 0 rgba(255, 255, 255, 0.2);
         text-transform: uppercase;
+        clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 50%, 100% 100%, 0 100%, 4px 50%);
+        rotate: -2deg;
     }
+
+/* ---------- the nav: a ransom note ---------- */
 
 .rs-nav {
     display: none;
     align-items: center;
-    gap: clamp(16px, 1.8vw, 30px);
+    gap: clamp(8px, 0.8vw, 14px);
 }
 
+/* Without the script each link is one scrap of a different paper. */
 .rs-nav-link {
+    --face: var(--z-cream);
+    --face-ink: var(--z-ink);
+    --cut: polygon(0 10%, 52% 0, 100% 8%, 97% 92%, 46% 100%, 3% 90%);
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 10px 0;
-    color: var(--z-cream);
-    font-family: var(--rs-mono);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-decoration: none;
-    text-transform: uppercase;
-}
-
-    .rs-nav-link::before {
-        content: "";
-        width: 10px;
-        height: 10px;
-        background: var(--z-gold);
-        clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
-        transform: scale(0) rotate(-90deg);
-        transition: transform 0.3s var(--rs-ease);
-    }
-
-    .rs-nav-link:hover,
-    .rs-nav-link:focus-visible,
-    .rs-nav-link.active {
-        color: var(--z-gold);
-    }
-
-        .rs-nav-link:hover::before,
-        .rs-nav-link:focus-visible::before,
-        .rs-nav-link.active::before {
-            transform: none;
-        }
-
-.rs-header-book {
-    min-height: 44px;
-    padding: 10px 20px;
-    font-size: 18px;
-}
-
-.rs-open-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 44px;
-    padding: 8px 18px 8px 12px;
-    border: 2px solid var(--z-cream);
-    border-radius: 999px;
-    color: var(--z-cream);
-    font-family: var(--rs-display);
+    padding: 7px 10px 6px;
+    background: var(--face);
+    color: var(--face-ink);
+    font-family: var(--rs-stencil);
     font-size: 19px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
+    font-weight: 900;
+    letter-spacing: 0.05em;
     line-height: 1;
     text-decoration: none;
     text-transform: uppercase;
+    white-space: nowrap;
+    clip-path: var(--cut);
+    rotate: -2deg;
+    transition: rotate 0.25s var(--rs-ease), translate 0.25s var(--rs-ease);
 }
 
-    /* Aladdin Sane's bolt. */
+    .rs-nav-link:nth-child(2) {
+        --face: var(--z-gold);
+        rotate: 1.5deg;
+    }
+
+    .rs-nav-link:nth-child(3) {
+        --face: var(--z-blue);
+        rotate: -1deg;
+    }
+
+    .rs-nav-link:nth-child(4) {
+        --face: var(--z-red);
+        --face-ink: var(--z-cream);
+        rotate: 2deg;
+    }
+
+    .rs-nav-link:nth-child(5) {
+        --face: var(--z-news);
+        rotate: -2.5deg;
+    }
+
+    .rs-nav-link:nth-child(6) {
+        --face: var(--z-yellow);
+        rotate: 1deg;
+    }
+
+    .rs-nav-link:hover,
+    .rs-nav-link:focus-visible {
+        color: var(--face-ink);
+        rotate: 0deg;
+        translate: 0 -3px;
+    }
+
+    .rs-nav-link:focus-visible {
+        outline: none;
+    }
+
+/* With the script, the link's own paper goes and every letter is cut out of a
+   different magazine (rebel-cutup.js picks the paper, the face and the angle). */
+.rs-nav.is-ransom .rs-nav-link {
+    padding: 4px 2px;
+    background: none;
+    clip-path: none;
+}
+
+.rs-ransom {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+}
+
+    .rs-ransom > span {
+        display: inline-block;
+        min-width: 0.34em;
+        padding: 3px 2px 2px;
+        background: var(--l-bg, var(--z-cream));
+        color: var(--l-ink, var(--z-ink));
+        font-family: var(--l-font, var(--rs-stencil));
+        font-size: var(--l-size, 20px);
+        font-style: var(--l-style, normal);
+        font-weight: 900;
+        letter-spacing: 0;
+        line-height: 1;
+        text-align: center;
+        text-transform: var(--l-case, uppercase);
+        clip-path: var(--l-cut, none);
+        rotate: var(--l-turn, 0deg);
+        translate: 0 var(--l-lift, 0);
+    }
+
+    .rs-ransom > .rs-ransom-gap {
+        min-width: 0.3em;
+        padding: 0;
+        background: none;
+    }
+
+/* The page you are on is taped down, with a gold strip across the top. */
+.rs-nav-link.active::after {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: min(70%, 54px);
+    height: 13px;
+    background: rgba(255, 216, 106, 0.62);
+    translate: -50% 0;
+    rotate: -5deg;
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+.rs-nav:not(.is-ransom) .rs-nav-link.active::after {
+    top: 0;
+}
+
+.rs-nav-link:focus-visible {
+    --face: var(--z-ink);
+    --face-ink: var(--z-blue);
+}
+
+.rs-nav.is-ransom .rs-nav-link:focus-visible {
+    outline: 2px solid var(--z-blue);
+    outline-offset: 4px;
+}
+
+/* ---------- Book a table: a ticket, stub and all ---------- */
+
+.rs-ticket {
+    --tk-face: var(--z-gold);
+    --tk-ink: var(--z-ink);
+    --tk-stub: var(--z-red);
+    --tk-stub-ink: var(--z-cream);
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    min-height: 50px;
+    color: var(--tk-ink);
+    text-decoration: none;
+    rotate: -2deg;
+    filter: drop-shadow(4px 5px 0 rgba(0, 0, 0, 0.5));
+    transition: rotate 0.3s var(--rs-ease), translate 0.2s var(--rs-ease);
+}
+
+.rs-ticket-main,
+.rs-ticket-stub {
+    /* Half-moon bites at every corner: full circles where the stub tears off. */
+    -webkit-mask:
+        radial-gradient(circle var(--bite-l, 5px) at 0 0, #0000 96%, #000) top left / 51% 51% no-repeat,
+        radial-gradient(circle var(--bite-l, 5px) at 0 100%, #0000 96%, #000) bottom left / 51% 51% no-repeat,
+        radial-gradient(circle var(--bite-r, 5px) at 100% 0, #0000 96%, #000) top right / 51% 51% no-repeat,
+        radial-gradient(circle var(--bite-r, 5px) at 100% 100%, #0000 96%, #000) bottom right / 51% 51% no-repeat;
+    mask:
+        radial-gradient(circle var(--bite-l, 5px) at 0 0, #0000 96%, #000) top left / 51% 51% no-repeat,
+        radial-gradient(circle var(--bite-l, 5px) at 0 100%, #0000 96%, #000) bottom left / 51% 51% no-repeat,
+        radial-gradient(circle var(--bite-r, 5px) at 100% 0, #0000 96%, #000) top right / 51% 51% no-repeat,
+        radial-gradient(circle var(--bite-r, 5px) at 100% 100%, #0000 96%, #000) bottom right / 51% 51% no-repeat;
+}
+
+.rs-ticket-main {
+    --bite-r: 8px;
+    display: inline-flex;
+    align-items: center;
+    padding: 11px 16px 9px 20px;
+    background: var(--tk-face);
+    font-family: var(--rs-stencil);
+    font-size: 21px;
+    font-weight: 900;
+    letter-spacing: 0.07em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+/* The stub, ready to tear along the perforation. */
+.rs-ticket-stub {
+    --bite-l: 8px;
+    display: grid;
+    place-content: center;
+    gap: 2px;
+    padding: 6px 11px 5px 10px;
+    border-left: 2px dashed rgba(26, 15, 13, 0.6);
+    background: var(--tk-stub);
+    color: var(--tk-stub-ink);
+    font-family: var(--rs-mono);
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    line-height: 1;
+    text-align: center;
+    text-transform: uppercase;
+    transform-origin: 0 0;
+    transition: rotate 0.35s var(--rs-ease), translate 0.35s var(--rs-ease);
+}
+
+    .rs-ticket-stub b {
+        font-family: var(--rs-stencil);
+        font-size: 17px;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+    }
+
+.rs-ticket:hover,
+.rs-ticket:focus-visible {
+    color: var(--tk-ink);
+    rotate: 1deg;
+}
+
+    .rs-ticket:hover .rs-ticket-main,
+    .rs-ticket:focus-visible .rs-ticket-main {
+        background: var(--z-cream);
+    }
+
+    .rs-ticket:hover .rs-ticket-stub,
+    .rs-ticket:focus-visible .rs-ticket-stub {
+        rotate: 17deg;
+        translate: 4px 3px;
+    }
+
+.rs-ticket:active .rs-ticket-stub {
+    rotate: 34deg;
+    translate: 8px 10px;
+}
+
+.rs-ticket:focus-visible {
+    outline: 3px solid var(--z-blue);
+    outline-offset: 6px;
+}
+
+/* ---------- Open: the bar's neon sign ---------- */
+
+.rs-open-toggle {
+    --neon: #ff2d55;
+    --neon-hot: #e2401a;
+    --tube: #ffe1e7;
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 50px;
+    padding: 8px 14px 6px 10px;
+    color: var(--tube);
+    font-family: var(--rs-neon);
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-decoration: none;
+    text-shadow: 0 0 1px #fff, 0 0 5px var(--neon), 0 0 12px var(--neon), 0 0 26px var(--neon-hot);
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: rotate 0.3s var(--rs-ease);
+}
+
+    /* The sign's backing board, cut crooked, with a screw in each corner. */
+    .rs-open-toggle::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+            radial-gradient(circle 2px at 7px 7px, #6c5b55 60%, transparent 70%),
+            radial-gradient(circle 2px at calc(100% - 7px) 7px, #6c5b55 60%, transparent 70%),
+            radial-gradient(circle 2px at 7px calc(100% - 7px), #6c5b55 60%, transparent 70%),
+            radial-gradient(circle 2px at calc(100% - 7px) calc(100% - 7px), #6c5b55 60%, transparent 70%),
+            radial-gradient(80% 90% at 50% 50%, rgba(255, 45, 85, 0.16), transparent 70%),
+            #120607;
+        clip-path: polygon(2% 0, 100% 6%, 98% 100%, 0 94%);
+        box-shadow: inset 0 0 0 1px rgba(255, 241, 220, 0.12);
+    }
+
+    /* Aladdin Sane's bolt, bent out of gold tube. */
     .rs-open-toggle svg {
+        --bolt-a: #ffd86a;
+        --bolt-b: rgba(255, 45, 85, 0.75);
         width: 24px;
         height: 24px;
+        filter: drop-shadow(0 0 3px rgba(255, 216, 106, 0.9)) drop-shadow(0 0 8px rgba(226, 64, 26, 0.8));
     }
 
-    .rs-open-toggle:hover,
-    .rs-open-toggle:focus-visible {
-        border-color: var(--z-gold);
-        background: var(--z-gold);
-        color: var(--z-ink);
-        transform: rotate(-3deg);
+.rs-neon-word i {
+    font-style: normal;
+}
+
+.rs-open-toggle:hover,
+.rs-open-toggle:focus-visible {
+    --neon: #ffb21f;
+    --neon-hot: #ff5a1f;
+    --tube: #fff6d8;
+    color: var(--tube);
+    rotate: -3deg;
+}
+
+.rs-open-toggle:focus-visible {
+    outline: 3px solid var(--z-blue);
+    outline-offset: 5px;
+}
+
+/* One tube is on the blink. Somebody kicks the sign and it catches. */
+@media (prefers-reduced-motion: no-preference) {
+    .rs-neon-word i {
+        animation: rs-neon-blink 5.2s steps(1) infinite;
     }
 
-/* Once the header has scrolled away, Open floats in the corner. */
+    .rs-open-toggle:hover .rs-neon-word i,
+    .rs-open-toggle:focus-visible .rs-neon-word i {
+        animation: none;
+    }
+
+    .rs-open-toggle:hover .rs-neon-word,
+    .rs-open-toggle:focus-visible .rs-neon-word {
+        animation: rs-neon-buzz 0.3s steps(1);
+    }
+}
+
+@keyframes rs-neon-blink {
+    0%, 46%, 49%, 82%, 100% {
+        opacity: 1;
+    }
+
+    44%, 47% {
+        opacity: 0.22;
+        text-shadow: none;
+    }
+
+    80% {
+        opacity: 0.35;
+        text-shadow: 0 0 2px var(--neon);
+    }
+}
+
+@keyframes rs-neon-buzz {
+    0%, 60% {
+        opacity: 0.4;
+    }
+
+    30%, 100% {
+        opacity: 1;
+    }
+}
+
+/* Once the header has scrolled away, the sign hangs in the corner. */
 .rs-header-gone .rs-open-toggle {
     position: fixed;
     right: 18px;
     bottom: 18px;
     z-index: 850;
-    border-color: var(--z-gold);
-    background: var(--z-gold);
-    color: var(--z-ink);
-    box-shadow: 0 10px 30px rgba(74, 8, 3, 0.45);
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.55));
     animation: rs-pop-in 0.4s var(--rs-ease);
 }
 
@@ -1647,7 +2008,7 @@ a:focus-visible .rs-vhs img {
     }
 }
 
-@media (min-width: 1240px) {
+@media (min-width: 1360px) {
     .rs-nav {
         display: flex;
     }
@@ -1665,7 +2026,7 @@ a:focus-visible .rs-vhs img {
     }
 
     .rs-brand-text strong {
-        font-size: 23px;
+        font-size: 24px;
     }
 
     .rs-brand-text small {
@@ -1675,7 +2036,25 @@ a:focus-visible .rs-vhs img {
     .rs-header-book {
         display: none;
     }
+
+    .rs-open-toggle {
+        min-height: 44px;
+        font-size: 20px;
+    }
 }
+
+/* Stars thrown by whatever you press (rebel-cutup.js). */
+.rs-sparks {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+    .rs-sparks svg {
+        position: absolute;
+    }
 
 /* ---------- #open: the full-screen menu under a red sky ---------- */
 
@@ -1769,20 +2148,22 @@ html.rs-open-lock body {
 }
 
 .rs-open-close {
+    --cut: polygon(2% 10%, 38% 0, 100% 6%, 97% 92%, 60% 100%, 0 95%);
     display: inline-flex;
     align-items: center;
     gap: 10px;
     min-height: 44px;
-    padding: 9px 18px;
-    border: 2px solid var(--z-cream);
-    border-radius: 999px;
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: 19px;
-    font-weight: 800;
+    padding: 10px 20px 9px;
+    background: var(--z-cream);
+    color: var(--z-ink);
+    font-family: var(--rs-stencil);
+    font-size: 20px;
+    font-weight: 900;
     letter-spacing: 0.06em;
     text-decoration: none;
     text-transform: uppercase;
+    clip-path: var(--cut);
+    transition: rotate 0.25s var(--rs-ease), background-color 0.2s ease;
 }
 
     .rs-open-close span {
@@ -1793,9 +2174,9 @@ html.rs-open-lock body {
 
     .rs-open-close:hover,
     .rs-open-close:focus-visible {
-        border-color: var(--z-gold);
         background: var(--z-gold);
-        color: var(--z-ink);
+        outline: none;
+        rotate: 3deg;
     }
 
 .rs-open-nav {
@@ -2628,17 +3009,16 @@ html.rs-open-lock body {
 }
 
 .rs-home-panel-action {
+    --face: var(--z-red);
+    --face-ink: var(--z-cream);
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    padding: 9px 18px;
-    border-radius: 999px;
-    background: var(--z-red);
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
+    padding: 10px 18px 9px;
+    font-family: var(--rs-stencil);
+    font-size: 19px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
@@ -2824,22 +3204,21 @@ html.rs-open-lock body {
 }
 
 .rs-menu-tab {
+    --face: rgba(255, 241, 220, 0.14);
+    --face-ink: var(--z-cream);
     display: inline-flex;
     align-items: center;
     gap: 12px;
     min-height: 58px;
-    padding: 14px 30px;
-    border: 2px solid var(--z-cream);
-    border-radius: 999px;
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: 26px;
+    padding: 15px 30px 13px;
+    font-family: var(--rs-stencil);
+    font-size: 28px;
     font-weight: 900;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
     line-height: 1;
     text-decoration: none;
     text-transform: uppercase;
-    transition: transform 0.3s var(--rs-ease), background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: rotate 0.3s var(--rs-ease), background-color 0.2s ease, color 0.2s ease;
 }
 
     .rs-menu-tab span {
@@ -2850,15 +3229,15 @@ html.rs-open-lock body {
 
     .rs-menu-tab:hover,
     .rs-menu-tab:focus-visible {
-        background: var(--z-cream);
-        color: var(--z-red);
-        transform: rotate(-2deg);
+        --face: var(--z-cream);
+        --face-ink: var(--z-red);
+        outline: none;
+        rotate: -2deg;
     }
 
     .rs-menu-tab.is-active {
-        border-color: var(--z-gold);
-        background: var(--z-gold);
-        color: var(--z-ink);
+        --face: var(--z-gold);
+        --face-ink: var(--z-ink);
     }
 
 /* ---------- the food list: a fanzine ---------- */
@@ -3240,9 +3619,7 @@ html.rs-open-lock body {
 }
 
 .rs-pill--warning {
-    border-color: var(--z-red);
     background: var(--z-red);
-    color: var(--z-cream);
 }
 
 .rs-food-card p {
@@ -3253,27 +3630,29 @@ html.rs-open-lock body {
 }
 
 .rs-food-pair {
+    --face: var(--z-red);
+    --face-ink: var(--z-cream);
     display: inline-flex;
     align-items: center;
     gap: 10px;
     align-self: flex-start;
     margin-top: auto;
-    padding: 9px 18px;
-    border-radius: 999px;
-    background: var(--z-red);
-    color: var(--z-cream);
-    font-family: var(--rs-display);
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: 0.04em;
+    padding: 10px 18px 9px;
+    font-family: var(--rs-stencil);
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.05em;
     text-decoration: none;
     text-transform: uppercase;
+    transition: rotate 0.25s var(--rs-ease), background-color 0.2s ease, color 0.2s ease;
 }
 
     .rs-food-pair:hover,
     .rs-food-pair:focus-visible {
-        background: var(--z-ink);
-        color: var(--z-gold);
+        --face: var(--z-ink);
+        --face-ink: var(--z-gold);
+        outline: none;
+        rotate: -2deg;
     }
 
     .rs-food-pair i {
@@ -3363,17 +3742,6 @@ html.rs-open-lock body {
     letter-spacing: -0.02em;
     text-transform: none;
 }
-
-.rs-events-stats {
-    margin-top: 40px;
-}
-
-    .rs-events-stats dt {
-        max-width: 28ch;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
 
 .rs-events-scroll {
     margin-top: 40px;
@@ -4973,7 +5341,7 @@ html.rs-open-lock body {
         min-height: 46px;
         padding: 0 16px;
         border: 2px solid var(--z-ink);
-        border-radius: 999px;
+        border-radius: 0;
         background: var(--z-ink);
         color: var(--z-cream);
         font: inherit;
@@ -5553,8 +5921,8 @@ html.rs-open-lock body {
 /* =========================================================
    9z. SPACE — Ground Control's HUD, the bolt constellation, Earth
 
-   Space is drawn as instruments would draw it: hairlines, ticks,
-   coordinates and small mono readouts over a real-looking sky
+   Space is drawn as instruments would draw it: hairlines, ticks
+   and one mono readout over a real-looking sky
    (rebel-sky.js), not as cartoons.
    ========================================================= */
 
@@ -5585,20 +5953,20 @@ html.rs-open-lock body {
     }
 }
 
+/* The mission clock, top right. */
 .rs-hud-read {
     position: absolute;
+    top: 7px;
+    right: 32px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    max-width: calc(50% - 40px);
-    overflow: hidden;
     color: rgba(154, 211, 240, 0.8);
     font-family: var(--rs-mono);
     font-size: 10px;
     font-weight: 400;
     letter-spacing: 0.16em;
     line-height: 1.3;
-    text-overflow: ellipsis;
     text-transform: uppercase;
     white-space: nowrap;
 }
@@ -5608,38 +5976,6 @@ html.rs-open-lock body {
         font-weight: 700;
         font-variant-numeric: tabular-nums;
     }
-
-.rs-hud-read--tl,
-.rs-hud-read--tr {
-    top: 7px;
-}
-
-.rs-hud-read--bl,
-.rs-hud-read--br {
-    bottom: 6px;
-}
-
-.rs-hud-read--tl,
-.rs-hud-read--bl {
-    left: 32px;
-}
-
-.rs-hud-read--tr,
-.rs-hud-read--br {
-    right: 32px;
-}
-
-/* Four bars of signal, the last one fading. */
-.rs-hud-signal {
-    flex-shrink: 0;
-    width: 15px;
-    height: 9px;
-    background:
-        linear-gradient(var(--z-gold), var(--z-gold)) 0 100% / 2px 32% no-repeat,
-        linear-gradient(var(--z-gold), var(--z-gold)) 4px 100% / 2px 56% no-repeat,
-        linear-gradient(var(--z-gold), var(--z-gold)) 8px 100% / 2px 80% no-repeat,
-        linear-gradient(rgba(154, 211, 240, 0.4), rgba(154, 211, 240, 0.4)) 12px 100% / 2px 100% no-repeat;
-}
 
 /* The altitude tape down the right edge; its marker follows the scroll. */
 .rs-hud-tape {
@@ -5679,36 +6015,17 @@ html.rs-open-lock body {
         linear-gradient(var(--hud), var(--hud)) center / 66px 1px no-repeat;
 }
 
-    .rs-hud-cross::after {
-        content: "TGT 04";
-        position: absolute;
-        top: -2px;
-        left: calc(100% + 12px);
-        color: rgba(154, 211, 240, 0.7);
-        font-family: var(--rs-mono);
-        font-size: 9px;
-        letter-spacing: 0.16em;
-        white-space: nowrap;
-    }
-
 @media (max-width: 767.98px) {
     .rs-hud {
         --hud-arm: 14px;
     }
 
-    .rs-hud-read--bl,
     .rs-hud-cross,
     .rs-hud-tape {
         display: none;
     }
 
-    .rs-hud-read--tl,
-    .rs-hud-read--bl {
-        left: 20px;
-    }
-
-    .rs-hud-read--tr,
-    .rs-hud-read--br {
+    .rs-hud-read {
         right: 20px;
     }
 }
@@ -5763,19 +6080,12 @@ html.rs-open-lock body {
     }
 
 .rs-constellation-labels text {
-    fill: rgba(154, 211, 240, 0.8);
-    font-family: var(--rs-mono);
-    font-size: 9px;
-    letter-spacing: 0.14em;
+    fill: var(--z-gold);
+    font-family: var(--rs-display);
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
 }
-
-    .rs-constellation-labels text.rs-constellation-name {
-        fill: var(--z-gold);
-        font-family: var(--rs-display);
-        font-size: 26px;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-    }
 
 @media (max-width: 991.98px) {
     .rs-constellation {
@@ -5870,22 +6180,6 @@ body:has(.rs-error-earth) .rs-footer {
     pointer-events: none;
 }
 
-    /* Ground Control's tag on the planet. */
-    .rs-mars::after {
-        content: attr(data-label);
-        position: absolute;
-        top: 76%;
-        right: 88%;
-        padding-top: 6px;
-        border-top: 1px solid rgba(154, 211, 240, 0.55);
-        color: rgba(154, 211, 240, 0.85);
-        font-family: var(--rs-mono);
-        font-size: 9px;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-
 /* ---------- Starman, waiting in the sky: one bright star through a lens ---------- */
 
 .rs-starman {
@@ -5907,20 +6201,6 @@ body:has(.rs-error-earth) .rs-footer {
             linear-gradient(90deg, transparent, rgba(255, 240, 215, 0.32) 50%, transparent) center / 100% 1px no-repeat,
             linear-gradient(180deg, transparent, rgba(255, 240, 215, 0.32) 50%, transparent) center / 1px 100% no-repeat;
         rotate: 45deg;
-    }
-
-    .rs-starman span {
-        position: absolute;
-        top: 57%;
-        left: 57%;
-        padding-top: 6px;
-        border-top: 1px solid rgba(154, 211, 240, 0.55);
-        color: rgba(154, 211, 240, 0.85);
-        font-family: var(--rs-mono);
-        font-size: 9px;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        white-space: nowrap;
     }
 
 .rs-menu-mars,

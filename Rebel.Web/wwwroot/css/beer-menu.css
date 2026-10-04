@@ -12,7 +12,7 @@
     --beer-mono: "Space Mono", ui-monospace, monospace;
     /* The disc and badge rings are sized for a fixed-width face. */
     --beer-ring: "Space Mono", ui-monospace, monospace;
-    --beer-body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --beer-body: var(--rs-body);
     --beer-paper: #fff1dc;
     --beer-night: #1a0f0d;
     --beer-orange: #e2401a;
@@ -1352,5 +1352,143 @@
 
     .rr-beer-intro-text {
         font-size: 16px;
+    }
+}
+
+/* =========================================================
+   CUT-UP — no pills on the record either. Buttons, filters
+   and flags are scraps and label tape like the rest of the
+   site (site.css); rebel-cutup.js re-cuts the scraps.
+   ========================================================= */
+
+.rr-beer-filter,
+.rr-beer-outro-actions a,
+.rr-beer-outro-actions a:first-child,
+.rr-beer-callout a,
+.rr-beer-empty button {
+    --cut: polygon(0 8%, 47% 0, 100% 6%, 98% 94%, 53% 100%, 2% 92%);
+    border: 0;
+    border-radius: 0;
+    clip-path: var(--cut);
+    font-family: var(--rs-stencil);
+    letter-spacing: 0.06em;
+}
+
+.rr-beer-filter {
+    padding: 10px 15px 9px;
+    background: rgba(255, 241, 220, 0.1);
+    font-size: 16px;
+}
+
+    .rr-beer-filter:hover {
+        background: rgba(255, 241, 220, 0.22);
+        color: var(--beer-paper);
+    }
+
+    .rr-beer-filter:focus-visible {
+        outline: none;
+        background: var(--beer-paper);
+        color: var(--beer-night);
+    }
+
+    .rr-beer-filter.is-active {
+        background: var(--chip-bg, var(--beer-yellow));
+    }
+
+.rr-beer-outro-actions a {
+    background: rgba(255, 241, 220, 0.16);
+    font-size: 20px;
+}
+
+    .rr-beer-outro-actions a:hover,
+    .rr-beer-outro-actions a:focus-visible {
+        outline: none;
+        background: var(--beer-paper);
+    }
+
+    .rr-beer-outro-actions a:first-child {
+        background: var(--beer-yellow);
+    }
+
+.rr-beer-empty button {
+    font-size: 17px;
+}
+
+/* "Ask Rebel AI about this beer": a scrap in the track's ink over its accent plate. */
+.rr-beer-action {
+    --cut: polygon(1% 9%, 31% 0, 64% 7%, 100% 1%, 97% 48%, 100% 97%, 66% 100%, 33% 93%, 0 100%, 3% 52%);
+    position: relative;
+    isolation: isolate;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font-family: var(--rs-stencil);
+    font-size: 20px;
+    letter-spacing: 0.06em;
+}
+
+    .rr-beer-action::before,
+    .rr-beer-action::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        clip-path: var(--cut);
+        transition: translate 0.25s var(--beer-ease);
+    }
+
+    .rr-beer-action::before {
+        background: var(--track-accent);
+        translate: -5px 5px;
+    }
+
+    .rr-beer-action::after {
+        background: var(--stage-ink);
+    }
+
+    .rr-beer-action:hover,
+    .rr-beer-action:focus-visible {
+        background: none;
+        box-shadow: none;
+    }
+
+        .rr-beer-action:hover::before,
+        .rr-beer-action:focus-visible::before {
+            translate: -9px 8px;
+        }
+
+/* Flags are label-maker tape; the spacemen's picks are on red tape. */
+.rr-beer-flag {
+    padding: 5px 12px 4px;
+    border: 0;
+    border-radius: 0;
+    background: var(--beer-night);
+    color: var(--beer-paper);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7), 0 -1px 0 rgba(255, 255, 255, 0.16);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 4px) 50%, 100% 100%, 0 100%, 4px 50%);
+    rotate: -1.5deg;
+}
+
+    .rr-beer-flag:nth-child(even) {
+        rotate: 1deg;
+    }
+
+.rr-beer-flag--pick {
+    background: var(--beer-red);
+    color: var(--beer-paper);
+}
+
+/* A switch is a switch: square, with a square knob. */
+.rr-beer-toggle input,
+.rr-beer-toggle input::after {
+    border-radius: 0;
+}
+
+@media (max-width: 1099.98px) {
+    .rr-beer-rail-list a {
+        border: 0;
+        border-radius: 0;
+        background: color-mix(in srgb, currentColor 10%, transparent);
+        clip-path: polygon(0 8%, 47% 0, 100% 6%, 98% 94%, 53% 100%, 2% 92%);
     }
 }

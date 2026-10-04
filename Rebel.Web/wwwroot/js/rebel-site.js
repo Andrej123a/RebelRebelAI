@@ -3,7 +3,7 @@
 // - the full-screen #open menu,
 // - blocks marked data-rs-reveal come into focus as they scroll in,
 // - blocks marked data-rs-drift move at their own speed while scrolling,
-// - the HUD readouts: mission clock, altitude and speed,
+// - the HUD: the mission clock and the altitude tape,
 // - Bowie's looks (Views/Shared/Looks) come alive while on screen,
 // - the home page's Changes stage, one look at a time while you scroll.
 // The night sky, falling stars and stardust live in rebel-sky.js.
@@ -171,13 +171,11 @@
         targets.forEach((target) => observer.observe(target));
     }
 
-    // ---------- HUD: mission clock, altitude and speed ----------
+    // ---------- HUD: the mission clock and the altitude tape ----------
 
     const clocks = document.querySelectorAll("[data-rs-clock]");
-    const altitudes = document.querySelectorAll("[data-rs-alt]");
-    const speeds = document.querySelectorAll("[data-rs-vel]");
 
-    if (clocks.length || altitudes.length || speeds.length) {
+    if (clocks.length) {
         // The clock runs from the first page of the visit, like a mission clock from lift-off.
         let launched = Date.now();
 
@@ -198,44 +196,22 @@
         tick();
         window.setInterval(tick, 1000);
 
-        // Scrolling down the page climbs; scrolling fast adds speed, which bleeds off again.
-        let lastY = window.scrollY;
-        let lastAt = performance.now();
-        let boost = 0;
+        // The tape's marker climbs as you scroll down the page.
         let pending = false;
 
-        const telemetry = (now) => {
+        const climb = () => {
             pending = false;
-            const y = window.scrollY;
-            const rate = Math.abs(y - lastY) / Math.max(16, now - lastAt);
-            lastY = y;
-            lastAt = now;
-            boost = boost * 0.9 + rate * 0.1;
-
             const travel = Math.max(1, root.scrollHeight - window.innerHeight);
-            root.style.setProperty("--hud-tape", (Math.min(1, y / travel)).toFixed(3));
-
-            const altitude = Math.round(408 + y * 0.12).toLocaleString("en-US");
-            altitudes.forEach((alt) => { alt.textContent = altitude; });
-
-            const speed = (7.66 + boost * 3).toFixed(2);
-            speeds.forEach((vel) => { vel.textContent = speed; });
-
-            if (boost > 0.002) {
-                pending = true;
-                requestAnimationFrame(telemetry);
-            }
+            root.style.setProperty("--hud-tape", (Math.min(1, window.scrollY / travel)).toFixed(3));
         };
 
-        const queue = () => {
+        window.addEventListener("scroll", () => {
             if (!pending) {
                 pending = true;
-                requestAnimationFrame(telemetry);
+                requestAnimationFrame(climb);
             }
-        };
-
-        window.addEventListener("scroll", queue, { passive: true });
-        queue();
+        }, { passive: true });
+        climb();
     }
 
     if (reducedMotion) {
