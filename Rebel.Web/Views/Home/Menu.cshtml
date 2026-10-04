@@ -34,19 +34,12 @@
         _ => ("Food with", "bad intentions")
     };
 
-    // Who stands in the hero: Life on Mars? over the food, Ziggy over the beer.
+    // The hero's photo: Mars over the food (Life on Mars?), the pub's own cans over the beer (Ziggy).
     var heroLook = selectedSection switch
     {
         "beer" => "ziggy",
         "drink" => null,
         _ => "mars"
-    };
-
-    var heroIcon = selectedSection switch
-    {
-        "beer" => "star",
-        "drink" => null,
-        _ => "planet"
     };
 
     var menuGroups = Model
@@ -61,18 +54,9 @@
     <header class="rs-chapter rs-chapter--sky rs-menu-hero" data-rs-stardust>
         <span class="rs-stars rs-menu-stars"></span>
 
-        @if (heroIcon == "planet")
-        {
-            <div class="rs-mars rs-menu-mars" aria-hidden="true" data-rs-drift="-0.1"></div>
-        }
-        else if (heroIcon == "star")
-        {
-            <div class="rs-starman rs-menu-starman" aria-hidden="true" data-rs-drift="-0.1"></div>
-        }
-
         @if (heroLook != null)
         {
-            <partial name="_Look" model='new LookModel(heroLook, "hero", "rs-page-look rs-page-look--menu")' />
+            <partial name="_Look" model='new LookModel(heroLook, "rs-page-look rs-page-look--menu", "(max-width: 760px) 100vw, 50vw")' />
         }
 
         <div class="rs-container rs-menu-hero-inner">
@@ -164,7 +148,7 @@
                     </div>
                 </section>
 
-                <partial name="_Look" model='new LookModel("courier", "manifest", "rs-manifest-courier")' />
+                <partial name="_Look" model='new LookModel("courier", "rs-manifest-courier", "(max-width: 760px) 100vw, 40vw")' />
             </div>
 
             @if (!menuGroups.Any())

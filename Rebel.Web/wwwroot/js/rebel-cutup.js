@@ -1,6 +1,6 @@
 // Cut-up: everything you can press on the public pages is a scrap of paper.
 // - every scrap gets its own jagged cut, and is re-cut a few times a second while
-//   you hover or focus it (it boils, like the looks),
+//   you hover or focus it (it boils),
 // - button labels shuffle their letters when the mouse comes over them,
 // - buttons lean towards a mouse pointer,
 // - pressing anything throws a handful of stars,

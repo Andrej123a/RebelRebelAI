@@ -1,5 +1,4 @@
-/* The chat sits out in space, like every page's top (site.css), with one bright star
-   sending rings out like a radio signal. */
+/* The chat sits out in space, like every page's top (site.css). */
 .rr-guide-page {
     position: relative;
     isolation: isolate;
@@ -7,34 +6,6 @@
     min-height: 100vh;
     color: #fff1dc;
     background: none;
-}
-
-.rr-guide-starman {
-    top: 9%;
-    right: 3%;
-    z-index: -1;
-    width: clamp(220px, 24vw, 380px);
-}
-
-    /* Tag the star on its inner side, away from the edge of the screen. */
-    .rr-guide-starman span {
-        right: 57%;
-        left: auto;
-    }
-
-/* The star's signal, in rings: the only light blue on the page. */
-.rr-guide-waves {
-    position: absolute;
-    top: 9%;
-    right: 3%;
-    z-index: -1;
-    width: clamp(220px, 24vw, 380px);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: repeating-radial-gradient(circle, transparent 0 26px, rgba(154, 211, 240, 0.45) 26px 28px);
-    -webkit-mask-image: radial-gradient(circle, #000 30%, transparent 70%);
-    mask-image: radial-gradient(circle, #000 30%, transparent 70%);
-    pointer-events: none;
 }
 
 .rr-guide-header,
@@ -839,16 +810,13 @@
         grid-row: 1;
     }
 
+/* The black star: a total eclipse beside the chat. */
 .rr-guide-prophet {
     grid-column: 2;
     grid-row: 1;
+    align-self: center;
     width: 100%;
-    margin-bottom: calc(var(--rs-pad, 72px) * -1);
-}
-
-/* He is already on this page, so he sits out the footer. */
-body:has(.rr-guide-prophet) .rs-footer-look {
-    display: none;
+    aspect-ratio: 1;
 }
 
 .rr-guide-ai-stage {
