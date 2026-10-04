@@ -14,10 +14,10 @@
    printed matter laid over it (gold, newsprint), and melt
    into each other at the seams. Buttons are cream paper that
    turns Rebel red; light blue is kept for small details.
-   Huge condensed Big Shoulders (its stencil cut for anything
-   you press), Bricolage Grotesque for reading, Space Mono for
-   Ground Control, Playfair for fanzine headlines and Monoton
-   for the neon OPEN sign.
+   Three typefaces: Fraunces, a soft 1970s serif, for headlines
+   (its italic for the characters, quotes and the neon OPEN sign),
+   Hanken Grotesk for reading, and Space Mono, Ground Control's
+   typewriter, for labels and anything you press.
 
    Photos keep their files and crops. The treatments
    (lightning splits, black-and-white, videotape) are CSS on
@@ -58,15 +58,21 @@
     --z-news: #f1e8d6;
     --z-concrete: #a7a198;
 
-    --rs-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
-    /* Cut-up type: a stencil for anything you press, a neon tube for the sign, and a
-       grotesque with ink traps that gets more eccentric the bigger it is set. */
-    --rs-stencil: "Big Shoulders Stencil Display", "Big Shoulders Display", Impact, sans-serif;
-    --rs-neon: "Monoton", "Big Shoulders Display", Impact, sans-serif;
-    --rs-body: "Bricolage Grotesque", "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
+    /* Three faces for the whole project, each with one job.
+       Fraunces: a soft, wonky 1970s serif, the record sleeves and pub signs of
+       Bowie's glam years. Heavy and upright for headlines, italic for the characters'
+       lines, quotes and the neon sign.
+       Hanken Grotesk: plain and warm, for reading.
+       Space Mono: Ground Control's typewriter, for labels, times, codes and anything
+       you press. */
+    --rs-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+    --rs-body: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     --rs-mono: "Space Mono", ui-monospace, monospace;
-    --rs-news: "Playfair Display", Georgia, serif;
-    --rs-scrawl: "Rock Salt", cursive;
+    /* The older roles fold into the three. */
+    --rs-stencil: var(--rs-mono);
+    --rs-neon: var(--rs-display);
+    --rs-news: var(--rs-display);
+    --rs-scrawl: var(--rs-display);
 
     --rs-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
     --rs-snap: cubic-bezier(0.7, 0, 0.2, 1);
@@ -155,6 +161,7 @@ body {
     position: relative;
     min-height: 100vh;
     margin: 0;
+    font-variation-settings: "SOFT" 100, "WONK" 1;
     /* Transparent, so the night sky canvas behind it shows. */
     background: transparent;
     color: var(--z-cream);
@@ -196,8 +203,8 @@ h4,
 h5,
 h6 {
     font-family: var(--rs-display);
-    font-weight: 900;
-    letter-spacing: 0;
+    font-weight: 800;
+    letter-spacing: -0.01em;
 }
 
 p {
@@ -336,10 +343,11 @@ input[type="search"]::-webkit-search-cancel-button {
 .rs-scrawl {
     color: var(--ch-accent);
     font-family: var(--rs-scrawl);
-    font-size: 0.95rem;
+    font-style: italic;
+    font-size: 1.1rem;
     font-weight: 400;
     letter-spacing: 0;
-    line-height: 1.6;
+    line-height: 1.4;
     text-transform: none;
 }
 
@@ -355,10 +363,10 @@ input[type="search"]::-webkit-search-cancel-button {
     margin: 0;
     color: var(--ch-accent);
     font-family: var(--rs-display);
-    font-weight: 900;
-    letter-spacing: 0.005em;
-    line-height: 0.86;
-    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: -0.012em;
+    line-height: 0.92;
+    text-transform: none;
 }
 
 .rs-display--xl {
@@ -438,9 +446,9 @@ input[type="search"]::-webkit-search-cancel-button {
     background: none;
     color: var(--face-ink);
     font-family: var(--rs-stencil);
-    font-size: 22px;
-    font-weight: 900;
-    letter-spacing: 0.07em;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     line-height: 1;
     text-decoration: none;
     text-transform: uppercase;
@@ -608,9 +616,9 @@ input[type="search"]::-webkit-search-cancel-button {
     gap: 8px;
     padding: 10px 16px 9px;
     font-family: var(--rs-stencil);
-    font-size: 17px;
-    font-weight: 900;
-    letter-spacing: 0.06em;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     line-height: 1;
     text-transform: uppercase;
     cursor: pointer;
@@ -705,10 +713,10 @@ input[type="search"]::-webkit-search-cancel-button {
     padding: 6px 14px;
     border: 3px solid currentColor;
     color: var(--ch-accent);
-    font-family: var(--rs-display);
-    font-size: 22px;
-    font-weight: 900;
-    letter-spacing: 0.06em;
+    font-family: var(--rs-mono);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     line-height: 1;
     text-align: center;
     text-transform: uppercase;
@@ -749,10 +757,10 @@ input[type="search"]::-webkit-search-cancel-button {
         margin: 0;
         color: var(--ch-ink);
         font-family: var(--rs-display);
-        font-size: clamp(34px, 3.6vw, 56px);
+        font-size: clamp(30px, 3vw, 48px);
         font-weight: 800;
         line-height: 1;
-        text-transform: uppercase;
+        text-transform: none;
     }
 
         .rs-stats dd small {
@@ -1393,12 +1401,12 @@ a:focus-visible .rs-vhs img {
 
     .rs-brand-text strong {
         color: var(--z-cream);
-        font-family: var(--rs-stencil);
-        font-size: 30px;
-        font-weight: 900;
-        letter-spacing: 0.03em;
+        font-family: var(--rs-display);
+        font-size: 25px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
         text-shadow: 2px 2px 0 var(--z-red);
-        text-transform: uppercase;
+        text-transform: none;
         white-space: nowrap;
         transition: text-shadow 0.25s var(--rs-ease);
     }
@@ -1443,9 +1451,9 @@ a:focus-visible .rs-vhs img {
     background: var(--face);
     color: var(--face-ink);
     font-family: var(--rs-stencil);
-    font-size: 19px;
-    font-weight: 900;
-    letter-spacing: 0.05em;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     line-height: 1;
     text-decoration: none;
     text-transform: uppercase;
@@ -1497,9 +1505,9 @@ a:focus-visible .rs-vhs img {
         background: var(--l-bg, var(--z-cream));
         color: var(--l-ink, var(--z-ink));
         font-family: var(--l-font, var(--rs-stencil));
-        font-size: var(--l-size, 20px);
+        font-size: var(--l-size, 15px);
         font-style: var(--l-style, normal);
-        font-weight: 900;
+        font-weight: var(--l-weight, 700);
         letter-spacing: 0;
         line-height: 1;
         text-align: center;
@@ -1583,9 +1591,9 @@ a:focus-visible .rs-vhs img {
     padding: 11px 16px 9px 20px;
     background: var(--tk-face);
     font-family: var(--rs-stencil);
-    font-size: 21px;
-    font-weight: 900;
-    letter-spacing: 0.07em;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     line-height: 1;
     text-transform: uppercase;
     white-space: nowrap;
@@ -1615,7 +1623,7 @@ a:focus-visible .rs-vhs img {
 
     .rs-ticket-stub {
         font-family: var(--rs-stencil);
-        font-size: 22px;
+        font-size: 16px;
         letter-spacing: 0;
     }
 
@@ -1661,13 +1669,14 @@ a:focus-visible .rs-vhs img {
     padding: 8px 14px 6px 10px;
     color: var(--tube);
     font-family: var(--rs-neon);
-    font-size: 24px;
-    font-weight: 400;
-    letter-spacing: 0.04em;
+    font-style: italic;
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: 0;
     line-height: 1;
     text-decoration: none;
     text-shadow: 0 0 1px #fff, 0 0 5px var(--neon), 0 0 12px var(--neon), 0 0 26px var(--neon-hot);
-    text-transform: uppercase;
+    text-transform: none;
     white-space: nowrap;
     transition: rotate 0.3s var(--rs-ease);
 }
@@ -1699,7 +1708,7 @@ a:focus-visible .rs-vhs img {
     }
 
 .rs-neon-word i {
-    font-style: normal;
+    font-style: inherit;
 }
 
 .rs-open-toggle:hover,
@@ -1914,9 +1923,9 @@ html.rs-open-lock body {
     background: var(--z-cream);
     color: var(--z-ink);
     font-family: var(--rs-stencil);
-    font-size: 20px;
-    font-weight: 900;
-    letter-spacing: 0.06em;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-decoration: none;
     text-transform: uppercase;
     clip-path: var(--cut);
@@ -1953,10 +1962,10 @@ html.rs-open-lock body {
 
 .rs-open-word {
     font-family: var(--rs-display);
-    font-size: clamp(54px, 8vw, 124px);
+    font-size: clamp(48px, 6.6vw, 104px);
     font-weight: 900;
-    line-height: 0.92;
-    text-transform: uppercase;
+    line-height: 0.95;
+    text-transform: none;
     transition: transform 0.35s var(--rs-ease), color 0.2s ease;
 }
 
@@ -2122,10 +2131,10 @@ html.rs-open-lock body {
     margin: 0;
     color: var(--z-yellow);
     font-family: var(--rs-display);
-    font-size: clamp(72px, 8vw, 132px);
+    font-size: clamp(64px, 7vw, 116px);
     font-weight: 900;
-    line-height: 0.82;
-    text-transform: uppercase;
+    line-height: 0.86;
+    text-transform: none;
 }
 
     .rs-footer-word span {
@@ -2169,9 +2178,9 @@ html.rs-open-lock body {
 
     .rs-footer-col a {
         font-family: var(--rs-stencil);
-        font-size: 18px;
-        font-weight: 900;
-        letter-spacing: 0.05em;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
     }
 
@@ -2187,10 +2196,10 @@ html.rs-open-lock body {
 /* The facts themselves, set large. */
 .rs-footer-col .rs-footer-big {
     font-family: var(--rs-display);
-    font-size: clamp(26px, 2.3vw, 38px);
+    font-size: clamp(24px, 2.1vw, 34px);
     font-weight: 800;
     line-height: 1;
-    text-transform: uppercase;
+    text-transform: none;
 }
 
 .rs-footer-bottom {
@@ -2280,21 +2289,22 @@ html.rs-open-lock body {
 .rs-hero-meet {
     color: var(--z-cream);
     font-family: var(--rs-display);
-    font-size: clamp(42px, 6.2vw, 100px);
+    font-size: clamp(38px, 5.2vw, 84px);
     font-weight: 800;
-    line-height: 0.9;
-    text-transform: uppercase;
+    line-height: 0.92;
+    text-transform: none;
 }
 
 .rs-hero-rebels {
     margin-left: -0.03em;
     color: var(--z-gold);
     font-family: var(--rs-display);
-    font-size: clamp(124px, 20vw, 330px);
+    font-style: italic;
+    font-size: clamp(96px, 15vw, 250px);
     font-weight: 900;
-    letter-spacing: 0.01em;
-    line-height: 0.8;
-    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.86;
+    text-transform: none;
 }
 
 .rs-hero-mural {
@@ -2481,10 +2491,10 @@ html.rs-open-lock body {
 .rs-cargo-head {
     color: var(--z-cream);
     font-family: var(--rs-display);
-    font-size: clamp(34px, 3.4vw, 56px);
+    font-size: clamp(30px, 2.9vw, 48px);
     font-weight: 900;
-    line-height: 0.92;
-    text-transform: uppercase;
+    line-height: 0.95;
+    text-transform: none;
 }
 
 /* A window in the side of the pod, rivets at the corners, the photos turning over. */
@@ -2577,9 +2587,9 @@ html.rs-open-lock body {
     gap: 10px;
     padding: 10px 18px 9px;
     font-family: var(--rs-stencil);
-    font-size: 19px;
-    font-weight: 900;
-    letter-spacing: 0.05em;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     transition: background-color 0.2s ease, color 0.2s ease;
 }
@@ -2737,9 +2747,9 @@ html.rs-open-lock body {
     min-height: 58px;
     padding: 15px 30px 13px;
     font-family: var(--rs-stencil);
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: 0.04em;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     line-height: 1;
     text-decoration: none;
     text-transform: uppercase;
@@ -2863,9 +2873,9 @@ html.rs-open-lock body {
 
     .rs-food-empty strong {
         font-family: var(--rs-display);
-        font-size: 28px;
+        font-size: 26px;
         font-weight: 900;
-        text-transform: uppercase;
+        text-transform: none;
     }
 
     .rs-food-empty span {
@@ -2911,10 +2921,10 @@ html.rs-open-lock body {
     margin: 0;
     color: var(--z-cream);
     font-family: var(--rs-display);
-    font-size: clamp(44px, 5.6vw, 84px);
+    font-size: clamp(38px, 4.6vw, 70px);
     font-weight: 900;
-    line-height: 0.9;
-    text-transform: uppercase;
+    line-height: 0.92;
+    text-transform: none;
 }
 
 .rs-food-grid {
@@ -3015,8 +3025,8 @@ html.rs-open-lock body {
     background: rgba(10, 8, 9, 0.86);
     color: var(--z-gold);
     font-family: var(--rs-display);
-    font-size: 26px;
-    font-weight: 900;
+    font-size: 24px;
+    font-weight: 800;
     line-height: 1;
 }
 
@@ -3036,8 +3046,8 @@ html.rs-open-lock body {
     background: var(--z-red);
     color: var(--z-cream);
     font-family: var(--rs-stencil);
-    font-size: 15px;
-    font-weight: 900;
+    font-size: 11px;
+    font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     rotate: 35deg;
@@ -3055,10 +3065,10 @@ html.rs-open-lock body {
     margin: 0;
     color: var(--z-cream);
     font-family: var(--rs-display);
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 900;
-    line-height: 0.95;
-    text-transform: uppercase;
+    line-height: 1;
+    text-transform: none;
 }
 
 .rs-food-tags {
@@ -3101,9 +3111,9 @@ html.rs-open-lock body {
     margin-top: auto;
     padding: 10px 18px 9px;
     font-family: var(--rs-stencil);
-    font-size: 18px;
-    font-weight: 900;
-    letter-spacing: 0.05em;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-decoration: none;
     text-transform: uppercase;
     transition: rotate 0.25s var(--rs-ease), background-color 0.2s ease, color 0.2s ease;
@@ -3178,8 +3188,8 @@ html.rs-open-lock body {
     font-family: var(--rs-news);
     font-size: 0.5em;
     font-style: italic;
-    font-weight: 900;
-    letter-spacing: -0.02em;
+    font-weight: 600;
+    letter-spacing: 0;
     text-transform: none;
 }
 
@@ -3224,10 +3234,10 @@ html.rs-open-lock body {
 
     .rs-events-feature-copy strong {
         font-family: var(--rs-display);
-        font-size: clamp(38px, 3.8vw, 62px);
+        font-size: clamp(34px, 3.2vw, 52px);
         font-weight: 900;
-        line-height: 0.9;
-        text-transform: uppercase;
+        line-height: 0.95;
+        text-transform: none;
     }
 
 .rs-events-feature-link {
@@ -3292,10 +3302,10 @@ html.rs-open-lock body {
 
     .rs-events-date strong {
         font-family: var(--rs-display);
-        font-size: clamp(76px, 7vw, 116px);
+        font-size: clamp(64px, 6vw, 100px);
         font-weight: 900;
         letter-spacing: 0;
-        line-height: 0.82;
+        line-height: 0.86;
     }
 
     .rs-events-date small {
@@ -3583,10 +3593,10 @@ html.rs-open-lock body {
     .rs-reserve-art-copy strong {
         color: var(--z-gold);
         font-family: var(--rs-display);
-        font-size: clamp(54px, 5.6vw, 90px);
+        font-size: clamp(46px, 4.6vw, 76px);
         font-weight: 900;
-        line-height: 0.86;
-        text-transform: uppercase;
+        line-height: 0.92;
+        text-transform: none;
     }
 
 .rs-reserve-logo {
@@ -3646,10 +3656,10 @@ html.rs-open-lock body {
 
     .rs-reserve-event strong {
         font-family: var(--rs-display);
-        font-size: 32px;
+        font-size: 28px;
         font-weight: 900;
         line-height: 1;
-        text-transform: uppercase;
+        text-transform: none;
     }
 
 .rs-reserve-row {
@@ -3795,10 +3805,10 @@ html.rs-open-lock body {
         margin: 8px 0 6px;
         color: var(--z-gold);
         font-family: var(--rs-display);
-        font-size: clamp(30px, 2.8vw, 42px);
+        font-size: clamp(26px, 2.4vw, 36px);
         font-weight: 900;
         line-height: 1;
-        text-transform: uppercase;
+        text-transform: none;
     }
 
     .rs-booking-search p {
@@ -3823,9 +3833,9 @@ html.rs-open-lock body {
 
     .rs-booking-empty strong {
         font-family: var(--rs-display);
-        font-size: 30px;
+        font-size: 26px;
         font-weight: 900;
-        text-transform: uppercase;
+        text-transform: none;
     }
 
     .rs-booking-empty span {
@@ -3915,9 +3925,9 @@ html.rs-open-lock body {
         display: block;
         margin: 6px 0 4px;
         font-family: var(--rs-display);
-        font-size: 28px;
+        font-size: 24px;
         font-weight: 900;
-        text-transform: uppercase;
+        text-transform: none;
     }
 
     .rs-booking-cancel p {
@@ -3991,10 +4001,10 @@ html.rs-open-lock body {
     margin: 12px 0 4px;
     color: var(--z-gold);
     font-family: var(--rs-display);
-    font-size: clamp(32px, 3vw, 46px);
+    font-size: clamp(28px, 2.6vw, 40px);
     font-weight: 900;
     line-height: 1;
-    text-transform: uppercase;
+    text-transform: none;
 }
 
 .rs-confirm-status p {
@@ -4026,7 +4036,7 @@ html.rs-open-lock body {
         margin-bottom: 10px;
         color: var(--z-gold);
         font-family: var(--rs-display);
-        font-size: 60px;
+        font-size: 52px;
         font-weight: 900;
         line-height: 1;
     }
@@ -4147,10 +4157,10 @@ html.rs-open-lock body {
     .rs-contact-place strong,
     .rs-contact-walkin strong {
         font-family: var(--rs-display);
-        font-size: clamp(44px, 4.4vw, 70px);
+        font-size: clamp(38px, 3.8vw, 60px);
         font-weight: 900;
-        line-height: 0.9;
-        text-transform: uppercase;
+        line-height: 0.94;
+        text-transform: none;
     }
 
 .rs-contact-place-link {
@@ -4315,11 +4325,13 @@ html.rs-open-lock body {
 /* =========================================================
    9y. BOWIE'S LOOKS, PAINTED, IN FRONT OF REAL PHOTOS
 
-   The characters are painted rather than printed (Art/Looks):
-   one light on the figure, volume and sheen on every shape, soft
-   shadows instead of halftone and outlines sunk into the paint.
-   The site shows their renders (wwwroot/art/looks), so none of
-   that costs anything while the page moves. Behind each one is a real photo of the
+   The characters are drawn in Art/Looks and painted from those
+   drawings by Art/Paint: lit from one side with a modelled face,
+   then laid in stroke by stroke with bristle brushes over a warm
+   ground, loose in the big shapes and careful round the eyes,
+   with the lines put in last by a fine brush. The site shows the
+   paintings (wwwroot/art/looks), so none of that costs anything
+   while the page moves. Behind each one is a real photo of the
    part of the pub he looks after (Models/RealPhoto.cs): NASA
    and other Unsplash photographers, hotlinked from
    images.unsplash.com with the photographer credited, or one
@@ -4413,10 +4425,10 @@ html.rs-open-lock body {
     margin: 0;
     color: var(--z-cream);
     font-family: var(--rs-display);
-    font-size: clamp(48px, 7.4vw, 128px);
+    font-size: clamp(42px, 6vw, 104px);
     font-weight: 900;
-    line-height: 0.86;
-    text-transform: uppercase;
+    line-height: 0.92;
+    text-transform: none;
 }
 
 .rs-changes-lead {
@@ -4491,19 +4503,27 @@ html.rs-open-lock body {
     pointer-events: none;
 }
 
-    .rs-changes-art .rs-look {
+    .rs-changes-figure {
+        position: relative;
+        display: block;
         width: min(100%, 460px);
         margin-inline: auto;
     }
+
+        .rs-changes-figure .rs-look {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
 
 .rs-changes-job {
     margin: 12px 0 0;
     color: var(--z-cream);
     font-family: var(--rs-display);
-    font-size: clamp(44px, 6.2vw, 112px);
+    font-size: clamp(40px, 5.2vw, 92px);
     font-weight: 900;
-    line-height: 0.86;
-    text-transform: uppercase;
+    line-height: 0.92;
+    text-transform: none;
 }
 
 .rs-changes-line {
@@ -4518,11 +4538,12 @@ html.rs-open-lock body {
     margin: 16px 0 0;
     color: var(--look-hot);
     font-family: var(--rs-display);
-    font-size: clamp(24px, 2.6vw, 40px);
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    line-height: 1;
-    text-transform: uppercase;
+    font-style: italic;
+    font-size: clamp(22px, 2.2vw, 34px);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.05;
+    text-transform: none;
 }
 
     .rs-changes-who b {
@@ -4581,10 +4602,10 @@ html.rs-open-lock body {
     .rs-changes-order strong {
         grid-column: 1;
         font-family: var(--rs-display);
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 800;
         line-height: 1;
-        text-transform: uppercase;
+        text-transform: none;
     }
 
     .rs-changes-order span:not(.rs-changes-order-label) {
@@ -4597,7 +4618,7 @@ html.rs-open-lock body {
         grid-row: 2 / span 2;
         grid-column: 2;
         font-family: var(--rs-display);
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 800;
         line-height: 1;
     }
@@ -4753,12 +4774,16 @@ html.rs-open-lock body {
         justify-content: center;
         transform: translateY(9%);
         transition: transform 0.9s var(--rs-ease);
+        container-type: inline-size;
     }
 
-        .rs-changes.is-staged .rs-changes-art .rs-look {
+        /* As tall as the stage allows, but never wider than his column. */
+        .rs-changes.is-staged .rs-changes-figure {
             width: auto;
             height: min(88%, 860px);
+            height: min(88%, 860px, 130cqw);
             max-width: 100%;
+            aspect-ratio: 400 / 520;
             margin: 0;
         }
 
@@ -4833,7 +4858,7 @@ html.rs-open-lock body {
         order: 0;
     }
 
-        .rs-changes-art .rs-look {
+        .rs-changes-figure {
             width: min(82%, 360px);
         }
 
@@ -4883,8 +4908,9 @@ html.rs-open-lock body {
             padding-top: 72px;
         }
 
-            .rs-changes.is-staged .rs-changes-art .rs-look {
+            .rs-changes.is-staged .rs-changes-figure {
                 height: 100%;
+                height: min(100%, 130cqw);
                 max-height: 100%;
             }
 
@@ -5488,5 +5514,299 @@ html.rs-open-lock body {
     100% {
         opacity: 0;
         transform: translate(-22vw, -12vh) rotate(-16deg);
+    }
+}
+
+/* =========================================================
+   11. FILM AND HAND — what the Heroes longread does, our way
+   Grain over everything, headlines that rise word by word,
+   the cast coming into focus, the room's photos dealt like
+   prints, and two of the characters' own effects: Aladdin
+   Sane's bolt catching like lightning, the Duke's cigarette
+   smoking. With less motion all of it holds still.
+   ========================================================= */
+
+/* The whole site is shot on film: a tile of light and dark specks over everything. */
+.rs-grain {
+    position: fixed;
+    inset: -50%;
+    z-index: 1400;
+    background: url("../art/grain.webp") 0 0 / 200px 200px;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.rs-fx-bolt,
+.rs-fx-smoke {
+    display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+
+    /* The grain jumps to a new place twelve times a second, like film running through. */
+    .rs-grain {
+        animation: rs-grain 0.66s steps(1) infinite;
+    }
+
+    /* Headlines rise out of their own line, word by word (rebel-site.js splits them). */
+    .rs-rise .rs-w {
+        display: inline-block;
+        overflow: hidden;
+        padding: 0.16em 0.14em 0.2em;
+        margin: -0.16em -0.14em -0.2em;
+        vertical-align: top;
+    }
+
+        .rs-rise .rs-w > span {
+            display: inline-block;
+            transform: translateY(115%) rotate(6deg);
+            transform-origin: 0 100%;
+            transition: transform 1s var(--rs-ease) calc(var(--w, 0) * 60ms);
+        }
+
+    .rs-rise.is-risen .rs-w > span {
+        transform: none;
+    }
+
+    /* On the home stage each job rises as its character takes the stage... */
+    .rs-changes.is-staged .rs-changes-job.rs-rise .rs-w > span {
+        transform: translateY(115%) rotate(6deg);
+        transition-duration: 0.5s;
+    }
+
+    .rs-changes.is-staged .is-current .rs-changes-job.rs-rise .rs-w > span {
+        transform: none;
+        transition-duration: 1s;
+    }
+
+    /* ...and he comes into focus, then goes soft again as the next one arrives. */
+    .rs-changes.is-staged .rs-changes-figure {
+        filter: blur(10px);
+        transition: filter 1.1s var(--rs-ease);
+    }
+
+    .rs-changes.is-staged .is-current .rs-changes-figure {
+        filter: none;
+    }
+
+    /* The room's photos are dealt onto the page like prints, each from its own side. */
+    .rs-js .rs-home-gallery-item[data-rs-reveal] {
+        translate: var(--deal-x, 0) 70px;
+        rotate: var(--deal-turn, 0deg);
+        transition:
+            opacity 0.9s var(--rs-ease) var(--deal-wait, 0s),
+            filter 0.9s var(--rs-ease) var(--deal-wait, 0s),
+            translate 1.2s var(--rs-ease) var(--deal-wait, 0s),
+            rotate 1.2s var(--rs-ease) var(--deal-wait, 0s);
+    }
+
+        .rs-js .rs-home-gallery-item[data-rs-reveal].is-in-view {
+            translate: 0 0;
+            rotate: var(--rest-turn, 0deg);
+        }
+
+    .rs-home-gallery-one {
+        --deal-x: -120px;
+        --deal-turn: -10deg;
+        --rest-turn: -1.2deg;
+    }
+
+    .rs-home-gallery-two {
+        --deal-x: 140px;
+        --deal-turn: 7deg;
+        --rest-turn: 0.6deg;
+        --deal-wait: 0.12s;
+    }
+
+    .rs-home-gallery-card {
+        --deal-x: -80px;
+        --deal-turn: 9deg;
+        --rest-turn: 1.6deg;
+        --deal-wait: 0.24s;
+    }
+
+    .rs-home-gallery-three {
+        --deal-x: 120px;
+        --deal-turn: -8deg;
+        --rest-turn: -0.8deg;
+        --deal-wait: 0.36s;
+    }
+
+    /* Aladdin Sane: the bolt on his face catches like lightning, the sky behind him
+       lights up with it, a strike, a flicker, a second strike, then nothing for a while. */
+    .rs-changes-look--sane.is-current .rs-fx-bolt {
+        position: absolute;
+        top: 28.85%;
+        left: 30.5%;
+        display: block;
+        width: 32.5%;
+        height: 25%;
+        filter: drop-shadow(0 0 6px #fff6e0) drop-shadow(0 0 22px #9ad3f0) drop-shadow(0 0 60px #e2401a);
+        opacity: 0;
+        animation: rs-strike 7s steps(1) 1.4s infinite;
+    }
+
+        .rs-changes-look--sane .rs-fx-bolt::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: #fff6e0;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M60 0 18 57h27L31 100l53-62H56L72 0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M60 0 18 57h27L31 100l53-62H56L72 0Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+        }
+
+    .rs-changes-look--sane .rs-changes-back::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: radial-gradient(ellipse 70% 60% at 35% 30%, rgba(214, 236, 255, 0.85), rgba(154, 211, 240, 0.25) 45%, transparent 75%);
+        mix-blend-mode: screen;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .rs-changes-look--sane.is-current .rs-changes-back::before {
+        animation: rs-strike 7s steps(1) 1.4s infinite;
+    }
+
+    /* The Duke smokes: wisps leave the tip of his cigarette, curl, widen and thin out. */
+    .rs-changes-look--duke.is-current .rs-fx-smoke {
+        position: absolute;
+        top: 20%;
+        left: 19%;
+        display: block;
+        width: 18%;
+        height: 26%;
+        pointer-events: none;
+    }
+
+        .rs-changes-look--duke .rs-fx-smoke i {
+            position: absolute;
+            bottom: -4%;
+            left: 28%;
+            width: 38%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: radial-gradient(closest-side, rgba(240, 236, 230, 0.85), rgba(240, 236, 230, 0.3) 55%, transparent);
+            filter: blur(4px);
+            opacity: 0;
+            animation: rs-smoke 6s cubic-bezier(0.3, 0.1, 0.4, 1) infinite;
+        }
+
+            .rs-changes-look--duke .rs-fx-smoke i:nth-child(2) {
+                animation-delay: 2s;
+            }
+
+            .rs-changes-look--duke .rs-fx-smoke i:nth-child(3) {
+                animation-delay: 4s;
+            }
+
+        /* The ember glows as he draws on it. */
+        .rs-changes-look--duke .rs-fx-smoke::after {
+            content: "";
+            position: absolute;
+            bottom: -3%;
+            left: 42%;
+            width: 9%;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: radial-gradient(closest-side, #ffd38a, #ff5a1f 55%, transparent);
+            mix-blend-mode: screen;
+            animation: rs-ember 6s ease-in-out infinite;
+        }
+}
+
+@keyframes rs-grain {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    12% {
+        transform: translate(-6%, 3%);
+    }
+
+    25% {
+        transform: translate(4%, -7%);
+    }
+
+    37% {
+        transform: translate(-9%, -2%);
+    }
+
+    50% {
+        transform: translate(7%, 6%);
+    }
+
+    62% {
+        transform: translate(-3%, 9%);
+    }
+
+    75% {
+        transform: translate(9%, -4%);
+    }
+
+    87% {
+        transform: translate(-7%, -8%);
+    }
+}
+
+@keyframes rs-strike {
+    0%, 9%, 100% {
+        opacity: 0;
+    }
+
+    2% {
+        opacity: 0.55;
+    }
+
+    3% {
+        opacity: 0;
+    }
+
+    5% {
+        opacity: 1;
+    }
+
+    7% {
+        opacity: 0.18;
+    }
+}
+
+@keyframes rs-smoke {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0.35);
+    }
+
+    12% {
+        opacity: 0.9;
+    }
+
+    55% {
+        opacity: 0.45;
+        transform: translate(-30%, -190%) scale(1.3, 1.9) rotate(-14deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(25%, -330%) scale(2, 2.8) rotate(12deg);
+    }
+}
+
+@keyframes rs-ember {
+    0%, 100% {
+        opacity: 0.35;
+        transform: scale(0.8);
+    }
+
+    10% {
+        opacity: 1;
+        transform: scale(1.25);
+    }
+
+    30% {
+        opacity: 0.55;
+        transform: scale(1);
     }
 }

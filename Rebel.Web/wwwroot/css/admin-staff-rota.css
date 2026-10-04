@@ -68,7 +68,7 @@
 .staff-rota-add-person > header strong,
 .staff-rota-pool > header strong {
     color: var(--rota-cream);
-    font: 400 1.35rem "Bebas Neue", sans-serif;
+    font: 700 0.97rem "Space Mono", ui-monospace, monospace;
     letter-spacing: .035em;
     text-transform: uppercase;
 }
@@ -125,7 +125,7 @@
 
 .staff-rota-day-heading strong {
     color: var(--rota-cream);
-    font: 400 2rem "Bebas Neue", sans-serif;
+    font: 800 1.48rem "Fraunces", Georgia, serif;
     line-height: 1;
     white-space: nowrap;
 }
@@ -297,7 +297,7 @@
 .staff-rota-person strong {
     overflow: hidden;
     color: var(--rota-cream);
-    font: 600 .68rem "Space Grotesk", sans-serif;
+    font: 600 .68rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -399,7 +399,7 @@
     border: 1px solid var(--rota-line);
     border-radius: 0;
     background: #0d0e0c;
-    font: 500 .7rem "Space Grotesk", sans-serif;
+    font: 500 .7rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
 }
 
 .staff-rota-pool-group {

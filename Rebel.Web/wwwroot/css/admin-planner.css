@@ -27,7 +27,7 @@
 
 .booking-planner-header h1 {
     margin: 0;
-    font: 400 clamp(3.2rem, 6vw, 5.4rem)/.78 "Bebas Neue", sans-serif;
+    font: 800 clamp(2.37rem, 4.4vw, 4.0rem)/0.92 "Fraunces", Georgia, serif;
     letter-spacing: 1px;
 }
 
@@ -82,7 +82,7 @@
 .booking-day.is-selected { color: var(--planner-text); background: #211c17; box-shadow: inset 0 3px 0 var(--planner-orange); }
 .booking-day.is-today:not(.is-selected) { box-shadow: inset 0 2px 0 rgba(240,74,36,.45); }
 .booking-day > span { font: 700 .58rem "Space Mono", monospace; letter-spacing: 1px; text-transform: uppercase; }
-.booking-day > strong { margin-top: 4px; color: var(--planner-text); font: 400 2rem/1 "Bebas Neue", sans-serif; }
+.booking-day > strong { margin-top: 4px; color: var(--planner-text); font: 800 1.48rem/1 "Fraunces", Georgia, serif; }
 .booking-day > small { overflow: hidden; font-size: .63rem; text-overflow: ellipsis; white-space: nowrap; }
 .booking-day-event-count { margin-left: 5px; color: var(--planner-orange); font-weight: 700; }
 .booking-day > em {
@@ -116,7 +116,7 @@
 }
 
 .booking-day-head > div:first-child > span { display: block; color: var(--planner-orange); font: 700 .58rem "Space Mono"; letter-spacing: 1.2px; text-transform: uppercase; }
-.booking-day-head h2 { margin: 2px 0 0; font: 400 2.65rem/1 "Bebas Neue", sans-serif; }
+.booking-day-head h2 { margin: 2px 0 0; font: 800 1.96rem/1 "Fraunces", Georgia, serif; }
 .booking-day-totals { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .booking-day-totals span { display: inline-flex; min-height: 36px; padding: 0 11px; align-items: center; gap: 5px; color: var(--planner-muted); border: 1px solid var(--planner-line); border-radius: 5px; font-size: .64rem; }
 .booking-day-totals strong { color: var(--planner-text); }
@@ -197,7 +197,7 @@
     background: #11110f;
 }
 
-.booking-time > strong { font: 400 1.75rem/1 "Bebas Neue", sans-serif; }
+.booking-time > strong { font: 800 1.29rem/1 "Fraunces", Georgia, serif; }
 .booking-time > span { margin-top: 4px; color: var(--planner-muted); font: .56rem "Space Mono"; }
 .booking-time > i { display: block; width: 100%; height: 3px; margin-top: 9px; overflow: hidden; background: #292824; }
 .booking-time > i > b { display: block; width: var(--slot-load); height: 100%; background: var(--planner-green); }
@@ -307,7 +307,7 @@
 }
 
 .booking-event-block-copy small { color: #ff9b83; font: 700 .52rem "Space Mono"; text-transform: uppercase; }
-.booking-event-block-copy strong { margin-top: 5px; font: 400 clamp(1.4rem,2.4vw,2.25rem)/.92 "Bebas Neue",sans-serif; letter-spacing: .02em; text-transform: uppercase; }
+.booking-event-block-copy strong { margin-top: 5px; font: 800 clamp(1.04rem,1.8vw,1.67rem)/.92 "Fraunces", Georgia, serif; letter-spacing: .02em; text-transform: uppercase; }
 .booking-event-block-copy em { margin-top: 10px; color: rgba(255,255,255,.7); font: 600 .55rem "Space Mono"; font-style: normal; text-transform: uppercase; }
 .booking-event-block:hover { color: #fff; border-color: #ff795b; filter: brightness(1.08); }
 .booking-planner-empty { display: grid; min-height: 180px; place-content: center; place-items: center; gap: 6px; color: var(--planner-muted); }
@@ -339,7 +339,7 @@
     .booking-mobile-events a::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.93),rgba(0,0,0,.12)); }
     .booking-mobile-events a > span { position: relative; z-index: 2; display: grid; padding: 14px; align-content: end; }
     .booking-mobile-events small { color: #ff9b83; font: 700 .54rem "Space Mono"; }
-    .booking-mobile-events strong { margin-top: 4px; font: 400 1.7rem/1 "Bebas Neue",sans-serif; text-transform: uppercase; }
+    .booking-mobile-events strong { margin-top: 4px; font: 800 1.26rem/1 "Fraunces", Georgia, serif; text-transform: uppercase; }
     .booking-timeline.has-events { display: block; }
     .booking-timeline.has-events .booking-time-row { display: grid; grid-template-columns: 76px minmax(0,1fr); }
     .booking-timeline.has-events .booking-time,

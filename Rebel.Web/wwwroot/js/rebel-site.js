@@ -2,6 +2,7 @@
 // - the full-screen #open menu,
 // - blocks marked data-rs-reveal come into focus as they scroll in,
 // - blocks marked data-rs-drift move at their own speed while scrolling,
+// - headlines rise word by word as they scroll in,
 // - Bowie's looks (Art/Looks) move only while on screen,
 // - the home page's "How Rebel works" stage, one character at a time while you scroll.
 // The night sky, falling stars and stardust live in rebel-sky.js.
@@ -131,6 +132,61 @@
 
     if (reducedMotion) {
         return;
+    }
+
+    // ---------- headlines rise word by word out of their own line ----------
+
+    const risers = Array.from(document.querySelectorAll("main h1, main h2, main .rs-changes-job, .rs-footer-word"))
+        .filter((heading) => heading.textContent.trim() && !heading.closest("form, [data-rs-plain]"));
+
+    const splitWords = (node, count) => {
+        Array.from(node.childNodes).forEach((child) => {
+            if (child.nodeType === Node.TEXT_NODE) {
+                const fragment = document.createDocumentFragment();
+
+                child.textContent.split(/(\s+)/).forEach((part) => {
+                    if (!part) {
+                        return;
+                    }
+
+                    if (/^\s+$/.test(part)) {
+                        fragment.append(part);
+                        return;
+                    }
+
+                    const word = document.createElement("span");
+                    const ink = document.createElement("span");
+                    word.className = "rs-w";
+                    ink.textContent = part;
+                    ink.style.setProperty("--w", count.next++);
+                    word.append(ink);
+                    fragment.append(word);
+                });
+
+                child.replaceWith(fragment);
+            } else if (child.nodeType === Node.ELEMENT_NODE && !child.matches("br, svg, img, input")) {
+                splitWords(child, count);
+            }
+        });
+    };
+
+    if (risers.length && "IntersectionObserver" in window) {
+        const riseObserver = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("is-risen");
+                        riseObserver.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.2 });
+
+        risers.forEach((heading) => {
+            splitWords(heading, { next: 0 });
+            heading.classList.add("rs-rise");
+            riseObserver.observe(heading);
+        });
     }
 
     // ---------- drift: parallax by data-rs-drift="0.2" ----------

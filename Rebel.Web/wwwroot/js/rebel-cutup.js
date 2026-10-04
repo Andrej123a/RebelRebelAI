@@ -242,11 +242,11 @@
         ["var(--z-ink)", "var(--z-cream)"],
     ];
 
+    // The site's three faces cut up: heavy Fraunces, its italic, and the typewriter.
     const FACES = [
-        { font: "var(--rs-stencil)", size: [17, 21] },
-        { font: "var(--rs-display)", size: [17, 21] },
-        { font: "var(--rs-news)", size: [16, 19], style: "italic", lower: true },
-        { font: "var(--rs-mono)", size: [13, 15] },
+        { font: "var(--rs-display)", size: [16, 19], weight: 900 },
+        { font: "var(--rs-display)", size: [16, 19], weight: 600, style: "italic", lower: true },
+        { font: "var(--rs-mono)", size: [13, 15], weight: 700 },
     ];
 
     const letterCut = () =>
@@ -273,6 +273,7 @@
             style.setProperty("--l-font", face.font);
             style.setProperty("--l-size", `${Math.round(random(face.size[0], face.size[1]))}px`);
             style.setProperty("--l-style", face.style ?? "normal");
+            style.setProperty("--l-weight", face.weight);
             // An italic lower-case l or i reads as a slash; those stay capitals.
             const lower = face.lower && !/[il]/i.test(letter.textContent) && Math.random() < 0.6;
 

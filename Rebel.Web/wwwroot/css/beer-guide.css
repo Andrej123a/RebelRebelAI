@@ -113,11 +113,11 @@
 .rr-guide-header h1,
 .rr-guide-results h2 {
     margin: 8px 0 12px;
-    font-family: "Big Shoulders Display", sans-serif;
-    font-weight: 900;
+    font-family: var(--rs-display);
+    font-weight: 800;
     line-height: 0.9;
     letter-spacing: 0;
-    text-transform: uppercase;
+    text-transform: none;
 }
 
 .rr-guide-header h1 {
@@ -162,9 +162,9 @@
 }
 
 .rr-guide-count strong {
-    font-family: "Big Shoulders Display", sans-serif;
-    font-weight: 900;
-    font-size: 3.2rem;
+    font-family: var(--rs-display);
+    font-weight: 800;
+    font-size: 2.62rem;
     line-height: 1;
 }
 
@@ -225,11 +225,11 @@
 
 .rr-guide-chat-heading h2 {
     margin: 5px 0 0;
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: clamp(2.8rem, 5vw, 5.2rem);
-    font-weight: 900;
+    font-family: var(--rs-display);
+    font-size: clamp(2.3rem, 4.1vw, 4.26rem);
+    font-weight: 800;
     line-height: 0.9;
-    text-transform: uppercase;
+    text-transform: none;
     text-shadow: 4px 4px 0 rgba(143, 16, 32, 0.55);
     transform: rotate(-0.7deg);
 }
@@ -573,9 +573,9 @@
     overflow: hidden;
     background: #19130f;
     color: #e2401a;
-    font-family: "Big Shoulders Display", sans-serif;
-    font-weight: 900;
-    font-size: 2.5rem;
+    font-family: var(--rs-display);
+    font-weight: 800;
+    font-size: 2.05rem;
 }
 
 .rr-guide-chat-beer-image img {
@@ -594,9 +594,9 @@
 .rr-guide-chat-beer-copy h3 {
     margin: 0 0 5px;
     overflow-wrap: anywhere;
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: 1.65rem;
-    font-weight: 900;
+    font-family: var(--rs-display);
+    font-size: 1.35rem;
+    font-weight: 800;
     line-height: 1;
 }
 
@@ -702,7 +702,7 @@
 .rr-guide-comparison-beer h4 {
     margin: 0 0 10px;
     overflow-wrap: anywhere;
-    font: 900 1.4rem/1 "Big Shoulders Display", sans-serif;
+    font: 700 1.01rem/1 var(--rs-mono);
 }
 
 .rr-guide-comparison-row {
@@ -893,7 +893,7 @@ body:has(.rr-guide-prophet) .rs-footer-look {
 
 .rr-guide-ai-stage-copy h2 {
     margin: 6px 0 8px;
-    font: 900 clamp(2.7rem, 5vw, 4.5rem)/0.92 "Big Shoulders Display", sans-serif;
+    font: 800 clamp(2.21rem, 4.1vw, 3.69rem)/0.92 var(--rs-display);
     text-transform: uppercase;
 }
 
@@ -948,7 +948,7 @@ body:has(.rr-guide-prophet) .rs-footer-look {
 
 .rr-guide-chat-input-heading strong {
     color: #fff1dc;
-    font: 900 1.45rem "Big Shoulders Display", sans-serif;
+    font: 700 1.04rem var(--rs-mono);
     letter-spacing: 0.7px;
     text-transform: uppercase;
 }
@@ -1180,9 +1180,10 @@ body:has(.rr-guide-prophet) .rs-footer-look {
         #150b09;
     box-shadow: 7px 7px 0 #e2401a;
     color: #fff1dc;
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: 1.25rem;
-    font-weight: 900;
+    font-family: var(--rs-mono);
+    letter-spacing: 0.06em;
+    font-size: 0.9rem;
+    font-weight: 700;
     text-transform: uppercase;
     transform: rotate(-1.2deg);
 }
@@ -1200,9 +1201,9 @@ body:has(.rr-guide-prophet) .rs-footer-look {
 
 .rr-guide-chat-form button b {
     color: #e2401a;
-    font-family: "Big Shoulders Display", sans-serif;
-    font-weight: 900;
-    font-size: 2rem;
+    font-family: var(--rs-display);
+    font-weight: 800;
+    font-size: 1.64rem;
     line-height: 1;
     transform: rotate(-8deg);
 }
@@ -1413,9 +1414,9 @@ body:has(.rr-guide-prophet) .rs-footer-look {
     overflow: hidden;
     background: #17120f;
     color: #e2401a;
-    font-family: "Big Shoulders Display", sans-serif;
-    font-weight: 900;
-    font-size: 3rem;
+    font-family: var(--rs-display);
+    font-weight: 800;
+    font-size: 2.46rem;
 }
 
 .rr-guide-result-image img {
@@ -1434,9 +1435,9 @@ body:has(.rr-guide-prophet) .rs-footer-look {
 .rr-guide-result-copy h3 {
     margin: 4px 0 6px;
     overflow-wrap: anywhere;
-    font-family: "Big Shoulders Display", sans-serif;
-    font-weight: 900;
-    font-size: 2.15rem;
+    font-family: var(--rs-display);
+    font-weight: 800;
+    font-size: 1.76rem;
     line-height: 1;
     letter-spacing: 0;
 }

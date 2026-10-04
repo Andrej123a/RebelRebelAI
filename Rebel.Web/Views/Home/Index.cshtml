@@ -151,7 +151,19 @@
                         </div>
 
                         <div class="rs-changes-art">
-                            <partial name="_Look" model='new LookModel(look.Key)' />
+                            @* The figure is the painting's own box, so its effects can sit on it:
+                               Aladdin Sane's bolt catches like lightning, the Duke's cigarette smokes. *@
+                            <span class="rs-changes-figure">
+                                <partial name="_Look" model='new LookModel(look.Key)' />
+                                @if (look.Key == "sane")
+                                {
+                                    <span class="rs-fx-bolt" aria-hidden="true"></span>
+                                }
+                                else if (look.Key == "duke")
+                                {
+                                    <span class="rs-fx-smoke" aria-hidden="true"><i></i><i></i><i></i></span>
+                                }
+                            </span>
                         </div>
 
                         <div class="rs-changes-copy">

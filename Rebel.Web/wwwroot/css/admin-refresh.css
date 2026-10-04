@@ -475,7 +475,7 @@ body.admin-shell-body {
     background:
         linear-gradient(90deg, rgba(207, 41, 53, 0.055), transparent 20%) left / 2px 100% no-repeat,
         var(--admin-bg);
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
 }
 
 body.admin-shell-body::selection {
@@ -588,10 +588,10 @@ body.admin-shell-body *::-webkit-scrollbar-thumb:hover {
 }
 
 .admin-brand-name {
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1.55rem;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.15rem;
     line-height: 1;
-    letter-spacing: 1px;
+    letter-spacing: 0;
     white-space: nowrap;
 }
 
@@ -1070,11 +1070,11 @@ a.admin-workspace-eyebrow:hover {
 .table-admin-page h1 {
     margin: 0;
     color: var(--admin-text);
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 3.55rem;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 2.63rem;
     font-weight: 400;
     line-height: 0.95;
-    letter-spacing: 1px;
+    letter-spacing: 0;
 }
 
 .admin-workspace-copy,
@@ -1117,7 +1117,7 @@ a.admin-workspace-eyebrow:hover {
     justify-content: center;
     border: 1px solid transparent;
     border-radius: var(--admin-radius);
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0;
@@ -1283,11 +1283,11 @@ summary:focus-visible {
 .admin-metric strong {
     overflow-wrap: anywhere;
     color: var(--admin-text);
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 2.15rem;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.59rem;
     font-weight: 400;
     line-height: 1;
-    letter-spacing: 1px;
+    letter-spacing: 0;
 }
 
 .admin-staff-guide {
@@ -1450,7 +1450,7 @@ details[open] > summary::after {
     border: 1px solid var(--admin-line-strong);
     border-radius: var(--admin-radius);
     background-color: var(--admin-input);
-    font: 500 0.82rem "Space Grotesk", sans-serif;
+    font: 500 0.82rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     box-shadow: none;
 }
 
@@ -1503,10 +1503,10 @@ textarea.form-control,
 .table-form-heading h2 {
     margin: 0;
     color: var(--admin-text);
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1.7rem;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.26rem;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0;
 }
 
 .admin-section-count,
@@ -1854,16 +1854,16 @@ textarea.form-control,
 
 .tonight-summary-item > strong {
     color: var(--admin-text);
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1.75rem;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.29rem;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0;
 }
 
 .tonight-summary-item small {
     display: block;
     color: var(--admin-muted);
-    font: 500 0.64rem "Space Grotesk", sans-serif;
+    font: 500 0.64rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     letter-spacing: 0;
 }
 
@@ -1960,7 +1960,7 @@ textarea.form-control,
 .tonight-booking-guest h3 {
     overflow: hidden;
     margin: 0 0 4px;
-    font: 700 0.86rem "Space Grotesk", sans-serif;
+    font: 700 0.86rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -2164,8 +2164,8 @@ textarea.form-control,
 
 .admin-media-placeholder span {
     color: var(--admin-orange);
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 2rem;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.48rem;
 }
 
 .admin-editor-actions {
@@ -2325,7 +2325,7 @@ textarea.form-control,
 
 .reservation-event-placeholder strong,
 .tonight-event-card-placeholder strong {
-    font: 400 2.8rem "Bebas Neue", sans-serif;
+    font: 800 2.07rem "Fraunces", Georgia, serif;
     line-height: 0.9;
 }
 
@@ -2339,7 +2339,7 @@ textarea.form-control,
 .reservation-event-content h2 {
     margin: 4px 0 18px;
     color: var(--admin-text);
-    font: 400 clamp(2rem, 4vw, 3.5rem) "Bebas Neue", sans-serif;
+    font: 800 clamp(1.48rem, 3.0vw, 2.59rem) "Fraunces", Georgia, serif;
     line-height: 0.9;
     letter-spacing: -0.02em;
     text-transform: uppercase;
@@ -3213,9 +3213,9 @@ textarea.form-control,
 
 .planner-day-card > strong {
     margin-top: 4px;
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1.35rem;
-    font-weight: 400;
+    font-family: "Space Mono", ui-monospace, monospace;
+    font-size: 0.97rem;
+    font-weight: 700;
     letter-spacing: 1px;
 }
 
@@ -3290,7 +3290,7 @@ textarea.form-control,
     border-radius: var(--admin-radius);
     background: var(--admin-input);
     color-scheme: dark;
-    font: 600 0.68rem "Space Grotesk", sans-serif;
+    font: 600 0.68rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
 }
 
 .planner-jump-form .admin-secondary-button {
@@ -3350,10 +3350,10 @@ textarea.form-control,
 .planner-board-heading h2 {
     margin: 0;
     color: var(--admin-text);
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1.7rem;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 1.26rem;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0;
 }
 
 .planner-board-heading > span {
@@ -3501,7 +3501,7 @@ textarea.form-control,
 
 .planner-slot.is-empty strong {
     color: #77736c;
-    font: 600 0.67rem "Space Grotesk", sans-serif;
+    font: 600 0.67rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
 }
 
 .planner-slot.is-empty > span:not(.planner-slot-load) {
@@ -3694,7 +3694,7 @@ textarea.form-control,
 
 .floor-status-item strong {
     color: var(--admin-text);
-    font: 400 1.8rem "Bebas Neue", sans-serif;
+    font: 800 1.33rem "Fraunces", Georgia, serif;
     letter-spacing: 1px;
 }
 
@@ -3749,7 +3749,7 @@ textarea.form-control,
 .floor-map-header h2 {
     margin: 3px 0 0;
     color: var(--admin-text);
-    font: 400 2.1rem "Bebas Neue", sans-serif;
+    font: 800 1.55rem "Fraunces", Georgia, serif;
     letter-spacing: 1px;
     line-height: 0.9;
     text-transform: uppercase;
@@ -3818,7 +3818,7 @@ textarea.form-control,
 
 .floor-map-unassigned > strong {
     color: var(--admin-text);
-    font: 400 2.4rem "Bebas Neue", sans-serif;
+    font: 800 1.78rem "Fraunces", Georgia, serif;
     line-height: 0.8;
 }
 
@@ -4069,7 +4069,7 @@ button.floor-map-table {
 .floor-map-table span {
     padding-right: 16px;
     color: var(--admin-text);
-    font: 400 1.7rem "Bebas Neue", sans-serif;
+    font: 800 1.26rem "Fraunces", Georgia, serif;
     letter-spacing: 0.5px;
     line-height: 0.9;
 }
@@ -4165,7 +4165,7 @@ button.floor-map-table {
 .floor-zone-header h2 {
     margin: 0 0 8px;
     color: var(--admin-text);
-    font: 400 1.75rem "Bebas Neue", sans-serif;
+    font: 800 1.29rem "Fraunces", Georgia, serif;
     letter-spacing: 1px;
 }
 
@@ -4234,7 +4234,7 @@ button.floor-map-table {
 .floor-table-card h3 {
     margin: 2px 0 0;
     color: var(--admin-text);
-    font: 400 2rem "Bebas Neue", sans-serif;
+    font: 800 1.48rem "Fraunces", Georgia, serif;
     letter-spacing: 1px;
 }
 
@@ -4565,7 +4565,7 @@ button.floor-map-table {
 .staff-cover-dialog-header h2 {
     margin: 3px 0 2px;
     color: var(--admin-text);
-    font: 400 2rem "Bebas Neue", sans-serif;
+    font: 800 1.48rem "Fraunces", Georgia, serif;
     letter-spacing: 1px;
 }
 
@@ -4773,7 +4773,7 @@ button.floor-map-table {
     border-radius: 3px;
     background: var(--admin-input);
     color-scheme: dark;
-    font: 600 0.7rem "Space Grotesk", sans-serif;
+    font: 600 0.7rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
 }
 
 .staff-cover-dialog-actions {
@@ -4884,7 +4884,7 @@ button.floor-map-table {
 .tonight-events-heading h2 {
     margin: 5px 0 0;
     color: var(--admin-text);
-    font: 400 1.8rem "Bebas Neue", sans-serif;
+    font: 800 1.33rem "Fraunces", Georgia, serif;
     line-height: 0.95;
 }
 
@@ -4934,7 +4934,7 @@ button.floor-map-table {
 .tonight-event-card-copy h3 {
     margin: 5px 0 8px;
     color: var(--admin-text);
-    font: 400 clamp(2.2rem, 4vw, 3.7rem) "Bebas Neue", sans-serif;
+    font: 800 clamp(1.63rem, 3.0vw, 2.74rem) "Fraunces", Georgia, serif;
     line-height: 0.9;
     text-transform: uppercase;
 }
@@ -4966,7 +4966,7 @@ button.floor-map-table {
 .tonight-warning-board h2 {
     margin: 5px 0 0;
     color: var(--admin-text);
-    font: 400 1.55rem "Bebas Neue", sans-serif;
+    font: 700 1.12rem "Space Mono", ui-monospace, monospace;
     letter-spacing: 0;
 }
 
@@ -5089,7 +5089,7 @@ button.floor-map-table {
 .admin-quick-panel-header h2 {
     margin: 4px 0 1px;
     color: var(--admin-text);
-    font: 400 2.1rem "Bebas Neue", sans-serif;
+    font: 800 1.55rem "Fraunces", Georgia, serif;
     letter-spacing: 0;
 }
 
@@ -5158,7 +5158,7 @@ button.floor-map-table {
     border-radius: 3px;
     background: var(--admin-input);
     color-scheme: dark;
-    font: 600 0.68rem "Space Grotesk", sans-serif;
+    font: 600 0.68rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
 }
 
 .admin-quick-form textarea {
@@ -5173,7 +5173,7 @@ button.floor-map-table {
 
 .admin-quick-notes h3 {
     margin: 0 0 10px;
-    font: 400 1.25rem "Bebas Neue", sans-serif;
+    font: 700 0.9rem "Space Mono", ui-monospace, monospace;
 }
 
 .admin-quick-notes p {
@@ -5976,7 +5976,7 @@ button.floor-map-table {
     border: 1px solid transparent;
     border-radius: 4px;
     background: transparent;
-    font: 600 0.9rem "Space Grotesk", sans-serif;
+    font: 600 0.9rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     text-decoration: none;
     cursor: pointer;
 }
@@ -6004,7 +6004,7 @@ button.floor-map-table {
 .floor-plan-title h2 {
     margin: 0;
     color: #343a40;
-    font: 700 1.35rem "Space Grotesk", sans-serif;
+    font: 700 1.35rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     letter-spacing: 0;
     text-transform: none;
 }
@@ -6023,7 +6023,7 @@ button.floor-map-table {
     color: #3c444b;
     border-color: #d7dde0;
     background: #ffffff;
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0;
@@ -6047,7 +6047,7 @@ button.floor-map-table {
     border: 1px solid #d7dde0;
     border-radius: 4px;
     background: #ffffff;
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     font-size: 1rem;
     font-weight: 500;
     letter-spacing: 0;
@@ -6131,7 +6131,7 @@ button.floor-map-table {
 
 .floor-room-summary-card strong {
     color: #263845;
-    font: 700 1rem "Space Grotesk", sans-serif;
+    font: 700 1rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
 }
 
 .floor-room-summary-card small {
@@ -6153,7 +6153,7 @@ button.floor-map-table {
 
 .floor-plan-room > header span {
     color: #dfe7eb;
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0;
@@ -6163,7 +6163,7 @@ button.floor-map-table {
 .floor-plan-room > header strong,
 .floor-plan-room > header p {
     color: #aebbc2;
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     font-size: 0.72rem;
     font-weight: 500;
 }
@@ -6235,7 +6235,7 @@ button.floor-map-table {
     color: #263845;
     border: 1px solid rgba(38, 56, 69, 0.32);
     background: rgba(255, 255, 255, 0.6);
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     font-size: 0.65rem;
     letter-spacing: 0;
 }
@@ -6432,7 +6432,7 @@ button.floor-map-table {
 
 .floor-map-table span {
     color: #111111;
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     font-size: 1.05rem;
     font-weight: 800;
     letter-spacing: 0;
@@ -6445,7 +6445,7 @@ button.floor-map-table {
 .floor-map-table small {
     max-width: 100%;
     color: #ffffff;
-    font-family: "Space Grotesk", sans-serif;
+    font-family: "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
     font-size: 0.82rem;
     font-weight: 500;
     text-overflow: ellipsis;
@@ -6537,7 +6537,7 @@ button.floor-map-table {
 
 .floor-editor-panel > header strong {
     color: #263845;
-    font: 700 1rem "Space Grotesk", sans-serif;
+    font: 700 1rem "Hanken Grotesk", "Helvetica Neue", Arial, sans-serif;
 }
 
 .floor-editor-grid {

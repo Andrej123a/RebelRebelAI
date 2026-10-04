@@ -1,6 +1,6 @@
 @model Rebel.Web.Models.LookModel
 
-@* One of Bowie's characters, painted (Art/Looks, rendered to wwwroot/art/looks). *@
+@* One of Bowie's characters, painted (drawn in Art/Looks, painted by Art/Paint into wwwroot/art/looks). *@
 <img class="rs-look rs-look--@Model.Key @Model.CssClass"
      src="@Url.Content($"~/art/looks/{Model.Key}.webp")"
      asp-append-version="true"

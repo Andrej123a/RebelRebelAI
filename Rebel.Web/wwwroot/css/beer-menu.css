@@ -8,7 +8,7 @@
    ========================================================= */
 
 .rr-menu-page--beer {
-    --beer-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+    --beer-display: var(--rs-display);
     --beer-mono: "Space Mono", ui-monospace, monospace;
     /* The disc and badge rings are sized for a fixed-width face. */
     --beer-ring: "Space Mono", ui-monospace, monospace;
@@ -77,9 +77,9 @@
     .rr-beer-callout strong {
         color: var(--beer-night);
         font-family: var(--beer-display);
-        font-size: clamp(22px, 2.4vw, 32px);
-        font-weight: 900;
-        text-transform: uppercase;
+        font-size: clamp(18px, 2.0vw, 26px);
+        font-weight: 800;
+        text-transform: none;
     }
 
     .rr-beer-callout a,
@@ -92,10 +92,10 @@
         border-radius: 999px;
         background: var(--beer-night);
         color: var(--beer-yellow);
-        font-family: var(--beer-display);
-    font-weight: 900;
-        font-size: 18px;
-        letter-spacing: 0.04em;
+        font-family: var(--beer-mono);
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.08em;
         text-decoration: none;
         text-transform: uppercase;
         transition: transform 0.3s var(--beer-ease);
@@ -314,9 +314,10 @@
     }
 
     .rr-beer-empty strong {
-        font-family: var(--beer-display);
-        font-size: 24px;
-        font-weight: 900;
+        font-family: var(--beer-mono);
+        letter-spacing: 0.06em;
+        font-size: 17px;
+        font-weight: 700;
         text-transform: uppercase;
     }
 
@@ -379,10 +380,10 @@
 .rr-beer-rail-title {
     margin: 0 0 8px;
     font-family: var(--beer-display);
-    font-weight: 900;
-    font-size: 30px;
+    font-weight: 800;
+    font-size: 25px;
     line-height: 1;
-    text-transform: uppercase;
+    text-transform: none;
 }
 
 .rr-beer-rail-group[hidden] {
@@ -503,11 +504,11 @@
     padding-bottom: 14px;
     border-bottom: 2px solid currentColor;
     font-family: var(--beer-display);
-    font-size: clamp(44px, 5vw, 84px);
-    font-weight: 900;
-    letter-spacing: 0.01em;
+    font-size: clamp(36px, 4.1vw, 69px);
+    font-weight: 800;
+    letter-spacing: 0;
     line-height: 0.9;
-    text-transform: uppercase;
+    text-transform: none;
     overflow-wrap: anywhere;
 }
 
@@ -609,22 +610,22 @@
 .rr-beer-name {
     margin: 0;
     font-family: var(--beer-display);
-    font-size: clamp(64px, 8.6vw, 168px);
-    font-weight: 900;
+    font-size: clamp(52px, 7.1vw, 138px);
+    font-weight: 800;
     letter-spacing: -0.005em;
-    line-height: 0.86;
-    text-transform: uppercase;
+    line-height: 0.92;
+    text-transform: none;
     text-shadow: -0.045em 0.04em 0 var(--track-accent);
     transform: rotate(-2deg);
     transform-origin: left bottom;
 }
 
 .has-long-name .rr-beer-name {
-    font-size: clamp(46px, 5.8vw, 112px);
+    font-size: clamp(38px, 4.8vw, 92px);
 }
 
 .has-xl-name .rr-beer-name {
-    font-size: clamp(36px, 4.4vw, 84px);
+    font-size: clamp(30px, 3.6vw, 68px);
 }
 
 .rr-beer-stats {
@@ -694,9 +695,9 @@
     gap: 4px 0;
     margin: 16px 0 0;
     padding: 0;
-    font-family: var(--beer-display);
-    font-weight: 900;
-    font-size: clamp(18px, 1.6vw, 26px);
+    font-family: var(--beer-mono);
+    font-weight: 700;
+    font-size: clamp(13px, 1.2vw, 19px);
     letter-spacing: 0.02em;
     list-style: none;
     text-transform: uppercase;
@@ -741,9 +742,9 @@
 
 .rr-taste-label {
     grid-column: 1 / -1;
-    font-family: var(--beer-display);
-    font-weight: 900;
-    font-size: 18px;
+    font-family: var(--beer-mono);
+    font-weight: 700;
+    font-size: 13px;
     letter-spacing: 0.04em;
 }
 
@@ -815,9 +816,9 @@
     background-color: var(--stage-ink);
     color: var(--stage-bg);
     box-shadow: -5px 5px 0 var(--track-accent);
-    font-family: var(--beer-display);
-    font-weight: 900;
-    font-size: 18px;
+    font-family: var(--beer-mono);
+    font-weight: 700;
+    font-size: 13px;
     letter-spacing: 0.04em;
     text-decoration: none;
     text-transform: uppercase;
@@ -910,10 +911,10 @@
     background: rgba(23, 23, 23, 0.82);
     color: var(--track-accent);
     font-family: var(--beer-display);
-    font-weight: 900;
-    font-size: clamp(30px, 3.6vw, 54px);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font-weight: 800;
+    font-size: clamp(25px, 3.0vw, 44px);
+    letter-spacing: 0;
+    text-transform: none;
     white-space: nowrap;
     transform: translate(-50%, -50%) rotate(-14deg);
 }
@@ -941,10 +942,10 @@
         font-family: var(--beer-display);
         text-shadow: -0.04em 0.035em 0 var(--beer-sky), 0.04em -0.02em 0 var(--beer-night);
         transform: rotate(-3deg);
-        font-size: clamp(64px, 11vw, 180px);
-        font-weight: 900;
-        line-height: 0.85;
-        text-transform: uppercase;
+        font-size: clamp(52px, 9.0vw, 148px);
+        font-weight: 800;
+        line-height: 0.92;
+        text-transform: none;
     }
 
 .rr-beer-outro-actions {
@@ -960,10 +961,10 @@
         border: 2px solid var(--beer-paper);
         border-radius: 999px;
         color: var(--beer-paper);
-        font-family: var(--beer-display);
-    font-weight: 900;
-        font-size: 18px;
-        letter-spacing: 0.04em;
+        font-family: var(--beer-mono);
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.08em;
         text-decoration: none;
         text-transform: uppercase;
         transition: border-color 0.2s ease, color 0.2s ease;
