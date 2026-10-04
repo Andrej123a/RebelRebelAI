@@ -66,12 +66,6 @@ public static class RealPhotos
             "The star cluster Westerlund 2, young stars in clouds of gas and dust",
             8919, 6683, "#0a0608", "55% 45%", Sky: true, By: "NASA Hubble Space Telescope", ByUser: "hubblespacetelescope"),
 
-        // Aladdin Sane: Jupiter, its storms and the Great Red Spot.
-        ["sane"] = new(
-            "photo-1707056790571-54d8612d6368?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8M3x8anVwaXRlciUyMHBsYW5ldHxlbnwwfHx8fDE3OTExMTAzOTB8Mg&ixlib=rb-4.1.0",
-            "Jupiter, photographed by the Hubble Space Telescope",
-            6100, 6100, "#08060a", "50% 50%", Sky: true, By: "NASA Hubble Space Telescope", ByUser: "hubblespacetelescope"),
-
         // Rebel Rebel, spinning like a record: the spiral galaxy NGC 3147.
         ["rebel"] = new(
             "photo-1707057538379-d62783e77f1d?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8M3x8c3BpcmFsJTIwZ2FsYXh5fGVufDB8fHx8MTc5MTExMDM5MHwy&ixlib=rb-4.1.0",
@@ -101,12 +95,6 @@ public static class RealPhotos
             "photo-1712808261297-0a045f64422f?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8MTF8fHNvbGFyJTIwZWNsaXBzZXxlbnwwfHx8fDE3OTExMDY1ODd8Mg&ixlib=rb-4.1.0",
             "A total solar eclipse: a black disc ringed with light",
             7296, 7296, "#0a0403", "50% 50%", Sky: true, By: "Robert Anderson", ByUser: "robanderson72"),
-
-        // The station the menus come down from.
-        ["station"] = new(
-            "photo-1614314007212-0257d6e2f7d8?ixid=M3wxMDE3MjIwfDB8MXxzZWFyY2h8MTV8fHNwYWNlJTIwc2h1dHRsZXxlbnwwfHx8fDE3OTExMDY2NTl8Mg&ixlib=rb-4.1.0",
-            "The International Space Station in orbit above the Earth",
-            4289, 3217, "#0a0505", "50% 40%", Sky: true, By: "NASA", ByUser: "nasa"),
     };
 
     /// <summary>The photo for a look key, or null if it has none.</summary>

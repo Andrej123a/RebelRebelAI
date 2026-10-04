@@ -6,8 +6,47 @@
     ViewData["Title"] = "Home";
 
     var featuredEvent = Model.FeaturedEvent;
-    var showDrinks = Configuration.GetValue<bool>("Menu:ShowDrinks");
     var hideAiFeatures = bool.TryParse(Configuration["Presentation:HideAiFeatures"], out var hideAi) && hideAi;
+
+    // On the stage Life on Mars? and Ziggy hold up a picture of what is on their menus.
+    var carried = new Dictionary<string, string[]>
+    {
+        ["mars"] =
+        [
+            "https://imageproxy.wolt.com/assets/6a02e61c938b4b58b5c33754?w=960",
+            "https://imageproxy.wolt.com/assets/6a03117d3f815eb3031bd7ba?w=960",
+            "https://imageproxy.wolt.com/assets/6a02e63b938b4b58b5c33760?w=960",
+            "https://imageproxy.wolt.com/assets/6a02e5bc95fd7fae364fccb1?w=960",
+        ],
+        ["ziggy"] =
+        [
+            "https://imageproxy.wolt.com/assets/699da1e53eb3341f036f3ee9?w=960;fit=crop&w=1200&q=85",
+            "https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf30?w=960;fit=crop&w=1200&q=85",
+            "https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf40?w=960;fit=crop&w=1200&q=85",
+            "https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf39?w=960;fit=crop&w=1200&q=85",
+        ],
+    };
+
+    // Aladdin Sane walks you through the pub, from the street to the back room: at each
+    // stop a photo of the room and what he says about it.
+    var tour = new (string Src, int Width, int Height, string Alt, string Words)[]
+    {
+        ("~/images/rebel-exterior-yugo-night.webp", 941, 1672,
+            "Rebel Rebel in Skopje on a rainy night, with a light-blue Yugo parked outside",
+            "This way. We start outside: Rebel Rebel on a rainy night, and the light-blue Yugo parked by the door."),
+        ("~/images/rebel-bowie-logo-room.webp", 1448, 1086,
+            "The Bowie mural and Rebel Rebel wall inside the Skopje pub",
+            "In you come. That's me on the wall, bolt and all, beside the big Rebel Rebel sign."),
+        ("~/images/rebel-six-beers.webp", 1086, 1448,
+            "Six craft beer cans lined up in front of the black-and-white Rebel Rebel mural",
+            "Then the black-and-white wall, with the cans lined up in front of it."),
+        ("~/images/rebel-beers-bowie-sculpture.webp", 1086, 1448,
+            "The hand-made Bowie head on the bar at Rebel Rebel, beside four craft beer cans",
+            "At the bar, the hand-made Bowie head. He wears my bolt too."),
+        ("~/images/rebel-liquid-cocaine-mural-room.webp", 1447, 1087,
+            "The Liquid Cocaine beer mural and seating inside Rebel Rebel",
+            "And at the back, the Liquid Cocaine wall with the hops climbing it. Pull up a chair."),
+    };
 }
 
 @functions {
@@ -108,7 +147,7 @@
     @* How Rebel works, one part at a time while you scroll, each looked after by one of
        Bowie's characters (the pub is named after his song), standing in front of a real
        photo of that part. Without JS, or with less motion, it is a plain list. *@
-    <section class="rs-chapter rs-changes" id="changes" aria-labelledby="rs-changes-title" data-rs-changes style="--looks: @BowieCast.All.Count;">
+    <section class="rs-chapter rs-changes" id="changes" aria-labelledby="rs-changes-title" data-rs-changes style="--looks: @(BowieCast.All.Count + tour.Length - 1);">
         <div class="rs-changes-stage">
             <header class="rs-changes-head">
                 <h2 id="rs-changes-title" class="rs-changes-title">How Rebel works</h2>
@@ -133,19 +172,66 @@
                         line = "Last orders at 01:00, every night.";
                     }
 
+                    var pictures = carried.GetValueOrDefault(look.Key);
+                    var guides = look.Key == "sane";
+
                     <li class="rs-changes-look rs-changes-look--@look.Key"
                         id="look-@look.Key"
                         style="--look-stage: @look.Stage; --look-hot: @look.Hot;"
-                        data-rs-look>
-                        <div class="rs-changes-back">
-                            <partial name="_Photo" model='new PhotoModel(look.Key, Sizes: "(max-width: 760px) 100vw, 66vw")' />
-                        </div>
+                        data-rs-look
+                        data-rs-stops="@(guides ? tour.Length : 1)">
+                        @if (guides)
+                        {
+                            @* Aladdin Sane's walk: the room's photos hang along the wall and he takes
+                               you from one to the next while you scroll (rebel-site.js). Without the
+                               stage they are a row of photos with what he says under each. *@
+                            <div class="rs-changes-back rs-changes-back--tour">
+                                <div class="rs-tour-wall" data-rs-tour>
+                                    @foreach (var stop in tour)
+                                    {
+                                        <figure class="rs-tour-stop" data-rs-tour-stop>
+                                            <span class="rs-tour-frame">
+                                                <img src="@Url.Content(stop.Src)" width="@stop.Width" height="@stop.Height" style="--ratio: @stop.Width / @stop.Height;" alt="@stop.Alt" loading="lazy" decoding="async" />
+                                            </span>
+                                            <figcaption>@stop.Words</figcaption>
+                                        </figure>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="rs-changes-back">
+                                <partial name="_Photo" model='new PhotoModel(look.Key, Sizes: "(max-width: 760px) 100vw, 66vw")' />
+                            </div>
+                        }
 
                         <div class="rs-changes-art">
                             @* The figure is the painting's own box, so its effects can sit on it:
-                               Aladdin Sane's bolt catches like lightning, the Duke's cigarette smokes. *@
-                            <span class="rs-changes-figure">
-                                <partial name="_Look" model='new LookModel(look.Key)' />
+                               Aladdin Sane's bolt catches like lightning, the Duke's cigarette smokes.
+                               Life on Mars? and Ziggy hold up a picture of the food and the beers, their
+                               fingers curled over the frame, the photos flipping over inside it. *@
+                            <span class="rs-changes-figure@(pictures != null ? " rs-changes-figure--carrier" : "")">
+                                @if (pictures != null)
+                                {
+                                    <span class="rs-carrier-stage rs-carrier-stage--@look.Key" aria-hidden="true">
+                                        <img class="rs-carrier-look" src="@Url.Content($"~/art/looks/{look.Key}.webp")" asp-append-version="true" width="400" height="520" alt="" decoding="async" />
+                                        <span class="rs-carrier-picture">
+                                            <span class="rs-carrier-photos rs-home-rotator">
+                                                @foreach (var picture in pictures)
+                                                {
+                                                    <img src="@picture" alt="" loading="lazy" />
+                                                }
+                                            </span>
+                                            <img class="rs-carrier-hands" src="@Url.Content($"~/art/hands/{look.Key}.webp")" asp-append-version="true" width="1000" height="150" alt="" decoding="async" />
+                                        </span>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <partial name="_Look" model='new LookModel(look.Key)' />
+                                }
+
                                 @if (look.Key == "sane")
                                 {
                                     <span class="rs-fx-bolt" aria-hidden="true"></span>
@@ -167,7 +253,6 @@
                                     "tom" => [new("Book a table", Url.Action("Create", "Reservations")), new("Find my booking", Url.Action("Lookup", "Reservations"))],
                                     "mars" => [new("See the food", Url.Action("Menu", "Home", new { section = "food" }))],
                                     "ziggy" => [new("See the beers", Url.Action("Menu", "Home", new { section = "beer" }))],
-                                    "sane" => [new("See the room", "#the-room")],
                                     "duke" => [new("Get directions", BowieCalls.Directions, External: true)],
                                     "pierrot" => [new("See all events", Url.Action("Index", "Events"))],
                                     _ => [],
@@ -189,6 +274,16 @@
                                     <partial name="_Ego" model='new EgoCall(look.Key, line, replies, "rs-ego--says rs-changes-says")' />
                                 }
 
+                                @if (guides)
+                                {
+                                    <span class="rs-tour-steps" aria-hidden="true">
+                                        @foreach (var stop in tour)
+                                        {
+                                            <i></i>
+                                        }
+                                    </span>
+                                }
+
                                 @if (look.Key == "pierrot" && featuredEvent != null)
                                 {
                                     <a class="rs-changes-order" asp-controller="Events" asp-action="Details" asp-route-id="@featuredEvent.Id">
@@ -202,128 +297,6 @@
                     </li>
                 }
             </ol>
-        </div>
-    </section>
-
-    <section class="rs-chapter rs-chapter--sky rs-torn rs-home-gallery" id="the-room">
-
-        <div class="rs-container">
-            <header class="rs-heading" data-rs-reveal>
-                <div>
-                    <h2 class="rs-display rs-display--lg">The room</h2>
-                </div>
-
-                <p>
-                    The Bowie murals, the Liquid Cocaine wall, the hand-made Bowie
-                    head at the bar and a light-blue Yugo parked outside.
-                </p>
-            </header>
-
-            <div class="rs-home-gallery-grid">
-                <figure class="rs-bw rs-home-gallery-item rs-home-gallery-one" data-rs-reveal>
-                    <img src="~/images/rebel-exterior-yugo-night.webp"
-                         alt="Rebel Rebel in Skopje on a rainy night, with a light-blue Yugo parked outside" />
-                </figure>
-
-                <figure class="rs-bw rs-home-gallery-item rs-home-gallery-two" data-rs-reveal>
-                    <img src="~/images/rebel-bowie-logo-room.webp"
-                         alt="The Bowie mural and Rebel Rebel wall inside the Skopje pub" />
-                </figure>
-
-                <figure class="rs-bw rs-home-gallery-item rs-home-gallery-card" data-rs-reveal>
-                    <img src="~/images/rebel-beers-bowie-sculpture.webp"
-                         alt="The hand-made Bowie head on the bar at Rebel Rebel, beside four craft beer cans" />
-                </figure>
-
-                <figure class="rs-bw rs-home-gallery-item rs-home-gallery-three" data-rs-reveal>
-                    <img src="~/images/rebel-liquid-cocaine-mural-room.webp"
-                         alt="The Liquid Cocaine beer mural and seating inside Rebel Rebel" />
-                </figure>
-            </div>
-        </div>
-    </section>
-
-    <section class="rs-chapter rs-chapter--sky rs-torn rs-home-menu">
-
-        <partial name="_Photo" model='new PhotoModel("station", "rs-home-station", "(max-width: 760px) 90vw, 50vw")' />
-
-        <div class="rs-container">
-            <header class="rs-heading" data-rs-reveal>
-                <div>
-                    <h2 class="rs-display rs-display--lg">Pick your poison.</h2>
-                </div>
-            </header>
-
-            @* The menus, carried by the characters who look after them: each holds up a
-               picture of what is on it, fingers curled over the frame. *@
-            <div class="rs-carriers @(showDrinks ? "rs-carriers--three" : "")">
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="food"
-                   class="rs-carrier rs-carrier--mars"
-                   aria-label="See the food (Life on Mars?)"
-                   style="--ego-stage: @BowieCast.For("mars").Stage; --ego-hot: @BowieCast.For("mars").Hot;"
-                   data-rs-reveal>
-                    <span class="rs-carrier-stage" aria-hidden="true">
-                        <img class="rs-carrier-look" src="~/art/looks/mars.webp" asp-append-version="true" width="400" height="520" alt="" loading="lazy" />
-                        <span class="rs-carrier-picture">
-                            <span class="rs-carrier-photos rs-home-rotator">
-                                <img src="https://imageproxy.wolt.com/assets/6a02e61c938b4b58b5c33754?w=960" alt="" />
-                                <img src="https://imageproxy.wolt.com/assets/6a03117d3f815eb3031bd7ba?w=960" alt="" />
-                                <img src="https://imageproxy.wolt.com/assets/6a02e63b938b4b58b5c33760?w=960" alt="" />
-                                <img src="https://imageproxy.wolt.com/assets/6a02e5bc95fd7fae364fccb1?w=960" alt="" />
-                            </span>
-                            <img class="rs-carrier-hands" src="~/art/hands/mars.webp" asp-append-version="true" width="1000" height="150" alt="" loading="lazy" />
-                        </span>
-                    </span>
-                    <partial name="_Ego" model='new EgoCall("mars", "Food with bad intentions: wings, burgers, pizza and finger food.", [new("See the food")], "rs-carrier-says", Inline: true)' />
-                </a>
-
-                <a asp-controller="Home"
-                   asp-action="Menu"
-                   asp-route-section="beer"
-                   class="rs-carrier rs-carrier--ziggy"
-                   aria-label="See the beers (Ziggy Stardust)"
-                   style="--ego-stage: @BowieCast.For("ziggy").Stage; --ego-hot: @BowieCast.For("ziggy").Hot;"
-                   data-rs-reveal>
-                    <span class="rs-carrier-stage" aria-hidden="true">
-                        <img class="rs-carrier-look" src="~/art/looks/ziggy.webp" asp-append-version="true" width="400" height="520" alt="" loading="lazy" />
-                        <span class="rs-carrier-picture">
-                            <span class="rs-carrier-photos rs-home-rotator">
-                                <img src="https://imageproxy.wolt.com/assets/699da1e53eb3341f036f3ee9?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
-                                <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf30?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
-                                <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf40?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
-                                <img src="https://imageproxy.wolt.com/assets/686e194a9aa298f40fedbf39?w=960;fit=crop&amp;w=1200&amp;q=85" alt="" />
-                            </span>
-                            <img class="rs-carrier-hands" src="~/art/hands/ziggy.webp" asp-append-version="true" width="1000" height="150" alt="" loading="lazy" />
-                        </span>
-                    </span>
-                    <partial name="_Ego" model='new EgoCall("ziggy", "Beer beyond the usual: bottles, draft and rare finds.", [new("See the beers")], "rs-carrier-says", Inline: true)' />
-                </a>
-
-                @if (showDrinks)
-                {
-                    <a asp-controller="Home"
-                       asp-action="Menu"
-                       asp-route-section="drink"
-                       class="rs-carrier rs-carrier--jack"
-                       aria-label="See the drinks (Halloween Jack)"
-                       style="--ego-stage: @BowieCast.For("jack").Stage; --ego-hot: @BowieCast.For("jack").Hot;"
-                       data-rs-reveal>
-                        <span class="rs-carrier-stage" aria-hidden="true">
-                            <img class="rs-carrier-look" src="~/art/looks/jack.webp" asp-append-version="true" width="400" height="520" alt="" loading="lazy" />
-                            <span class="rs-carrier-picture">
-                                <span class="rs-carrier-photos rs-home-rotator">
-                                    <img src="~/images/rebel-liquid-cocaine-mural-room.webp" alt="" />
-                                    <img src="~/images/rebel-exterior-yugo-night.webp" alt="" />
-                                </span>
-                                <img class="rs-carrier-hands" src="~/art/hands/jack.webp" asp-append-version="true" width="1000" height="150" alt="" loading="lazy" />
-                            </span>
-                        </span>
-                        <partial name="_Ego" model='new EgoCall("jack", "Liquid courage: spirits, cocktails and shots, till one.", [new("See the drinks")], "rs-carrier-says", Inline: true)' />
-                    </a>
-                }
-            </div>
         </div>
     </section>
 

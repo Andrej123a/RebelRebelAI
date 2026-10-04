@@ -4,7 +4,8 @@
 // - blocks marked data-rs-drift move at their own speed while scrolling,
 // - headlines rise word by word as they scroll in,
 // - Bowie's looks (Art/Looks) move only while on screen,
-// - the home page's menu carriers flip their photos over the top of the frame,
+// - on the home stage the menus Life on Mars? and Ziggy hold up flip their photos over,
+//   and Aladdin Sane walks you through the pub,
 // - the home page's "How Rebel works" stage, one character at a time while you scroll.
 // The night sky, falling stars and stardust live in rebel-sky.js.
 // Without JS or with reduced motion everything is simply shown.
@@ -226,11 +227,11 @@
         update();
     }
 
-    // ---------- the menus' carriers flip their photos over the top of the frame ----------
+    // ---------- the menus held up on the stage flip their photos over the top ----------
 
     document.querySelectorAll(".rs-carrier-photos").forEach((photos, index) => {
         const shots = Array.from(photos.querySelectorAll("img"));
-        const carrier = photos.closest(".rs-carrier");
+        const carrier = photos.closest("[data-rs-look]");
 
         if (shots.length < 2 || !carrier) {
             return;
@@ -263,13 +264,18 @@
         carrier.addEventListener("pointerenter", flip);
         carrier.addEventListener("focus", flip);
 
-        // While he is on screen, a new photo every few seconds, each on his own beat.
+        // While he is on screen (on the stage: while it is his turn), a new photo every
+        // few seconds, each on his own beat.
         if ("IntersectionObserver" in window) {
             new IntersectionObserver(([entry]) => {
                 window.clearInterval(timer);
 
                 if (entry.isIntersecting) {
-                    timer = window.setInterval(flip, 5200 + index * 900);
+                    timer = window.setInterval(() => {
+                        if (!carrier.closest(".is-staged") || carrier.classList.contains("is-current")) {
+                            flip();
+                        }
+                    }, 5200 + index * 900);
                 }
             }).observe(photos);
         }
@@ -317,6 +323,72 @@
         let current = -1;
         let queued = false;
 
+        // Each look has a stretch of the scroll; Aladdin Sane's tour has one per stop.
+        const weights = slots.map((slot) => Math.max(1, Number(slot.dataset.rsStops) || 1));
+        const total = weights.reduce((sum, weight) => sum + weight, 0);
+        const starts = weights.map((_, i) => weights.slice(0, i).reduce((sum, weight) => sum + weight, 0));
+
+        // Aladdin Sane walks you through the pub: the wall of photos slides past while you
+        // scroll, he walks while it moves, and at each stop he says what it is.
+        const tours = new Map();
+
+        slots.forEach((slot) => {
+            const wall = slot.querySelector("[data-rs-tour]");
+
+            if (!wall) {
+                return;
+            }
+
+            const stops = Array.from(wall.querySelectorAll("[data-rs-tour-stop]"));
+            const line = slot.querySelector(".rs-changes-says .rs-ego-line");
+            const bubble = line?.closest(".rs-ego-bubble");
+            const steps = Array.from(slot.querySelectorAll(".rs-tour-steps i"));
+            const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+            let here = -1;
+            let last = null;
+            let resting = 0;
+
+            const centre = (i) => stops[i].offsetLeft + stops[i].offsetWidth / 2;
+
+            tours.set(slot, (along) => {
+                const span = Math.min(stops.length - 0.0001, Math.max(0, along) * stops.length);
+                const stop = Math.floor(span);
+                // The first part of each stretch is the walk over from the last stop.
+                const walked = stop > 0 ? ease(Math.min(1, (span - stop) / 0.4)) : 1;
+                const at = stop - 1 + walked;
+                const from = Math.max(0, Math.floor(at));
+                const to = Math.min(stops.length - 1, from + 1);
+                const x = centre(from) + (centre(to) - centre(from)) * (at - from);
+                const focus = parseFloat(getComputedStyle(wall).getPropertyValue("--tour-focus")) || 0.5;
+
+                wall.style.transform = `translateX(${(wall.parentElement.clientWidth * focus - x).toFixed(1)}px)`;
+
+                // He walks only while the wall is moving.
+                if (last !== null && Math.abs(at - last) > 0.002) {
+                    slot.classList.add("is-walking");
+                    window.clearTimeout(resting);
+                    resting = window.setTimeout(() => slot.classList.remove("is-walking"), 200);
+                }
+
+                last = at;
+
+                const near = Math.round(at);
+
+                if (near !== here) {
+                    here = near;
+                    stops.forEach((item, i) => item.classList.toggle("is-here", i === near));
+                    steps.forEach((step, i) => step.classList.toggle("is-on", i <= near));
+
+                    if (line) {
+                        line.textContent = stops[near].querySelector("figcaption")?.textContent ?? line.textContent;
+                        bubble?.classList.remove("is-new");
+                        void bubble?.offsetWidth;
+                        bubble?.classList.add("is-new");
+                    }
+                }
+            });
+        });
+
         changes.classList.add("is-staged");
 
         const travel = () => Math.max(1, changes.offsetHeight - window.innerHeight);
@@ -344,7 +416,15 @@
         const update = () => {
             queued = false;
             const progress = Math.min(1, Math.max(0, -changes.getBoundingClientRect().top / travel()));
-            show(Math.min(slots.length - 1, Math.floor(progress * slots.length)));
+            const at = Math.min(total - 0.0001, progress * total);
+            let index = slots.length - 1;
+
+            while (index > 0 && starts[index] > at) {
+                index--;
+            }
+
+            show(index);
+            tours.get(slots[index])?.((at - starts[index]) / weights[index]);
         };
 
         const queue = () => {
@@ -354,9 +434,10 @@
             }
         };
 
-        // A #look-… link goes to the middle of that character's stretch.
+        // A #look-… link goes to the middle of that character's stretch (to the start of a
+        // tour).
         const goTo = (index, behavior) => {
-            const top = changes.getBoundingClientRect().top + window.scrollY + travel() * (index + 0.5) / slots.length;
+            const top = changes.getBoundingClientRect().top + window.scrollY + travel() * (starts[index] + 0.5) / total;
             window.scrollTo({ top, behavior });
         };
 
