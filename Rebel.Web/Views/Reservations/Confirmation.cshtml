@@ -1,5 +1,7 @@
 @{
     ViewData["Title"] = "Reservation Sent";
+
+    string code = ViewBag.ReservationCode ?? string.Empty;
 }
 
 <section class="rs-chapter rs-chapter--sky rs-booking">
@@ -22,6 +24,31 @@
                 </p>
             </div>
         </header>
+
+        @if (!string.IsNullOrWhiteSpace(code))
+        {
+            @* Ground Control radios back: Major Tom flies your code across the screen on a
+               banner behind his tin can. Hold the pointer on it and he waits; click it to copy
+               the code. With less motion it simply hangs here. *@
+            <div class="rs-flyby" data-rs-flyby>
+                <div class="rs-flyby-convoy">
+                    <button type="button" class="rs-flyby-banner" data-rs-copy="@code" aria-label="Copy your reservation code, @code">
+                        <small>Your code</small>
+                        <strong>@code</strong>
+                        <span class="rs-flyby-copy" data-rs-copy-label>Copy</span>
+                    </button>
+                    <span class="rs-flyby-line" aria-hidden="true"></span>
+                    <span class="rs-flyby-ship" aria-hidden="true">
+                        <span class="rs-flyby-craft">
+                            <img class="rs-flight-can" src="~/art/ships/tincan.webp" asp-append-version="true" width="400" height="520" alt="" decoding="async" />
+                            <span class="rs-flight-hatch">
+                                <img class="rs-flight-tom" src="~/art/looks/tom.webp" asp-append-version="true" width="400" height="520" alt="" decoding="async" />
+                            </span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+        }
 
         <div class="rs-confirm-grid">
             <div class="rs-confirm-ticket rs-ticket">
@@ -84,24 +111,13 @@
 @section Scripts {
     <script>
         (() => {
-            const button = document.getElementById("copyReservationCode");
-
-            if (!button) {
-                return;
-            }
-
-            // Major Tom answers in his bubble.
-            const label = button.querySelector("[data-ego-act]") ?? button;
-
-            button.addEventListener("click", async () => {
-                const code = button.dataset.code ?? "";
-
+            // Copy the code: from the banner Major Tom flies across, or from the ticket.
+            const copy = async (code, label, back) => {
                 try {
                     await navigator.clipboard.writeText(code);
                     label.textContent = "Copied";
                 } catch {
-                    const codeElement =
-                        document.getElementById("reservationCodeValue");
+                    const codeElement = document.getElementById("reservationCodeValue");
 
                     if (codeElement) {
                         const range = document.createRange();
@@ -115,9 +131,23 @@
                 }
 
                 window.setTimeout(() => {
-                    label.textContent = "Copy the code";
+                    label.textContent = back;
                 }, 1800);
+            };
+
+            const banner = document.querySelector("[data-rs-copy]");
+
+            banner?.addEventListener("click", () => {
+                banner.classList.add("is-copied");
+                copy(banner.dataset.rsCopy ?? "", banner.querySelector("[data-rs-copy-label]") ?? banner, "Copy")
+                    .then(() => window.setTimeout(() => banner.classList.remove("is-copied"), 1800));
             });
+
+            // Major Tom answers in his bubble.
+            const button = document.getElementById("copyReservationCode");
+            const label = button?.querySelector("[data-ego-act]") ?? button;
+
+            button?.addEventListener("click", () => copy(button.dataset.code ?? "", label, "Copy the code"));
         })();
     </script>
 }

@@ -2962,10 +2962,6 @@ html.rs-open-lock body {
     display: inline;
 }
 
-.rs-talk-step.is-big .rs-talk-skip {
-    display: none;
-}
-
 .rs-talk-dots {
     display: none;
 }
@@ -2978,17 +2974,8 @@ html.rs-open-lock body {
     padding-left: 60px;
 }
 
-.rs-talk-picks,
-.rs-talk-send,
-.rs-talk-skip,
-.rs-talk-another {
+.rs-talk-send {
     display: none;
-}
-
-.rs-talk-picks {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
 }
 
 .rs-talk .rs-chip {
@@ -3001,27 +2988,6 @@ html.rs-open-lock body {
     .rs-talk .rs-chip:hover,
     .rs-talk .rs-chip:focus-visible {
         --face: rgba(255, 241, 220, 0.2);
-    }
-
-    .rs-talk .rs-chip.is-picked {
-        --face: var(--z-gold);
-        --face-ink: var(--z-ink);
-    }
-
-    .rs-talk .rs-chip:disabled {
-        cursor: not-allowed;
-        opacity: 0.28;
-    }
-
-.rs-talk-other {
-    display: grid;
-    justify-items: end;
-    gap: 10px;
-    width: min(100%, 340px);
-}
-
-    .rs-talk-other .rs-field {
-        width: 100%;
     }
 
 .rs-talk-type {
@@ -3057,11 +3023,9 @@ html.rs-open-lock body {
             box-shadow: 0 0 0 3px rgba(154, 211, 240, 0.35);
         }
 
-.rs-talk-replies {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
+/* A night, a time, a number: a short field. */
+.rs-talk-type--short {
+    width: min(100%, 300px);
 }
 
 .rs-talk-error {
@@ -3106,6 +3070,12 @@ html.rs-open-lock body {
         text-decoration: underline;
     }
 
+/* What he already knows (an event's night) is in the log for good. */
+.rs-talk-you.is-fixed {
+    display: inline-flex;
+    cursor: default;
+}
+
 /* Your last answer sends it up. */
 .rs-talk .rs-talk-launch,
 .rs-talk .rs-talk-launch:hover,
@@ -3138,26 +3108,13 @@ html.rs-open-lock body {
     display: inline-flex;
 }
 
-.is-talking .rs-talk-picks {
-    display: flex;
-}
-
-.is-talking .rs-talk-picks--times {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
-    width: 100%;
-}
-
-.is-talking :is(.rs-talk-send, .rs-talk-skip, .rs-talk-another) {
+.is-talking .rs-talk-send {
     display: inline-flex;
 }
 
-.is-talking .rs-talk-other {
+/* The note, only asked of a crew of 13 or more. */
+.is-talking .rs-talk-step.is-skipped {
     display: none;
-}
-
-.is-talking .is-other .rs-talk-other {
-    display: grid;
 }
 
 /* The answered questions step back a little, so the one he is asking stands out. */
@@ -7065,5 +7022,235 @@ a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-act {
     from {
         opacity: 0.35;
         scale: 0.95;
+    }
+}
+
+/* =========================================================
+   15. THE CODE, FLOWN ACROSS THE SCREEN
+   When a booking is sent, Ground Control radios back: Major
+   Tom's tin can crosses the screen towing a banner with the
+   code, slows down in the middle, waits while you hold the
+   pointer on it, and flies off. Click the banner to copy the
+   code (Views/Reservations/Confirmation.cshtml); it is in the
+   ticket below as well. With less motion it hangs in the
+   page instead.
+   ========================================================= */
+
+.rs-flyby {
+    display: flex;
+    justify-content: center;
+    margin-bottom: clamp(28px, 4vw, 48px);
+    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.5));
+}
+
+.rs-flyby-convoy {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    max-width: 100%;
+}
+
+/* The banner: a strip of cream paper, notched at the tail, the code in typewriter. */
+.rs-flyby-banner {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(10px, 1.6vw, 20px);
+    padding: 14px clamp(16px, 2vw, 26px) 14px clamp(30px, 3vw, 42px);
+    border: 0;
+    background: var(--z-cream);
+    color: var(--z-ink);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 18px 50%);
+    font-family: var(--rs-mono);
+    text-align: left;
+    cursor: pointer;
+    transform-origin: right center;
+}
+
+    .rs-flyby-banner small {
+        color: rgba(26, 15, 13, 0.6);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+
+    .rs-flyby-banner strong {
+        font-size: clamp(18px, 2.4vw, 32px);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+    }
+
+.rs-flyby-copy {
+    display: none;
+    padding: 7px 10px 6px;
+    background: var(--z-gold);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease;
+}
+
+.rs-js .rs-flyby-copy {
+    display: inline-block;
+}
+
+.rs-flyby-banner:is(:hover, :focus-visible) .rs-flyby-copy {
+    background: #ffe08a;
+}
+
+.rs-flyby-banner.is-copied .rs-flyby-copy {
+    background: #5cd68a;
+}
+
+.rs-flyby-banner:focus-visible {
+    outline: 3px solid var(--z-blue);
+    outline-offset: 4px;
+}
+
+/* The tow line. */
+.rs-flyby-line {
+    flex: none;
+    width: clamp(30px, 5vw, 80px);
+    height: 2px;
+    background: repeating-linear-gradient(90deg, rgba(255, 241, 220, 0.85) 0 6px, transparent 6px 10px);
+}
+
+/* The tin can on its side, nose first, a flame at its heat shield. */
+.rs-flyby-ship {
+    position: relative;
+    flex: none;
+    width: clamp(130px, 15vw, 220px);
+    aspect-ratio: 520 / 400;
+}
+
+    .rs-flyby-ship::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 92%;
+        width: 46%;
+        height: 44%;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at 100% 50%, #fff6e0 0, #ffd86a 18%, #ff7a2e 42%, rgba(226, 64, 26, 0.35) 66%, transparent 72%);
+        translate: 0 -50%;
+        filter: blur(1px);
+    }
+
+.rs-flyby-craft {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 76.92%;
+    aspect-ratio: 400 / 520;
+    translate: -50% -50%;
+    rotate: 90deg;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    /* It flies through the whole screen, over everything, and takes its time in the
+       middle. */
+    .rs-flyby {
+        position: fixed;
+        top: 24vh;
+        left: 0;
+        z-index: 1300;
+        display: block;
+        width: 100%;
+        margin: 0;
+        overflow: hidden;
+        padding-block: 30px;
+        pointer-events: none;
+    }
+
+    .rs-flyby-convoy {
+        max-width: none;
+        pointer-events: auto;
+        animation: rs-flyby 15s linear 0.8s both;
+    }
+
+        /* He waits while the pointer is on him, or a keyboard is (not after a click, so
+           once you have copied the code he flies on). */
+        .rs-flyby-convoy:is(:hover, :has(:focus-visible)) {
+            animation-play-state: paused;
+        }
+
+    .rs-flyby-banner {
+        animation: rs-flyby-wave 1.7s ease-in-out infinite;
+    }
+
+    .rs-flyby-ship {
+        animation: rs-flyby-bob 3.2s ease-in-out infinite;
+    }
+
+        .rs-flyby-ship::before {
+            animation: rs-flyby-flame 0.18s steps(2) infinite;
+        }
+}
+
+@keyframes rs-flyby {
+    0% {
+        translate: -100% 0;
+        animation-timing-function: cubic-bezier(0.15, 0.7, 0.3, 1);
+    }
+
+    30% {
+        translate: calc(50vw - 50%) 0;
+    }
+
+    74% {
+        translate: calc(50vw - 50%) 0;
+        animation-timing-function: cubic-bezier(0.6, 0, 0.85, 0.3);
+    }
+
+    100% {
+        translate: 100vw 0;
+    }
+}
+
+@keyframes rs-flyby-wave {
+    50% {
+        transform: skewY(-2deg) translateY(2px);
+    }
+}
+
+@keyframes rs-flyby-bob {
+    50% {
+        translate: 0 -6px;
+        rotate: -2deg;
+    }
+}
+
+@keyframes rs-flyby-flame {
+    50% {
+        opacity: 0.7;
+        scale: 0.86 0.92;
+    }
+}
+
+/* On a phone the convoy fits the screen: a shorter banner, a smaller can. */
+@media (max-width: 575.98px) {
+    .rs-flyby-banner {
+        gap: 10px;
+        padding: 12px 14px 12px 28px;
+    }
+
+        .rs-flyby-banner small {
+            display: none;
+        }
+
+        .rs-flyby-banner strong {
+            font-size: 16px;
+            letter-spacing: 0.04em;
+        }
+
+    .rs-flyby-line {
+        width: 18px;
+    }
+
+    .rs-flyby-ship {
+        width: 96px;
     }
 }
