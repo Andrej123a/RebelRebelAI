@@ -7,11 +7,6 @@
 <section class="rs-chapter rs-chapter--sky rs-booking">
     <span class="rs-stars rs-booking-stars"></span>
 
-    @* Major Tom, drifting past the tracking station. *@
-    <span class="rs-booking-helmet" aria-hidden="true" data-rs-drift="-0.16">
-        <partial name="_Look" model='new LookModel("tom")' />
-    </span>
-
     <div class="rs-container rs-booking-inner">
         <header class="rs-confirm-head">
             <div>
@@ -27,16 +22,15 @@
 
         @if (!string.IsNullOrWhiteSpace(code))
         {
-            @* Ground Control radios back: Major Tom flies your code across the screen on a
-               banner behind his tin can. Hold the pointer on it and he waits; click it to copy
-               the code. With less motion it simply hangs here. *@
+            @* Ground Control radios back: Major Tom's tin can keeps flying across the screen
+               with your code on a banner waving behind it (hold the pointer on it and he waits;
+               click it to copy). With less motion it hangs here. *@
             <div class="rs-flyby" data-rs-flyby>
                 <div class="rs-flyby-convoy">
-                    <button type="button" class="rs-flyby-banner" data-rs-copy="@code" aria-label="Copy your reservation code, @code">
+                    <p class="rs-flyby-banner" data-rs-copy="@code" title="Click to copy">
                         <small>Your code</small>
                         <strong>@code</strong>
-                        <span class="rs-flyby-copy" data-rs-copy-label>Copy</span>
-                    </button>
+                    </p>
                     <span class="rs-flyby-line" aria-hidden="true"></span>
                     <span class="rs-flyby-ship" aria-hidden="true">
                         <span class="rs-flyby-craft">
@@ -51,11 +45,10 @@
         }
 
         <div class="rs-confirm-grid">
-            <div class="rs-confirm-ticket rs-ticket">
-                <span class="rs-label">Reservation code</span>
-                <strong id="reservationCodeValue">@ViewBag.ReservationCode</strong>
-                <partial name="_Ego" model='new EgoCall("tom", "", [new("Copy the code")], "rs-ego--small", Button: "button", Attributes: new Dictionary<string, string> { ["id"] = "copyReservationCode", ["data-code"] = (string)ViewBag.ReservationCode })' />
-                <p>No account needed. This code is enough to find or cancel your reservation.</p>
+            @* You cannot chase a spaceship: Major Tom copies the code for you. *@
+            <div class="rs-confirm-copy">
+                <partial name="_Ego" model='new EgoCall("tom", "That\u2019s your code flying behind me. Can\u2019t catch it? I\u2019ll copy it for you.", [new("Copy the code")], "rs-ego--big", Button: "button", Attributes: new Dictionary<string, string> { ["id"] = "copyReservationCode", ["data-code"] = code })' />
+                <p>No account needed: this code is enough to find or cancel your reservation.</p>
             </div>
 
             <div class="rs-console rs-confirm-details">
@@ -111,43 +104,50 @@
 @section Scripts {
     <script>
         (() => {
-            // Copy the code: from the banner Major Tom flies across, or from the ticket.
-            const copy = async (code, label, back) => {
+            // Major Tom copies the code: from his button, or from the banner if you catch it.
+            const button = document.getElementById("copyReservationCode");
+            const label = button?.querySelector("[data-ego-act]") ?? button;
+            const banner = document.querySelector("[data-rs-copy]");
+            const code = button?.dataset.code ?? banner?.dataset.rsCopy ?? "";
+            let resting = 0;
+
+            const copy = async () => {
+                let words = "Copied";
+
                 try {
                     await navigator.clipboard.writeText(code);
-                    label.textContent = "Copied";
                 } catch {
-                    const codeElement = document.getElementById("reservationCodeValue");
+                    // No clipboard: select the code on the banner instead.
+                    const strong = banner?.querySelector("strong");
 
-                    if (codeElement) {
+                    if (strong) {
                         const range = document.createRange();
-                        range.selectNodeContents(codeElement);
+                        range.selectNodeContents(strong);
                         const selection = window.getSelection();
                         selection?.removeAllRanges();
                         selection?.addRange(range);
                     }
 
-                    label.textContent = "Selected";
+                    words = "Selected";
                 }
 
-                window.setTimeout(() => {
-                    label.textContent = back;
+                if (label) {
+                    label.textContent = words;
+                }
+
+                banner?.classList.add("is-copied");
+                window.clearTimeout(resting);
+                resting = window.setTimeout(() => {
+                    if (label) {
+                        label.textContent = "Copy the code";
+                    }
+
+                    banner?.classList.remove("is-copied");
                 }, 1800);
             };
 
-            const banner = document.querySelector("[data-rs-copy]");
-
-            banner?.addEventListener("click", () => {
-                banner.classList.add("is-copied");
-                copy(banner.dataset.rsCopy ?? "", banner.querySelector("[data-rs-copy-label]") ?? banner, "Copy")
-                    .then(() => window.setTimeout(() => banner.classList.remove("is-copied"), 1800));
-            });
-
-            // Major Tom answers in his bubble.
-            const button = document.getElementById("copyReservationCode");
-            const label = button?.querySelector("[data-ego-act]") ?? button;
-
-            button?.addEventListener("click", () => copy(button.dataset.code ?? "", label, "Copy the code"));
+            button?.addEventListener("click", copy);
+            banner?.addEventListener("click", copy);
         })();
     </script>
 }

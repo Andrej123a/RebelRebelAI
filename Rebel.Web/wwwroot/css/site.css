@@ -3407,30 +3407,18 @@ html.rs-open-lock body {
     gap: clamp(28px, 3vw, 44px);
 }
 
-.rs-confirm-ticket {
+/* Major Tom copies the code for you, since you cannot chase his tin can. */
+.rs-confirm-copy {
     display: grid;
     align-content: start;
     justify-items: start;
-    gap: 14px;
-    padding: clamp(26px, 3vw, 40px) clamp(34px, 4vw, 52px);
-    transform: rotate(-1.5deg);
+    gap: 18px;
 }
 
-    .rs-confirm-ticket .rs-label {
-        color: var(--z-red);
-    }
-
-    .rs-confirm-ticket strong {
-        font-family: var(--rs-mono);
-        font-size: clamp(38px, 4.6vw, 70px);
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        line-height: 1;
-    }
-
-    .rs-confirm-ticket p {
+    .rs-confirm-copy p {
         max-width: 40ch;
         margin: 0;
+        color: rgba(255, 241, 220, 0.8);
         font-weight: 600;
     }
 
@@ -7028,87 +7016,64 @@ a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-act {
 /* =========================================================
    15. THE CODE, FLOWN ACROSS THE SCREEN
    When a booking is sent, Ground Control radios back: Major
-   Tom's tin can crosses the screen towing a banner with the
-   code, slows down in the middle, waits while you hold the
-   pointer on it, and flies off. Click the banner to copy the
-   code (Views/Reservations/Confirmation.cshtml); it is in the
-   ticket below as well. With less motion it hangs in the
-   page instead.
+   Tom's tin can keeps flying across a band of the page with
+   the reservation code on a banner waving behind it. It is
+   the only place the code is shown. Hold the pointer on it
+   and he waits; a click on the banner copies the code, and
+   so does his button below, which stays put (you cannot
+   chase a spaceship). With less motion it hangs in the band.
    ========================================================= */
 
 .rs-flyby {
-    display: flex;
-    justify-content: center;
-    margin-bottom: clamp(28px, 4vw, 48px);
-    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.5));
+    position: relative;
+    width: 100vw;
+    margin: clamp(-24px, -2vw, -8px) calc(50% - 50vw) clamp(16px, 2.4vw, 32px);
+    padding-block: 18px;
+    overflow: hidden;
 }
 
 .rs-flyby-convoy {
     display: flex;
     align-items: center;
     width: max-content;
-    max-width: 100%;
+    margin-inline: auto;
+    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.5));
 }
 
 /* The banner: a strip of cream paper, notched at the tail, the code in typewriter. */
 .rs-flyby-banner {
-    position: relative;
     display: inline-flex;
     align-items: center;
-    gap: clamp(10px, 1.6vw, 20px);
-    padding: 14px clamp(16px, 2vw, 26px) 14px clamp(30px, 3vw, 42px);
-    border: 0;
+    gap: clamp(12px, 1.6vw, 22px);
+    margin: 0;
+    padding: 16px clamp(18px, 2.2vw, 30px) 16px clamp(32px, 3.2vw, 46px);
     background: var(--z-cream);
     color: var(--z-ink);
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 18px 50%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 20px 50%);
     font-family: var(--rs-mono);
-    text-align: left;
-    cursor: pointer;
+    cursor: copy;
     transform-origin: right center;
+    transition: background-color 0.25s ease;
 }
 
     .rs-flyby-banner small {
         color: rgba(26, 15, 13, 0.6);
-        font-size: 10px;
+        font-size: 11px;
         font-weight: 700;
         letter-spacing: 0.16em;
         text-transform: uppercase;
     }
 
     .rs-flyby-banner strong {
-        font-size: clamp(18px, 2.4vw, 32px);
+        font-size: clamp(22px, 3vw, 40px);
         font-weight: 700;
         letter-spacing: 0.08em;
         white-space: nowrap;
     }
 
-.rs-flyby-copy {
-    display: none;
-    padding: 7px 10px 6px;
-    background: var(--z-gold);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    transition: background-color 0.2s ease;
-}
-
-.rs-js .rs-flyby-copy {
-    display: inline-block;
-}
-
-.rs-flyby-banner:is(:hover, :focus-visible) .rs-flyby-copy {
-    background: #ffe08a;
-}
-
-.rs-flyby-banner.is-copied .rs-flyby-copy {
-    background: #5cd68a;
-}
-
-.rs-flyby-banner:focus-visible {
-    outline: 3px solid var(--z-blue);
-    outline-offset: 4px;
-}
+    .rs-flyby-banner.is-copied {
+        background: #c9f2d6;
+    }
 
 /* The tow line. */
 .rs-flyby-line {
@@ -7149,36 +7114,25 @@ a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-act {
     rotate: 90deg;
 }
 
+.rs-confirm-copy .rs-ego {
+    cursor: copy;
+}
+
 @media (prefers-reduced-motion: no-preference) {
-    /* It flies through the whole screen, over everything, and takes its time in the
-       middle. */
-    .rs-flyby {
-        position: fixed;
-        top: 24vh;
-        left: 0;
-        z-index: 1300;
-        display: block;
-        width: 100%;
-        margin: 0;
-        overflow: hidden;
-        padding-block: 30px;
-        pointer-events: none;
-    }
-
+    /* Round and round: in at the left, out at the right, and in again; already on its
+       way when the page opens. */
     .rs-flyby-convoy {
-        max-width: none;
-        pointer-events: auto;
-        animation: rs-flyby 15s linear 0.8s both;
+        margin: 0;
+        animation: rs-flyby 19s linear -7s infinite;
     }
 
-        /* He waits while the pointer is on him, or a keyboard is (not after a click, so
-           once you have copied the code he flies on). */
-        .rs-flyby-convoy:is(:hover, :has(:focus-visible)) {
+        .rs-flyby-convoy:hover {
             animation-play-state: paused;
         }
 
+    /* The banner flaps behind the line like a flag. */
     .rs-flyby-banner {
-        animation: rs-flyby-wave 1.7s ease-in-out infinite;
+        animation: rs-flyby-flag 1.5s ease-in-out infinite;
     }
 
     .rs-flyby-ship {
@@ -7191,28 +7145,22 @@ a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-act {
 }
 
 @keyframes rs-flyby {
-    0% {
+    from {
         translate: -100% 0;
-        animation-timing-function: cubic-bezier(0.15, 0.7, 0.3, 1);
     }
 
-    30% {
-        translate: calc(50vw - 50%) 0;
-    }
-
-    74% {
-        translate: calc(50vw - 50%) 0;
-        animation-timing-function: cubic-bezier(0.6, 0, 0.85, 0.3);
-    }
-
-    100% {
+    to {
         translate: 100vw 0;
     }
 }
 
-@keyframes rs-flyby-wave {
+@keyframes rs-flyby-flag {
+    0%, 100% {
+        transform: rotate(-1.5deg) skewY(2deg);
+    }
+
     50% {
-        transform: skewY(-2deg) translateY(2px);
+        transform: rotate(2deg) skewY(-3deg) translateY(5px);
     }
 }
 
@@ -7242,7 +7190,7 @@ a:is(:hover, :focus-visible) .rs-ego--inline .rs-ego-act {
         }
 
         .rs-flyby-banner strong {
-            font-size: 16px;
+            font-size: 18px;
             letter-spacing: 0.04em;
         }
 
